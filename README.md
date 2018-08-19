@@ -3,7 +3,7 @@ workshow
 
 Own personal website
 
-[DEMO](http://han.im)
+[DEMO](https://zhuangliu.info/main-portal)
 
 
 
@@ -12,3 +12,4 @@ Own personal website
 * [jQueryRotateCompressed.2.1.js](http://code.google.com/p/jqueryrotate/)
 * [jquery.scrollTo.min.js](https://github.com/flesler/jquery.scrollTo)
 * [StackBlur.js](http://www.quasimondo.com/StackBlurForCanvas/StackBlurDemo.html)
+
