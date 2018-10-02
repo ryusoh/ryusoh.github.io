@@ -3,7 +3,7 @@ workshow
 
 Own personal website
 
-[DEMO](https://zhuangliu.info/main-portal)
+[DEMO](http://im.zhuangliu.info)
 
 
 
