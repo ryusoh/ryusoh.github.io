@@ -230,12 +230,12 @@ footer {
 
 @media screen and (min-width: 450px) {
     body {
-        background: #222 url(https://ws2.sinaimg.cn/large/006tNbRwgy1fufen0d3gqj31780u0dm2.jpg) center center no-repeat;
+        background: #222 url(http://ww2.sinaimg.cn/large/006tNc79ly1g5iu5kta8uj313a0u0n70.jpg) center center no-repeat;
         background-size: cover;
     }
 
     #mimida {
-        background: url(https://ws2.sinaimg.cn/large/006tNbRwgy1fufen0d3gqj31780u0dm2.jpg) center center no-repeat;
+        background: url(http://ww2.sinaimg.cn/large/006tNc79ly1g5iu5kta8uj313a0u0n70.jpg) center center no-repeat;
         background-size: cover;
     }
 
