@@ -219,6 +219,11 @@ footer {
         background: #111;
     }
 
+    #mimida {
+        background: url(https://tva1.sinaimg.cn/large/e6c9d24egy1h0n8f0b6fzj20ms17xdsd.jpg) center center no-repeat;
+        background-size: cover;
+    }
+
     #cont {
         left: 0;
         right: 0;
