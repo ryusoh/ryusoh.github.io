@@ -186,6 +186,7 @@ canvas {
     padding-right: 10px;
     font-weight: 200;
     max-width: 140px;
+    float:left;
 }
 
 
