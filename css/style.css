@@ -166,9 +166,9 @@ canvas {
 
 #nav dd a {
     display: inline-block;
+    margin-left: 5px;
     border-radius: 2px;
     padding: 1px 4px 2px 4px;
-    left: 100px;
     background: rgba(0,0,0, 0.3);
     /*border-bottom: none;*/
     font-family: Helvetica, "Segoe UI", Arial, freesans, sans-serif;
@@ -185,6 +185,7 @@ canvas {
     color: #aaa;
     padding-right: 10px;
     font-weight: 200;
+    max-width: 140px;
 }
 
 
