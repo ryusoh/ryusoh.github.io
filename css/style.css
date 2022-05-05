@@ -150,7 +150,7 @@ canvas {
 }
 
 #nav {
-    padding-top: 30px;
+    padding-top: 18px;
 }
 
 #nav dt {
@@ -184,7 +184,7 @@ canvas {
 #nav dd span {
     color: #aaa;
     padding-right: 10px;
-    font-weight: bold;
+    font-weight: 100;
 }
 
 
