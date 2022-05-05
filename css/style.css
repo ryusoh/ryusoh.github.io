@@ -22,9 +22,6 @@ ol, ul {
     list-style: none;
 }
 
-dl {
-    display: table;
-}
 
 @font-face {
     font-family: 'P22UndergroundProThin';
@@ -153,6 +150,7 @@ canvas {
 
 #nav {
     padding-top: 18px;
+    display: table;
 }
 
 #nav dt {
