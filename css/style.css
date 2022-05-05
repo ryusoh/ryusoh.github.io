@@ -22,7 +22,9 @@ ol, ul {
     list-style: none;
 }
 
-
+dl {
+    display: table;
+}
 
 @font-face {
     font-family: 'P22UndergroundProThin';
@@ -185,8 +187,6 @@ canvas {
     color: #aaa;
     padding-right: 10px;
     font-weight: 200;
-    max-width: 140px;
-    float:left;
 }
 
 
