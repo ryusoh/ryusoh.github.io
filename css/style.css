@@ -13,7 +13,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 
 img {
-    display: flex;
+    vertical-align: baseline;
 }
 
 html,
