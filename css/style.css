@@ -12,6 +12,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
     display: block;
 }
 
+img {
+    display: flex;
+}
+
 html,
 body {
     height: 100%;
