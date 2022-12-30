@@ -223,7 +223,7 @@ footer {
     }
 
     #mimida {
-        background: url(https://tva1.sinaimg.cn/large/e6c9d24egy1h3x7z846fkj20u0190wtc.jpg) center center no-repeat;
+        background: url(https://cdn.jsdelivr.net/gh/ryusoh/imagehost@master/DSCF6494.jpg) center center no-repeat;
         background-size: cover;
     }
 
@@ -238,12 +238,12 @@ footer {
 
 @media screen and (min-width: 450px) {
     body {
-        background: #222 url(https://tva1.sinaimg.cn/large/e6c9d24egy1h3x7z1n9cxj21900u046k.jpg) center center no-repeat;
+        background: #222 url(https://cdn.jsdelivr.net/gh/ryusoh/imagehost@master/DSCF5759-2.jpg) center center no-repeat;
         background-size: cover;
     }
 
     #mimida {
-        background: url(https://tva1.sinaimg.cn/large/e6c9d24egy1h3x7z1n9cxj21900u046k.jpg) center center no-repeat;
+        background: url(https://cdn.jsdelivr.net/gh/ryusoh/imagehost@master/DSCF5759-2.jpg) center center no-repeat;
         background-size: cover;
     }
 
