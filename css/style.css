@@ -68,18 +68,6 @@ canvas {
     height: 100%;
 }
 
-#container {
-/*    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 35%;
-    background: #000;
-    z-index: 2;
-    opacity: .75;*/
-}
-
 #cont {
     position: absolute;
     z-index: 3;
@@ -90,6 +78,7 @@ canvas {
     overflow-y: auto;
     font-family: 'P22UndergroundProThin', "PingFang SC Light", "PingFang SC", "Lantinghei SC Light", "Microsoft Yahei", "Hiragino Sans GB", "Helvetica Neue", Helvetica, Arial;
     text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    opacity: .8;
 }
 
 #main {
@@ -238,12 +227,12 @@ footer {
 
 @media screen and (min-width: 450px) {
     body {
-        background: #222 url(https://cdn.jsdelivr.net/gh/ryusoh/imagehost@master/DSCF5150-4.jpg) center center no-repeat;
+        background: #222 url(https://cdn.jsdelivr.net/gh/ryusoh/imagehost@master/DSCF2441-3.jpg) center center no-repeat;
         background-size: cover;
     }
 
     #mimida {
-        background: url(https://cdn.jsdelivr.net/gh/ryusoh/imagehost@master/DSCF5150-4.jpg) center center no-repeat;
+        background: url(https://cdn.jsdelivr.net/gh/ryusoh/imagehost@master/DSCF2441-3.jpg) center center no-repeat;
         background-size: cover;
     }
 
