@@ -7,7 +7,6 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     vertical-align: baseline;
 }
 
-/*// HTML5 display-role reset for older browsers*/
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
     display: block;
 }
@@ -44,24 +43,11 @@ body {
     font: 13px/1.4 "PingFang SC Light", "PingFang SC", "Lantinghei SC Light", "Microsoft Yahei", "Hiragino Sans GB", "Helvetica Neue", Helvetica, Arial;
 }
 
-/*a {
-    border-bottom: 1px solid #eee;
-}*/
-
-/*a:hover {
-    border-bottom: 1px solid transparent;
-}*/
-
 canvas {
     line-height: 0;
 }
 
 #mimida {
-    /*-webkit-transform: translate3d(-50% -50% 0);
-    transform: translate3d(-50%, -50%, 0);
-    top: 50%;
-    left: 50%;*/
-    /*transform: rotateY(180deg);*/
     position: fixed;
     z-index: 1;
     width: 100%;
@@ -82,18 +68,15 @@ canvas {
 }
 
 #main {
-    /*width: 260px;*/
     padding: 20px 20px 30px 20px;
+    max-width: 320px;
     margin: 0 auto;
-    /*background: rgba(0, 0, 0, 0.1);*/
 }
 
 #main h1 {
     position: relative;
-    /*text-transform: uppercase;*/
     font-size: 50px;
     line-height: 1;
-    /*line-height: 1.2;*/
 }
 
 #main h1 img,
@@ -107,22 +90,6 @@ canvas {
     width: 50px;
     height: 50px;
 }
-/*
-#main h1::after {
-    content: '';
-    position: absolute;
-    box-sizing: border-box;
-    width: 50px;
-    height: 50px;
-    top: 0;
-    left: 0;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;
-    border: 2px solid #222;
-    -webkit-box-shadow: 0 0 3px 3px #EDE03D inset;
-    box-shadow: 0 0 3px 3px #EDE03D inset;
-}*/
-
 
 #main h3 {
     padding-top: 20px;
@@ -138,7 +105,6 @@ canvas {
 #main a {
     color: #607d8b;
     text-decoration: none;
-    /*border-bottom: 1px solid #fff;*/
 }
 
 #nav {
@@ -150,20 +116,23 @@ canvas {
 }
 
 #nav dd {
+    display: grid;         /* Use CSS Grid for a two-column layout */
+    grid-template-columns: 150px auto;
+    column-gap: 10px;      /* Space between the label column and the link column */
+    align-items: baseline; /* Aligns the text baselines of the span and a, which is usually best for text */
     padding-top: 10px;
     font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
     font-weight: 100;
     letter-spacing: 1px;
 }
 
-#nav dd a {
+#nav dd > a {
     display: inline-block;
-    margin-left: 5px;
     border-radius: 2px;
     padding: 1px 4px 2px 4px;
     background: rgba(0,0,0, 0.3);
-    /*border-bottom: none;*/
-    font-family: Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+    font-family: 'P22UndergroundProThin';
+    color: lightcyan;
     font-weight: 150;
     letter-spacing: 1px;
 }
@@ -173,9 +142,10 @@ canvas {
     color: #333;
 }
 
-#nav dd span {
+
+#nav dd > span { /* The label part, e.g., "Portfolio ➢ Color" */
+    display: inline-block;
     color: #aaa;
-    padding-right: 10px;
     font-weight: 200;
 }
 
@@ -202,10 +172,6 @@ footer {
 }
 
 @media screen and (min-width: 0px) {
-    /*#main {
-        width: 300px;
-        margin: 0 20px;
-    }*/
     body {
         overflow-y: auto;
         background: #111;
