@@ -5,12 +5,12 @@
     if (obj == null) return obj;
     if (obj.length === +obj.length) {
         for (var i = 0, length = obj.length; i < length; i++) {
-            if (iterator.call(context, obj[i], i, obj) === {}) return;
+            if (iterator.call(context, obj[i], i, obj) === false) return; // Allow early exit if iterator returns false
         }
     } else {
         var keys = _.keys(obj);
         for (var i = 0, length = keys.length; i < length; i++) {
-            if (iterator.call(context, obj[keys[i]], keys[i], obj) === {}) return;
+            if (iterator.call(context, obj[keys[i]], keys[i], obj) === false) return; // Allow early exit if iterator returns false
         }
     }
     return obj;
@@ -33,7 +33,7 @@
   };
 
   _.has = function(obj, key) {
-    return hasOwnProperty.call(obj, key);
+    return Object.prototype.hasOwnProperty.call(obj, key);
   };
 
   var nativeKeys = Object.keys;
@@ -51,9 +51,9 @@
     escape: {
       '&': '&amp;',
       '<': '&lt;',
-      '>': '&gt;', // IE < 9 does not support &apos;
-      '"': '&quot;', // IE < 9 does not support &apos;
-      "'": '&#x27;'
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;' // &apos; is not supported in IE < 9
     }
   };
 
