@@ -15,6 +15,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon-precomposed" href="img/avatar_152x152.png" sizes="152x152">
 <link href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<!-- Google Fonts - Example: Lobster -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 
 <!-- The Open Graph protocol -->
 <meta property="og:url" content="http://ryusoh.github.io">
@@ -42,17 +46,19 @@
     <div id="cont">
         <div id="main">
             <h1><span>Zhuang Liu</span></h1>
-			<p id="email">SF⇌SJ Street Photographer / <a href="https://instagram.com/lyeutsaon" target="_blank"><i class="fa fa-instagram" style="color:#aaa;" aria-hidden="true"></i></a> / <a href="https://instagram.com/lyeutsaon.misc" target="_blank"><i class="fa fa-instagram" style="color:#aaa;" aria-hidden="true"></i></a> / <a href="mailto:info@lyeutsaon.com" target="_blank"><i class="fa fa-envelope-o" style="color:#aaa;" aria-hidden="true"></i></a> / <a href="https://www.linkedin.com/in/zhuangliudev/" target="_blank"><i class="fa fa-linkedin-square" style="color:#aaa;" aria-hidden="true"></i></a></i></p>
-            <dl id="nav">
-                <dd>
-                    <span>Portfolio ➢ Color</span>
-                    <a href="https://www.lyeutsaon.com/blog/portfolio-color/">/portfolio-color</a>
-                </dd>
-                <dd>
-                    <span>Portfolio ➢ BnW</span>
-                    <a href="https://www.lyeutsaon.com/blog/portfolio-bnw/">/portfolio-bnw</a>
-                </dd>
-	    	</dl>
+			<p id="email">Street Photographer / <a href="https://instagram.com/lyeutsaon" target="_blank" aria-label="Instagram Lyeutsaon"><i class="fa fa-instagram" style="color:#aaa;" aria-hidden="true"></i></a> / <a href="https://instagram.com/lyeutsaon.misc" target="_blank" aria-label="Instagram Lyeutsaon Misc"><i class="fa fa-instagram" style="color:#aaa;" aria-hidden="true"></i></a> / <a href="mailto:info@lyeutsaon.com" target="_blank" aria-label="Email Info"><i class="fa fa-envelope-o" style="color:#aaa;" aria-hidden="true"></i></a> / <a href="https://www.linkedin.com/in/zhuangliudev/" target="_blank" aria-label="LinkedIn Profile"><i class="fa fa-linkedin-square" style="color:#aaa;" aria-hidden="true"></i></a></p>
+            <table id="nav">
+                <tbody>
+                    <tr>
+                        <td class="portfolio-category" rowspan="2">Portfolio</td>
+                        <td class="portfolio-link"><a href="https://www.lyeutsaon.com/blog/portfolio-bnw/">I Tear Up the Bay When I Come Through</a></td>
+                    </tr>
+                    <tr>
+                        <!-- The "Portfolio" cell is spanned from the row above -->
+                        <td class="portfolio-link"><a href="https://www.lyeutsaon.com/blog/portfolio-color/">I Do Not Care If We Go Down in History as Barbarians</a></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     <div id="works-wrap"></div>
