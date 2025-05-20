@@ -1,0 +1,3 @@
+[submodule "fund"]
+	path = fund
+	url = https://github.com/ryusoh/fund.git
