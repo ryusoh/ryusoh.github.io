@@ -140,7 +140,6 @@ canvas {
     color: #333;
 }
 
-
 #nav dd > span { /* The label part, e.g., "Portfolio ➢ Color" */
     display: inline-block;
     color: #aaa;
