@@ -252,7 +252,7 @@ footer {
 
 #nav .portfolio-link a {
     text-decoration: none; /* Removes underline from links by default */
-    display: inline-block; /* Allows padding/margin if needed, and better click area */
+    display: block; /* Allows padding/margin if needed, and better click area */
     color: white;
     /* font-family: 'Lobster', cursive; */ /* Removed to inherit font from parent */
     font-weight: bold; /* Match the "Portfolio" text weight */
