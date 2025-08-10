@@ -276,3 +276,26 @@ footer {
 .social-icon {
     color: #aaa;
 }
+
+.social-icons-container {
+    display: inline-flex;
+    border-radius: 8px;
+    padding: 3px 3px;
+    margin-left: 3px;
+    vertical-align: middle;
+    transition: all ease .5s;
+    justify-content: space-around;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.social-icons-container a {
+    color: #aaa;
+    text-decoration: none;
+    transition: color ease .5s;
+    margin: 0 5.5px;
+}
+
+.social-icons-container .social-icon {
+    font-size: 16px;
+}
