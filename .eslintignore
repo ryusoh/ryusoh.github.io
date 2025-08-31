@@ -1,0 +1,6 @@
+fund/
+assets/vendor/
+node_modules/
+**/*.min.js
+dist/
+venv/
