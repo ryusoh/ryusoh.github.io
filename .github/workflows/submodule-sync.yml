@@ -20,3 +20,4 @@ jobs:
       pr-body: |
         `git submodule update --remote --recursive` による更新を反映します。
         `.gitmodules` に `branch = main` が設定されている場合、そのブランチを追従します。
+      force-pr: ${{ github.event_name == 'schedule' }}
