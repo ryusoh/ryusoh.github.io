@@ -1,10 +1,7 @@
 {
-    // Allow inline HTML often used in Pages content
     "MD033": {
-        "allowed_elements": ["a", "img", "br", "details", "summary", "sup", "sub", "div", "em"],
+        "allowed_elements": ["a", "img", "br", "details", "summary", "sup", "sub", "div", "em"]
     },
-    // Disable first-line heading requirement for small docs
     "MD041": false,
-    // Do not enforce line length to keep diffs simple
-    "MD013": false,
+    "MD013": false
 }
