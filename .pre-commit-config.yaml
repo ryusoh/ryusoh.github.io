@@ -1,6 +1,3 @@
-# Minimal pre-commit hooks for ryusoh.github.io
-# Excludes the `fund/` submodule and common vendor/cache dirs.
-
 exclude: |
     ^fund/|
     ^assets/vendor/|
