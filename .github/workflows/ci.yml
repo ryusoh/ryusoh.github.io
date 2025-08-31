@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  web-ci:
+    uses: ryusoh/ci/.github/workflows/web-ci.yml@v1
+    secrets: inherit
+    with:
+      node-version: '20'
+      python-version: '3.12'
+      run-precommit: true
+      # If your shared workflow supports Pages deploys, set to true
+      deploy: false
