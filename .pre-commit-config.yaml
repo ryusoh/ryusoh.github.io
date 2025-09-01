@@ -38,26 +38,24 @@ repos:
       hooks:
           - id: eslint
             name: eslint (staged JS)
-            entry: bash -lc 'npx eslint --max-warnings=0 --'
+            entry: bash -lc 'set -e; files=$(git diff --name-only --cached --diff-filter=ACM | grep -E "\\.js$" | grep -v "^fund/" | grep -v "^eslint.config\\.cjs$" || true); if [ -z "$files" ]; then exit 0; fi; npx eslint --max-warnings=0 -- $files'
             language: system
-            types_or: [javascript]
-            pass_filenames: true
+            pass_filenames: false
 
     - repo: local
       hooks:
           - id: stylelint
             name: stylelint (staged CSS)
-            entry: bash -lc 'npx stylelint --formatter=unix --'
+            entry: bash -lc 'set -e; files=$(git diff --name-only --cached --diff-filter=ACM | grep -E "\\.css$" || true); if [ -z "$files" ]; then exit 0; fi; npx stylelint --formatter=unix --config-basedir "$(pwd)" -- $files'
             language: system
-            types_or: [css]
-            pass_filenames: true
+            pass_filenames: false
 
     # JS tests (commit): related tests only
     - repo: local
       hooks:
           - id: jest-related
             name: jest (related tests)
-            entry: bash -lc 'npx jest --findRelatedTests --passWithNoTests --'
+            entry: bash -lc 'if [ "$#" -eq 0 ]; then exit 0; else npx jest --findRelatedTests --passWithNoTests -- "$@"; fi'
             language: system
             types_or: [javascript]
             pass_filenames: true
@@ -70,4 +68,4 @@ repos:
             entry: bash -lc 'npx jest --ci --runInBand'
             language: system
             pass_filenames: false
-            stages: [push]
+            stages: [pre-push]

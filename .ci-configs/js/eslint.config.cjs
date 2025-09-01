@@ -2,6 +2,16 @@
 // Prefer ignoring the fund submodule and vendor/minified files.
 module.exports = [
     {
-        ignores: ['fund/**', 'assets/**', 'node_modules/**', '**/*.min.js', 'dist/**', 'venv/**'],
+        ignores: [
+            'fund',
+            'fund/**',
+            './fund/**',
+            '**/fund/**',
+            'assets/**',
+            'node_modules/**',
+            '**/*.min.js',
+            'dist/**',
+            'venv/**',
+        ],
     },
 ];
