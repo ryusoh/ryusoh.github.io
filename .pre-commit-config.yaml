@@ -50,22 +50,4 @@ repos:
             language: system
             pass_filenames: false
 
-    # JS tests (commit): related tests only
-    - repo: local
-      hooks:
-          - id: jest-related
-            name: jest (related tests)
-            entry: bash -lc 'if [ "$#" -eq 0 ]; then exit 0; else npx jest --findRelatedTests --passWithNoTests -- "$@"; fi'
-            language: system
-            types_or: [javascript]
-            pass_filenames: true
-
-    # Full JS tests (push)
-    - repo: local
-      hooks:
-          - id: jest-full
-            name: jest (full, pre-push)
-            entry: bash -lc 'npx jest --ci --runInBand'
-            language: system
-            pass_filenames: false
-            stages: [pre-push]
+    # (No Jest in this repo; tests live in fund/)
