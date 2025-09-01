@@ -1,11 +1,15 @@
 module.exports = [
     {
         ignores: [
+            'fund',
+            'fund/**',
+            './fund/**',
+            '**/fund/**',
+            'assets/**',
             'node_modules/**',
             'coverage/**',
-            'assets/**',
-            'venv/**',
             'dist/**',
+            'venv/**',
             '**/*.min.js',
             '.mypy_cache/**',
             '.pytest_cache/**',
@@ -137,4 +141,3 @@ module.exports = [
         },
     },
 ];
-
