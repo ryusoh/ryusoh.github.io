@@ -5,6 +5,7 @@ module.exports = [
             'fund/**',
             './fund/**',
             '**/fund/**',
+            'js/sketch.js',
             'assets/**',
             'node_modules/**',
             'coverage/**',
