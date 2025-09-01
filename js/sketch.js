@@ -94,7 +94,11 @@
     }
 
     function extend(target, source, overwrite) {
-        for (const key in source) {if (overwrite || !(key in target)) {target[key] = source[key];}}
+        for (const key in source) {
+            if (overwrite || !(key in target)) {
+                target[key] = source[key];
+            }
+        }
 
         return target;
     }
@@ -109,7 +113,11 @@
         const object = {};
 
         for (const key in target) {
-            if (isFunction(target[key])) {object[key] = proxy(target[key], target);} else {object[key] = target[key];}
+            if (isFunction(target[key])) {
+                object[key] = proxy(target[key], target);
+            } else {
+                object[key] = target[key];
+            }
         }
 
         return object;
@@ -194,10 +202,14 @@
         ];
 
         const keys = {};
-        for (key in keyMap) {keys[keyMap[key]] = false;}
+        for (key in keyMap) {
+            keys[keyMap[key]] = false;
+        }
 
         function trigger(method) {
-            if (isFunction(method)) {method.apply(context, [].splice.call(arguments, 1));}
+            if (isFunction(method)) {
+                method.apply(context, [].splice.call(arguments, 1));
+            }
         }
 
         function bind(on) {
@@ -211,7 +223,11 @@
                         handler,
                         false
                     );
-                } else if (isFunction(node)) {handler = node;} else {target = node;}
+                } else if (isFunction(node)) {
+                    handler = node;
+                } else {
+                    target = node;
+                }
             }
         }
 
@@ -244,7 +260,9 @@
                         context.scale(ratio, ratio);
                     }
 
-                    if (context.autoclear) {context.clear();}
+                    if (context.autoclear) {
+                        context.clear();
+                    }
                 }
 
                 // Draw
@@ -253,7 +271,9 @@
 
                 // Post draw
 
-                if (is2D && context.retina) {context.restore();}
+                if (is2D && context.retina) {
+                    context.restore();
+                }
             }
 
             counter = ++counter % context.interval;
@@ -279,11 +299,17 @@
                 h *= ratio;
             }
 
-            if (target.height !== h) {target.height = h + suffix;}
+            if (target.height !== h) {
+                target.height = h + suffix;
+            }
 
-            if (target.width !== w) {target.width = w + suffix;}
+            if (target.width !== w) {
+                target.width = w + suffix;
+            }
 
-            if (setup) {trigger(context.resize);}
+            if (setup) {
+                trigger(context.resize);
+            }
         }
 
         function align(touch, target) {
@@ -321,7 +347,9 @@
             if (copy.touches) {
                 touches.length = copy.touches.length;
 
-                for (index = 0; index < copy.touches.length; index++) {touches[index] = augment(copy.touches[index], touches[index]);}
+                for (index = 0; index < copy.touches.length; index++) {
+                    touches[index] = augment(copy.touches[index], touches[index]);
+                }
             } else {
                 touches.length = 0;
                 touches[0] = augment(copy, mouse);
@@ -340,15 +368,15 @@
             context.dragging = /down|start/.test(type)
                 ? true
                 : /up|end/.test(type)
-                    ? false
-                    : context.dragging;
+                  ? false
+                  : context.dragging;
 
             while (min) {
                 isString(eventMap[min])
                     ? trigger(context[eventMap[min--]], event)
                     : isString(eventMap[max])
-                        ? trigger(context[eventMap[max++]], event)
-                        : (min = 0);
+                      ? trigger(context[eventMap[max++]], event)
+                      : (min = 0);
             }
         }
 
@@ -361,7 +389,9 @@
         }
 
         function active(event) {
-            if (context.autopause) {(event.type == 'blur' ? stop : start)();}
+            if (context.autopause) {
+                (event.type == 'blur' ? stop : start)();
+            }
 
             trigger(context[event.type], event);
         }
@@ -382,15 +412,21 @@
         }
 
         function clear() {
-            if (is2D) {context.clearRect(0, 0, context.width, context.height);}
+            if (is2D) {
+                context.clearRect(0, 0, context.width, context.height);
+            }
         }
 
         function destroy() {
             parent = context.element.parentNode;
             index = instances.indexOf(context);
 
-            if (parent) {parent.removeChild(context.element);}
-            if (~index) {instances.splice(index, 1);}
+            if (parent) {
+                parent.removeChild(context.element);
+            }
+            if (~index) {
+                instances.splice(index, 1);
+            }
 
             bind(false);
             stop();
@@ -439,7 +475,9 @@
 
             install: function (context) {
                 if (!context[HAS_SKETCH]) {
-                    for (let i = 0; i < MATH_PROPS.length; i++) {context[MATH_PROPS[i]] = M[MATH_PROPS[i]];}
+                    for (let i = 0; i < MATH_PROPS.length; i++) {
+                        context[MATH_PROPS[i]] = M[MATH_PROPS[i]];
+                    }
 
                     extend(context, {
                         TWO_PI: M.PI * 2,
@@ -447,9 +485,13 @@
                         QUATER_PI: M.PI / 4,
 
                         random: function (min, max) {
-                            if (isArray(min)) {return min[~~(M.random() * min.length)];}
+                            if (isArray(min)) {
+                                return min[~~(M.random() * min.length)];
+                            }
 
-                            if (!isNumber(max)) {((max = min || 1), (min = 0));}
+                            if (!isNumber(max)) {
+                                ((max = min || 1), (min = 0));
+                            }
 
                             return min + M.random() * (max - min);
                         },
@@ -470,7 +512,9 @@
             create: function (options) {
                 options = extend(options || {}, defaults);
 
-                if (options.globals) {Sketch.install(self);}
+                if (options.globals) {
+                    Sketch.install(self);
+                }
 
                 element = options.element =
                     options.element || doc.createElement(options.type === DOM ? 'div' : 'canvas');
