@@ -1,9 +1,9 @@
 node_modules/
 coverage/
 assets/
-dist/
 venv/
-.husky/_/
+dist/
+**/*.min.css
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
