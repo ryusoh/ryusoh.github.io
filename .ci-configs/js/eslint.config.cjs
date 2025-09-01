@@ -45,6 +45,12 @@ module.exports = [
                 // App-provided globals from CDN
                 Chart: 'readonly',
                 ChartDataLabels: 'readonly',
+
+                // UMD pattern globals
+                module: 'readonly',
+                define: 'readonly',
+                exports: 'readonly',
+                self: 'readonly',
             },
         },
         rules: {
