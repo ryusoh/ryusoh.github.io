@@ -38,9 +38,10 @@ repos:
       hooks:
           - id: eslint
             name: eslint (staged JS)
-            entry: bash -lc 'set -e; files=$(git diff --name-only --cached --diff-filter=ACM | grep -E "\\.js$" | grep -v "^fund/" | grep -v "^eslint.config\\.cjs$" || true); if [ -z "$files" ]; then exit 0; fi; npx eslint --config .ci-configs/js/eslint.config.cjs --max-warnings=0 --no-warn-ignored -- $files'
+            entry: bash -lc 'npx eslint --config .ci-configs/js/eslint.config.cjs --max-warnings=0 --'
             language: system
-            pass_filenames: false
+            types_or: [javascript]
+            pass_filenames: true
 
     - repo: local
       hooks:
