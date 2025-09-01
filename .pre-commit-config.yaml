@@ -23,3 +23,51 @@ repos:
       hooks:
           - id: markdownlint
             args: ['--config', '.markdownlint.json']
+
+    # JavaScript tooling (commit): format + lint
+    - repo: local
+      hooks:
+          - id: prettier
+            name: prettier (staged files)
+            entry: bash -lc 'npx prettier --write --'
+            language: system
+            files: '\\.(js|css|json|yml|yaml|md|html)$'
+            pass_filenames: true
+
+    - repo: local
+      hooks:
+          - id: eslint
+            name: eslint (staged JS)
+            entry: bash -lc 'npx eslint --max-warnings=0 --'
+            language: system
+            types_or: [javascript]
+            pass_filenames: true
+
+    - repo: local
+      hooks:
+          - id: stylelint
+            name: stylelint (staged CSS)
+            entry: bash -lc 'npx stylelint --formatter=unix --'
+            language: system
+            types_or: [css]
+            pass_filenames: true
+
+    # JS tests (commit): related tests only
+    - repo: local
+      hooks:
+          - id: jest-related
+            name: jest (related tests)
+            entry: bash -lc 'npx jest --findRelatedTests --passWithNoTests --'
+            language: system
+            types_or: [javascript]
+            pass_filenames: true
+
+    # Full JS tests (push)
+    - repo: local
+      hooks:
+          - id: jest-full
+            name: jest (full, pre-push)
+            entry: bash -lc 'npx jest --ci --runInBand'
+            language: system
+            pass_filenames: false
+            stages: [push]
