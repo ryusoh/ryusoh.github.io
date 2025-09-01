@@ -3,6 +3,7 @@ coverage/
 assets/
 dist/
 venv/
+fund/
 .husky/_/
 .mypy_cache/
 .pytest_cache/
@@ -10,4 +11,3 @@ venv/
 .idea/
 .vscode/
 .git/
-

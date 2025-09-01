@@ -1,53 +1,53 @@
 exclude: |
-  ^fund/|
-  ^assets/vendor/|
-  ^node_modules/|
-  ^venv/|
-  ^.mypy_cache/|
-  ^.ruff_cache/|
-  ^coverage/|
-  ^dist/|
-  ^build/
+    ^fund/|
+    ^assets/vendor/|
+    ^node_modules/|
+    ^venv/|
+    ^.mypy_cache/|
+    ^.ruff_cache/|
+    ^coverage/|
+    ^dist/|
+    ^build/
 
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-      - id: mixed-line-ending
-      - id: detect-private-key
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.6.0
+      hooks:
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+          - id: mixed-line-ending
+          - id: detect-private-key
 
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.41.0
-    hooks:
-      - id: markdownlint
-        args: ["--config", ".markdownlint.jsonc"]
+    - repo: https://github.com/igorshubovych/markdownlint-cli
+      rev: v0.41.0
+      hooks:
+          - id: markdownlint
+            args: ['--config', '.markdownlint.json']
 
-  # JavaScript tooling (commit): format + lint
-  - repo: local
-    hooks:
-      - id: prettier
-        name: prettier (staged files)
-        entry: bash -lc 'npx prettier --write --'
-        language: system
-        files: '\\.(js|css|json|yml|yaml|md|html)$'
-        pass_filenames: true
+    # JavaScript tooling (commit): format + lint
+    - repo: local
+      hooks:
+          - id: prettier
+            name: prettier (staged files)
+            entry: bash -lc 'npx prettier --write --'
+            language: system
+            files: '\\.(js|css|json|yml|yaml|md|html)$'
+            pass_filenames: true
 
-  - repo: local
-    hooks:
-      - id: eslint
-        name: eslint (staged JS)
-        entry: bash -lc 'set -e; files=$(git diff --name-only --cached --diff-filter=ACM | grep -E "\\.js$" | grep -v "^fund/" | grep -v "^eslint.config\\.cjs$" || true); if [ -z "$files" ]; then exit 0; fi; npx eslint --max-warnings=0 -- $files'
-        language: system
-        pass_filenames: false
+    - repo: local
+      hooks:
+          - id: eslint
+            name: eslint (staged JS)
+            entry: bash -lc 'set -e; files=$(git diff --name-only --cached --diff-filter=ACM | grep -E "\\.js$" | grep -v "^fund/" | grep -v "^eslint.config\\.cjs$" || true); if [ -z "$files" ]; then exit 0; fi; npx eslint --config .ci-configs/js/eslint.config.cjs --max-warnings=0 --no-warn-ignored -- $files'
+            language: system
+            pass_filenames: false
 
-  - repo: local
-    hooks:
-      - id: stylelint
-        name: stylelint (staged CSS)
-        entry: bash -lc 'set -e; files=$(git diff --name-only --cached --diff-filter=ACM | grep -E "\\.css$" || true); if [ -z "$files" ]; then exit 0; fi; npx stylelint --formatter=unix --config-basedir "$(pwd)" -- $files'
-        language: system
-        pass_filenames: false
+    - repo: local
+      hooks:
+          - id: stylelint
+            name: stylelint (staged CSS)
+            entry: bash -lc 'set -e; files=$(git diff --name-only --cached --diff-filter=ACM | grep -E "\\.css$" || true); if [ -z "$files" ]; then exit 0; fi; npx stylelint --formatter=unix --config-basedir "$(pwd)" -- $files'
+            language: system
+            pass_filenames: false
 
-  # (No Jest in this repo; tests live in fund/)
+    # (No Jest in this repo; tests live in fund/)
