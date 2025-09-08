@@ -2,7 +2,10 @@
 // Controls via URL param: ?ambient=on | ?ambient=debug
 (function () {
     try {
-        const usp = typeof window.URLSearchParams !== 'undefined' ? new window.URLSearchParams(window.location.search || '') : null;
+        const usp =
+            typeof window.URLSearchParams !== 'undefined'
+                ? new window.URLSearchParams(window.location.search || '')
+                : null;
         const force = usp ? usp.get('ambient') : null; // 'on' | 'debug' | null
         const debug = force === 'debug';
 
@@ -25,9 +28,15 @@
         const reduce = m && m.matches;
         const large = window.innerWidth >= C.minWidth;
         const enabled = C.enabled || !!force;
-        if ((!enabled || reduce) && !force) { return; }
-        if (!large && !force) { return; }
-        if (!window.Sketch) { return; }
+        if ((!enabled || reduce) && !force) {
+            return;
+        }
+        if (!large && !force) {
+            return;
+        }
+        if (!window.Sketch) {
+            return;
+        }
 
         const s = window.Sketch.create({
             container: document.body,
@@ -61,7 +70,9 @@
             particles.length = 0;
             const divisor = C.densityDivisor;
             const count = Math.min(MAX, Math.round((s.width * s.height) / divisor));
-            for (let i = 0; i < count; i++) { particles.push(reset({})); }
+            for (let i = 0; i < count; i++) {
+                particles.push(reset({}));
+            }
         };
 
         s.resize = function () {
