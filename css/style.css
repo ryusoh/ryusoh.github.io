@@ -251,7 +251,6 @@ canvas {
 }
 
 #email {
-    font-weight: 300;
     font-size: 0.8em;
     letter-spacing: 1.9px;
     font-weight: lighter;
@@ -326,7 +325,7 @@ footer {
 #nav {
     /* Styles for the new table navigation */
     border-collapse: collapse; /* Removes default spacing between table cells */
-    margin-top: 1em; /* Add some space above the navigation, adjust as needed */
+    /* margin-top adjusted below */
     margin-bottom: 1em; /* Add some space below the navigation, adjust as needed */
     width: 100%; /* Make table take full available width of its container (#main) */
     table-layout: auto; /* Allow browser to determine column widths based on content */
@@ -375,7 +374,6 @@ footer {
 }
 
 #headline {
-    font-weight: 300;
     font-size: 2em;
     letter-spacing: 1.9px;
     font-weight: lighter;
