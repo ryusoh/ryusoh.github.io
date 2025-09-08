@@ -5,10 +5,10 @@ window.AMBIENT_CONFIG = {
     minWidth: 1024, // only run on wide screens
 
     // Visual intensity
-    maxParticles: 240, // cap the number of particles
+    maxParticles: 300, // cap the number of particles
     densityDivisor: 20000, // higher = fewer particles per viewport area
-    radius: { min: 1.0, max: 9.0 }, // particle size in px
-    alpha: { min: 0.2, max: 0.4 }, // particle opacity
+    radius: { min: 1.0, max: 8.0 }, // particle size in px
+    alpha: { min: 0.1, max: 0.6 }, // particle opacity
     speed: 0.6, // base drift speed (px per frame approx)
 
     // Compositing & layering
