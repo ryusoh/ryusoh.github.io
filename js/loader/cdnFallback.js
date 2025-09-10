@@ -1,10 +1,10 @@
 /* Simple CDN fallback loader (no modules). Exposes window.CDNLoader */
 (function () {
-    if (window.CDNLoader) return;
+    if (window.CDNLoader) { return; }
     function preconnect(origins) {
         try {
-            for (var i = 0; i < origins.length; i++) {
-                var l = document.createElement('link');
+            for (let i = 0; i < origins.length; i++) {
+                const l = document.createElement('link');
                 l.rel = 'preconnect';
                 l.href = origins[i];
                 l.crossOrigin = 'anonymous';
@@ -15,12 +15,12 @@
     function loadScriptSequential(urls, attrs) {
         return new Promise(function (resolve, reject) {
             (function next(i) {
-                if (i >= urls.length) return reject(new Error('all failed: ' + urls.join(', ')));
-                var s = document.createElement('script');
+                if (i >= urls.length) { return reject(new Error('all failed: ' + urls.join(', '))); }
+                const s = document.createElement('script');
                 s.src = urls[i];
                 s.crossOrigin = 'anonymous';
-                if (attrs && attrs.defer) s.defer = true;
-                if (attrs && attrs.async) s.async = true;
+                if (attrs && attrs.defer) { s.defer = true; }
+                if (attrs && attrs.async) { s.async = true; }
                 s.onload = function () {
                     resolve();
                 };
@@ -35,11 +35,11 @@
         return new Promise(function (resolve) {
             (function next(i) {
                 if (i >= urls.length) {
-                    var last = urls[urls.length - 1];
+                    const last = urls[urls.length - 1];
                     fetch(last, { mode: 'cors' })
                         .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
                         .then(function (css) {
-                            var style = document.createElement('style');
+                            const style = document.createElement('style');
                             style.textContent = css;
                             document.head.appendChild(style);
                             resolve();
@@ -47,7 +47,7 @@
                         .catch(function () { resolve(); });
                     return;
                 }
-                var link = document.createElement('link');
+                const link = document.createElement('link');
                 link.rel = 'stylesheet';
                 link.href = urls[i];
                 link.crossOrigin = 'anonymous';
