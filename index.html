@@ -37,18 +37,9 @@
             href="https://cdn.jsdelivr.net/gh/ryusoh/host@master/brand/avatars/avatar_152x152.png"
             sizes="152x152"
         />
-        <link
-            href="//cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
-            rel="stylesheet"
-            type="text/css"
-        />
-        <!-- Google Fonts - Example: Lobster -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Lobster&display=swap"
-            rel="stylesheet"
-        />
+        <script defer src="js/loader/cdnFallback.js"></script>
+        <script defer src="js/loader/vendorLoader.js"></script>
+        <!-- Google Fonts are loaded via vendorLoader with fallbacks -->
 
         <!-- The Open Graph protocol -->
         <meta property="og:url" content="http://ryusoh.github.io" />
@@ -155,19 +146,7 @@
             ></a>
         </footer>
 
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/gh/ryusoh/host@master/shared/css/ambient/v1/ambient.css"
-        />
-        <script src="https://cdn.jsdelivr.net/gh/ryusoh/host@ambient-v1.6/shared/js/vendor/sketch.js"></script>
-        <script
-            defer
-            src="https://cdn.jsdelivr.net/gh/ryusoh/host@ambient-v1.7/shared/js/ambient/v1/config/default.js"
-        ></script>
-        <script
-            defer
-            src="https://cdn.jsdelivr.net/gh/ryusoh/host@ambient-v1.7/shared/js/ambient/v1/ambient.js"
-        ></script>
+        <script defer src="js/ambient/loader.js"></script>
         <script defer src="js/ga.js"></script>
         <script type="application/ld+json">
             {
