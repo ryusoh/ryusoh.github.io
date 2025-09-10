@@ -3,8 +3,12 @@
     try {
         const prefersReduced =
             window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (prefersReduced || window.innerWidth < 1024) { return; }
-        if (!window.CDNLoader) { return; }
+        if (prefersReduced || window.innerWidth < 1024) {
+            return;
+        }
+        if (!window.CDNLoader) {
+            return;
+        }
 
         const BASES = {
             css: [
@@ -34,7 +38,9 @@
         };
         function urlsFor(bases, path) {
             const out = [];
-            for (let i = 0; i < bases.length; i++) { out.push(bases[i] + path); }
+            for (let i = 0; i < bases.length; i++) {
+                out.push(bases[i] + path);
+            }
             return out;
         }
 
