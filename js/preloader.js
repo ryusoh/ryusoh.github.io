@@ -8,7 +8,7 @@ class AssetPreloader {
         this.imageDirectories = {
             p1: '/assets/img/p1/',
             p2: '/assets/img/p2/',
-            p3: '/assets/img/p3/'
+            p3: '/assets/img/p3/',
         };
 
         // Define the actual image sets for each portfolio page (these are the specific images referenced in each portfolio)
@@ -31,7 +31,7 @@ class AssetPreloader {
                 '/assets/img/p1/DSCF5891-9.JPG',
                 '/assets/img/p1/DSCF5903-2.JPG',
                 '/assets/img/p1/DSCF4402-8.jpg',
-                '/assets/img/p1/DSCF5916-4.JPG'
+                '/assets/img/p1/DSCF5916-4.JPG',
             ],
             p2: [
                 '/assets/img/p2/DSCF4295-2.JPG',
@@ -49,7 +49,7 @@ class AssetPreloader {
                 '/assets/img/p2/DSCF3487-3.jpg',
                 '/assets/img/p2/DSCF3445-2.jpg',
                 '/assets/img/p2/R0004664.JPG',
-                '/assets/img/p2/DSCF2862-3.jpg'
+                '/assets/img/p2/DSCF2862-3.jpg',
             ],
             p3: [
                 '/assets/img/p3/DSCF7765.jpg',
@@ -66,8 +66,8 @@ class AssetPreloader {
                 '/assets/img/p3/DSCF3579.JPG',
                 '/assets/img/p3/DSCF7318-3.jpg',
                 '/assets/img/p3/DSCF5759-5.jpg',
-                '/assets/img/p3/DSCF5719-3.jpg'
-            ]
+                '/assets/img/p3/DSCF5719-3.jpg',
+            ],
         };
     }
 
@@ -76,9 +76,9 @@ class AssetPreloader {
      * @param {Array} pageKeys - Array of page keys to preload assets for (e.g., ['p2', 'p3'])
      */
     preloadAssets(pageKeys) {
-        pageKeys.forEach(pageKey => {
+        pageKeys.forEach((pageKey) => {
             if (this.assetSets[pageKey]) {
-                this.assetSets[pageKey].forEach(imgSrc => {
+                this.assetSets[pageKey].forEach((imgSrc) => {
                     this.preloadImage(imgSrc);
                 });
             }
@@ -112,7 +112,7 @@ class AssetPreloader {
     preloadAssetsDynamic(preloadingConfig) {
         const { preloadFromPages = [], excludePages = [] } = preloadingConfig;
 
-        Object.keys(this.assetSets).forEach(pageKey => {
+        Object.keys(this.assetSets).forEach((pageKey) => {
             if (preloadFromPages.includes(pageKey) && !excludePages.includes(pageKey)) {
                 this.preloadAssets([pageKey]);
             }
@@ -137,10 +137,18 @@ class AssetPreloader {
      */
     getCurrentPageKey() {
         const path = window.location.pathname;
-        if (path.includes('/p1/')) {return 'p1';}
-        if (path.includes('/p2/')) {return 'p2';}
-        if (path.includes('/p3/')) {return 'p3';}
-        if (path === '/' || path.includes('/index.html')) {return 'main';}
+        if (path.includes('/p1/')) {
+            return 'p1';
+        }
+        if (path.includes('/p2/')) {
+            return 'p2';
+        }
+        if (path.includes('/p3/')) {
+            return 'p3';
+        }
+        if (path === '/' || path.includes('/index.html')) {
+            return 'main';
+        }
         return 'main';
     }
 
