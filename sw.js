@@ -3,7 +3,7 @@
     const cacheVersion = '-180503';
     const staticCacheName = 'asset' + cacheVersion;
     const maxEntries = 100;
-    self.importScripts('https://cdn.jsdelivr.net/npm/sw-toolbox@3.6.0/sw-toolbox.js');
+    self.importScripts('/assets/vendor/sw-toolbox/sw-toolbox.js');
 
     self.toolbox.options.debug = false;
     self.toolbox.options.networkTimeoutSeconds = 1;
