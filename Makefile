@@ -32,6 +32,12 @@ precommit: hooks
 	fi
 
 precommit-fix: hooks
+	@if [ -f .ci-configs/js/.prettierrc.json ]; then \
+		echo "Running Prettier with --write..."; \
+		npx prettier --write . \
+		  --config .ci-configs/js/.prettierrc.json \
+		  --ignore-path .ci-configs/js/.prettierignore || true; \
+	fi
 	@if [ -f .pre-commit-config.yaml ]; then \
 		echo "Running pre-commit auto-fixes..."; \
 		python3 -m pre_commit run --all-files --hook-stage manual --verbose || true; \
