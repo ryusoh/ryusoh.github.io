@@ -277,8 +277,7 @@ footer {
     }
 
     #mimida {
-        background: url(https://ghproxy.net/https://raw.githubusercontent.com/ryusoh/host/master/archive/personal/DSCF2901.jpg)
-            center center no-repeat;
+        background: url(/assets/img/mobile_background.jpg) center center no-repeat;
         background-size: cover;
     }
 
@@ -293,15 +292,12 @@ footer {
 
 @media screen and (min-width: 450px) {
     body {
-        background: #222
-            url(https://ghproxy.net/https://raw.githubusercontent.com/ryusoh/host/master/archive/personal/DSCF2441-3.jpg)
-            center center no-repeat;
+        background: #222 url(/assets/img/desktop_background.jpg) center center no-repeat;
         background-size: cover;
     }
 
     #mimida {
-        background: url(https://ghproxy.net/https://raw.githubusercontent.com/ryusoh/host/master/archive/personal/DSCF2441-3.jpg)
-            center center no-repeat;
+        background: url(/assets/img/desktop_background.jpg) center center no-repeat;
         background-size: cover;
     }
 
