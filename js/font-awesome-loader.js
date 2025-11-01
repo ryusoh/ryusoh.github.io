@@ -39,7 +39,11 @@ class FontAwesomeLoader {
         document.body.appendChild(testElement);
 
         const computedStyle = window.getComputedStyle(testElement, ':before');
-        const hasContent = computedStyle && computedStyle.content && computedStyle.content !== 'none' && computedStyle.content !== '""';
+        const hasContent =
+            computedStyle &&
+            computedStyle.content &&
+            computedStyle.content !== 'none' &&
+            computedStyle.content !== '""';
 
         document.body.removeChild(testElement);
         return hasContent;
@@ -51,7 +55,7 @@ class FontAwesomeLoader {
     setupPlaceholderHandling() {
         // Initially hide all Font Awesome icons to prevent showing empty boxes
         const faIcons = document.querySelectorAll('i[class*="fa"]');
-        faIcons.forEach(icon => {
+        faIcons.forEach((icon) => {
             icon.style.visibility = 'hidden';
             icon.dataset.fahidden = 'true';
         });
@@ -62,7 +66,7 @@ class FontAwesomeLoader {
      */
     showIcons() {
         const faIcons = document.querySelectorAll('i[data-fahidden="true"]');
-        faIcons.forEach(icon => {
+        faIcons.forEach((icon) => {
             icon.style.visibility = '';
             icon.dataset.fahidden = '';
         });
@@ -103,7 +107,7 @@ class FontAwesomeLoader {
     handleLoadFailure() {
         // Hide icons that failed to load properly
         const faIcons = document.querySelectorAll('i[class*="fa"]');
-        faIcons.forEach(icon => {
+        faIcons.forEach((icon) => {
             if (icon.dataset.fahidden === 'true') {
                 // For back icons, we can provide a text alternative
                 if (icon.classList.contains('fa-chevron-left')) {
@@ -128,7 +132,10 @@ class FontAwesomeLoader {
             let fontAwesomeFound = false;
 
             for (const link of links) {
-                if (link.href && (link.href.includes('font-awesome') || link.href.includes('fontawesome'))) {
+                if (
+                    link.href &&
+                    (link.href.includes('font-awesome') || link.href.includes('fontawesome'))
+                ) {
                     fontAwesomeFound = true;
                     break;
                 }
@@ -136,8 +143,10 @@ class FontAwesomeLoader {
 
             if (fontAwesomeFound) {
                 // If we found the FA link, check its loading status
-                const faLink = Array.from(links).find(link =>
-                    link.href && (link.href.includes('font-awesome') || link.href.includes('fontawesome'))
+                const faLink = Array.from(links).find(
+                    (link) =>
+                        link.href &&
+                        (link.href.includes('font-awesome') || link.href.includes('fontawesome'))
                 );
 
                 if (faLink) {
