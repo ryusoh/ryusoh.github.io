@@ -1,0 +1,403 @@
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+    display: block;
+}
+
+img {
+    vertical-align: baseline;
+}
+
+html,
+body {
+    height: 100%;
+    line-height: 1;
+}
+
+ol,
+ul {
+    list-style: none;
+}
+
+@font-face {
+    font-family: 'P22UndergroundProThin';
+    src: url('../assets/fonts/p22undergroundpro-thin-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    position: relative;
+    z-index: 1;
+    min-width: 300px;
+    overflow: hidden;
+    font:
+        13px/1.4 'PingFang SC Light',
+        'PingFang SC',
+        'Lantinghei SC Light',
+        'Microsoft Yahei',
+        'Hiragino Sans GB',
+        'Helvetica Neue',
+        Helvetica,
+        Arial;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Standard syntax */
+}
+
+canvas {
+    line-height: 0;
+}
+
+#mimida {
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+}
+
+#cont {
+    position: absolute;
+    z-index: 3;
+    left: 20px;
+    top: 0;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    overflow-y: auto;
+    font-family:
+        'P22UndergroundProThin', 'PingFang SC Light', 'PingFang SC', 'Lantinghei SC Light',
+        'Microsoft Yahei', 'Hiragino Sans GB', 'Helvetica Neue', Helvetica, Arial;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    opacity: 0.8;
+}
+
+#main {
+    padding: 20px 20px 30px 20px;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+#main h1 {
+    position: relative;
+    font-size: 50px;
+    line-height: 1;
+    opacity: 0.8;
+}
+
+#main h1 img,
+#main h1 span {
+    display: inline-block;
+    zoom: 1;
+    vertical-align: top;
+}
+
+#main h1 img {
+    width: 50px;
+    height: 50px;
+}
+
+#main h3 {
+    padding-top: 20px;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+#main p {
+    padding-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#main a {
+    color: #607d8b;
+    text-decoration: none;
+}
+
+#nav dt {
+    font-size: 18px;
+}
+
+#nav dd {
+    display: grid; /* Use CSS Grid for a two-column layout */
+    grid-template-columns: 150px auto;
+    column-gap: 10px; /* Space between the label column and the link column */
+    align-items: baseline; /* Aligns the text baselines of the span and a, which is usually best for text */
+    padding-top: 10px;
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
+    font-weight: 100;
+    letter-spacing: 1px;
+}
+
+#nav dd > a {
+    display: inline-block;
+    border-radius: 2px;
+    padding: 1px 4px 2px 4px;
+    background: rgba(0, 0, 0, 0.3);
+    font-family: 'P22UndergroundProThin';
+    color: lightcyan;
+    font-weight: 150;
+    letter-spacing: 1px;
+}
+
+#nav dd a:hover {
+    background: #00bcd4;
+    color: #333;
+}
+
+#nav dd > span {
+    /* The label part, e.g., "Portfolio ➢ Color" */
+    display: inline-block;
+    color: #aaa;
+    font-weight: 200;
+}
+
+#email {
+    font-size: 0.8em;
+    letter-spacing: 1.9px;
+    font-weight: lighter;
+}
+
+footer {
+    position: fixed;
+    z-index: 2;
+    bottom: 10px;
+    width: 100%;
+    font-size: 12px;
+    text-align: center;
+    color: #fff;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
+    font-weight: 100;
+    letter-spacing: 1px;
+}
+
+@media screen and (min-width: 0px) {
+    body {
+        overflow-y: auto;
+        background: #111;
+    }
+
+    #mimida {
+        background: url(/assets/img/mobile_background.jpg) center center no-repeat;
+        background-size: cover;
+    }
+
+    #cont {
+        left: 0;
+        right: 0;
+        bottom: auto;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.8);
+    }
+}
+
+@media screen and (min-width: 450px) {
+    body {
+        background: #222 url(/assets/img/desktop_background.jpg) center center no-repeat;
+        background-size: cover;
+    }
+
+    #mimida {
+        background: url(/assets/img/desktop_background.jpg) center center no-repeat;
+        background-size: cover;
+    }
+
+    #cont {
+        left: 20px;
+        right: auto;
+        bottom: auto;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    #cont {
+        left: 300px;
+        right: auto;
+        bottom: auto;
+        background: rgba(0, 0, 0, 0.9);
+    }
+}
+
+/* Styles for the table-based navigation */
+#nav {
+    /* Styles for the new table navigation */
+    border-collapse: collapse; /* Removes default spacing between table cells */
+    /* margin-top adjusted below */
+    margin-bottom: 1em; /* Add some space below the navigation, adjust as needed */
+    width: 100%; /* Make table take full available width of its container (#main) */
+    table-layout: auto; /* Allow browser to determine column widths based on content */
+    margin-top: 1.5em;
+}
+
+#nav td {
+    padding: 0; /* Removes default cell padding */
+    vertical-align: baseline; /* Aligns the text content at the baseline */
+}
+
+#nav .portfolio-category {
+    padding-right: 0.75em; /* Space between "Portfolio" and the vertical line */
+    vertical-align: top; /* Align text to the top of the cell */
+    font-size: 1.2em; /* Makes "Portfolio" 20% larger than the surrounding table text */
+    font-weight: bold; /* Makes "Portfolio" bold */
+    letter-spacing: 1.5px;
+    width: 30%; /* Encourage this column to be as narrow as possible */
+    opacity: 0.8; /* Makes the text slightly transparent */
+}
+
+#nav .portfolio-link {
+    /* Styles for the TD containing the link */
+    border-left: 1px solid rgba(170, 170, 170, 0.25); /* #aaa with 50% opacity */
+    padding-left: 0.75em; /* Space between the line and the link text */
+    text-align: left; /* Align link text to the left, especially if it wraps */
+    font-size: 1.2em; /* Base font size for this cell, links can override */
+    letter-spacing: 1px;
+    opacity: 0.8; /* Makes the text slightly transparent */
+}
+
+#nav .portfolio-link a {
+    text-decoration: none; /* Removes underline from links by default */
+    display: block; /* Allows padding/margin if needed, and better click area */
+    color: white;
+    /* font-family: 'Lobster', cursive; */ /* Removed to inherit font from parent */
+    font-weight: bold; /* Match the "Portfolio" text weight */
+    padding: 0.2em 0.4em 0.6em 0.4em; /* top, right&left, bottom - adjusted for box effect */
+    transition: background-color 0.3s ease; /* Smooth transition for the background */
+}
+
+#nav .portfolio-link a:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Light semi-transparent box */
+    /* Or for a darker box: background-color: rgba(0, 0, 0, 0.2); */
+    border-radius: 3px; /* Optional: rounded corners for the box */
+}
+
+#headline {
+    font-size: 2em;
+    letter-spacing: 1.9px;
+    font-weight: lighter;
+}
+
+.social-icon {
+    color: #aaa;
+}
+
+.social-icons-container {
+    display: inline-flex;
+    border-radius: 8px;
+    padding: 3px 3px;
+    margin-left: 3px;
+    vertical-align: middle;
+    transition: all ease 0.5s;
+    justify-content: space-around;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.social-icons-container a {
+    color: #aaa;
+    text-decoration: none;
+    transition: color ease 0.5s;
+    margin: 0 5.5px;
+}
+
+.social-icons-container .social-icon {
+    font-size: 16px;
+}
