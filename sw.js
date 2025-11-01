@@ -1,5 +1,5 @@
 'use strict';
-(function() {
+(function () {
     const cacheVersion = '-180503';
     const staticCacheName = 'asset' + cacheVersion;
     const maxEntries = 100;
@@ -12,7 +12,7 @@
     self.toolbox.router.get('/(.*)', self.toolbox.cacheFirst, {
         cache: {
             name: staticCacheName,
-            maxEntries: maxEntries
-        }
+            maxEntries: maxEntries,
+        },
     });
 })();
