@@ -1,9 +1,10 @@
-.PHONY: help hooks precommit update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix
 
 help:
 	@echo "Targets:"
 	@echo "  hooks         Install pre-commit git hooks (if available)"
 	@echo "  precommit     Run pre-commit on all files"
+	@echo "  precommit-fix Run pre-commit auto-fixes on all files"
 	@echo "  update-hooks  pre-commit autoupdate for hook repos"
 	@echo "  fmt-check     Run Prettier in check mode (uses .ci-configs)"
 	@echo "  fmt           Apply Prettier formatting (uses .ci-configs)"
@@ -28,6 +29,18 @@ precommit: hooks
 		python3 -m pre_commit run --all-files --show-diff-on-failure; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit."; \
+	fi
+
+precommit-fix: hooks
+	@if [ -f .pre-commit-config.yaml ]; then \
+		echo "Running pre-commit auto-fixes..."; \
+		python3 -m pre_commit run --all-files --hook-stage manual --verbose || true; \
+		echo "Running ESLint with --fix..."; \
+		npx eslint . --config .ci-configs/js/eslint.config.cjs --fix || true; \
+		echo "Running Stylelint with --fix..."; \
+		npx -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --fix || true; \
+	else \
+		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
 	fi
 
 update-hooks:

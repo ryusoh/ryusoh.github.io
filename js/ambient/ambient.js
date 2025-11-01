@@ -2,10 +2,26 @@
 // Expects window.Sketch and optional window.AMBIENT_CONFIG
 (function () {
     try {
-        const usp = typeof window.URLSearchParams !== 'undefined' ? new window.URLSearchParams(window.location.search || '') : null;
+        const usp =
+            typeof window.URLSearchParams !== 'undefined'
+                ? new window.URLSearchParams(window.location.search || '')
+                : null;
         const force = usp ? usp.get('ambient') : null; // 'on' | 'debug' | 'trace'
         const trace = force === 'trace';
-        const C = Object.assign({ enabled: true, minWidth: 1024, maxParticles: 120, densityDivisor: 25000, radius: { min: 4.0, max: 8.0 }, alpha: { min: 0.2, max: 0.4 }, speed: 0.2, zIndex: 1, blend: 'screen' }, window.AMBIENT_CONFIG || {});
+        const C = Object.assign(
+            {
+                enabled: true,
+                minWidth: 1024,
+                maxParticles: 120,
+                densityDivisor: 25000,
+                radius: { min: 4.0, max: 8.0 },
+                alpha: { min: 0.2, max: 0.4 },
+                speed: 0.2,
+                zIndex: 1,
+                blend: 'screen',
+            },
+            window.AMBIENT_CONFIG || {}
+        );
         if (force === 'debug' || trace) {
             C.zIndex = 999;
             C.radius = { min: C.radius.min * 2, max: C.radius.max * 2 };
@@ -26,7 +42,13 @@
         if (!window.Sketch) {
             return;
         }
-        const s = window.Sketch.create({ container: document.body, retina: true, interval: 2, globals: false, autopause: true });
+        const s = window.Sketch.create({
+            container: document.body,
+            retina: true,
+            interval: 2,
+            globals: false,
+            autopause: true,
+        });
         s.canvas.className += ' ambient-canvas';
         s.canvas.style.position = 'fixed';
         s.canvas.style.top = '0';
@@ -40,10 +62,11 @@
         }
         function metrics() {
             const ratio = window.devicePixelRatio || 1;
-            const cw = (s.canvas && s.canvas.clientWidth) ? s.canvas.clientWidth : window.innerWidth;
-            const ch = (s.canvas && s.canvas.clientHeight) ? s.canvas.clientHeight : window.innerHeight;
-            const pw = (s.canvas && s.canvas.width) ? s.canvas.width : cw * ratio;
-            const ph = (s.canvas && s.canvas.height) ? s.canvas.height : ch * ratio;
+            const cw = s.canvas && s.canvas.clientWidth ? s.canvas.clientWidth : window.innerWidth;
+            const ch =
+                s.canvas && s.canvas.clientHeight ? s.canvas.clientHeight : window.innerHeight;
+            const pw = s.canvas && s.canvas.width ? s.canvas.width : cw * ratio;
+            const ph = s.canvas && s.canvas.height ? s.canvas.height : ch * ratio;
             const width = pw / ratio;
             const height = ph / ratio;
             s.width = width;
@@ -51,7 +74,8 @@
             return { width: width, height: height, cw: cw, ch: ch, ratio: ratio };
         }
 
-        const MAX = C.maxParticles, particles = [];
+        const MAX = C.maxParticles,
+            particles = [];
         function reset(p) {
             const m = metrics();
             p.x = Math.random() * m.width;
@@ -62,7 +86,7 @@
             p.a = C.alpha.min + Math.random() * (C.alpha.max - C.alpha.min);
             return p;
         }
-        s.setup = function() {
+        s.setup = function () {
             particles.length = 0;
             const divisor = C.densityDivisor;
             const m = metrics();
@@ -78,11 +102,12 @@
                 // console.log('[ambient] setup', { count: count, area: area, w: s.width, h: s.height });
             }
         };
-        s.resize = function() {
+        s.resize = function () {
             s.setup();
         };
-        s.update = function() {
-            const w = metrics().width, h = s.height;
+        s.update = function () {
+            const w = metrics().width,
+                h = s.height;
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
                 p.x += p.vx;
@@ -92,7 +117,7 @@
                 }
             }
         };
-        s.draw = function() {
+        s.draw = function () {
             const ctx = this;
             ctx.save();
             ctx.globalCompositeOperation = C.blend;
@@ -113,7 +138,8 @@
         if (trace && window.console) {
             window.__ambient = { config: C, instance: s };
         }
-    } catch (e) { // eslint-disable-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
+    } catch (e) {
         // Error handling is intentionally empty for ambient background script
     }
 })();
