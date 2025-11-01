@@ -10,63 +10,19 @@
             return;
         }
 
-        const BASES = {
-            css: [
-                'https://cdn.jsdelivr.net/gh/ryusoh/host@master',
-                'https://ghproxy.net/https://raw.githubusercontent.com/ryusoh/host/master',
-                'https://gcore.jsdelivr.net/gh/ryusoh/host@master',
-                'https://fastly.jsdelivr.net/gh/ryusoh/host@master',
-            ],
-            vendor: [
-                'https://cdn.jsdelivr.net/gh/ryusoh/host@ambient-v1.6',
-                'https://ghproxy.net/https://raw.githubusercontent.com/ryusoh/host/ambient-v1.6',
-                'https://gcore.jsdelivr.net/gh/ryusoh/host@ambient-v1.6',
-                'https://fastly.jsdelivr.net/gh/ryusoh/host@ambient-v1.6',
-            ],
-            ambient: [
-                'https://cdn.jsdelivr.net/gh/ryusoh/host@ambient-v1.7',
-                'https://ghproxy.net/https://raw.githubusercontent.com/ryusoh/host/ambient-v1.7',
-                'https://gcore.jsdelivr.net/gh/ryusoh/host@ambient-v1.7',
-                'https://fastly.jsdelivr.net/gh/ryusoh/host@ambient-v1.7',
-            ],
-        };
-        const PATHS = {
-            css: '/shared/css/ambient/v1/ambient.css',
-            sketch: '/shared/js/vendor/sketch.js',
-            config: '/shared/js/ambient/v1/config/default.js',
-            ambient: '/shared/js/ambient/v1/ambient.js',
-        };
-        function urlsFor(bases, path) {
-            const out = [];
-            for (let i = 0; i < bases.length; i++) {
-                out.push(bases[i] + path);
-            }
-            return out;
-        }
-
-        window.CDNLoader.preconnect([
-            'https://cdn.jsdelivr.net',
-            'https://ghproxy.net',
-            'https://gcore.jsdelivr.net',
-            'https://fastly.jsdelivr.net',
-        ]);
-
-        window.CDNLoader.loadCssWithFallback(urlsFor(BASES.css, PATHS.css))
+        window.CDNLoader.loadCssWithFallback(['/css/ambient/ambient.css'])
             .then(function () {
-                return window.CDNLoader.loadScriptSequential(urlsFor(BASES.vendor, PATHS.sketch), {
-                    defer: false,
-                });
+                return window.CDNLoader.loadScriptSequential(['/js/vendor/sketch.js']);
             })
             .then(function () {
-                return window.CDNLoader.loadScriptSequential(urlsFor(BASES.ambient, PATHS.config), {
+                return window.CDNLoader.loadScriptSequential(['/js/ambient/config/default.js'], {
                     defer: true,
                 });
             })
             .then(function () {
-                return window.CDNLoader.loadScriptSequential(
-                    urlsFor(BASES.ambient, PATHS.ambient),
-                    { defer: true }
-                );
+                return window.CDNLoader.loadScriptSequential(['/js/ambient/ambient.js'], {
+                    defer: true,
+                });
             })
             .catch(function () {});
     } catch {}
