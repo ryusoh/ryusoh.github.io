@@ -8,7 +8,7 @@ on:
 
 jobs:
     web-ci:
-        uses: ./.github/workflows/web-ci.yml  # Local workflow
+        uses: ./.github/workflows/web-ci.yml # Local workflow
         secrets: inherit
         with:
             node-version: '20'
