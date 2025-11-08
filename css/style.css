@@ -3,6 +3,10 @@
     -moz-transition: all 0.5s;
     transition: all 0.5s;
 }
+:root {
+    --page-transition-primary: rgba(206, 35, 35, 0.55);
+    --page-transition-secondary: rgba(206, 35, 35, 0.3);
+}
 .background-cover,
 .intro-header {
     -webkit-background-size: cover;

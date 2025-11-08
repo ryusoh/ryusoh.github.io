@@ -401,3 +401,7 @@ footer {
 .social-icons-container .social-icon {
     font-size: 16px;
 }
+:root {
+    --page-transition-primary: rgba(206, 35, 35, 0.55);
+    --page-transition-secondary: rgba(206, 35, 35, 0.3);
+}
