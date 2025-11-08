@@ -1,0 +1,18 @@
+{
+    "name": "Zhuang Liu",
+    "short_name": "Zhuang Liu",
+    "description": "Street Photography by Zhuang Liu",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/assets/img/icon-180.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}
