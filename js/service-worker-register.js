@@ -5,6 +5,19 @@
         return;
     }
 
+    function isLocalhost() {
+        try {
+            const host = window.location.hostname;
+            return host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '';
+        } catch {
+            return false;
+        }
+    }
+
+    if (isLocalhost()) {
+        return;
+    }
+
     function emitEvent(name, detail) {
         if (typeof window.dispatchEvent !== 'function') {
             return;
