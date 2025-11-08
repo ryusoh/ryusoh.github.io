@@ -307,48 +307,40 @@ import * as THREE from './vendor/three.module.min.js';
         'float hash(vec2 p) {',
         '    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);',
         '}',
-        'vec2 applyLift(vec2 uv, float lift) {',
+        'vec3 blurSample(sampler2D tex, vec2 uv, vec2 pixel, float strength) {',
+        '    vec3 c = texture2D(tex, uv).rgb * 0.4;',
+        '    c += texture2D(tex, uv + vec2(pixel.x, 0.0)).rgb * 0.15;',
+        '    c += texture2D(tex, uv - vec2(pixel.x, 0.0)).rgb * 0.15;',
+        '    c += texture2D(tex, uv + vec2(0.0, pixel.y)).rgb * 0.15;',
+        '    c += texture2D(tex, uv - vec2(0.0, pixel.y)).rgb * 0.15;',
+        '    return mix(texture2D(tex, uv).rgb, c, strength);',
+        '}',
+        'vec2 parallax(vec2 uv, float amount) {',
         '    vec2 centered = uv - 0.5;',
-        '    float scale = 1.0 + lift * 0.04;',
-        '    centered /= scale;',
-        '    centered.y += lift * 0.08;',
-        '    centered.x += lift * 0.02;',
-        '    return centered + 0.5;',
+        '    return uv + centered * amount * 0.05;',
         '}',
-        'vec3 softSample(sampler2D tex, vec2 uv, vec2 pixel) {',
-        '    vec3 c = texture2D(tex, uv).rgb;',
-        '    c += texture2D(tex, uv + vec2(pixel.x, 0.0)).rgb;',
-        '    c += texture2D(tex, uv - vec2(pixel.x, 0.0)).rgb;',
-        '    c += texture2D(tex, uv + vec2(0.0, pixel.y)).rgb;',
-        '    c += texture2D(tex, uv - vec2(0.0, pixel.y)).rgb;',
-        '    return c / 5.0;',
-        '}',
-        'float lightSweep(vec2 uv, float progress) {',
-        '    float sweepPos = mix(-0.4, 1.2, progress);',
-        '    float band = smoothstep(sweepPos - 0.1, sweepPos + 0.05, uv.y);',
-        '    float taper = smoothstep(0.0, 0.5, progress) * smoothstep(1.0, 0.7, progress);',
-        '    float spark = sin((uv.x + uv.y) * 40.0 - progress * 8.0) * 0.08;',
-        '    return clamp(band + spark, 0.0, 1.0) * taper;',
+        'float glow(vec2 uv, float progress) {',
+        '    float sweep = smoothstep(progress - 0.1, progress + 0.03, uv.y);',
+        '    float trail = exp(-abs(uv.y - progress) * 8.0);',
+        '    return sweep * 0.35 + trail * 0.2;',
         '}',
         'void main() {',
         '    vec2 pixel = 1.0 / max(uResolution, vec2(1.0));',
-        '    float lift = smoothstep(0.0, 0.6, uProgress);',
-        '    float reveal = smoothstep(0.2, 0.95, uProgress);',
-        '    vec2 prevUv = applyLift(vUv, lift);',
-        '    vec3 prevColor = softSample(uTexture0, prevUv, pixel * 1.5);',
-        '    float luma = dot(prevColor, vec3(0.299, 0.587, 0.114));',
-        '    prevColor = mix(prevColor, vec3(luma), lift * 0.65);',
-        '    vec2 nextUv = vUv;',
-        '    nextUv.y -= (1.0 - reveal) * 0.02;',
-        '    vec3 nextColor = texture2D(uTexture1, nextUv).rgb;',
-        '    float sweep = lightSweep(vUv, reveal);',
-        '    vec3 sweepColor = mix(uColorSecondary, uColorPrimary, 0.6);',
-        '    nextColor += sweepColor * (sweep * 0.35 * (uColorPrimaryStrength + uColorSecondaryStrength));',
-        '    vec3 mixed = mix(prevColor, nextColor, reveal);',
-        '    float grain = (hash(vUv * 650.0 + uProgress * 10.0) - 0.5) * 0.02;',
+        '    float reveal = smoothstep(0.08, 0.92, uProgress);',
+        '    float blurStrength = smoothstep(0.0, 0.5, uProgress) * 0.6;',
+        '    vec3 fromColor = blurSample(uTexture0, parallax(vUv, -0.3 * (1.0 - reveal)), pixel * 1.1, blurStrength);',
+        '    float desaturate = smoothstep(0.0, 1.0, uProgress);',
+        '    float luma = dot(fromColor, vec3(0.299, 0.587, 0.114));',
+        '    fromColor = mix(fromColor, vec3(luma), desaturate * 0.45);',
+        '    vec3 toColor = texture2D(uTexture1, parallax(vUv, 0.12 * (1.0 - reveal))).rgb;',
+        '    vec3 mixed = mix(fromColor, toColor, reveal);',
+        '    float sweep = glow(vUv, reveal);',
+        '    vec3 sweepColor = mix(uColorSecondary, uColorPrimary, 0.5);',
+        '    float sweepStrength = (uColorPrimaryStrength + uColorSecondaryStrength) * 0.2;',
+        '    mixed += sweepColor * (sweep * sweepStrength);',
+        '    float grain = (hash(vUv * 720.0 + uProgress * 5.0) - 0.5) * 0.012;',
         '    mixed += grain;',
-        '    mixed = clamp(mixed, 0.0, 1.0);',
-        '    gl_FragColor = vec4(mixed, 0.78);',
+        '    gl_FragColor = vec4(clamp(mixed, 0.0, 1.0), 0.78);',
         '}',
     ].join('\n');
 
@@ -362,7 +354,6 @@ import * as THREE from './vendor/three.module.min.js';
         this.progressRaf = null;
         this.renderRaf = null;
         this.hideTimeout = null;
-        this.awaitingIntro = false;
         this.textures = { previous: null, current: null };
         this.container = document.createElement('div');
         this.container.className = 'page-transition-overlay';
@@ -384,23 +375,12 @@ import * as THREE from './vendor/three.module.min.js';
         this.setProgress(0);
         this.hideOverlay(true);
         this.applyStoredCaptureTexture();
-        this.awaitingIntro = pendingReveal;
-
-        const finalizeIntro = () => {
-            if (!this.awaitingIntro) {
-                return;
-            }
-            this.awaitingIntro = false;
-            this.showOverlay(true);
-            this.playIntro();
+        if (pendingReveal) {
             clearTransitionParam();
-        };
+        }
 
         const prepareDestination = () => {
-            this.prepareDestinationTexture().then(
-                () => finalizeIntro(),
-                () => finalizeIntro()
-            );
+            this.prepareDestinationTexture().catch(() => {});
         };
 
         if (document.readyState === 'complete') {
@@ -697,9 +677,24 @@ import * as THREE from './vendor/three.module.min.js';
         }
 
         const links = Array.prototype.slice.call(document.querySelectorAll('a[' + LINK_ATTR + ']'));
+        function shouldSkipForMobileBack(element) {
+            if (!element) {
+                return false;
+            }
+            if (!element.classList || !element.classList.contains('nav-back')) {
+                return false;
+            }
+            if (typeof window.matchMedia !== 'function') {
+                return false;
+            }
+            return window.matchMedia('(max-width: 768px)').matches;
+        }
         links.forEach(function (anchor) {
             anchor.addEventListener('click', function (event) {
                 if (event.defaultPrevented) {
+                    return;
+                }
+                if (shouldSkipForMobileBack(anchor)) {
                     return;
                 }
                 if (
@@ -736,20 +731,10 @@ import * as THREE from './vendor/three.module.min.js';
                 return;
             }
             if (hasTransitionParam()) {
-                transition.awaitingIntro = true;
-                const finalize = function () {
-                    if (!transition.awaitingIntro) {
-                        return;
-                    }
-                    transition.awaitingIntro = false;
-                    transition.showOverlay(true);
-                    transition.playIntro();
-                    clearTransitionParam();
-                };
-                transition.prepareDestinationTexture().then(
-                    () => finalize(),
-                    () => finalize()
-                );
+                clearTransitionParam();
+                transition.hideOverlay(true);
+                transition.setProgress(0);
+                transition.dimContent(false);
             } else if (event.persisted) {
                 transition.hideOverlay(true);
                 transition.setProgress(0);
