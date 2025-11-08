@@ -8,7 +8,7 @@ import * as THREE from './vendor/three.module.min.js';
     const CAPTURE_STORAGE_KEY = 'page-transition:capture';
     const CAPTURE_SCALE = 0.6;
     const STYLE_ID = 'page-transition-overlay-styles';
-    const INTRO_DURATION = 900;
+    const INTRO_DURATION = 750;
     const DEFAULT_PRIMARY = { rgb: [0.38, 0.63, 1.0], alpha: 0.55 };
     const DEFAULT_SECONDARY = { rgb: [0.2, 0.55, 0.95], alpha: 0.4 };
 
@@ -113,7 +113,8 @@ import * as THREE from './vendor/three.module.min.js';
                 logging: false,
                 useCORS: true,
                 backgroundColor:
-                    (window.getComputedStyle && window.getComputedStyle(document.body).backgroundColor) ||
+                    (window.getComputedStyle &&
+                        window.getComputedStyle(document.body).backgroundColor) ||
                     '#000',
                 scale,
                 width: viewportWidth,
@@ -257,7 +258,7 @@ import * as THREE from './vendor/three.module.min.js';
         style.id = STYLE_ID;
         style.type = 'text/css';
         style.textContent =
-            '.page-transition-overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.4s ease;background:#020202;}' +
+            '.page-transition-overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.4s ease;background:rgba(0,0,0,0.25);}' +
             '.page-transition-overlay canvas{display:block;width:100%;height:100%;}' +
             'html.page-transition--active .page-transition-overlay{opacity:1;}' +
             'html.page-transition--dimming body{transition:opacity 0.45s ease;opacity:0.35;}';
@@ -297,7 +298,6 @@ import * as THREE from './vendor/three.module.min.js';
         'uniform sampler2D uTexture0;',
         'uniform sampler2D uTexture1;',
         'uniform float uProgress;',
-        'uniform float uTime;',
         'uniform vec2 uResolution;',
         'uniform vec3 uColorPrimary;',
         'uniform vec3 uColorSecondary;',
@@ -307,30 +307,48 @@ import * as THREE from './vendor/three.module.min.js';
         'float hash(vec2 p) {',
         '    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);',
         '}',
-        'float stripeMask(vec2 uv, float progress) {',
-        '    float speed = mix(0.8, 2.2, progress);',
-        '    float offset = uTime * speed;',
-        '    float lanes = 18.0;',
-        '    float field = fract(uv.y * lanes - offset);',
-        '    float softness = mix(0.03, 0.08, progress);',
-        '    return smoothstep(progress - softness, progress + softness, field);',
+        'vec2 applyLift(vec2 uv, float lift) {',
+        '    vec2 centered = uv - 0.5;',
+        '    float scale = 1.0 + lift * 0.04;',
+        '    centered /= scale;',
+        '    centered.y += lift * 0.08;',
+        '    centered.x += lift * 0.02;',
+        '    return centered + 0.5;',
         '}',
-        'vec3 applyColorBias(vec3 color, float stripe, float progress) {',
-        '    float plasma = stripe * stripe * (3.0 - 2.0 * stripe);',
-        '    vec3 tint = mix(uColorSecondary, uColorPrimary, plasma) * uColorPrimaryStrength;',
-        '    return mix(color, color + tint * 0.15, 1.0 - progress);',
+        'vec3 softSample(sampler2D tex, vec2 uv, vec2 pixel) {',
+        '    vec3 c = texture2D(tex, uv).rgb;',
+        '    c += texture2D(tex, uv + vec2(pixel.x, 0.0)).rgb;',
+        '    c += texture2D(tex, uv - vec2(pixel.x, 0.0)).rgb;',
+        '    c += texture2D(tex, uv + vec2(0.0, pixel.y)).rgb;',
+        '    c += texture2D(tex, uv - vec2(0.0, pixel.y)).rgb;',
+        '    return c / 5.0;',
+        '}',
+        'float lightSweep(vec2 uv, float progress) {',
+        '    float sweepPos = mix(-0.4, 1.2, progress);',
+        '    float band = smoothstep(sweepPos - 0.1, sweepPos + 0.05, uv.y);',
+        '    float taper = smoothstep(0.0, 0.5, progress) * smoothstep(1.0, 0.7, progress);',
+        '    float spark = sin((uv.x + uv.y) * 40.0 - progress * 8.0) * 0.08;',
+        '    return clamp(band + spark, 0.0, 1.0) * taper;',
         '}',
         'void main() {',
-        '    vec2 uv = vUv;',
-        '    float progress = smoothstep(0.0, 1.0, uProgress);',
-        '    float stripes = stripeMask(uv, progress);',
-        '    vec3 fromColor = texture2D(uTexture0, uv).rgb;',
-        '    vec3 toColor = texture2D(uTexture1, uv).rgb;',
-        '    vec3 mixed = mix(fromColor, toColor, stripes);',
-        '    mixed = applyColorBias(mixed, stripes, progress);',
-        '    float grain = (hash(uv * 850.0 + uTime * 1.3) - 0.5) * 0.04;',
+        '    vec2 pixel = 1.0 / max(uResolution, vec2(1.0));',
+        '    float lift = smoothstep(0.0, 0.6, uProgress);',
+        '    float reveal = smoothstep(0.2, 0.95, uProgress);',
+        '    vec2 prevUv = applyLift(vUv, lift);',
+        '    vec3 prevColor = softSample(uTexture0, prevUv, pixel * 1.5);',
+        '    float luma = dot(prevColor, vec3(0.299, 0.587, 0.114));',
+        '    prevColor = mix(prevColor, vec3(luma), lift * 0.65);',
+        '    vec2 nextUv = vUv;',
+        '    nextUv.y -= (1.0 - reveal) * 0.02;',
+        '    vec3 nextColor = texture2D(uTexture1, nextUv).rgb;',
+        '    float sweep = lightSweep(vUv, reveal);',
+        '    vec3 sweepColor = mix(uColorSecondary, uColorPrimary, 0.6);',
+        '    nextColor += sweepColor * (sweep * 0.35 * (uColorPrimaryStrength + uColorSecondaryStrength));',
+        '    vec3 mixed = mix(prevColor, nextColor, reveal);',
+        '    float grain = (hash(vUv * 650.0 + uProgress * 10.0) - 0.5) * 0.02;',
         '    mixed += grain;',
-        '    gl_FragColor = vec4(clamp(mixed, 0.0, 1.0), 1.0);',
+        '    mixed = clamp(mixed, 0.0, 1.0);',
+        '    gl_FragColor = vec4(mixed, 0.78);',
         '}',
     ].join('\n');
 
@@ -396,10 +414,12 @@ import * as THREE from './vendor/three.module.min.js';
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
             antialias: true,
+            alpha: true,
             powerPreference: 'high-performance',
         });
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x000000, 0);
         this.scene = new THREE.Scene();
         this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         this.uniforms = {
