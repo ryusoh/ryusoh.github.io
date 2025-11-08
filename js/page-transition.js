@@ -5,6 +5,8 @@ import * as THREE from './vendor/three.module.min.js';
 (function () {
     const LINK_ATTR = 'data-page-transition';
     const TRANSITION_PARAM = '__pt';
+    const CAPTURE_STORAGE_KEY = 'page-transition:capture';
+    const CAPTURE_SCALE = 0.6;
     const STYLE_ID = 'page-transition-overlay-styles';
     const INTRO_DURATION = 900;
     const DEFAULT_PRIMARY = { rgb: [0.38, 0.63, 1.0], alpha: 0.55 };
@@ -67,6 +69,89 @@ import * as THREE from './vendor/three.module.min.js';
                 window.history.replaceState({}, document.title, newUrl);
             }
         } catch {}
+    }
+
+    function storeCaptureData(dataUrl) {
+        if (!dataUrl) {
+            return;
+        }
+        try {
+            window.sessionStorage.setItem(CAPTURE_STORAGE_KEY, dataUrl);
+        } catch {}
+    }
+
+    function consumeCaptureData() {
+        try {
+            const data = window.sessionStorage.getItem(CAPTURE_STORAGE_KEY);
+            if (data) {
+                window.sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
+                return data;
+            }
+        } catch {}
+        return null;
+    }
+
+    function captureScene() {
+        if (
+            typeof window === 'undefined' ||
+            typeof document === 'undefined' ||
+            typeof window.html2canvas !== 'function'
+        ) {
+            return Promise.resolve(null);
+        }
+        const target = document.documentElement || document.body;
+        const viewportWidth = Math.max(window.innerWidth || 1, 1);
+        const viewportHeight = Math.max(window.innerHeight || 1, 1);
+        const scale = Math.min(
+            1.2,
+            Math.max(CAPTURE_SCALE, 1000 / Math.max(viewportWidth, viewportHeight))
+        );
+        const scrollX = window.scrollX || window.pageXOffset || 0;
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        return window
+            .html2canvas(target, {
+                logging: false,
+                useCORS: true,
+                backgroundColor:
+                    (window.getComputedStyle && window.getComputedStyle(document.body).backgroundColor) ||
+                    '#000',
+                scale,
+                width: viewportWidth,
+                height: viewportHeight,
+                windowWidth: document.documentElement.clientWidth,
+                windowHeight: document.documentElement.clientHeight,
+                scrollX: scrollX,
+                scrollY: scrollY,
+                x: scrollX,
+                y: scrollY,
+            })
+            .then((canvas) => {
+                try {
+                    return canvas.toDataURL('image/png', 0.9);
+                } catch {
+                    return null;
+                }
+            })
+            .catch(() => null);
+    }
+
+    function loadTextureFromDataURL(dataUrl, THREE) {
+        return new Promise((resolve, reject) => {
+            if (!dataUrl) {
+                reject(new Error('No data url'));
+                return;
+            }
+            const image = new Image();
+            image.onload = function () {
+                const texture = new THREE.Texture(image);
+                texture.needsUpdate = true;
+                texture.minFilter = THREE.LinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                resolve(texture);
+            };
+            image.onerror = reject;
+            image.src = dataUrl;
+        });
     }
 
     function clampUnit(value) {
@@ -225,25 +310,22 @@ import * as THREE from './vendor/three.module.min.js';
         'float stripeMask(vec2 uv, float progress) {',
         '    float speed = mix(0.8, 2.2, progress);',
         '    float offset = uTime * speed;',
-        '    float lanes = 20.0;',
+        '    float lanes = 18.0;',
         '    float field = fract(uv.y * lanes - offset);',
-        '    float softness = mix(0.03, 0.1, progress);',
+        '    float softness = mix(0.03, 0.08, progress);',
         '    return smoothstep(progress - softness, progress + softness, field);',
         '}',
         'vec3 applyColorBias(vec3 color, float stripe, float progress) {',
         '    float plasma = stripe * stripe * (3.0 - 2.0 * stripe);',
         '    vec3 tint = mix(uColorSecondary, uColorPrimary, plasma) * uColorPrimaryStrength;',
-        '    float pulse = sin(uTime * 8.0 + stripe * 12.0) * 0.15;',
-        '    tint += uColorSecondary * (uColorSecondaryStrength * pulse);',
-        '    return color + tint * mix(0.15, 0.45, 1.0 - progress);',
+        '    return mix(color, color + tint * 0.15, 1.0 - progress);',
         '}',
         'void main() {',
         '    vec2 uv = vUv;',
         '    float progress = smoothstep(0.0, 1.0, uProgress);',
         '    float stripes = stripeMask(uv, progress);',
-        '    vec2 flickerUv = uv + vec2(stripes * 0.02 * sin(uTime * 12.0), 0.0);',
-        '    vec3 fromColor = texture2D(uTexture0, flickerUv).rgb;',
-        '    vec3 toColor = texture2D(uTexture1, flickerUv).rgb;',
+        '    vec3 fromColor = texture2D(uTexture0, uv).rgb;',
+        '    vec3 toColor = texture2D(uTexture1, uv).rgb;',
         '    vec3 mixed = mix(fromColor, toColor, stripes);',
         '    mixed = applyColorBias(mixed, stripes, progress);',
         '    float grain = (hash(uv * 850.0 + uTime * 1.3) - 0.5) * 0.04;',
@@ -262,7 +344,8 @@ import * as THREE from './vendor/three.module.min.js';
         this.progressRaf = null;
         this.renderRaf = null;
         this.hideTimeout = null;
-        this.pendingUrl = null;
+        this.awaitingIntro = false;
+        this.textures = { previous: null, current: null };
         this.container = document.createElement('div');
         this.container.className = 'page-transition-overlay';
         this.canvas = document.createElement('canvas');
@@ -282,12 +365,30 @@ import * as THREE from './vendor/three.module.min.js';
         this.refreshColorUniforms();
         this.setProgress(0);
         this.hideOverlay(true);
+        this.applyStoredCaptureTexture();
+        this.awaitingIntro = pendingReveal;
 
-        if (pendingReveal) {
-            this.setProgress(1);
+        const finalizeIntro = () => {
+            if (!this.awaitingIntro) {
+                return;
+            }
+            this.awaitingIntro = false;
             this.showOverlay(true);
             this.playIntro();
             clearTransitionParam();
+        };
+
+        const prepareDestination = () => {
+            this.prepareDestinationTexture().then(
+                () => finalizeIntro(),
+                () => finalizeIntro()
+            );
+        };
+
+        if (document.readyState === 'complete') {
+            prepareDestination();
+        } else {
+            window.addEventListener('load', prepareDestination, { once: true });
         }
     }
 
@@ -342,6 +443,53 @@ import * as THREE from './vendor/three.module.min.js';
         this.renderLoop = this.renderLoop.bind(this);
         this.handleResize = this.handleResize.bind(this);
         window.addEventListener('resize', this.handleResize);
+    };
+
+    PageTransition.prototype.applyStoredCaptureTexture = function () {
+        const dataUrl = consumeCaptureData();
+        if (!dataUrl) {
+            return null;
+        }
+        loadTextureFromDataURL(dataUrl, THREE)
+            .then((texture) => {
+                this.uniforms.uTexture0.value = texture;
+                this.textures.previous = texture;
+            })
+            .catch(() => {});
+        return null;
+    };
+
+    PageTransition.prototype.prepareDestinationTexture = function () {
+        return captureScene().then((dataUrl) => {
+            if (!dataUrl) {
+                return null;
+            }
+            return loadTextureFromDataURL(dataUrl, THREE)
+                .then((texture) => {
+                    this.uniforms.uTexture1.value = texture;
+                    this.textures.current = texture;
+                    return texture;
+                })
+                .catch(() => null);
+        });
+    };
+
+    PageTransition.prototype.captureAndStoreCurrentScene = function () {
+        return captureScene().then((dataUrl) => {
+            if (dataUrl) {
+                storeCaptureData(dataUrl);
+            }
+        });
+    };
+
+    PageTransition.prototype.buildTransitionUrl = function (url) {
+        try {
+            const nextUrl = new window.URL(url, window.location.href);
+            nextUrl.searchParams.set(TRANSITION_PARAM, '1');
+            return nextUrl.toString();
+        } catch {
+            return url;
+        }
     };
 
     PageTransition.prototype.refreshColorUniforms = function () {
@@ -503,18 +651,14 @@ import * as THREE from './vendor/three.module.min.js';
             return;
         }
         this.isAnimating = true;
-        try {
-            const nextUrl = new window.URL(url, window.location.href);
-            nextUrl.searchParams.set(TRANSITION_PARAM, '1');
-            this.pendingUrl = nextUrl.toString();
-        } catch {
-            this.pendingUrl = url;
-        }
+        const targetUrl = this.buildTransitionUrl(url);
         this.showOverlay(false);
         this.dimContent(true);
         this.setProgress(0);
-        this.animateProgress(1, this.duration, () => {
-            window.location.assign(this.pendingUrl || url);
+        Promise.resolve(this.captureAndStoreCurrentScene()).finally(() => {
+            this.animateProgress(1, this.duration, () => {
+                window.location.assign(targetUrl);
+            });
         });
     };
 
@@ -572,10 +716,20 @@ import * as THREE from './vendor/three.module.min.js';
                 return;
             }
             if (hasTransitionParam()) {
-                clearTransitionParam();
-                transition.setProgress(1);
-                transition.showOverlay(true);
-                transition.playIntro();
+                transition.awaitingIntro = true;
+                const finalize = function () {
+                    if (!transition.awaitingIntro) {
+                        return;
+                    }
+                    transition.awaitingIntro = false;
+                    transition.showOverlay(true);
+                    transition.playIntro();
+                    clearTransitionParam();
+                };
+                transition.prepareDestinationTexture().then(
+                    () => finalize(),
+                    () => finalize()
+                );
             } else if (event.persisted) {
                 transition.hideOverlay(true);
                 transition.setProgress(0);
