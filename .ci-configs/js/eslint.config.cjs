@@ -70,6 +70,7 @@ module.exports = [
             semi: ['warn', 'always'],
             quotes: ['warn', 'single', { avoidEscape: true }],
             indent: ['error', 4, { SwitchCase: 1 }],
+            'indent-legacy': 'off', // Use the new indent rule
             'keyword-spacing': ['warn', { before: true, after: true }],
             'space-before-blocks': ['warn', 'always'],
             'comma-spacing': ['warn', { before: false, after: true }],

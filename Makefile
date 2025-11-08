@@ -1,5 +1,7 @@
 .PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix
 
+NPX ?= ./scripts/run-npx.sh
+
 help:
 	@echo "Targets:"
 	@echo "  hooks         Install pre-commit git hooks (if available)"
@@ -34,7 +36,7 @@ precommit: hooks
 precommit-fix: hooks
 	@if [ -f .ci-configs/js/.prettierrc.json ]; then \
 		echo "Running Prettier with --write..."; \
-		npx prettier --write . \
+		$(NPX) prettier --write . \
 		  --config .ci-configs/js/.prettierrc.json \
 		  --ignore-path .ci-configs/js/.prettierignore || true; \
 	fi
@@ -42,9 +44,9 @@ precommit-fix: hooks
 		echo "Running pre-commit auto-fixes..."; \
 		python3 -m pre_commit run --all-files --hook-stage manual --verbose || true; \
 		echo "Running ESLint with --fix..."; \
-		npx eslint . --config .ci-configs/js/eslint.config.cjs --fix || true; \
+		$(NPX) eslint . --config .ci-configs/js/eslint.config.cjs --fix --no-warn-ignored || true; \
 		echo "Running Stylelint with --fix..."; \
-		npx -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --fix || true; \
+		$(NPX) -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --fix || true; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
 	fi
@@ -55,7 +57,7 @@ update-hooks:
 # --- Developer convenience (CI parity without committing) ---
 fmt-check:
 	@if [ -f .ci-configs/js/.prettierrc.json ]; then \
-		npx prettier -c . \
+		$(NPX) prettier -c . \
 		  --config .ci-configs/js/.prettierrc.json \
 		  --ignore-path .ci-configs/js/.prettierignore; \
 	else \
@@ -64,18 +66,18 @@ fmt-check:
 
 fmt:
 	@if [ -f .ci-configs/js/.prettierrc.json ]; then \
-		npx prettier -w . \
+		$(NPX) prettier -w . \
 		  --config .ci-configs/js/.prettierrc.json \
 		  --ignore-path .ci-configs/js/.prettierignore; \
 	else \
-		npx prettier -w .; \
+		$(NPX) prettier -w .; \
 	fi
 
 lint-js:
-	@npx eslint . --config .ci-configs/js/eslint.config.cjs --max-warnings=0
+	@$(NPX) eslint . --config .ci-configs/js/eslint.config.cjs --max-warnings=0 --no-warn-ignored
 
 lint-css:
-	@npx -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --formatter=unix
+	@$(NPX) -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --formatter=unix
 
 lint: lint-js lint-css
 
@@ -83,8 +85,8 @@ check: fmt-check lint
 
 lint-fix:
 	@# Apply ESLint fixes (uses shared config)
-	@npx eslint . --config .ci-configs/js/eslint.config.cjs --fix --max-warnings=0 || true
+	@$(NPX) eslint . --config .ci-configs/js/eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true
 	@# Apply Stylelint fixes (ensure plugin availability)
-	@npx -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --fix || true
+	@$(NPX) -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --fix || true
 
 fix: fmt lint-fix
