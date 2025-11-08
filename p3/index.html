@@ -50,6 +50,9 @@
             rel="stylesheet"
             type="text/css"
         />
+        <script defer src="../js/loader/cdnFallback.js"></script>
+        <script defer src="../js/loader/vendorLoader.js"></script>
+        <script defer src="../js/font-awesome-loader.js"></script>
 
         <!-- jQuery -->
         <script src="/assets/vendor/jquery/jquery.min.js"></script>
@@ -64,7 +67,7 @@
         <![endif]-->
     </head>
 
-    <body>
+    <body data-page-type="project">
         <!-- Content -->
         <section class="article-container">
             <!-- Back Home -->
@@ -78,7 +81,13 @@
                     z-index: 1000;
                 }
             </style>
-            <a class="nav-back" href="../" target="_self" data-page-transition>
+            <a
+                class="nav-back"
+                href="../"
+                target="_self"
+                data-page-transition
+                data-destination="home"
+            >
                 <i class="fa fa-chevron-left"></i>
             </a>
 
@@ -156,9 +165,9 @@
         <script type="text/javascript"></script>
         <script defer src="../js/vendor/html2canvas.min.js"></script>
         <script type="module" src="../js/page-transition.js"></script>
+        <script defer src="../js/ambient/loader.js"></script>
         <script defer src="../js/block-navigation.js"></script>
         <script defer src="../js/preloader.js"></script>
-        <script defer src="../js/font-awesome-loader.js"></script>
 
         <!-- Google Analytics -->
 

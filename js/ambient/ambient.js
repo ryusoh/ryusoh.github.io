@@ -76,6 +76,24 @@
 
         const MAX = C.maxParticles,
             particles = [];
+        const transitionControl = {
+            mode: 'idle',
+            start: 0,
+            duration: 900,
+        };
+        const TRANSITION_FLAG_KEY = 'ambientTransition:intro';
+        const perfNow = (function () {
+            if (
+                typeof window !== 'undefined' &&
+                window.performance &&
+                typeof window.performance.now === 'function'
+            ) {
+                return window.performance.now.bind(window.performance);
+            }
+            return function () {
+                return Date.now();
+            };
+        })();
         function reset(p) {
             const m = metrics();
             p.x = Math.random() * m.width;
@@ -86,6 +104,44 @@
             p.a = C.alpha.min + Math.random() * (C.alpha.max - C.alpha.min);
             return p;
         }
+        function beginExitBurst() {
+            transitionControl.mode = 'exit';
+            transitionControl.start = perfNow();
+            transitionControl.duration = 900;
+            if (s.canvas) {
+                s.canvas.style.transition = 'opacity 0.4s ease';
+                s.canvas.style.opacity = '1';
+            }
+            for (let i = 0; i < particles.length; i += 1) {
+                const p = particles[i];
+                p.vx = (Math.random() - 0.5) * C.speed * 10;
+                p.vy = -Math.abs(p.vy) - 1.2 - Math.random() * 1.8;
+                p.a = Math.min(1, p.a + 0.2);
+            }
+        }
+
+        let introTriggered = false;
+
+        function beginIntroSweep() {
+            introTriggered = true;
+            transitionControl.mode = 'intro';
+            transitionControl.start = perfNow();
+            transitionControl.duration = 750;
+            if (s.canvas) {
+                s.canvas.style.transition = 'opacity 0.4s ease';
+                s.canvas.style.opacity = '1';
+            }
+            const m = metrics();
+            for (let i = 0; i < particles.length; i += 1) {
+                const p = particles[i];
+                p.x = -m.width * 0.15 + Math.random() * m.width * 0.3;
+                p.y = -m.height * 0.1 + Math.random() * m.height * 0.25;
+                p.vx = Math.abs(p.vx) + 0.6 + Math.random() * 1.4;
+                p.vy = Math.abs(p.vy) + 0.5 + Math.random() * 1.2;
+                p.a = C.alpha.min + Math.random() * (C.alpha.max - C.alpha.min);
+            }
+        }
+
         s.setup = function () {
             particles.length = 0;
             const divisor = C.densityDivisor;
@@ -108,12 +164,37 @@
         s.update = function () {
             const w = metrics().width,
                 h = s.height;
+            const exiting = transitionControl.mode === 'exit';
+            const intro = transitionControl.mode === 'intro';
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10) {
+                if (exiting) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.a = Math.max(0, p.a - 0.02);
+                } else if (intro) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.a = Math.max(0, p.a - 0.01);
+                } else {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                }
+                if (
+                    !exiting &&
+                    !intro &&
+                    (p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10)
+                ) {
                     reset(p);
+                }
+            }
+            if (exiting || intro) {
+                const elapsed = perfNow() - transitionControl.start;
+                if (elapsed > transitionControl.duration) {
+                    transitionControl.mode = 'idle';
+                    if (s.canvas) {
+                        s.canvas.style.opacity = '';
+                    }
                 }
             }
         };
@@ -138,6 +219,31 @@
         if (trace && window.console) {
             window.__ambient = { config: C, instance: s };
         }
+        function maybePlayIntro() {
+            let shouldIntro = false;
+            try {
+                shouldIntro = window.sessionStorage.getItem(TRANSITION_FLAG_KEY) === '1';
+            } catch {}
+            const isProject =
+                document.body && document.body.getAttribute('data-page-type') === 'project';
+            if (shouldIntro && isProject) {
+                beginIntroSweep();
+                try {
+                    window.sessionStorage.removeItem(TRANSITION_FLAG_KEY);
+                } catch {}
+                return;
+            }
+            if (isProject && !introTriggered) {
+                beginIntroSweep();
+            }
+        }
+
+        window.AmbientTransitionController = {
+            playExit: beginExitBurst,
+            playIntro: beginIntroSweep,
+            maybePlayIntro: maybePlayIntro,
+        };
+        maybePlayIntro();
         // eslint-disable-next-line no-unused-vars
     } catch (e) {
         // Error handling is intentionally empty for ambient background script

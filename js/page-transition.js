@@ -347,6 +347,7 @@ import * as THREE from './vendor/three.module.min.js';
     function PageTransition() {
         injectStyles();
         this.enabled = !!THREE && canUseWebGL() && !prefersReducedMotion() && document.body != null;
+        this.pageType = (document.body && document.body.getAttribute('data-page-type')) || null;
         this.colors = getTransitionColors();
         this.duration = INTRO_DURATION;
         this.visible = false;
@@ -481,6 +482,14 @@ import * as THREE from './vendor/three.module.min.js';
             }
         });
     };
+
+    PageTransition.prototype.setAmbientIntroFlag = function () {};
+
+    PageTransition.prototype.shouldUseAmbientTransition = function () {
+        return false;
+    };
+
+    PageTransition.prototype.triggerAmbientExit = function () {};
 
     PageTransition.prototype.buildTransitionUrl = function (url) {
         try {
@@ -677,24 +686,18 @@ import * as THREE from './vendor/three.module.min.js';
         }
 
         const links = Array.prototype.slice.call(document.querySelectorAll('a[' + LINK_ATTR + ']'));
-        function shouldSkipForMobileBack(element) {
+        function shouldSkipNavBack(element) {
             if (!element) {
                 return false;
             }
             if (!element.classList || !element.classList.contains('nav-back')) {
                 return false;
             }
-            if (typeof window.matchMedia !== 'function') {
-                return false;
-            }
-            return window.matchMedia('(max-width: 768px)').matches;
+            return true;
         }
         links.forEach(function (anchor) {
             anchor.addEventListener('click', function (event) {
                 if (event.defaultPrevented) {
-                    return;
-                }
-                if (shouldSkipForMobileBack(anchor)) {
                     return;
                 }
                 if (
@@ -704,6 +707,9 @@ import * as THREE from './vendor/three.module.min.js';
                     event.shiftKey ||
                     event.altKey
                 ) {
+                    return;
+                }
+                if (shouldSkipNavBack(anchor)) {
                     return;
                 }
                 const target = anchor.getAttribute('target');

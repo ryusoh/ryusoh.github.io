@@ -4,7 +4,7 @@
         window.AMBIENT_CONFIG = Object.assign(
             {
                 enabled: true,
-                minWidth: 1024,
+                minWidth: 0,
                 maxParticles: 300,
                 densityDivisor: 20000,
                 radius: { min: 1.0, max: 8.0 },
