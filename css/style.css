@@ -112,6 +112,42 @@ html {
     letter-spacing: 2.5px;
     background: #000;
 }
+
+html {
+    background-color: #000;
+}
+
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 180px;
+    background: #000;
+    pointer-events: none;
+    z-index: -1;
+}
+
+body::before {
+    top: -120px;
+}
+
+body::after {
+    bottom: -120px;
+}
+
+@supports (top: env(safe-area-inset-top)) {
+    body::before {
+        top: calc(-120px - env(safe-area-inset-top));
+        height: calc(180px + env(safe-area-inset-top));
+    }
+
+    body::after {
+        bottom: calc(-120px - env(safe-area-inset-bottom));
+        height: calc(180px + env(safe-area-inset-bottom));
+    }
+}
 p {
     letter-spacing: 0.5px;
     line-height: 1.2;
