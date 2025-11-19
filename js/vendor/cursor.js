@@ -7,6 +7,48 @@ const isTouchDevice =
 
 const lerp = (start, end, alpha) => start + (end - start) * alpha;
 
+const throttle = (fn, wait = 0) => {
+    let lastExecution = 0;
+    let timeoutId = null;
+    let queuedArgs = null;
+
+    const execute = () => {
+        if (!queuedArgs) return;
+        lastExecution = Date.now();
+        const args = queuedArgs;
+        queuedArgs = null;
+        timeoutId = null;
+        fn(...args);
+    };
+
+    const throttled = (...args) => {
+        queuedArgs = args;
+        const now = Date.now();
+        const remaining = wait - (now - lastExecution);
+        if (remaining <= 0 || remaining > wait) {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            execute();
+        } else if (!timeoutId) {
+            timeoutId = setTimeout(execute, remaining);
+        }
+    };
+
+    throttled.flush = () => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+        }
+        if (queuedArgs) {
+            execute();
+        }
+    };
+
+    return throttled;
+};
+
 const htmlElement = typeof document !== 'undefined' ? document.documentElement : null;
 const getBody = () => (typeof document !== 'undefined' ? document.body : null);
 let forceHideRefCount = 0;
@@ -15,6 +57,68 @@ const HIDDEN_CURSOR_VALUE =
     'url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==") 0 0, none';
 const overriddenElements = new Set();
 let pointerListenersBound = false;
+
+const CURSOR_STORAGE_KEY = 'customCursorPosition';
+const CURSOR_STORAGE_THROTTLE_MS = 100;
+let sessionStorageAvailable;
+
+const canUseSessionStorage = () => {
+    if (sessionStorageAvailable !== undefined) return sessionStorageAvailable;
+    if (typeof window === 'undefined') {
+        sessionStorageAvailable = false;
+        return sessionStorageAvailable;
+    }
+    try {
+        const storage = window.sessionStorage;
+        if (!storage) {
+            sessionStorageAvailable = false;
+            return sessionStorageAvailable;
+        }
+        const testKey = '__cursor-test__';
+        storage.setItem(testKey, '1');
+        storage.removeItem(testKey);
+        sessionStorageAvailable = true;
+    } catch {
+        sessionStorageAvailable = false;
+    }
+    return sessionStorageAvailable;
+};
+
+const readStoredCursorPosition = () => {
+    if (!canUseSessionStorage()) return null;
+    try {
+        const raw = window.sessionStorage.getItem(CURSOR_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (
+            parsed &&
+            typeof parsed.x === 'number' &&
+            typeof parsed.y === 'number' &&
+            Number.isFinite(parsed.x) &&
+            Number.isFinite(parsed.y)
+        ) {
+            return parsed;
+        }
+    } catch {
+        // ignore JSON/storage errors
+    }
+    return null;
+};
+
+const storeCursorPosition = ({ x, y }) => {
+    if (!canUseSessionStorage()) return;
+    try {
+        window.sessionStorage.setItem(
+            CURSOR_STORAGE_KEY,
+            JSON.stringify({
+                x: Math.round(x),
+                y: Math.round(y),
+            })
+        );
+    } catch {
+        // ignore storage errors
+    }
+};
 
 const applyInlineCursorToElement = (element) => {
     if (
@@ -135,12 +239,20 @@ export class CustomCursor {
         this.core.style.transformOrigin = '50% 50%';
         this.element.appendChild(this.core);
 
+        const storedPosition = readStoredCursorPosition();
+        const initialX = storedPosition?.x ?? window.innerWidth / 2;
+        const initialY = storedPosition?.y ?? window.innerHeight / 2;
+
         this.coords = {
-            x: { current: window.innerWidth / 2, value: window.innerWidth / 2 },
-            y: { current: window.innerHeight / 2, value: window.innerHeight / 2 },
+            x: { current: initialX, value: initialX },
+            y: { current: initialY, value: initialY },
             opacity: { current: 1, value: 1 },
             scale: { current: 1, value: 1 },
         };
+
+        this.persistPosition = throttle((x, y) => {
+            storeCursorPosition({ x, y });
+        }, CURSOR_STORAGE_THROTTLE_MS);
 
         root.appendChild(this.element);
         applyForceHideCursor();
@@ -150,9 +262,12 @@ export class CustomCursor {
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
         this.loop = this.loop.bind(this);
+        this.flushStoredPosition = this.flushStoredPosition.bind(this);
 
         window.addEventListener('mousemove', this.onMouseMove);
         window.addEventListener('mouseout', this.onMouseOut);
+        window.addEventListener('beforeunload', this.flushStoredPosition);
+        window.addEventListener('pagehide', this.flushStoredPosition);
         this.attachHoverTargets();
 
         this.rafId = requestAnimationFrame(this.loop);
@@ -173,6 +288,7 @@ export class CustomCursor {
         this.coords.x.current = event.clientX;
         this.coords.y.current = event.clientY;
         this.coords.opacity.current = 1;
+        this.persistPosition?.(this.coords.x.current, this.coords.y.current);
     }
 
     onMouseOut(event) {
@@ -218,11 +334,24 @@ export class CustomCursor {
         this.rafId = requestAnimationFrame(this.loop);
     }
 
+    flushStoredPosition() {
+        if (this.disabled || !this.coords) return;
+        if (typeof this.persistPosition?.flush === 'function') {
+            this.persistPosition.flush();
+        }
+        storeCursorPosition({
+            x: this.coords.x.current,
+            y: this.coords.y.current,
+        });
+    }
+
     destroy() {
         if (this.disabled || !this.element) return;
         cancelAnimationFrame(this.rafId);
         window.removeEventListener('mousemove', this.onMouseMove);
         window.removeEventListener('mouseout', this.onMouseOut);
+        window.removeEventListener('beforeunload', this.flushStoredPosition);
+        window.removeEventListener('pagehide', this.flushStoredPosition);
 
         this.root.querySelectorAll(this.hoverTargets).forEach((node) => {
             if (node.style?.cursor === HIDDEN_CURSOR_VALUE) {
@@ -233,6 +362,7 @@ export class CustomCursor {
             node.removeEventListener('click', this.onMouseLeave);
         });
         this.element.remove();
+        this.flushStoredPosition();
         releaseForceHideCursor();
     }
 }
