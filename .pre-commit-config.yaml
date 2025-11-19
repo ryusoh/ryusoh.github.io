@@ -35,7 +35,7 @@ repos:
       hooks:
           - id: prettier
             name: prettier (staged files)
-            entry: ./scripts/run-npx.sh prettier --write --ignore-path .ci-configs/js/.prettierignore --
+            entry: ./scripts/run-npx.sh prettier --write --config .prettierrc.cjs --ignore-path .prettierignore --
             language: system
             files: '\\.(js|css|json|yml|yaml|md|html)$'
             pass_filenames: true
@@ -44,7 +44,7 @@ repos:
       hooks:
           - id: eslint
             name: eslint (staged JS)
-            entry: ./scripts/run-npx.sh eslint --config .ci-configs/js/eslint.config.cjs --max-warnings=0 --no-warn-ignored --
+            entry: ./scripts/run-npx.sh eslint --config eslint.config.cjs --max-warnings=0 --no-warn-ignored --
             language: system
             types_or: [javascript]
             pass_filenames: true
