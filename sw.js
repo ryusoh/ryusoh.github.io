@@ -1,103 +1,106 @@
-'use strict';
+/* Simple service worker for Ryusoh */
+/* eslint-env serviceworker */
+const CACHE_NAME = 'ryusoh-cache-v2';
+const CORE_ASSETS = [
+    '/',
+    '/index.html',
+    '/css/main_style.css',
+    '/js/service-worker-register.js',
+    '/js/page-transition.js',
+    '/js/ga.js',
+];
 
-const staticCacheName = 'pages-cache-v1';
-const assetsCacheName = 'assets-cache-v1';
-
-// Install event - pre-cache important resources
-self.addEventListener('install', function (event) {
+self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(staticCacheName).then(function (cache) {
-            return cache.addAll([
-                '/',
-                '/index.html',
-                '/css/main_style.css',
-                '/js/service-worker-register.js',
-                '/js/page-transition.js',
-                '/js/ga.js',
-            ]);
-        })
+        caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.addAll(CORE_ASSETS))
+            .then(() => self.skipWaiting())
     );
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', function (event) {
+self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then(function (cacheNames) {
-            return Promise.all(
-                cacheNames.map(function (cacheName) {
-                    if (cacheName !== staticCacheName && cacheName !== assetsCacheName) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
-
-// Fetch event - handle network requests with cache strategies
-self.addEventListener('fetch', function (event) {
-    // Skip non-GET requests and navigation requests to different origins
-    if (event.request.method !== 'GET') {
-        return;
-    }
-
-    const requestUrl = new URL(event.request.url);
-
-    // Handle navigation requests (pages) with network-first strategy
-    if (event.request.mode === 'navigate') {
-        event.respondWith(
-            caches.match(event.request).then(function (response) {
-                return (
-                    response ||
-                    fetch(event.request).then(function (fetchResponse) {
-                        // Update the cache with the latest version
-                        caches.open(staticCacheName).then(function (cache) {
-                            cache.put(event.request, fetchResponse.clone());
-                        });
-                        return fetchResponse;
-                    })
-                );
-            })
-        );
-        return;
-    }
-
-    // For assets, use cache-first strategy with network fallback
-    if (requestUrl.origin === location.origin) {
-        event.respondWith(
-            caches.match(event.request).then(function (response) {
-                return (
-                    response ||
-                    fetch(event.request).then(function (fetchResponse) {
-                        // Check if we received a valid response
-                        if (
-                            !fetchResponse ||
-                            fetchResponse.status !== 200 ||
-                            fetchResponse.type !== 'basic'
-                        ) {
-                            return fetchResponse;
+        caches
+            .keys()
+            .then((keys) =>
+                Promise.all(
+                    keys.map((k) => {
+                        if (k !== CACHE_NAME) {
+                            return caches.delete(k);
                         }
-
-                        // Add response to cache
-                        const responseToCache = fetchResponse.clone();
-                        caches.open(assetsCacheName).then(function (cache) {
-                            cache.put(event.request, responseToCache);
-                        });
-
-                        return fetchResponse;
                     })
-                );
+                )
+            )
+            .then(() => self.clients.claim())
+    );
+});
+
+// Helper to check if a response is a valid clean response we want to cache
+const isValidResponse = (res, req) => {
+    return (
+        res &&
+        res.ok &&
+        res.status === 200 &&
+        res.type === 'basic' &&
+        !req.headers.has('range') &&
+        !res.headers.get('Content-Range')
+    );
+};
+
+self.addEventListener('fetch', (event) => {
+    const req = event.request;
+    const url = new URL(req.url);
+
+    // Only handle same-origin requests
+    if (url.origin !== self.location.origin) {
+        return;
+    }
+
+    // Determine strategy based on file type
+    // Images & Fonts: Cache First (Immutable-ish, speed priority)
+    // HTML, JS, CSS: Network First (Mutable, freshness priority)
+    const isImmutable =
+        req.destination === 'image' ||
+        req.destination === 'font' ||
+        url.pathname.endsWith('.png') ||
+        url.pathname.endsWith('.jpg') ||
+        url.pathname.endsWith('.jpeg') ||
+        url.pathname.endsWith('.svg') ||
+        url.pathname.endsWith('.woff2');
+
+    if (isImmutable) {
+        // --- CACHE FIRST ---
+        event.respondWith(
+            caches.match(req).then((cached) => {
+                if (cached) {
+                    return cached;
+                }
+                return fetch(req).then((res) => {
+                    if (isValidResponse(res, req)) {
+                        const resClone = res.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+                    }
+                    return res;
+                });
             })
         );
+    } else {
+        // --- NETWORK FIRST ---
+        // (Includes style, script, document, and everything else)
+        event.respondWith(
+            fetch(req)
+                .then((res) => {
+                    if (isValidResponse(res, req)) {
+                        const resClone = res.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+                    }
+                    return res;
+                })
+                .catch(() => {
+                    // Network failed, try cache
+                    return caches.match(req);
+                })
+        );
     }
-});
-
-// Handle push notifications (for future use)
-self.addEventListener('push', function (/* event */) {
-    // Handle push events for notifications (optional)
-});
-
-// Handle background sync (for future use)
-self.addEventListener('sync', function (/* event */) {
-    // Handle background sync events (optional)
 });
