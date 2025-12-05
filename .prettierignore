@@ -3,6 +3,7 @@ coverage/
 assets/
 dist/
 venv/
+js/vendor/
 .husky/_/
 .mypy_cache/
 .pytest_cache/
