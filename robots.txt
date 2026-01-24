@@ -1,0 +1,12 @@
+# robots.txt for www.lyeutsaon.com
+# Zhuang Liu Photography Portfolio
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.lyeutsaon.com/sitemap.xml
+
+# Disallow vendor/library files (not useful for search)
+Disallow: /assets/vendor/
+Disallow: /js/vendor/
