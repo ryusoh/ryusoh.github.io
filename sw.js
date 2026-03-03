@@ -1,5 +1,4 @@
 /* Simple service worker for Ryusoh */
-/* eslint-env serviceworker */
 const CACHE_NAME = 'ryusoh-cache-v2';
 const CORE_ASSETS = [
     '/',
