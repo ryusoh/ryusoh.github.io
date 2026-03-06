@@ -483,14 +483,6 @@ import * as THREE from './vendor/three.module.min.js';
         });
     };
 
-    PageTransition.prototype.setAmbientIntroFlag = function () {};
-
-    PageTransition.prototype.shouldUseAmbientTransition = function () {
-        return false;
-    };
-
-    PageTransition.prototype.triggerAmbientExit = function () {};
-
     PageTransition.prototype.buildTransitionUrl = function (url) {
         try {
             const nextUrl = new window.URL(url, window.location.href);
