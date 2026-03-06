@@ -12,7 +12,7 @@ const vm = require('vm');
  * functionality being tested.
  */
 
-const sourcePath = path.resolve(__dirname, '../js/font-awesome-loader.js');
+const sourcePath = path.resolve(__dirname, '../../js/font-awesome-loader.js');
 const code = fs.readFileSync(sourcePath, 'utf8');
 
 describe('FontAwesomeLoader', () => {
