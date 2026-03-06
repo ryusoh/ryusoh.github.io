@@ -117,6 +117,7 @@ module.exports = [
                 afterAll: 'readonly',
                 window: 'readonly',
                 document: 'readonly',
+                __dirname: 'readonly',
             },
         },
         rules: {
