@@ -138,12 +138,22 @@
     }
 
     function updatePositions() {
+        if (!blocks.length) {
+            blockPositions = [];
+            syncCurrentIndex();
+            return;
+        }
+
+        // To avoid layout thrashing, we can batch the getBoundingClientRect calls.
+        // Reading geometry properties like getBoundingClientRect triggers layout reflow
+        // if the layout is "dirty". If we read them all in a row without interleaving
+        // with writes, the browser only reflows once.
+        const scrollY = window.scrollY;
         blockPositions = blocks.map((element) => {
             if (topSentinel && element === topSentinel) {
                 return 0;
             }
-            const rect = element.getBoundingClientRect();
-            return rect.top + window.scrollY;
+            return element.getBoundingClientRect().top + scrollY;
         });
         syncCurrentIndex();
     }
@@ -292,12 +302,13 @@
     }
 
     function bindImageLoadHandlers() {
+        const debouncedUpdate = debounce(updatePositions, 150);
         Array.from(document.images).forEach((image) => {
             if (image.complete) {
                 return;
             }
             image.addEventListener('load', () => {
-                updatePositions();
+                debouncedUpdate();
             });
         });
     }
