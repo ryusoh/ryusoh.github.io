@@ -80,7 +80,7 @@ jobs:
                   if [ -f .stylelintrc.cjs ]; then
                     IGNORE_ARG=""
                     if [ -f .stylelintignore ]; then IGNORE_ARG="--ignore-path .stylelintignore"; fi
-                    npx --yes -p stylelint@16.6.1 -p @stylistic/stylelint-plugin stylelint "**/*.css" --config .stylelintrc.cjs $IGNORE_ARG --max-warnings=0 || true
+                    npx --yes -p stylelint@16.6.1 -p @stylistic/stylelint-plugin@4.0.0 stylelint "**/*.css" --config .stylelintrc.cjs $IGNORE_ARG --max-warnings=0 || true
                   elif [ -n "${{ hashFiles('.stylelintrc.*') }}" ]; then
                     npx --yes -p stylelint@16.6.1 stylelint "**/*.css" --max-warnings=0 || true
                   else
