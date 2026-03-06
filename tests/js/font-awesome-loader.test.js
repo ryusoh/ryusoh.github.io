@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -29,7 +28,7 @@ describe('FontAwesomeLoader', () => {
             body: {
                 appendChild: jest.fn(),
                 removeChild: jest.fn(),
-                innerHTML: ''
+                innerHTML: '',
             },
             addEventListener: jest.fn(),
             querySelector: jest.fn(),
@@ -77,14 +76,14 @@ describe('FontAwesomeLoader', () => {
     test('setupPlaceholderHandling should hide icons and set data-fahidden', () => {
         const mockIcons = [
             { style: {}, dataset: {}, classList: { contains: () => false } },
-            { style: {}, dataset: {}, classList: { contains: () => false } }
+            { style: {}, dataset: {}, classList: { contains: () => false } },
         ];
         context.document.querySelectorAll.mockReturnValue(mockIcons);
 
         loader.setupPlaceholderHandling();
 
         expect(context.document.querySelectorAll).toHaveBeenCalledWith('i[class*="fa"]');
-        mockIcons.forEach(icon => {
+        mockIcons.forEach((icon) => {
             expect(icon.style.visibility).toBe('hidden');
             expect(icon.dataset.fahidden).toBe('true');
         });
@@ -93,14 +92,14 @@ describe('FontAwesomeLoader', () => {
     test('showIcons should restore visibility and clear data-fahidden', () => {
         const mockIcons = [
             { style: { visibility: 'hidden' }, dataset: { fahidden: 'true' } },
-            { style: { visibility: 'hidden' }, dataset: { fahidden: 'true' } }
+            { style: { visibility: 'hidden' }, dataset: { fahidden: 'true' } },
         ];
         context.document.querySelectorAll.mockReturnValue(mockIcons);
 
         loader.showIcons();
 
         expect(context.document.querySelectorAll).toHaveBeenCalledWith('i[data-fahidden="true"]');
-        mockIcons.forEach(icon => {
+        mockIcons.forEach((icon) => {
             expect(icon.style.visibility).toBe('');
             expect(icon.dataset.fahidden).toBe('');
         });
@@ -112,20 +111,20 @@ describe('FontAwesomeLoader', () => {
             style: { visibility: 'hidden' },
             dataset: { fahidden: 'true' },
             classList: { contains: (cls) => cls === 'fa-chevron-left' },
-            textContent: ''
+            textContent: '',
         };
         // Test Case: Other icons with fahidden=true should be hidden with display: none
         const other = {
             style: { visibility: 'hidden' },
             dataset: { fahidden: 'true' },
             classList: { contains: () => false },
-            textContent: ''
+            textContent: '',
         };
         // Test Case: Icons WITHOUT fahidden=true should be left untouched
         const normal = {
             style: {},
             dataset: {},
-            classList: { contains: () => false }
+            classList: { contains: () => false },
         };
 
         context.document.querySelectorAll.mockReturnValue([chevron, other, normal]);
@@ -148,7 +147,7 @@ describe('FontAwesomeLoader', () => {
         const mockElement = { className: '', style: {} };
         context.document.createElement.mockReturnValue(mockElement);
         context.window.getComputedStyle.mockReturnValue({
-            content: '"\\f004"'
+            content: '"\\f004"',
         });
 
         const result = loader.isFontAwesomeLoaded();
@@ -166,19 +165,19 @@ describe('FontAwesomeLoader', () => {
 
         // Mock non-existent content
         context.window.getComputedStyle.mockReturnValue({
-            content: 'none'
+            content: 'none',
         });
 
         expect(loader.isFontAwesomeLoaded()).toBe(false);
 
         context.window.getComputedStyle.mockReturnValue({
-            content: '""'
+            content: '""',
         });
         expect(loader.isFontAwesomeLoaded()).toBe(false);
 
         // When computedStyle.content is undefined
         context.window.getComputedStyle.mockReturnValue({
-            content: undefined
+            content: undefined,
         });
         expect(!!loader.isFontAwesomeLoaded()).toBe(false);
     });
