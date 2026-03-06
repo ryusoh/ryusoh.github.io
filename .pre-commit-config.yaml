@@ -53,7 +53,7 @@ repos:
       hooks:
           - id: stylelint
             name: stylelint (staged CSS)
-            entry: ./scripts/run-npx.sh -y -p stylelint@16.6.1 -p @stylistic/stylelint-plugin@4.0.0 stylelint --formatter=unix --config-basedir . --
+            entry: ./scripts/run-npx.sh -y -p stylelint@16.22.0 -p @stylistic/stylelint-plugin@4.0.0 stylelint --formatter=unix --config-basedir . --
             language: system
             types_or: [css]
             pass_filenames: true
