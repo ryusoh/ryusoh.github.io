@@ -98,3 +98,11 @@ jobs:
                   else
                     echo "No Prettier config found; skipping"
                   fi
+
+            - name: Run Jest tests
+              run: |
+                  if [ -d tests ]; then
+                    npx --yes jest
+                  else
+                    echo "No tests found; skipping"
+                  fi
