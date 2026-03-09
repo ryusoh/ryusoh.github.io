@@ -144,18 +144,53 @@
             return;
         }
 
-        // To avoid layout thrashing, we can batch the getBoundingClientRect calls.
-        // Reading geometry properties like getBoundingClientRect triggers layout reflow
-        // if the layout is "dirty". If we read them all in a row without interleaving
-        // with writes, the browser only reflows once.
+        if (typeof IntersectionObserver === 'undefined') {
+            const scrollY = window.scrollY;
+            blockPositions = blocks.map((element) => {
+                if (topSentinel && element === topSentinel) {
+                    return 0;
+                }
+                return element.getBoundingClientRect().top + scrollY;
+            });
+            syncCurrentIndex();
+            return;
+        }
+
         const scrollY = window.scrollY;
-        blockPositions = blocks.map((element) => {
-            if (topSentinel && element === topSentinel) {
-                return 0;
+        const newPositions = new Array(blocks.length);
+        let pending = blocks.length;
+
+        const observer = new window.IntersectionObserver(
+            (entries) => {
+                for (let i = 0; i < entries.length; i += 1) {
+                    const entry = entries[i];
+                    const index = blocks.indexOf(entry.target);
+                    if (index > -1) {
+                        if (topSentinel && entry.target === topSentinel) {
+                            newPositions[index] = 0;
+                        } else {
+                            newPositions[index] = entry.boundingClientRect.top + scrollY;
+                        }
+                        pending -= 1;
+                    }
+                }
+
+                if (pending <= 0) {
+                    observer.disconnect();
+                    blockPositions = newPositions;
+                    syncCurrentIndex();
+                }
+            },
+            {
+                root: null,
+                rootMargin: '100000px',
+                threshold: 0,
             }
-            return element.getBoundingClientRect().top + scrollY;
-        });
-        syncCurrentIndex();
+        );
+
+        for (let i = 0; i < blocks.length; i += 1) {
+            observer.observe(blocks[i]);
+        }
     }
 
     function refreshBlocks() {
