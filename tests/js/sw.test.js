@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { URL } = require('url');
 
 const sourcePath = path.resolve(__dirname, '../../sw.js');
 const code = fs.readFileSync(sourcePath, 'utf8');
