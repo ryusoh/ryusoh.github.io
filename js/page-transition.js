@@ -741,4 +741,10 @@ import * as THREE from './vendor/three.module.min.js';
             transition.isAnimating = false;
         });
     });
+
+    if (typeof window !== 'undefined') {
+        window.__PageTransitionForTesting = {
+            hasTransitionParam,
+        };
+    }
 })();
