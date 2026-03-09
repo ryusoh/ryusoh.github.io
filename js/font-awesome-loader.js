@@ -39,11 +39,12 @@ class FontAwesomeLoader {
         document.body.appendChild(testElement);
 
         const computedStyle = window.getComputedStyle(testElement, ':before');
-        const hasContent =
-            !!(computedStyle &&
+        const hasContent = !!(
+            computedStyle &&
             computedStyle.content &&
             computedStyle.content !== 'none' &&
-            computedStyle.content !== '""');
+            computedStyle.content !== '""'
+        );
 
         document.body.removeChild(testElement);
         return hasContent;
