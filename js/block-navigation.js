@@ -6,11 +6,12 @@
     const NODE_FILTER_SHOW_ELEMENT =
         (typeof window !== 'undefined' && window.NodeFilter && window.NodeFilter.SHOW_ELEMENT) || 1;
     let blocks = [];
-    let blockPositions = [];
     let topSentinel = null;
     let currentIndex = -1;
     let pendingIndex = null;
     let pendingTimeout = null;
+    let observer = null;
+    const visibleBlocks = new Set();
 
     /**
      * Ensure we run init when DOM is ready.
@@ -137,67 +138,44 @@
         return ordered;
     }
 
-    function updatePositions() {
-        if (!blocks.length) {
-            blockPositions = [];
-            syncCurrentIndex();
-            return;
+    function setupObserver() {
+        if (observer) {
+            observer.disconnect();
         }
+        visibleBlocks.clear();
 
-        if (typeof IntersectionObserver === 'undefined') {
-            const scrollY = window.scrollY;
-            blockPositions = blocks.map((element) => {
-                if (topSentinel && element === topSentinel) {
-                    return 0;
+        const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0,
+        };
+
+        observer = new window.IntersectionObserver((entries) => {
+            let changed = false;
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    visibleBlocks.add(entry.target);
+                    changed = true;
+                } else if (visibleBlocks.has(entry.target)) {
+                    visibleBlocks.delete(entry.target);
+                    changed = true;
                 }
-                return element.getBoundingClientRect().top + scrollY;
             });
-            syncCurrentIndex();
-            return;
-        }
 
-        const scrollY = window.scrollY;
-        const newPositions = new Array(blocks.length);
-        let pending = blocks.length;
-
-        const observer = new window.IntersectionObserver(
-            (entries) => {
-                for (let i = 0; i < entries.length; i += 1) {
-                    const entry = entries[i];
-                    const index = blocks.indexOf(entry.target);
-                    if (index > -1) {
-                        if (topSentinel && entry.target === topSentinel) {
-                            newPositions[index] = 0;
-                        } else {
-                            newPositions[index] = entry.boundingClientRect.top + scrollY;
-                        }
-                        pending -= 1;
-                    }
-                }
-
-                if (pending <= 0) {
-                    observer.disconnect();
-                    blockPositions = newPositions;
-                    syncCurrentIndex();
-                }
-            },
-            {
-                root: null,
-                rootMargin: '100000px',
-                threshold: 0,
+            if (changed && pendingIndex === null) {
+                syncCurrentIndex();
             }
-        );
+        }, options);
 
-        for (let i = 0; i < blocks.length; i += 1) {
-            observer.observe(blocks[i]);
-        }
+        blocks.forEach((block) => observer.observe(block));
     }
 
     function refreshBlocks() {
         const contentBlocks = collectBlocks();
         topSentinel = document.body || document.documentElement || null;
         blocks = topSentinel ? [topSentinel].concat(contentBlocks) : contentBlocks;
-        updatePositions();
+        setupObserver();
+        syncCurrentIndex();
     }
 
     function syncCurrentIndex() {
@@ -208,7 +186,7 @@
     }
 
     function getCurrentIndex() {
-        if (!blockPositions.length) {
+        if (!blocks.length) {
             return -1;
         }
 
@@ -225,16 +203,56 @@
             return blocks.length - 1;
         }
 
-        const probe = window.scrollY + window.innerHeight * 0.25;
-        let currentIndex = 0;
-        for (let i = 0; i < blockPositions.length; i += 1) {
-            if (probe >= blockPositions[i]) {
-                currentIndex = i;
-            } else {
-                break;
-            }
+        if (visibleBlocks.size === 0) {
+            return currentIndex !== -1 ? currentIndex : 0;
         }
-        return currentIndex;
+
+        const probeY = window.innerHeight * 0.25;
+        let bestIndex = -1;
+        let bestDistance = Infinity;
+
+        // Only measure elements that are actually visible
+        visibleBlocks.forEach((element) => {
+            const index = blocks.indexOf(element);
+            if (index === -1) {
+                return;
+            }
+
+            const rect = element.getBoundingClientRect();
+
+            if (topSentinel && element === topSentinel) {
+                // topSentinel is usually the body/html, so its rect.top is relative to the viewport.
+                // It can be very negative if scrolled far down.
+                // To avoid snapping to topSentinel, we only consider it if it's genuinely the best match
+                // (e.g. at the very top of the page).
+                const distance = Math.abs(rect.top - probeY);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestIndex = index;
+                }
+                return;
+            }
+
+            // We compare the top of the element to our probe line (25% down the viewport)
+            // Or if the element is very tall and covers the probe line, we consider it the active block
+            if (rect.top <= probeY && rect.bottom >= probeY) {
+                bestIndex = index;
+                bestDistance = 0; // Perfect match
+            } else {
+                const distance = Math.abs(rect.top - probeY);
+                if (distance < bestDistance && bestDistance !== 0) {
+                    bestDistance = distance;
+                    bestIndex = index;
+                }
+            }
+        });
+
+        // Fallback if somehow no best index was found among visible
+        if (bestIndex === -1) {
+            return currentIndex !== -1 ? currentIndex : 0;
+        }
+
+        return bestIndex;
     }
 
     function clampScrollTop(value) {
@@ -288,7 +306,8 @@
             const offset = isFirstContentBlock
                 ? 0
                 : Math.max(0, (window.innerHeight - Math.max(elementHeight, 1)) / 2);
-            const top = clampScrollTop(blockPositions[index] - offset);
+            const targetTop = isTopSentinel ? 0 : rect.top + window.scrollY;
+            const top = clampScrollTop(targetTop - offset);
             window.scrollTo({
                 top,
                 behavior,
@@ -337,13 +356,13 @@
     }
 
     function bindImageLoadHandlers() {
-        const debouncedUpdate = debounce(updatePositions, 150);
+        const debouncedSync = debounce(syncCurrentIndex, 150);
         Array.from(document.images).forEach((image) => {
             if (image.complete) {
                 return;
             }
             image.addEventListener('load', () => {
-                debouncedUpdate();
+                debouncedSync();
             });
         });
     }
@@ -352,8 +371,8 @@
         refreshBlocks();
         bindImageLoadHandlers();
         document.addEventListener('keydown', handleKeydown, { passive: false });
-        window.addEventListener('resize', debounce(updatePositions, 150));
-        window.addEventListener('load', updatePositions);
+        window.addEventListener('resize', debounce(syncCurrentIndex, 150));
+        window.addEventListener('load', syncCurrentIndex);
         window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
     }
 
