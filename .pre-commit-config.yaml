@@ -35,7 +35,7 @@ repos:
       hooks:
           - id: prettier
             name: prettier (staged files)
-            entry: ./scripts/run-npx.sh prettier --write --config .prettierrc.cjs --ignore-path .prettierignore --
+            entry: ./scripts/run-npx.sh -y -p prettier@3.5.2 prettier --write --config .prettierrc.cjs --ignore-path .prettierignore --
             language: system
             files: '\\.(js|css|json|yml|yaml|md|html)$'
             pass_filenames: true
@@ -44,7 +44,7 @@ repos:
       hooks:
           - id: eslint
             name: eslint (staged JS)
-            entry: ./scripts/run-npx.sh eslint --config eslint.config.cjs --max-warnings=0 --no-warn-ignored --
+            entry: ./scripts/run-npx.sh -y -p eslint@9.17.0 eslint --config eslint.config.cjs --max-warnings=0 --no-warn-ignored --
             language: system
             types_or: [javascript]
             pass_filenames: true
@@ -63,7 +63,7 @@ repos:
       hooks:
           - id: jest-related
             name: jest (related tests)
-            entry: bash -lc 'if ! ls jest.config.* package.json >/dev/null 2>&1; then echo "No Jest config found, skipping"; exit 0; fi; if [ $# -gt 0 ]; then npx jest --findRelatedTests --passWithNoTests "$@"; else npx jest --passWithNoTests; fi'
+            entry: bash -lc 'if ! ls jest.config.* package.json >/dev/null 2>&1; then echo "No Jest config found, skipping"; exit 0; fi; if [ $# -gt 0 ]; then npx -y jest --findRelatedTests --passWithNoTests "$@"; else npx -y jest --passWithNoTests; fi'
             language: system
             types_or: [javascript]
             pass_filenames: true
@@ -73,7 +73,7 @@ repos:
       hooks:
           - id: jest-full
             name: jest (full, pre-push)
-            entry: bash -lc 'npx jest --ci --runInBand'
+            entry: bash -lc 'npx -y jest --ci --runInBand'
             language: system
             pass_filenames: false
             stages: [pre-push]
