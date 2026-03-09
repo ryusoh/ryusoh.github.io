@@ -61,7 +61,9 @@ describe('CDNLoader', () => {
             context.fetch.mockReturnValue(Promise.reject(new Error('Network Error')));
 
             return loader.loadCssWithFallback(urls).then(() => {
-                expect(context.fetch).toHaveBeenCalledWith('https://cdn.example.com/style.css', { mode: 'cors' });
+                expect(context.fetch).toHaveBeenCalledWith('https://cdn.example.com/style.css', {
+                    mode: 'cors',
+                });
                 // Since fetch failed, it shouldn't have created a style tag
                 expect(mockDocument.createElement).not.toHaveBeenCalledWith('style');
             });
@@ -70,20 +72,27 @@ describe('CDNLoader', () => {
         it('should fetch css when on the last URL and resolve if OK', () => {
             const urls = ['https://cdn.example.com/style.css'];
 
-            context.fetch.mockReturnValue(Promise.resolve({
-                ok: true,
-                text: () => Promise.resolve('body { color: red; }')
-            }));
+            context.fetch.mockReturnValue(
+                Promise.resolve({
+                    ok: true,
+                    text: () => Promise.resolve('body { color: red; }'),
+                })
+            );
 
             return loader.loadCssWithFallback(urls).then(() => {
-                expect(context.fetch).toHaveBeenCalledWith('https://cdn.example.com/style.css', { mode: 'cors' });
+                expect(context.fetch).toHaveBeenCalledWith('https://cdn.example.com/style.css', {
+                    mode: 'cors',
+                });
                 expect(mockDocument.createElement).toHaveBeenCalledWith('style');
                 expect(mockDocument.head.appendChild).toHaveBeenCalled();
             });
         });
 
         it('should try first URL as link tag and resolve if it loads successfully', () => {
-            const urls = ['https://cdn.example.com/style1.css', 'https://cdn.example.com/style2.css'];
+            const urls = [
+                'https://cdn.example.com/style1.css',
+                'https://cdn.example.com/style2.css',
+            ];
 
             // Override head.appendChild to trigger onload for link tags
             mockDocument.head.appendChild = jest.fn((el) => {
