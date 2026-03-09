@@ -21,6 +21,13 @@ describe('CDNLoader', () => {
                     // mock properties
                 };
             }),
+            createDocumentFragment: jest.fn(() => {
+                const children = [];
+                return {
+                    appendChild: jest.fn((el) => children.push(el)),
+                    children,
+                };
+            }),
             head: {
                 appendChild: jest.fn((el) => {
                     if (el.tagName === 'link' && el.onerror) {
@@ -113,8 +120,9 @@ describe('CDNLoader', () => {
             const origins = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
             loader.preconnect(origins);
 
+            expect(mockDocument.createDocumentFragment).toHaveBeenCalled();
             expect(mockDocument.createElement).toHaveBeenCalledWith('link');
-            expect(mockDocument.head.appendChild).toHaveBeenCalledTimes(2);
+            expect(mockDocument.head.appendChild).toHaveBeenCalledTimes(1);
         });
 
         it('should gracefully handle errors', () => {
