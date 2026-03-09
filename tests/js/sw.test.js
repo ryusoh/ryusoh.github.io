@@ -18,21 +18,21 @@ describe('Service Worker', () => {
 
         mockCache = {
             addAll: jest.fn().mockResolvedValue(),
-            put: jest.fn().mockResolvedValue()
+            put: jest.fn().mockResolvedValue(),
         };
 
         mockCaches = {
             open: jest.fn().mockResolvedValue(mockCache),
             match: jest.fn(),
             keys: jest.fn().mockResolvedValue(['ryusoh-cache-v1']),
-            delete: jest.fn().mockResolvedValue()
+            delete: jest.fn().mockResolvedValue(),
         };
 
         mockSelf = {
             addEventListener: jest.fn(),
             skipWaiting: jest.fn().mockResolvedValue(),
             location: { origin: 'https://example.com' },
-            clients: { claim: jest.fn().mockResolvedValue() }
+            clients: { claim: jest.fn().mockResolvedValue() },
         };
 
         mockFetch = jest.fn();
@@ -51,7 +51,7 @@ describe('Service Worker', () => {
 
     // Helper to get registered event handler
     const getEventHandler = (eventName) => {
-        const call = mockSelf.addEventListener.mock.calls.find(c => c[0] === eventName);
+        const call = mockSelf.addEventListener.mock.calls.find((c) => c[0] === eventName);
         return call ? call[1] : null;
     };
 
@@ -59,7 +59,7 @@ describe('Service Worker', () => {
         test('install event should cache CORE_ASSETS', async () => {
             const installHandler = getEventHandler('install');
             const mockEvent = {
-                waitUntil: jest.fn()
+                waitUntil: jest.fn(),
             };
 
             installHandler(mockEvent);
@@ -82,11 +82,15 @@ describe('Service Worker', () => {
         test('activate event should delete old caches and claim clients', async () => {
             const activateHandler = getEventHandler('activate');
             const mockEvent = {
-                waitUntil: jest.fn()
+                waitUntil: jest.fn(),
             };
 
             // Set up caches.keys to return an old cache and the current cache
-            mockCaches.keys.mockResolvedValue(['ryusoh-cache-v1', 'ryusoh-cache-v2', 'other-cache']);
+            mockCaches.keys.mockResolvedValue([
+                'ryusoh-cache-v1',
+                'ryusoh-cache-v2',
+                'other-cache',
+            ]);
 
             activateHandler(mockEvent);
 
@@ -112,7 +116,7 @@ describe('Service Worker', () => {
             };
             const mockEvent = {
                 request: mockRequest,
-                respondWith: jest.fn()
+                respondWith: jest.fn(),
             };
 
             fetchHandler(mockEvent);
@@ -125,11 +129,11 @@ describe('Service Worker', () => {
             const mockRequest = {
                 url: 'https://example.com/images/logo.png',
                 destination: 'image',
-                headers: { has: jest.fn().mockReturnValue(false) }
+                headers: { has: jest.fn().mockReturnValue(false) },
             };
             const mockEvent = {
                 request: mockRequest,
-                respondWith: jest.fn()
+                respondWith: jest.fn(),
             };
 
             const mockCachedResponse = { status: 200, body: 'cached-image' };
@@ -151,11 +155,11 @@ describe('Service Worker', () => {
             const mockRequest = {
                 url: 'https://example.com/fonts/custom.woff2',
                 destination: 'font',
-                headers: { has: jest.fn().mockReturnValue(false) }
+                headers: { has: jest.fn().mockReturnValue(false) },
             };
             const mockEvent = {
                 request: mockRequest,
-                respondWith: jest.fn()
+                respondWith: jest.fn(),
             };
 
             // Cache miss
@@ -167,7 +171,7 @@ describe('Service Worker', () => {
                 status: 200,
                 type: 'basic',
                 headers: { get: jest.fn().mockReturnValue(null) },
-                clone: jest.fn().mockReturnValue(mockResponseClone)
+                clone: jest.fn().mockReturnValue(mockResponseClone),
             };
             mockFetch.mockResolvedValue(mockResponse);
 
@@ -193,12 +197,12 @@ describe('Service Worker', () => {
             const mockRequest = {
                 url: 'https://example.com/api/data.json',
                 destination: '',
-                headers: { has: jest.fn().mockReturnValue(false) }
+                headers: { has: jest.fn().mockReturnValue(false) },
             };
 
             const mockEvent = {
                 request: mockRequest,
-                respondWith: jest.fn()
+                respondWith: jest.fn(),
             };
 
             mockFetch.mockRejectedValue(new Error('Network error'));
@@ -222,12 +226,12 @@ describe('Service Worker', () => {
             const mockRequest = {
                 url: 'https://example.com/api/data.json',
                 destination: '',
-                headers: { has: jest.fn().mockReturnValue(false) }
+                headers: { has: jest.fn().mockReturnValue(false) },
             };
 
             const mockEvent = {
                 request: mockRequest,
-                respondWith: jest.fn()
+                respondWith: jest.fn(),
             };
 
             const mockResponseClone = { status: 200, cloned: true };
@@ -236,7 +240,7 @@ describe('Service Worker', () => {
                 status: 200,
                 type: 'basic',
                 headers: { get: jest.fn().mockReturnValue(null) },
-                clone: jest.fn().mockReturnValue(mockResponseClone)
+                clone: jest.fn().mockReturnValue(mockResponseClone),
             };
             mockFetch.mockResolvedValue(mockResponse);
 
@@ -261,12 +265,12 @@ describe('Service Worker', () => {
             const mockRequest = {
                 url: 'https://example.com/api/data.json',
                 destination: '',
-                headers: { has: jest.fn().mockReturnValue(false) }
+                headers: { has: jest.fn().mockReturnValue(false) },
             };
 
             const mockEvent = {
                 request: mockRequest,
-                respondWith: jest.fn()
+                respondWith: jest.fn(),
             };
 
             mockFetch.mockRejectedValue(new Error('Network error'));
