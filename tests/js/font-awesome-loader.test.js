@@ -151,6 +151,7 @@ describe('FontAwesomeLoader', () => {
         const result = loader.isFontAwesomeLoaded();
 
         expect(context.document.createElement).toHaveBeenCalledWith('i');
+        expect(mockElement.className).toBe('fa fa-heart');
         expect(context.document.body.appendChild).toHaveBeenCalledWith(mockElement);
         expect(context.window.getComputedStyle).toHaveBeenCalledWith(mockElement, ':before');
         expect(context.document.body.removeChild).toHaveBeenCalledWith(mockElement);
@@ -178,5 +179,18 @@ describe('FontAwesomeLoader', () => {
             content: undefined,
         });
         expect(!!loader.isFontAwesomeLoaded()).toBe(false);
+    });
+
+    test('isFontAwesomeLoaded should return false if computedStyle is null or undefined', () => {
+        const mockElement = { className: '', style: {} };
+        context.document.createElement.mockReturnValue(mockElement);
+
+        // When window.getComputedStyle returns null (e.g. element is disconnected or in old browsers/edge cases)
+        context.window.getComputedStyle.mockReturnValue(null);
+        expect(loader.isFontAwesomeLoaded()).toBe(false);
+
+        // When window.getComputedStyle returns undefined
+        context.window.getComputedStyle.mockReturnValue(undefined);
+        expect(loader.isFontAwesomeLoaded()).toBe(false);
     });
 });
