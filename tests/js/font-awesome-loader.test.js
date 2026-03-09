@@ -78,11 +78,10 @@ describe('FontAwesomeLoader', () => {
             { style: {}, dataset: {}, classList: { contains: () => false } },
             { style: {}, dataset: {}, classList: { contains: () => false } },
         ];
-        context.document.querySelectorAll.mockReturnValue(mockIcons);
 
+        loader.faIcons = mockIcons;
         loader.setupPlaceholderHandling();
 
-        expect(context.document.querySelectorAll).toHaveBeenCalledWith('i[class*="fa"]');
         mockIcons.forEach((icon) => {
             expect(icon.style.visibility).toBe('hidden');
             expect(icon.dataset.fahidden).toBe('true');
@@ -94,11 +93,10 @@ describe('FontAwesomeLoader', () => {
             { style: { visibility: 'hidden' }, dataset: { fahidden: 'true' } },
             { style: { visibility: 'hidden' }, dataset: { fahidden: 'true' } },
         ];
-        context.document.querySelectorAll.mockReturnValue(mockIcons);
 
+        loader.faIcons = mockIcons;
         loader.showIcons();
 
-        expect(context.document.querySelectorAll).toHaveBeenCalledWith('i[data-fahidden="true"]');
         mockIcons.forEach((icon) => {
             expect(icon.style.visibility).toBe('');
             expect(icon.dataset.fahidden).toBe('');
@@ -127,7 +125,7 @@ describe('FontAwesomeLoader', () => {
             classList: { contains: () => false },
         };
 
-        context.document.querySelectorAll.mockReturnValue([chevron, other, normal]);
+        loader.faIcons = [chevron, other, normal];
 
         loader.handleLoadFailure();
 

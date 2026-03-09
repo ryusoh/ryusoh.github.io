@@ -8,12 +8,16 @@ class FontAwesomeLoader {
         this.checkInterval = null;
         this.maxRetries = 10; // Maximum number of checks
         this.retryCount = 0;
+        this.faIcons = []; // Cache for Font Awesome icon elements
     }
 
     /**
      * Initialize the Font Awesome loader
      */
     init() {
+        // Cache the icon elements once during initialization
+        this.faIcons = Array.from(document.querySelectorAll('i[class*="fa"]'));
+
         // First, check if Font Awesome is already loaded
         if (this.isFontAwesomeLoaded()) {
             this.fontAwesomeLoaded = true;
@@ -55,8 +59,7 @@ class FontAwesomeLoader {
      */
     setupPlaceholderHandling() {
         // Initially hide all Font Awesome icons to prevent showing empty boxes
-        const faIcons = document.querySelectorAll('i[class*="fa"]');
-        faIcons.forEach((icon) => {
+        this.faIcons.forEach((icon) => {
             icon.style.visibility = 'hidden';
             icon.dataset.fahidden = 'true';
         });
@@ -66,10 +69,11 @@ class FontAwesomeLoader {
      * Show the icons once Font Awesome is loaded
      */
     showIcons() {
-        const faIcons = document.querySelectorAll('i[data-fahidden="true"]');
-        faIcons.forEach((icon) => {
-            icon.style.visibility = '';
-            icon.dataset.fahidden = '';
+        this.faIcons.forEach((icon) => {
+            if (icon.dataset.fahidden === 'true') {
+                icon.style.visibility = '';
+                icon.dataset.fahidden = '';
+            }
         });
     }
 
@@ -107,8 +111,7 @@ class FontAwesomeLoader {
      */
     handleLoadFailure() {
         // Hide icons that failed to load properly
-        const faIcons = document.querySelectorAll('i[class*="fa"]');
-        faIcons.forEach((icon) => {
+        this.faIcons.forEach((icon) => {
             if (icon.dataset.fahidden === 'true') {
                 // For back icons, we can provide a text alternative
                 if (icon.classList.contains('fa-chevron-left')) {
