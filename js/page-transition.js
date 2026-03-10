@@ -647,6 +647,11 @@ import * as THREE from './vendor/three.module.min.js';
     };
 
     PageTransition.prototype.navigate = function (url) {
+        if (typeof url === 'string' && url.trim().toLowerCase().startsWith('javascript:')) {
+            // eslint-disable-next-line no-console
+            console.error('[page-transition] Blocked potentially malicious javascript: URL');
+            return;
+        }
         if (!this.enabled || this.isAnimating) {
             window.location.assign(url);
             return;
@@ -741,4 +746,12 @@ import * as THREE from './vendor/three.module.min.js';
             transition.isAnimating = false;
         });
     });
+
+    if (typeof window !== 'undefined') {
+        window.__PageTransitionForTesting = {
+            hasTransitionParam,
+            clampUnit,
+            _Constructor: PageTransition,
+        };
+    }
 })();
