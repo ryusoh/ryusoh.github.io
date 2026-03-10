@@ -86,40 +86,6 @@ class AssetPreloader {
     }
 
     /**
-     * Preload all images from a specified directory (for future expansion)
-     * This method could be used to dynamically preload an entire directory
-     * @param {string} directoryPath - Path to the directory to preload images from
-     */
-    preloadDirectoryImages(/* directoryPath */) {
-        // In a real implementation, this would require a backend API or a JSON manifest
-        // For now, this is a placeholder for future enhancement
-    }
-
-    /**
-     * Get all image URLs for a specific page
-     * @param {string} pageKey - The page key (p1, p2, p3)
-     * @returns {Array} - Array of image URLs
-     */
-    getImagesForPage(pageKey) {
-        return this.assetSets[pageKey] || [];
-    }
-
-    /**
-     * Preload assets dynamically by specifying which pages to target
-     * This allows for more flexible preloading strategies
-     * @param {Object} preloadingConfig - Configuration for which pages to preload
-     */
-    preloadAssetsDynamic(preloadingConfig) {
-        const { preloadFromPages = [], excludePages = [] } = preloadingConfig;
-
-        Object.keys(this.assetSets).forEach((pageKey) => {
-            if (preloadFromPages.includes(pageKey) && !excludePages.includes(pageKey)) {
-                this.preloadAssets([pageKey]);
-            }
-        });
-    }
-
-    /**
      * Preload a single image
      * @param {string} imgSrc - Image source URL
      */

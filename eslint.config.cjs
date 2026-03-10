@@ -38,6 +38,8 @@ module.exports = [
                 Element: 'readonly',
                 MouseEvent: 'readonly',
                 TouchEvent: 'readonly',
+                URL: 'readonly',
+                URLSearchParams: 'readonly',
                 process: 'readonly',
 
                 // App-provided globals from CDN
