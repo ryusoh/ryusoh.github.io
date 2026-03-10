@@ -11,7 +11,6 @@
     let currentIndex = -1;
     let pendingIndex = null;
     let pendingTimeout = null;
-
     let observer = null;
     let useObserver = false;
     const visibleBlocks = new Set(); // To track blocks active at the probe line
@@ -264,6 +263,7 @@
             });
             return bestIndex;
         }
+
         // Fallback logic
         if (!blockPositions.length) {
             return -1;
@@ -381,6 +381,7 @@
     }
 
     function bindImageLoadHandlers() {
+        const debouncedSync = debounce(syncCurrentIndex, 150);
         const debouncedUpdate = debounce(updatePositions, 150);
         Array.from(document.images).forEach((image) => {
             if (image.complete) {
@@ -389,6 +390,8 @@
             image.addEventListener('load', () => {
                 if (!useObserver) {
                     debouncedUpdate();
+                } else {
+                    debouncedSync();
                 }
             });
         });
@@ -396,11 +399,14 @@
 
     function init() {
         refreshBlocks();
+        bindImageLoadHandlers();
 
         if (!useObserver) {
-            bindImageLoadHandlers();
             window.addEventListener('resize', debounce(updatePositions, 150));
             window.addEventListener('load', updatePositions);
+        } else {
+            window.addEventListener('resize', debounce(syncCurrentIndex, 150));
+            window.addEventListener('load', syncCurrentIndex);
         }
 
         document.addEventListener('keydown', handleKeydown, { passive: false });
