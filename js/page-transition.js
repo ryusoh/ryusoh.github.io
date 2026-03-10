@@ -668,6 +668,14 @@ import * as THREE from './vendor/three.module.min.js';
         });
     };
 
+    PageTransition.prototype.playIntro = function () {
+        this.dimContent(false);
+        this.animateProgress(0, this.duration, () => {
+            this.hideOverlay(false);
+            this.setProgress(0);
+        });
+    };
+
     ready(function () {
         const transition = new PageTransition();
         if (!transition.enabled) {
@@ -744,6 +752,7 @@ import * as THREE from './vendor/three.module.min.js';
             hasTransitionParam,
             clampUnit,
             parseRgbFunction,
+            hexToRgbArray,
             _Constructor: PageTransition,
         };
     }

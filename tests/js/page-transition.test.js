@@ -17,6 +17,7 @@ describe('page-transition.js', () => {
     let hasTransitionParam;
     let clampUnit;
     let parseRgbFunction;
+    let hexToRgbArray;
 
     beforeEach(() => {
         // Mock the minimal DOM environment needed to bypass IIFE execution errors
@@ -84,6 +85,7 @@ describe('page-transition.js', () => {
         hasTransitionParam = context.window.__PageTransitionForTesting.hasTransitionParam;
         clampUnit = context.window.__PageTransitionForTesting.clampUnit;
         parseRgbFunction = context.window.__PageTransitionForTesting.parseRgbFunction;
+        hexToRgbArray = context.window.__PageTransitionForTesting.hexToRgbArray;
     });
 
     describe('hasTransitionParam', () => {
@@ -207,6 +209,42 @@ describe('page-transition.js', () => {
 
         test('empty string returns null', () => {
             expect(parseRgbFunction('')).toBeNull();
+        });
+    });
+
+    describe('hexToRgbArray', () => {
+        test('valid 6-digit hex parsing', () => {
+            expect(hexToRgbArray('#ff0080')).toEqual([1, 0, 128 / 255]);
+            expect(hexToRgbArray('#00ff00')).toEqual([0, 1, 0]);
+            expect(hexToRgbArray('#ffffff')).toEqual([1, 1, 1]);
+            expect(hexToRgbArray('#000000')).toEqual([0, 0, 0]);
+        });
+
+        test('valid 3-digit hex parsing', () => {
+            expect(hexToRgbArray('#f08')).toEqual([1, 0, 136 / 255]);
+            expect(hexToRgbArray('#0f0')).toEqual([0, 1, 0]);
+            expect(hexToRgbArray('#fff')).toEqual([1, 1, 1]);
+            expect(hexToRgbArray('#000')).toEqual([0, 0, 0]);
+        });
+
+        test('case insensitivity', () => {
+            expect(hexToRgbArray('#FF0080')).toEqual([1, 0, 128 / 255]);
+            expect(hexToRgbArray('#F08')).toEqual([1, 0, 136 / 255]);
+        });
+
+        test('handling missing # prefix', () => {
+            expect(hexToRgbArray('ff0080')).toEqual([1, 0, 128 / 255]);
+            expect(hexToRgbArray('f08')).toEqual([1, 0, 136 / 255]);
+        });
+
+        test('invalid hex returns null', () => {
+            // Note: The current implementation only checks for clean.length === 3 or 6.
+            // It does not strictly validate that characters are valid hex or that length is exact BEFORE parsing.
+            // However, it should return null if it cannot parse a valid 3 or 6 digit hex.
+            expect(hexToRgbArray('')).toBeNull();
+            expect(hexToRgbArray(' ')).toBeNull();
+            expect(hexToRgbArray('#ff008')).toBeNull(); // Length 5 (after removing #)
+            expect(hexToRgbArray('#ff00800')).toBeNull(); // Length 7 (after removing #)
         });
     });
 });
