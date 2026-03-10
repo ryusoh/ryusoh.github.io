@@ -743,6 +743,7 @@ import * as THREE from './vendor/three.module.min.js';
         window.__PageTransitionForTesting = {
             hasTransitionParam,
             clampUnit,
+            parseRgbFunction,
             _Constructor: PageTransition,
         };
     }

@@ -16,6 +16,7 @@ describe('page-transition.js', () => {
     let context;
     let hasTransitionParam;
     let clampUnit;
+    let parseRgbFunction;
 
     beforeEach(() => {
         // Mock the minimal DOM environment needed to bypass IIFE execution errors
@@ -82,6 +83,7 @@ describe('page-transition.js', () => {
         vm.runInContext(codeToEvaluate, context);
         hasTransitionParam = context.window.__PageTransitionForTesting.hasTransitionParam;
         clampUnit = context.window.__PageTransitionForTesting.clampUnit;
+        parseRgbFunction = context.window.__PageTransitionForTesting.parseRgbFunction;
     });
 
     describe('hasTransitionParam', () => {
@@ -145,6 +147,66 @@ describe('page-transition.js', () => {
         test('should return exactly 0 for 0 and 1 for 1', () => {
             expect(clampUnit(0)).toBe(0);
             expect(clampUnit(1)).toBe(1);
+        });
+    });
+
+    describe('parseRgbFunction', () => {
+        test('valid rgb() parsing', () => {
+            expect(parseRgbFunction('rgb(255, 0, 128)')).toEqual({ rgb: [1, 0, 128 / 255], alpha: 1 });
+            expect(parseRgbFunction('RGB(255, 0, 128)')).toEqual({ rgb: [1, 0, 128 / 255], alpha: 1 });
+        });
+
+        test('valid rgba() parsing', () => {
+            expect(parseRgbFunction('rgba(255, 0, 128, 0.5)')).toEqual({
+                rgb: [1, 0, 128 / 255],
+                alpha: 0.5,
+            });
+            expect(parseRgbFunction('RGBA(255, 0, 128, 0.5)')).toEqual({
+                rgb: [1, 0, 128 / 255],
+                alpha: 0.5,
+            });
+        });
+
+        test('space handling', () => {
+            expect(parseRgbFunction('rgb( 255 ,  0  ,   128 )')).toEqual({
+                rgb: [1, 0, 128 / 255],
+                alpha: 1,
+            });
+            expect(parseRgbFunction('rgba(  255  ,0 ,128,  0.5 )')).toEqual({
+                rgb: [1, 0, 128 / 255],
+                alpha: 0.5,
+            });
+        });
+
+        test('out of bounds values are clamped', () => {
+            // Values are divided by 255. 300/255 > 1, so it is clamped to 1. -50 < 0, clamped to 0.
+            expect(parseRgbFunction('rgb(300, -50, 255)')).toEqual({ rgb: [1, 0, 1], alpha: 1 });
+            expect(parseRgbFunction('rgba(300, -50, 255, 1.5)')).toEqual({ rgb: [1, 0, 1], alpha: 1 });
+            expect(parseRgbFunction('rgba(300, -50, 255, -0.5)')).toEqual({ rgb: [1, 0, 1], alpha: 0 });
+        });
+
+        test('malformed strings return null', () => {
+            expect(parseRgbFunction('rgb(255, 0)')).toBeNull(); // Missing B
+            expect(parseRgbFunction('rgb(255)')).toBeNull(); // Missing G, B
+            expect(parseRgbFunction('rgb()')).toBeNull(); // Empty
+            expect(parseRgbFunction('255, 0, 0')).toBeNull(); // No rgb() wrapper
+            expect(parseRgbFunction('rgb(255, 0, 0')).toBeNull(); // Missing parenthesis
+            expect(parseRgbFunction('rgb 255 0 0')).toBeNull(); // No parentheses
+            expect(parseRgbFunction('rg(255, 0, 0)')).toBeNull(); // Typo
+        });
+
+        test('invalid numeric values return null', () => {
+            expect(parseRgbFunction('rgb(a, b, c)')).toBeNull();
+            expect(parseRgbFunction('rgb(255, b, 0)')).toBeNull();
+            expect(parseRgbFunction('rgb(NaN, 0, 0)')).toBeNull();
+        });
+
+        test('missing alpha defaults to 1', () => {
+            expect(parseRgbFunction('rgba(255, 0, 0)')).toEqual({ rgb: [1, 0, 0], alpha: 1 });
+        });
+
+        test('empty string returns null', () => {
+            expect(parseRgbFunction('')).toBeNull();
         });
     });
 });
