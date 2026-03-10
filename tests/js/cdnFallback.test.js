@@ -23,6 +23,7 @@ describe('CDNLoader', () => {
         // Define mock objects
         const mockDocument = {
             createElement: jest.fn(),
+            createDocumentFragment: jest.fn(),
             head: {
                 appendChild: jest.fn(),
             },
@@ -38,6 +39,9 @@ describe('CDNLoader', () => {
             fetch: jest.fn(),
             Promise: Promise,
         };
+        // Add circular reference to allow proper evaluation of "window.document" if used
+        context.window.document = mockDocument;
+        context.document.defaultView = mockWindow;
 
         vm.createContext(context);
 
@@ -49,6 +53,12 @@ describe('CDNLoader', () => {
         test('should append a preconnect link for each origin', () => {
             const origins = ['https://cdn.example.com', 'https://fonts.example.com'];
 
+            const mockFragment = {
+                appendChild: jest.fn(),
+            };
+
+            context.document.createDocumentFragment.mockReturnValue(mockFragment);
+
             // Provide a mock element whenever document.createElement is called
             context.document.createElement.mockImplementation((tag) => {
                 if (tag === 'link') {
@@ -59,29 +69,40 @@ describe('CDNLoader', () => {
 
             context.window.CDNLoader.preconnect(origins);
 
+            expect(context.document.createDocumentFragment).toHaveBeenCalledTimes(1);
             expect(context.document.createElement).toHaveBeenCalledTimes(2);
             expect(context.document.createElement).toHaveBeenNthCalledWith(1, 'link');
             expect(context.document.createElement).toHaveBeenNthCalledWith(2, 'link');
 
-            expect(context.document.head.appendChild).toHaveBeenCalledTimes(2);
+            expect(mockFragment.appendChild).toHaveBeenCalledTimes(2);
 
             // Check the properties assigned to the created elements
-            const firstLink = context.document.head.appendChild.mock.calls[0][0];
+            const firstLink = mockFragment.appendChild.mock.calls[0][0];
             expect(firstLink.rel).toBe('preconnect');
             expect(firstLink.href).toBe('https://cdn.example.com');
             expect(firstLink.crossOrigin).toBe('anonymous');
 
-            const secondLink = context.document.head.appendChild.mock.calls[1][0];
+            const secondLink = mockFragment.appendChild.mock.calls[1][0];
             expect(secondLink.rel).toBe('preconnect');
             expect(secondLink.href).toBe('https://fonts.example.com');
             expect(secondLink.crossOrigin).toBe('anonymous');
+
+            expect(context.document.head.appendChild).toHaveBeenCalledTimes(1);
+            expect(context.document.head.appendChild).toHaveBeenCalledWith(mockFragment);
         });
 
         test('should not append anything if origins array is empty', () => {
+            const mockFragment = {
+                appendChild: jest.fn(),
+            };
+            context.document.createDocumentFragment.mockReturnValue(mockFragment);
+
             context.window.CDNLoader.preconnect([]);
 
             expect(context.document.createElement).not.toHaveBeenCalled();
-            expect(context.document.head.appendChild).not.toHaveBeenCalled();
+            expect(mockFragment.appendChild).not.toHaveBeenCalled();
+            // Code always appends fragment even if empty
+            expect(context.document.head.appendChild).toHaveBeenCalledWith(mockFragment);
         });
 
         test('should catch and suppress exceptions silently', () => {
