@@ -34,19 +34,9 @@ precommit: hooks
 	fi
 
 precommit-fix: hooks
-	@if [ -f .prettierrc.cjs ]; then \
-		echo "Running Prettier with --write..."; \
-		$(NPX) prettier --write . \
-		  --config .prettierrc.cjs \
-		  --ignore-path .prettierignore || true; \
-	fi
 	@if [ -f .pre-commit-config.yaml ]; then \
 		echo "Running pre-commit auto-fixes..."; \
 		python3 -m pre_commit run --all-files --hook-stage manual --verbose || true; \
-		echo "Running ESLint with --fix..."; \
-		$(NPX) eslint . --config eslint.config.cjs --fix --no-warn-ignored || true; \
-		echo "Running Stylelint with --fix..."; \
-		$(NPX) -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --fix || true; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
 	fi
@@ -56,37 +46,23 @@ update-hooks:
 
 # --- Developer convenience (CI parity without committing) ---
 fmt-check:
-	@if [ -f .prettierrc.cjs ]; then \
-		$(NPX) prettier -c . \
-		  --config .prettierrc.cjs \
-		  --ignore-path .prettierignore; \
-	else \
-		$(NPX) prettier -c .; \
-	fi
+	@$(NPX) prettier -c . --config .prettierrc.cjs --ignore-path .prettierignore
 
 fmt:
-	@if [ -f .prettierrc.cjs ]; then \
-		$(NPX) prettier -w . \
-		  --config .prettierrc.cjs \
-		  --ignore-path .prettierignore; \
-	else \
-		$(NPX) prettier -w .; \
-	fi
+	@$(NPX) prettier -w . --config .prettierrc.cjs --ignore-path .prettierignore
 
 lint-js:
 	@$(NPX) eslint . --config eslint.config.cjs --max-warnings=0 --no-warn-ignored
 
 lint-css:
-	@$(NPX) -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --formatter=unix
+	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --max-warnings=0 --formatter=unix
 
 lint: lint-js lint-css
 
 check: fmt-check lint
 
 lint-fix:
-	@# Apply ESLint fixes (uses repo config)
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true
-	@# Apply Stylelint fixes (ensure plugin availability)
-	@$(NPX) -y -p @stylistic/stylelint-plugin stylelint "**/*.css" --config-basedir "$(PWD)" --fix || true
+	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --fix --max-warnings=0 || true
 
 fix: fmt lint-fix
