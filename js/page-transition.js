@@ -741,4 +741,13 @@ import * as THREE from './vendor/three.module.min.js';
             transition.isAnimating = false;
         });
     });
+
+    // Expose internal functions for testing
+    // eslint-disable-next-line no-undef
+    if (typeof module !== 'undefined' && module.exports) {
+        // eslint-disable-next-line no-undef
+        module.exports = {
+            hexToRgbArray,
+        };
+    }
 })();
