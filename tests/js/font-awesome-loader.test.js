@@ -23,7 +23,7 @@ describe('FontAwesomeLoader', () => {
 
         // Define mock objects
         const mockDocument = {
-            querySelectorAll: jest.fn(),
+            querySelectorAll: jest.fn().mockReturnValue([]),
             createElement: jest.fn(),
             body: {
                 appendChild: jest.fn(),
@@ -78,11 +78,10 @@ describe('FontAwesomeLoader', () => {
             { style: {}, dataset: {}, classList: { contains: () => false } },
             { style: {}, dataset: {}, classList: { contains: () => false } },
         ];
-        context.document.querySelectorAll.mockReturnValue(mockIcons);
 
+        loader.faIcons = mockIcons;
         loader.setupPlaceholderHandling();
 
-        expect(context.document.querySelectorAll).toHaveBeenCalledWith('i[class*="fa"]');
         mockIcons.forEach((icon) => {
             expect(icon.style.visibility).toBe('hidden');
             expect(icon.dataset.fahidden).toBe('true');
@@ -94,53 +93,150 @@ describe('FontAwesomeLoader', () => {
             { style: { visibility: 'hidden' }, dataset: { fahidden: 'true' } },
             { style: { visibility: 'hidden' }, dataset: { fahidden: 'true' } },
         ];
-        context.document.querySelectorAll.mockReturnValue(mockIcons);
 
+        loader.faIcons = mockIcons;
         loader.showIcons();
 
-        expect(context.document.querySelectorAll).toHaveBeenCalledWith('i[data-fahidden="true"]');
         mockIcons.forEach((icon) => {
             expect(icon.style.visibility).toBe('');
             expect(icon.dataset.fahidden).toBe('');
         });
     });
 
-    test('handleLoadFailure should handle chevron-left fallback and other icons', () => {
-        // Test Case: Chevron left should be replaced with unicode arrow and made visible
-        const chevron = {
-            style: { visibility: 'hidden' },
-            dataset: { fahidden: 'true' },
-            classList: { contains: (cls) => cls === 'fa-chevron-left' },
-            textContent: '',
-        };
-        // Test Case: Other icons with fahidden=true should be hidden with display: none
-        const other = {
-            style: { visibility: 'hidden' },
-            dataset: { fahidden: 'true' },
-            classList: { contains: () => false },
-            textContent: '',
-        };
-        // Test Case: Icons WITHOUT fahidden=true should be left untouched
-        const normal = {
-            style: {},
-            dataset: {},
-            classList: { contains: () => false },
-        };
+    describe('handleLoadFailure', () => {
+        test('should handle empty NodeList', () => {
+            loader.faIcons = [];
 
-        context.document.querySelectorAll.mockReturnValue([chevron, other, normal]);
+            // Should not throw an error when processing an empty list
+            expect(() => loader.handleLoadFailure()).not.toThrow();
+        });
 
-        loader.handleLoadFailure();
+        test('should process chevron-left fallback correctly', () => {
+            const chevron = {
+                style: { visibility: 'hidden' },
+                dataset: { fahidden: 'true' },
+                classList: { contains: (cls) => cls === 'fa-chevron-left' },
+                textContent: '',
+            };
 
-        // Check chevron behavior
-        expect(chevron.textContent).toBe('←');
-        expect(chevron.style.visibility).toBe('visible');
-        expect(chevron.style.fontSize).toBe('1.5em');
+            loader.faIcons = [chevron];
+            loader.handleLoadFailure();
 
-        // Check other icon behavior
-        expect(other.style.display).toBe('none');
+            expect(chevron.textContent).toBe('←');
+            expect(chevron.style.visibility).toBe('visible');
+            expect(chevron.style.fontSize).toBe('1.5em');
+            expect(chevron.style.display).toBeUndefined();
+        });
 
-        // Check normal icon behavior
-        expect(normal.style.display).toBeUndefined();
+        test('should hide other icons with fahidden=true', () => {
+            const otherIcon = {
+                style: { visibility: 'hidden' },
+                dataset: { fahidden: 'true' },
+                classList: { contains: () => false },
+                textContent: 'original text',
+            };
+
+            loader.faIcons = [otherIcon];
+            loader.handleLoadFailure();
+
+            expect(otherIcon.style.display).toBe('none');
+            // Unchanged properties
+            expect(otherIcon.textContent).toBe('original text');
+            expect(otherIcon.style.visibility).toBe('hidden');
+            expect(otherIcon.style.fontSize).toBeUndefined();
+        });
+
+        test('should ignore icons where fahidden is false', () => {
+            const visibleIcon = {
+                style: { visibility: 'visible' },
+                dataset: { fahidden: 'false' },
+                classList: { contains: () => false },
+                textContent: 'original text',
+            };
+
+            loader.faIcons = [visibleIcon];
+            loader.handleLoadFailure();
+
+            // Properties should remain completely untouched
+            expect(visibleIcon.style.display).toBeUndefined();
+            expect(visibleIcon.textContent).toBe('original text');
+            expect(visibleIcon.style.visibility).toBe('visible');
+        });
+
+        test('should ignore chevron icons where fahidden is false', () => {
+            const visibleChevron = {
+                style: { visibility: 'visible' },
+                dataset: { fahidden: 'false' },
+                classList: { contains: (cls) => cls === 'fa-chevron-left' },
+                textContent: '',
+            };
+
+            loader.faIcons = [visibleChevron];
+            loader.handleLoadFailure();
+
+            // Should not apply fallback logic if fahidden is false
+            expect(visibleChevron.textContent).toBe('');
+            expect(visibleChevron.style.display).toBeUndefined();
+            expect(visibleChevron.style.fontSize).toBeUndefined();
+        });
+
+        test('should ignore icons entirely missing the dataset or fahidden property', () => {
+            const missingDatasetIcon = {
+                style: {},
+                dataset: {}, // fahidden is undefined
+                classList: { contains: () => false },
+                textContent: 'original text',
+            };
+
+            loader.faIcons = [missingDatasetIcon];
+            loader.handleLoadFailure();
+
+            // Properties should remain completely untouched
+            expect(missingDatasetIcon.style.display).toBeUndefined();
+            expect(missingDatasetIcon.textContent).toBe('original text');
+        });
+
+        test('should handle a mix of all icon types', () => {
+            const chevron = {
+                style: { visibility: 'hidden' },
+                dataset: { fahidden: 'true' },
+                classList: { contains: (cls) => cls === 'fa-chevron-left' },
+                textContent: '',
+            };
+            const otherHidden = {
+                style: { visibility: 'hidden' },
+                dataset: { fahidden: 'true' },
+                classList: { contains: () => false },
+                textContent: '',
+            };
+            const visible = {
+                style: { visibility: 'visible' },
+                dataset: { fahidden: 'false' },
+                classList: { contains: () => false },
+            };
+            const undefinedHidden = {
+                style: {},
+                dataset: {},
+                classList: { contains: () => false },
+            };
+
+            loader.faIcons = [chevron, otherHidden, visible, undefinedHidden];
+
+            loader.handleLoadFailure();
+
+            // Chevron logic applied
+            expect(chevron.textContent).toBe('←');
+            expect(chevron.style.visibility).toBe('visible');
+
+            // Other hidden logic applied
+            expect(otherHidden.style.display).toBe('none');
+
+            // Visible ignored
+            expect(visible.style.display).toBeUndefined();
+
+            // Undefined ignored
+            expect(undefinedHidden.style.display).toBeUndefined();
+        });
     });
 
     test('isFontAwesomeLoaded should return true if FA content is present', () => {
@@ -153,6 +249,7 @@ describe('FontAwesomeLoader', () => {
         const result = loader.isFontAwesomeLoaded();
 
         expect(context.document.createElement).toHaveBeenCalledWith('i');
+        expect(mockElement.className).toBe('fa fa-heart');
         expect(context.document.body.appendChild).toHaveBeenCalledWith(mockElement);
         expect(context.window.getComputedStyle).toHaveBeenCalledWith(mockElement, ':before');
         expect(context.document.body.removeChild).toHaveBeenCalledWith(mockElement);
@@ -180,5 +277,18 @@ describe('FontAwesomeLoader', () => {
             content: undefined,
         });
         expect(!!loader.isFontAwesomeLoaded()).toBe(false);
+    });
+
+    test('isFontAwesomeLoaded should return false if computedStyle is null or undefined', () => {
+        const mockElement = { className: '', style: {} };
+        context.document.createElement.mockReturnValue(mockElement);
+
+        // When window.getComputedStyle returns null (e.g. element is disconnected or in old browsers/edge cases)
+        context.window.getComputedStyle.mockReturnValue(null);
+        expect(loader.isFontAwesomeLoaded()).toBe(false);
+
+        // When window.getComputedStyle returns undefined
+        context.window.getComputedStyle.mockReturnValue(undefined);
+        expect(loader.isFontAwesomeLoaded()).toBe(false);
     });
 });
