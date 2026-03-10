@@ -36,7 +36,6 @@ describe('Security: rel="noopener noreferrer" for target="_blank"', () => {
             // This regex finds <a ... target="_blank" ... > tags
             const aTagRegex = /<a\s+([^>]*?)>/gi;
             let match;
-            let foundTargetBlank = false;
 
             while ((match = aTagRegex.exec(html)) !== null) {
                 const attributesStr = match[1];
@@ -54,7 +53,6 @@ describe('Security: rel="noopener noreferrer" for target="_blank"', () => {
                 }
 
                 if (attributes['target'] === '_blank') {
-                    foundTargetBlank = true;
                     const rel = attributes['rel'];
 
                     expect(rel).toBeDefined();
