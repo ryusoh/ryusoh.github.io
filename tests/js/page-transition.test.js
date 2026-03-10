@@ -12,18 +12,25 @@ const codeToEvaluate = sourceCode.replace(
     'const THREE = {};'
 );
 
-describe('page-transition.js hasTransitionParam', () => {
+describe('page-transition.js', () => {
     let context;
     let hasTransitionParam;
+    let clampUnit;
 
     beforeEach(() => {
         // Mock the minimal DOM environment needed to bypass IIFE execution errors
         const mockDocument = {
             readyState: 'complete',
-            documentElement: { classList: { add: jest.fn(), remove: jest.fn() } },
+            documentElement: {
+                classList: { add: jest.fn(), remove: jest.fn() },
+                scrollHeight: 1000,
+                clientWidth: 1024,
+                clientHeight: 768,
+            },
             body: {
                 getAttribute: jest.fn(),
                 appendChild: jest.fn(),
+                style: {},
             },
             querySelectorAll: jest.fn().mockReturnValue([]),
             addEventListener: jest.fn(),
@@ -42,7 +49,9 @@ describe('page-transition.js hasTransitionParam', () => {
             URL: jest.fn(),
             addEventListener: jest.fn(),
             matchMedia: jest.fn().mockReturnValue({ matches: false }),
-            getComputedStyle: jest.fn().mockReturnValue({ getPropertyValue: jest.fn() }),
+            getComputedStyle: jest.fn().mockReturnValue({
+                getPropertyValue: jest.fn().mockReturnValue(''),
+            }),
             sessionStorage: {
                 getItem: jest.fn(),
                 setItem: jest.fn(),
@@ -57,7 +66,6 @@ describe('page-transition.js hasTransitionParam', () => {
             clearTimeout: jest.fn(),
         };
 
-        // Prepare context for VM
         context = {
             window: mockWindow,
             document: mockDocument,
@@ -65,6 +73,7 @@ describe('page-transition.js hasTransitionParam', () => {
             console: console,
             setTimeout: mockWindow.setTimeout,
             clearTimeout: mockWindow.clearTimeout,
+            URL: URL, // Use native URL for tests that don't mock it
         };
 
         vm.createContext(context);
@@ -72,12 +81,13 @@ describe('page-transition.js hasTransitionParam', () => {
         // Run the code. The modified source exposes internals on window.__PageTransitionForTesting
         vm.runInContext(codeToEvaluate, context);
         hasTransitionParam = context.window.__PageTransitionForTesting.hasTransitionParam;
+        clampUnit = context.window.__PageTransitionForTesting.clampUnit;
     });
 
     describe('hasTransitionParam', () => {
         test('should return false when window.URL constructor throws an error', () => {
             // Mock window.URL to throw an error
-            context.window.URL.mockImplementation(() => {
+            context.window.URL = jest.fn().mockImplementation(() => {
                 throw new Error('Invalid URL');
             });
 
@@ -106,12 +116,35 @@ describe('page-transition.js hasTransitionParam', () => {
         });
 
         test('should return true when transition param is present', () => {
-            context.window.URL.mockImplementation(() => ({
+            context.window.URL = jest.fn().mockImplementation(() => ({
                 searchParams: {
                     has: jest.fn().mockReturnValue(true),
                 },
             }));
             expect(hasTransitionParam()).toBe(true);
+        });
+    });
+
+    describe('clampUnit', () => {
+        test('should return the value if it is between 0 and 1', () => {
+            expect(clampUnit(0.5)).toBe(0.5);
+            expect(clampUnit(0.1)).toBe(0.1);
+            expect(clampUnit(0.9)).toBe(0.9);
+        });
+
+        test('should clamp values less than 0 to 0', () => {
+            expect(clampUnit(-0.1)).toBe(0);
+            expect(clampUnit(-1)).toBe(0);
+        });
+
+        test('should clamp values greater than 1 to 1', () => {
+            expect(clampUnit(1.1)).toBe(1);
+            expect(clampUnit(2)).toBe(1);
+        });
+
+        test('should return exactly 0 for 0 and 1 for 1', () => {
+            expect(clampUnit(0)).toBe(0);
+            expect(clampUnit(1)).toBe(1);
         });
     });
 });
