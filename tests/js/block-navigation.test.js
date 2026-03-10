@@ -1,16 +1,16 @@
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-
 /**
  * Tests for block-navigation.js
  */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
 
 const sourcePath = path.resolve(__dirname, '../../js/block-navigation.js');
 const code = fs.readFileSync(sourcePath, 'utf8');
 
 describe('block-navigation', () => {
     let clampScrollTop;
+    let isEditableActive;
     let context;
     let mockDocument;
     let mockWindow;
@@ -64,6 +64,7 @@ describe('block-navigation', () => {
         vm.runInContext(code, context);
 
         clampScrollTop = context.module.exports.clampScrollTop;
+        isEditableActive = context.module.exports.isEditableActive;
     });
 
     describe('clampScrollTop', () => {
@@ -103,6 +104,53 @@ describe('block-navigation', () => {
             // maxScroll = NaN
             expect(clampScrollTop(300)).toBe(300);
             expect(clampScrollTop(-100)).toBe(0);
+        });
+    });
+
+    describe('isEditableActive', () => {
+        it('should return false when there is no active element', () => {
+            context.document.activeElement = null;
+            expect(isEditableActive()).toBe(false);
+        });
+
+        it('should return false for non-editable generic elements', () => {
+            context.document.activeElement = {
+                tagName: 'DIV',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(false);
+        });
+
+        it('should return true for contenteditable elements', () => {
+            context.document.activeElement = {
+                tagName: 'DIV',
+                isContentEditable: true,
+            };
+            expect(isEditableActive()).toBe(true);
+        });
+
+        it('should return true for INPUT elements', () => {
+            context.document.activeElement = {
+                tagName: 'INPUT',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(true);
+        });
+
+        it('should return true for TEXTAREA elements', () => {
+            context.document.activeElement = {
+                tagName: 'TEXTAREA',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(true);
+        });
+
+        it('should return true for SELECT elements', () => {
+            context.document.activeElement = {
+                tagName: 'SELECT',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(true);
         });
     });
 });
