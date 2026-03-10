@@ -5,13 +5,15 @@
     }
     function preconnect(origins) {
         try {
+            const fragment = document.createDocumentFragment();
             for (let i = 0; i < origins.length; i++) {
                 const l = document.createElement('link');
                 l.rel = 'preconnect';
                 l.href = origins[i];
                 l.crossOrigin = 'anonymous';
-                document.head.appendChild(l);
+                fragment.appendChild(l);
             }
+            document.head.appendChild(fragment);
         } catch {}
     }
     function loadScriptSequential(urls, attrs) {
