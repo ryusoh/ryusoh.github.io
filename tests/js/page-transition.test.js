@@ -154,8 +154,14 @@ describe('page-transition.js', () => {
 
     describe('parseRgbFunction', () => {
         test('valid rgb() parsing', () => {
-            expect(parseRgbFunction('rgb(255, 0, 128)')).toEqual({ rgb: [1, 0, 128 / 255], alpha: 1 });
-            expect(parseRgbFunction('RGB(255, 0, 128)')).toEqual({ rgb: [1, 0, 128 / 255], alpha: 1 });
+            expect(parseRgbFunction('rgb(255, 0, 128)')).toEqual({
+                rgb: [1, 0, 128 / 255],
+                alpha: 1,
+            });
+            expect(parseRgbFunction('RGB(255, 0, 128)')).toEqual({
+                rgb: [1, 0, 128 / 255],
+                alpha: 1,
+            });
         });
 
         test('valid rgba() parsing', () => {
