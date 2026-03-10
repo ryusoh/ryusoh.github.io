@@ -11,10 +11,10 @@
     let currentIndex = -1;
     let pendingIndex = null;
     let pendingTimeout = null;
+    let blockObserver = null;
+    const activeIntersectingBlocks = new Set();
+    const useObserver = typeof window !== 'undefined' && 'IntersectionObserver' in window;
 
-    /**
-     * Ensure we run init when DOM is ready.
-     */
     function ready(fn) {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fn);
@@ -140,14 +140,18 @@
     function updatePositions() {
         if (!blocks.length) {
             blockPositions = [];
-            syncCurrentIndex();
+            if (!useObserver) {
+                syncCurrentIndex();
+            }
             return;
         }
 
-        // To avoid layout thrashing, we can batch the getBoundingClientRect calls.
-        // Reading geometry properties like getBoundingClientRect triggers layout reflow
-        // if the layout is "dirty". If we read them all in a row without interleaving
-        // with writes, the browser only reflows once.
+        // If IntersectionObserver is active, we don't need to synchronously calculate array layouts.
+        if (useObserver) {
+            blockPositions = [];
+            return;
+        }
+
         const scrollY = window.scrollY;
         blockPositions = blocks.map((element) => {
             if (topSentinel && element === topSentinel) {
@@ -162,17 +166,59 @@
         const contentBlocks = collectBlocks();
         topSentinel = document.body || document.documentElement || null;
         blocks = topSentinel ? [topSentinel].concat(contentBlocks) : contentBlocks;
+
+        if (useObserver) {
+            if (blockObserver) {
+                blockObserver.disconnect();
+            }
+
+            blockObserver = new window.IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            activeIntersectingBlocks.add(entry.target);
+                        } else {
+                            activeIntersectingBlocks.delete(entry.target);
+                        }
+                    });
+
+                    if (pendingIndex !== null) {
+                        return;
+                    }
+
+                    let maxIntersectingIndex = -1;
+                    activeIntersectingBlocks.forEach((block) => {
+                        const idx = blocks.indexOf(block);
+                        if (idx > maxIntersectingIndex) {
+                            maxIntersectingIndex = idx;
+                        }
+                    });
+
+                    if (maxIntersectingIndex !== -1) {
+                        currentIndex = maxIntersectingIndex;
+                    }
+                },
+                {
+                    rootMargin: '-25% 0px -75% 0px',
+                    threshold: 0,
+                }
+            );
+
+            blocks.forEach((block) => blockObserver.observe(block));
+        }
+
         updatePositions();
     }
 
     function syncCurrentIndex() {
-        if (pendingIndex !== null) {
+        if (useObserver || pendingIndex !== null) {
             return;
         }
         currentIndex = getCurrentIndex();
     }
 
     function getCurrentIndex() {
+        // Only used as a manual fallback
         if (!blockPositions.length) {
             return -1;
         }
@@ -191,15 +237,15 @@
         }
 
         const probe = window.scrollY + window.innerHeight * 0.25;
-        let currentIndex = 0;
+        let foundIndex = 0;
         for (let i = 0; i < blockPositions.length; i += 1) {
             if (probe >= blockPositions[i]) {
-                currentIndex = i;
+                foundIndex = i;
             } else {
                 break;
             }
         }
-        return currentIndex;
+        return foundIndex;
     }
 
     function clampScrollTop(value) {
@@ -216,7 +262,9 @@
         clearTimeout(pendingTimeout);
         pendingTimeout = setTimeout(() => {
             pendingIndex = null;
-            syncCurrentIndex();
+            if (!useObserver) {
+                syncCurrentIndex();
+            }
         }, delay);
     }
 
@@ -253,7 +301,9 @@
             const offset = isFirstContentBlock
                 ? 0
                 : Math.max(0, (window.innerHeight - Math.max(elementHeight, 1)) / 2);
-            const top = clampScrollTop(blockPositions[index] - offset);
+
+            const targetTop = useObserver ? rect.top + window.scrollY : blockPositions[index];
+            const top = clampScrollTop(targetTop - offset);
             window.scrollTo({
                 top,
                 behavior,
@@ -277,7 +327,7 @@
         }
 
         const delta = KEY_FORWARD.has(event.key) ? 1 : -1;
-        let startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
+        let startIndex = currentIndex === -1 ? (useObserver ? 0 : getCurrentIndex()) : currentIndex;
         if (startIndex === -1) {
             startIndex = 0;
         }
@@ -302,6 +352,10 @@
     }
 
     function bindImageLoadHandlers() {
+        if (useObserver) {
+            return;
+        } // Observers handle layout shifts automatically!
+
         const debouncedUpdate = debounce(updatePositions, 150);
         Array.from(document.images).forEach((image) => {
             if (image.complete) {
@@ -317,9 +371,11 @@
         refreshBlocks();
         bindImageLoadHandlers();
         document.addEventListener('keydown', handleKeydown, { passive: false });
-        window.addEventListener('resize', debounce(updatePositions, 150));
-        window.addEventListener('load', updatePositions);
-        window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
+        if (!useObserver) {
+            window.addEventListener('resize', debounce(updatePositions, 150));
+            window.addEventListener('load', updatePositions);
+            window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
+        }
     }
 
     ready(init);
