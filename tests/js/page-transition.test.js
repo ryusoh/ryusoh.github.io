@@ -183,8 +183,14 @@ describe('page-transition.js', () => {
         test('out of bounds values are clamped', () => {
             // Values are divided by 255. 300/255 > 1, so it is clamped to 1. -50 < 0, clamped to 0.
             expect(parseRgbFunction('rgb(300, -50, 255)')).toEqual({ rgb: [1, 0, 1], alpha: 1 });
-            expect(parseRgbFunction('rgba(300, -50, 255, 1.5)')).toEqual({ rgb: [1, 0, 1], alpha: 1 });
-            expect(parseRgbFunction('rgba(300, -50, 255, -0.5)')).toEqual({ rgb: [1, 0, 1], alpha: 0 });
+            expect(parseRgbFunction('rgba(300, -50, 255, 1.5)')).toEqual({
+                rgb: [1, 0, 1],
+                alpha: 1,
+            });
+            expect(parseRgbFunction('rgba(300, -50, 255, -0.5)')).toEqual({
+                rgb: [1, 0, 1],
+                alpha: 0,
+            });
         });
 
         test('malformed strings return null', () => {
