@@ -6,15 +6,18 @@
     const NODE_FILTER_SHOW_ELEMENT =
         (typeof window !== 'undefined' && window.NodeFilter && window.NodeFilter.SHOW_ELEMENT) || 1;
     let blocks = [];
-    let blockPositions = [];
+    let blockPositions = []; // Used for fallback
     let topSentinel = null;
     let currentIndex = -1;
     let pendingIndex = null;
     let pendingTimeout = null;
-    let blockObserver = null;
-    const activeIntersectingBlocks = new Set();
-    const useObserver = typeof window !== 'undefined' && 'IntersectionObserver' in window;
+    let observer = null;
+    let useObserver = false;
+    const visibleBlocks = new Set(); // To track blocks active at the probe line
 
+    /**
+     * Ensure we run init when DOM is ready.
+     */
     function ready(fn) {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fn);
@@ -137,18 +140,11 @@
         return ordered;
     }
 
+    // Fallback: the original updatePositions implementation for older browsers
     function updatePositions() {
         if (!blocks.length) {
             blockPositions = [];
-            if (!useObserver) {
-                syncCurrentIndex();
-            }
-            return;
-        }
-
-        // If IntersectionObserver is active, we don't need to synchronously calculate array layouts.
-        if (useObserver) {
-            blockPositions = [];
+            syncCurrentIndex();
             return;
         }
 
@@ -162,64 +158,76 @@
         syncCurrentIndex();
     }
 
+    function setupIntersectionObserver() {
+        if (typeof window.IntersectionObserver === 'undefined') {
+            useObserver = false;
+            return;
+        }
+
+        useObserver = true;
+
+        if (observer) {
+            observer.disconnect();
+        }
+        visibleBlocks.clear();
+
+        // We want to detect which block spans across the 25% probe line.
+        // The original logic checks: probe >= blockPositions[i]
+        // Which means we find the last block whose top edge is ABOVE the probe line.
+        // We can create a 0-height intersection root margin exactly at 25% of the viewport.
+        // If an element intersects this line, it is the active block.
+        // Since we want the rootMargin to be exactly at 25% from top:
+        // top margin = -25%, bottom margin = -75% (viewport height - 25%).
+        const options = {
+            root: null,
+            rootMargin: '-25% 0px -75% 0px',
+            threshold: 0,
+        };
+
+        observer = new window.IntersectionObserver((entries) => {
+            let changed = false;
+            entries.forEach((entry) => {
+                const target = entry.target;
+                if (entry.isIntersecting) {
+                    visibleBlocks.add(target);
+                    changed = true;
+                } else {
+                    visibleBlocks.delete(target);
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                syncCurrentIndex();
+            }
+        }, options);
+
+        blocks.forEach((block) => observer.observe(block));
+    }
+
     function refreshBlocks() {
         const contentBlocks = collectBlocks();
         topSentinel = document.body || document.documentElement || null;
         blocks = topSentinel ? [topSentinel].concat(contentBlocks) : contentBlocks;
 
-        if (useObserver) {
-            if (blockObserver) {
-                blockObserver.disconnect();
-            }
+        setupIntersectionObserver();
 
-            blockObserver = new window.IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            activeIntersectingBlocks.add(entry.target);
-                        } else {
-                            activeIntersectingBlocks.delete(entry.target);
-                        }
-                    });
-
-                    if (pendingIndex !== null) {
-                        return;
-                    }
-
-                    let maxIntersectingIndex = -1;
-                    activeIntersectingBlocks.forEach((block) => {
-                        const idx = blocks.indexOf(block);
-                        if (idx > maxIntersectingIndex) {
-                            maxIntersectingIndex = idx;
-                        }
-                    });
-
-                    if (maxIntersectingIndex !== -1) {
-                        currentIndex = maxIntersectingIndex;
-                    }
-                },
-                {
-                    rootMargin: '-25% 0px -75% 0px',
-                    threshold: 0,
-                }
-            );
-
-            blocks.forEach((block) => blockObserver.observe(block));
+        if (!useObserver) {
+            updatePositions();
+        } else {
+            syncCurrentIndex();
         }
-
-        updatePositions();
     }
 
     function syncCurrentIndex() {
-        if (useObserver || pendingIndex !== null) {
+        if (pendingIndex !== null) {
             return;
         }
         currentIndex = getCurrentIndex();
     }
 
     function getCurrentIndex() {
-        // Only used as a manual fallback
-        if (!blockPositions.length) {
+        if (!blocks.length) {
             return -1;
         }
 
@@ -236,16 +244,40 @@
             return blocks.length - 1;
         }
 
+        if (useObserver) {
+            if (visibleBlocks.size === 0) {
+                // If nothing is intersecting the probe line (e.g. gaps between elements),
+                // we keep the current index.
+                return currentIndex !== -1 ? currentIndex : 0;
+            }
+
+            // If multiple blocks intersect the 0px line at 25% (unlikely but possible with 0 height blocks),
+            // or if we have overlapping elements, pick the highest index (last one in DOM) to match the original loop logic
+            // (the loop does `if (probe >= blockPositions[i]) currentIndex = i;` which naturally takes the highest index).
+            let bestIndex = 0;
+            visibleBlocks.forEach((element) => {
+                const index = blocks.indexOf(element);
+                if (index > bestIndex) {
+                    bestIndex = index;
+                }
+            });
+            return bestIndex;
+        }
+
+        // Fallback logic
+        if (!blockPositions.length) {
+            return -1;
+        }
         const probe = window.scrollY + window.innerHeight * 0.25;
-        let foundIndex = 0;
+        let bestIndex = 0;
         for (let i = 0; i < blockPositions.length; i += 1) {
             if (probe >= blockPositions[i]) {
-                foundIndex = i;
+                bestIndex = i;
             } else {
                 break;
             }
         }
-        return foundIndex;
+        return bestIndex;
     }
 
     function clampScrollTop(value) {
@@ -262,9 +294,7 @@
         clearTimeout(pendingTimeout);
         pendingTimeout = setTimeout(() => {
             pendingIndex = null;
-            if (!useObserver) {
-                syncCurrentIndex();
-            }
+            syncCurrentIndex();
         }, delay);
     }
 
@@ -301,9 +331,8 @@
             const offset = isFirstContentBlock
                 ? 0
                 : Math.max(0, (window.innerHeight - Math.max(elementHeight, 1)) / 2);
-
-            const targetTop = useObserver ? rect.top + window.scrollY : blockPositions[index];
-            const top = clampScrollTop(targetTop - offset);
+            // Use rect.top directly since we have it, plus window.scrollY
+            const top = clampScrollTop(rect.top + window.scrollY - offset);
             window.scrollTo({
                 top,
                 behavior,
@@ -327,7 +356,7 @@
         }
 
         const delta = KEY_FORWARD.has(event.key) ? 1 : -1;
-        let startIndex = currentIndex === -1 ? (useObserver ? 0 : getCurrentIndex()) : currentIndex;
+        let startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
         if (startIndex === -1) {
             startIndex = 0;
         }
@@ -352,17 +381,18 @@
     }
 
     function bindImageLoadHandlers() {
-        if (useObserver) {
-            return;
-        } // Observers handle layout shifts automatically!
-
+        const debouncedSync = debounce(syncCurrentIndex, 150);
         const debouncedUpdate = debounce(updatePositions, 150);
         Array.from(document.images).forEach((image) => {
             if (image.complete) {
                 return;
             }
             image.addEventListener('load', () => {
-                debouncedUpdate();
+                if (!useObserver) {
+                    debouncedUpdate();
+                } else {
+                    debouncedSync();
+                }
             });
         });
     }
@@ -370,12 +400,17 @@
     function init() {
         refreshBlocks();
         bindImageLoadHandlers();
-        document.addEventListener('keydown', handleKeydown, { passive: false });
+
         if (!useObserver) {
             window.addEventListener('resize', debounce(updatePositions, 150));
             window.addEventListener('load', updatePositions);
-            window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
+        } else {
+            window.addEventListener('resize', debounce(syncCurrentIndex, 150));
+            window.addEventListener('load', syncCurrentIndex);
         }
+
+        document.addEventListener('keydown', handleKeydown, { passive: false });
+        window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
     }
 
     ready(init);
