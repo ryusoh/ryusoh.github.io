@@ -750,6 +750,7 @@ import * as THREE from './vendor/three.module.min.js';
     if (typeof window !== 'undefined') {
         window.__PageTransitionForTesting = {
             hasTransitionParam,
+            clampUnit,
             _Constructor: PageTransition,
         };
     }
