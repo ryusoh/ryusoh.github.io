@@ -20,38 +20,24 @@ describe('quantum_particles getForceMode', () => {
                 location: {
                     search: '',
                 },
-                URLSearchParams: URLSearchParams,
+                URLSearchParams: require('url').URLSearchParams,
                 innerWidth: 1024,
                 innerHeight: 768,
                 addEventListener: jest.fn(),
             },
         };
-
-        // Handle the self-invoking nature or function declarations in the script
-        // We only care about testing getForceMode here.
-        // We will run the code in the context and extract getForceMode.
     });
 
     const getFn = (ctx) => {
         vm.createContext(ctx);
-        // We wrap the code to return getForceMode function without throwing
-        // errors from auto-execution logic at the bottom if window/document are partially mocked.
-        // Actually, the easiest way is to just run it and grab the function from context.
-        // Since getForceMode is a global function in the script, it should be added to the context.
-
-        // We need to bypass the auto-execution at the bottom (ready(...))
-        // which might crash if the mock is not complete enough for initParticles.
-        // We can mock `ready` to do nothing just for these tests, or mock the things it needs.
-
-        // Let's provide a robust enough window/document mock to avoid crash,
-        // or we can overwrite `ready` in context before execution.
-
-        // Let's just run it:
+        // We run the code in the context and extract getForceMode.
+        // The script may throw during auto-execution logic at the bottom if
+        // window/document mocks are incomplete. We can safely ignore these
+        // load-time errors because we only need the hoisted getForceMode function.
         try {
             vm.runInContext(code, ctx);
-        } catch (e) {
-            // Ignore execution errors on load, we just want the function
-            // Actually it's better to make sure it loads without error.
+        } catch {
+            // Ignore execution errors on load.
         }
 
         return ctx.getForceMode;
