@@ -140,7 +140,7 @@
     function updatePositions() {
         if (!blocks.length) {
             blockPositions = [];
-            syncCurrentIndex();
+            syncCurrentIndexFallback();
             return;
         }
 
@@ -155,17 +155,13 @@
             }
             return element.getBoundingClientRect().top + scrollY;
         });
-        syncCurrentIndex();
+        syncCurrentIndexFallback();
     }
 
-    function refreshBlocks() {
-        const contentBlocks = collectBlocks();
-        topSentinel = document.body || document.documentElement || null;
-        blocks = topSentinel ? [topSentinel].concat(contentBlocks) : contentBlocks;
-        updatePositions();
-    }
+    let blockObserver = null;
+    let fallbackScrollListener = null;
 
-    function syncCurrentIndex() {
+    function syncCurrentIndexFallback() {
         if (pendingIndex !== null) {
             return;
         }
@@ -191,15 +187,101 @@
         }
 
         const probe = window.scrollY + window.innerHeight * 0.25;
-        let currentIndex = 0;
+        let index = 0;
         for (let i = 0; i < blockPositions.length; i += 1) {
             if (probe >= blockPositions[i]) {
-                currentIndex = i;
+                index = i;
             } else {
                 break;
             }
         }
-        return currentIndex;
+        return index;
+    }
+
+    function handleScrollEdgeCases() {
+        if (pendingIndex !== null) {
+            return;
+        }
+        const scrollY = window.scrollY;
+        if (topSentinel && scrollY <= 1) {
+            currentIndex = 0;
+            return;
+        }
+
+        const docHeight = Math.max(
+            document.body ? document.body.scrollHeight : 0,
+            document.documentElement ? document.documentElement.scrollHeight : 0
+        );
+        const atBottom = docHeight > 0 && scrollY + window.innerHeight >= docHeight - 1;
+        if (atBottom && blocks.length > 0) {
+            currentIndex = blocks.length - 1;
+        }
+    }
+
+    function setupObserver() {
+        if (blockObserver) {
+            blockObserver.disconnect();
+        }
+
+        if (fallbackScrollListener) {
+            window.removeEventListener('scroll', fallbackScrollListener);
+            fallbackScrollListener = null;
+        }
+
+        if (typeof window.IntersectionObserver === 'undefined') {
+            fallbackScrollListener = debounce(syncCurrentIndexFallback, 150);
+            window.addEventListener('scroll', fallbackScrollListener);
+            return;
+        }
+
+        // We use the scroll event just for top/bottom edge cases, but debounced.
+        // It does not loop over elements, so it's very cheap.
+        fallbackScrollListener = debounce(handleScrollEdgeCases, 150);
+        window.addEventListener('scroll', fallbackScrollListener);
+
+        const options = {
+            root: null,
+            rootMargin: '-25% 0px -70% 0px',
+            threshold: 0,
+        };
+
+        blockObserver = new window.IntersectionObserver((entries) => {
+            if (pendingIndex !== null) {
+                return;
+            }
+
+            let foundIntersecting = false;
+            let newIndex = currentIndex;
+
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const index = blocks.indexOf(entry.target);
+                    // Ignore topSentinel because it's usually the document body and spans everything
+                    if (index !== -1 && (!topSentinel || entry.target !== topSentinel)) {
+                        newIndex = index;
+                        foundIntersecting = true;
+                    }
+                }
+            });
+
+            if (foundIntersecting) {
+                currentIndex = newIndex;
+            }
+        }, options);
+
+        blocks.forEach((block) => {
+            if (block && (!topSentinel || block !== topSentinel)) {
+                blockObserver.observe(block);
+            }
+        });
+    }
+
+    function refreshBlocks() {
+        const contentBlocks = collectBlocks();
+        topSentinel = document.body || document.documentElement || null;
+        blocks = topSentinel ? [topSentinel].concat(contentBlocks) : contentBlocks;
+        updatePositions();
+        setupObserver();
     }
 
     function clampScrollTop(value) {
@@ -216,7 +298,11 @@
         clearTimeout(pendingTimeout);
         pendingTimeout = setTimeout(() => {
             pendingIndex = null;
-            syncCurrentIndex();
+            if (fallbackScrollListener) {
+                fallbackScrollListener();
+            } else if (typeof syncCurrentIndexFallback !== 'undefined') {
+                syncCurrentIndexFallback();
+            }
         }, delay);
     }
 
@@ -319,7 +405,7 @@
         document.addEventListener('keydown', handleKeydown, { passive: false });
         window.addEventListener('resize', debounce(updatePositions, 150));
         window.addEventListener('load', updatePositions);
-        window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
+        // Scroll listener removed for performance. Handled by IntersectionObserver.
     }
 
     ready(init);
