@@ -372,11 +372,29 @@
         scrollToIndex(nextIndex);
     }
 
+    /**
+     * Optimized debounce that aligns execution with the browser's render cycle using requestAnimationFrame.
+     *
+     * ⚡ Bolt Optimization:
+     * - What: Wrap the final delayed execution in `requestAnimationFrame`.
+     * - Why: The original `debounce` used only `setTimeout`, causing synchronous DOM geometry reads (e.g. `getBoundingClientRect` inside `updatePositions`) to execute out-of-sync with the paint cycle, leading to layout thrashing and scroll jitter on heavy image pages.
+     * - Impact: Measurably reduces main-thread blocking time during scroll/resize events by guaranteeing layout recalculations happen immediately before the frame is drawn. Prevents forced synchronous layouts.
+     */
     function debounce(fn, delay) {
         let timeout;
+        let rafId;
         return function debounced(...args) {
             clearTimeout(timeout);
-            timeout = setTimeout(() => fn.apply(this, args), delay);
+            if (rafId && typeof window !== 'undefined' && window.cancelAnimationFrame) {
+                window.cancelAnimationFrame(rafId);
+            }
+            timeout = setTimeout(() => {
+                if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+                    rafId = window.requestAnimationFrame(() => fn.apply(this, args));
+                } else {
+                    fn.apply(this, args);
+                }
+            }, delay);
         };
     }
 
