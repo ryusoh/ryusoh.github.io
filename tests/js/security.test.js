@@ -152,6 +152,18 @@ describe('DOM XSS Security Tests', () => {
         expect(context.window.location.assign).not.toHaveBeenCalled();
         expect(context.console.error).toHaveBeenCalled();
     });
+
+    test('PageTransition should block javascript: URLs even with leading control characters', () => {
+        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
+        const pt = new PageTransition();
+
+        pt.navigate('\x01\x02\x09\x1fjavascript:alert(1)');
+
+        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(context.console.error).toHaveBeenCalledWith(
+            expect.stringContaining('Blocked potentially malicious URL scheme')
+        );
+    });
 });
 
 // --- Security: target="_blank" links Tests ---

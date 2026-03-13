@@ -648,7 +648,7 @@ import * as THREE from './vendor/three.module.min.js';
 
     PageTransition.prototype.navigate = function (url) {
         if (typeof url === 'string') {
-            const normalizedUrl = url.trim().toLowerCase();
+            const normalizedUrl = url.replace(/^[\s\u0000-\u001F]+/g, '').toLowerCase();
             if (
                 normalizedUrl.startsWith('javascript:') ||
                 normalizedUrl.startsWith('data:') ||
