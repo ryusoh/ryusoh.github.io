@@ -9,3 +9,9 @@
 **Learning:** Found that `debounce` functions used for scroll and resize handlers (`syncCurrentIndex`, `updatePositions`) were relying solely on `setTimeout`. This causes the callback (which often involves synchronous DOM reads like `getBoundingClientRect`) to fire out-of-sync with the browser's render cycle, leading to layout thrashing.
 
 **Action:** Always wrap the final delayed execution of UI-bound debounced functions in `requestAnimationFrame`. This guarantees that heavy layout recalculations happen immediately before the frame is painted, improving performance and predictability on heavy pages.
+
+## 2026-03-13 - Layout Thrashing in Polling Loaders
+
+**Learning:** Found that the `FontAwesomeLoader` in `js/font-awesome-loader.js` was causing significant layout thrashing. It polled for font load completion every 100ms by dynamically creating an `<i>` element, appending it to the DOM, reading its computed style (forcing a synchronous layout/reflow), and then removing it.
+
+**Action:** To prevent layout thrashing during repeated DOM-based state checks, always prefer reusing a persistent hidden element instead of appending and removing temporary elements on every interval tick.
