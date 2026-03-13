@@ -113,16 +113,21 @@ describe('DOM XSS Security Tests', () => {
         jest.clearAllTimers();
     });
 
-    test('PageTransition.navigate should block javascript: URLs', () => {
+    test('PageTransition.navigate should block malicious URL schemes', () => {
         const PageTransition = context.window.__PageTransitionForTesting._Constructor;
         const pt = new PageTransition();
 
         pt.navigate('javascript:alert(1)');
-
         expect(context.window.location.assign).not.toHaveBeenCalled();
         expect(context.console.error).toHaveBeenCalledWith(
-            expect.stringContaining('Blocked potentially malicious javascript: URL')
+            expect.stringContaining('Blocked potentially malicious URL scheme')
         );
+
+        pt.navigate('data:text/html,<script>alert(1)</script>');
+        expect(context.window.location.assign).not.toHaveBeenCalled();
+
+        pt.navigate('vbscript:msgbox(1)');
+        expect(context.window.location.assign).not.toHaveBeenCalled();
     });
 
     test('PageTransition.navigate should allow valid same-origin URLs', () => {
