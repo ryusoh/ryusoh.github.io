@@ -647,10 +647,17 @@ import * as THREE from './vendor/three.module.min.js';
     };
 
     PageTransition.prototype.navigate = function (url) {
-        if (typeof url === 'string' && url.trim().toLowerCase().startsWith('javascript:')) {
-            // eslint-disable-next-line no-console
-            console.error('[page-transition] Blocked potentially malicious javascript: URL');
-            return;
+        if (typeof url === 'string') {
+            const normalizedUrl = url.trim().toLowerCase();
+            if (
+                normalizedUrl.startsWith('javascript:') ||
+                normalizedUrl.startsWith('data:') ||
+                normalizedUrl.startsWith('vbscript:')
+            ) {
+                // eslint-disable-next-line no-console
+                console.error('[page-transition] Blocked potentially malicious URL scheme');
+                return;
+            }
         }
         if (!this.enabled || this.isAnimating) {
             window.location.assign(url);
