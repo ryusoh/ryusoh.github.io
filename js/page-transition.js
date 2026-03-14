@@ -648,17 +648,27 @@ import * as THREE from './vendor/three.module.min.js';
 
     PageTransition.prototype.navigate = function (url) {
         if (typeof url === 'string') {
-            const normalizedUrl = url.replace(/^[\s\u0000-\u001F]+/g, '').toLowerCase();
-            if (
-                normalizedUrl.startsWith('javascript:') ||
-                normalizedUrl.startsWith('data:') ||
-                normalizedUrl.startsWith('vbscript:')
-            ) {
+            try {
+                const parsedUrl = new window.URL(url, window.location.href);
+                if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+                    // eslint-disable-next-line no-console
+                    console.error('[page-transition] Blocked potentially malicious URL scheme');
+                    return;
+                }
+                if (parsedUrl.origin !== window.location.origin) {
+                    // eslint-disable-next-line no-console
+                    console.error('[page-transition] Blocked cross-origin navigation');
+                    return;
+                }
+            } catch {
                 // eslint-disable-next-line no-console
-                console.error('[page-transition] Blocked potentially malicious URL scheme');
+                console.error('[page-transition] Blocked invalid URL');
                 return;
             }
+        } else {
+            return; // URL must be a string
         }
+
         if (!this.enabled || this.isAnimating) {
             window.location.assign(url);
             return;
