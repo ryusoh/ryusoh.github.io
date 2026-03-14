@@ -1,0 +1,2 @@
+## 2024-05-18 - Node VM Environment Mocking for Frontend Utility Scripts
+**Learning:** Testing unexported vanilla JS utilities (e.g., `preloader.js`, `service-worker-register.js`, `ga.js`) requires reading the raw source with `fs.readFileSync` and evaluating it inside a custom `vm.runInContext`. When the script has synchronous side effects on load (such as attaching `DOMContentLoaded` event listeners that may crash or create unwanted behavior in the test runner), these strings must be stripped from the source code using regex before `vm.runInContext` evaluation.
