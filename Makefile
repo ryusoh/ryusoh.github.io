@@ -28,7 +28,7 @@ hooks:
 
 precommit: hooks
 	@if [ -f .pre-commit-config.yaml ]; then \
-		python3 -m pre_commit run --all-files --show-diff-on-failure; \
+		PRE_COMMIT_NO_CONCURRENCY=1 python3 -m pre_commit run --all-files --show-diff-on-failure; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit."; \
 	fi
@@ -36,7 +36,7 @@ precommit: hooks
 precommit-fix: hooks
 	@if [ -f .pre-commit-config.yaml ]; then \
 		echo "Running pre-commit auto-fixes..."; \
-		python3 -m pre_commit run --all-files --hook-stage manual --verbose || true; \
+		PRE_COMMIT_NO_CONCURRENCY=1 python3 -m pre_commit run --all-files --hook-stage manual --verbose || true; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
 	fi
