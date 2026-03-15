@@ -30,6 +30,7 @@ describe('block-navigation', () => {
             createTreeWalker: jest.fn().mockReturnValue({
                 nextNode: jest.fn().mockReturnValue(false),
             }),
+            querySelectorAll: jest.fn().mockReturnValue([]),
             activeElement: null,
             images: [],
         };
