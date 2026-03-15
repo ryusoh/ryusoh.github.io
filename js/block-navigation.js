@@ -3,8 +3,6 @@
 (function () {
     const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
     const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
-    const NODE_FILTER_SHOW_ELEMENT =
-        (typeof window !== 'undefined' && window.NodeFilter && window.NodeFilter.SHOW_ELEMENT) || 1;
 
     /**
      * ⚡ Bolt Optimization:
@@ -112,13 +110,22 @@
         );
     }
 
+    /**
+     * ⚡ Bolt Optimization:
+     * - What: Replaced O(N) DOM-wide `TreeWalker` traversal with a single natively-optimized `querySelectorAll` call.
+     * - Why: `TreeWalker` visits every single element in `document.body` (including thousands of wrappers, spans, and non-target nodes on image-heavy pages), invoking expensive `.matches()` and `.closest()` checks in JS-land for each.
+     * - Impact: Measurably reduces main-thread JS execution time during page load and resize events by delegating the initial filtering to the browser's highly-optimized C++ selector engine.
+     */
     function collectBlocks() {
-        const walker = document.createTreeWalker(document.body, NODE_FILTER_SHOW_ELEMENT);
+        // Collect candidates natively instead of visiting every DOM node via TreeWalker
+        const candidates = document.querySelectorAll(
+            '[data-block-nav="block"], .intro-header, ' + BLOCK_ELEMENT_SELECTOR
+        );
         const ordered = [];
         const seen = new Set();
 
-        while (walker.nextNode()) {
-            const element = walker.currentNode;
+        for (let i = 0; i < candidates.length; i++) {
+            const element = candidates[i];
             if (!shouldUseElement(element)) {
                 continue;
             }

@@ -15,3 +15,9 @@
 **Learning:** Found that the `FontAwesomeLoader` in `js/font-awesome-loader.js` was causing significant layout thrashing. It polled for font load completion every 100ms by dynamically creating an `<i>` element, appending it to the DOM, reading its computed style (forcing a synchronous layout/reflow), and then removing it.
 
 **Action:** To prevent layout thrashing during repeated DOM-based state checks, always prefer reusing a persistent hidden element instead of appending and removing temporary elements on every interval tick.
+
+## 2026-03-15 - Natively Optimized DOM Traversal for Candidate Filtering
+
+**Learning:** Found that `block-navigation.js` used a `TreeWalker` to iterate over every single DOM element in `document.body` (often thousands of nodes, like formatting tags and generic wrappers) to evaluate expensive `.matches()` and `.closest()` checks via the `shouldUseElement()` filter. This O(N) traversal entirely in JS-land was needlessly expensive.
+
+**Action:** Whenever filtering a specific subset of nodes based on known CSS classes/attributes, avoid O(N) JS-land DOM tree iterations (`TreeWalker` or recursive node visiting). Always delegate the search to the browser's highly-optimized C++ selector engine using `document.querySelectorAll()` with the target selectors, and then filter the much smaller resulting NodeList.
