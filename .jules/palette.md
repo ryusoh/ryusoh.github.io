@@ -7,3 +7,8 @@
 
 **Learning:** When using icon-only buttons, providing an `aria-label` on the anchor tag is crucial for screen reader users. However, if the icon itself is implemented via a font (like FontAwesome `<i class="fa..."></i>`), screen readers may attempt to read the icon element redundantly or confusingly. While adding native visual `title` attributes can provide parity for sighted users, it often conflicts with strict minimalist design requirements.
 **Action:** Always add `aria-hidden="true"` to purely visual decorative child elements (like FontAwesome `<i>` tags) inside labeled interactive elements. This ensures screen readers only announce the intended `aria-label` on the parent, improving the non-visual UX without compromising minimalist aesthetic constraints that prohibit visible hover tooltips.
+
+## 2024-05-20 - [Accessibility: Screen Reader Clarity vs Layout Tables]
+
+**Learning:** Using an HTML `<table>` element purely for layout purposes (such as aligning navigation links alongside a category label) will cause screen readers to announce it as a data table with rows and columns, creating a confusing and verbose experience for non-visual users.
+**Action:** Always add `role="presentation"` (or `role="none"`) to layout tables. This strips away the table semantics so that assistive technologies treat the contents as normal layout elements, significantly improving the non-visual user experience without altering the visual structure or relying on new CSS layouts.
