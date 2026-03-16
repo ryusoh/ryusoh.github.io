@@ -163,3 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const preloader = new AssetPreloader();
     preloader.init();
 });
+
+// eslint-disable-next-line no-undef
+if (typeof module !== 'undefined' && module.exports) {
+    // eslint-disable-next-line no-undef
+    module.exports = {
+        AssetPreloader,
+    };
+}
