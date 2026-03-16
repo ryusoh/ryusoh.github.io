@@ -18,8 +18,24 @@ describe('AssetPreloader', () => {
                 const el = { tagName: tag.toUpperCase() };
                 return el;
             }),
+            createDocumentFragment: jest.fn(() => {
+                const frag = {
+                    nodeType: 11,
+                    children: [],
+                    appendChild: jest.fn(function (el) {
+                        this.children.push(el);
+                    }),
+                };
+                return frag;
+            }),
             head: {
-                appendChild: jest.fn((el) => appendedElements.push(el)),
+                appendChild: jest.fn((el) => {
+                    if (el && el.nodeType === 11) {
+                        appendedElements.push(...el.children);
+                    } else if (el) {
+                        appendedElements.push(el);
+                    }
+                }),
             },
             addEventListener: jest.fn(),
         };
@@ -102,7 +118,18 @@ describe('AssetPreloader', () => {
         });
     });
 
-    test('preloadImage creates link element and appends to head', () => {
+    test('createPreloadLink creates link element and returns it', () => {
+        const preloader = new AssetPreloader();
+        const link = preloader.createPreloadLink('test-image.jpg');
+
+        expect(mockDocument.createElement).toHaveBeenCalledWith('link');
+
+        expect(link.rel).toBe('preload');
+        expect(link.as).toBe('image');
+        expect(link.href).toBe('test-image.jpg');
+    });
+
+    test('preloadImage creates link element and appends to head (maintains public API)', () => {
         const preloader = new AssetPreloader();
         preloader.preloadImage('test-image.jpg');
 
@@ -115,13 +142,29 @@ describe('AssetPreloader', () => {
         expect(appended.href).toBe('test-image.jpg');
     });
 
-    test('preloadAssets calls preloadImage for correct sets', () => {
+    test('preloadAssets creates links via createPreloadLink and appends them using a fragment', () => {
         const preloader = new AssetPreloader();
-        preloader.preloadImage = jest.fn();
+        preloader.createPreloadLink = jest.fn((imgSrc) => {
+            return {
+                tagName: 'LINK',
+                rel: 'preload',
+                as: 'image',
+                href: imgSrc,
+            };
+        });
 
         preloader.preloadAssets(['p1']);
-        expect(preloader.preloadImage).toHaveBeenCalledTimes(preloader.assetSets.p1.length);
-        expect(preloader.preloadImage).toHaveBeenCalledWith(preloader.assetSets.p1[0]);
+
+        expect(mockDocument.createDocumentFragment).toHaveBeenCalled();
+        expect(preloader.createPreloadLink).toHaveBeenCalledTimes(preloader.assetSets.p1.length);
+        expect(preloader.createPreloadLink).toHaveBeenCalledWith(preloader.assetSets.p1[0]);
+
+        expect(mockDocument.head.appendChild).toHaveBeenCalled();
+        expect(appendedElements.length).toBe(preloader.assetSets.p1.length);
+
+        const firstAppended = appendedElements[0];
+        expect(firstAppended.rel).toBe('preload');
+        expect(firstAppended.href).toBe(preloader.assetSets.p1[0]);
     });
 
     test('preloadForCurrentPage calls preloadAssets with correct pages', () => {

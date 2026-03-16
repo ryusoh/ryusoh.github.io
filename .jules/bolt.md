@@ -21,3 +21,8 @@
 **Learning:** Found that `block-navigation.js` used a `TreeWalker` to iterate over every single DOM element in `document.body` (often thousands of nodes, like formatting tags and generic wrappers) to evaluate expensive `.matches()` and `.closest()` checks via the `shouldUseElement()` filter. This O(N) traversal entirely in JS-land was needlessly expensive.
 
 **Action:** Whenever filtering a specific subset of nodes based on known CSS classes/attributes, avoid O(N) JS-land DOM tree iterations (`TreeWalker` or recursive node visiting). Always delegate the search to the browser's highly-optimized C++ selector engine using `document.querySelectorAll()` with the target selectors, and then filter the much smaller resulting NodeList.
+
+## 2026-03-16 - Batch DOM Inserts with DocumentFragment
+
+**Learning:** Found that `AssetPreloader` in `js/preloader.js` was appending up to ~34 image preload `<link>` elements one by one directly into `document.head` in a loop. This repetitive DOM manipulation can cause multiple style recalculations, reflows, and potential layout thrashing on the main thread during initialization.
+**Action:** Always use a `DocumentFragment` (`document.createDocumentFragment()`) to batch multiple DOM insertions when creating elements in a loop. Append the newly created elements to the fragment first, and then append the entire fragment to the DOM in a single operation to minimize main thread blocking time.
