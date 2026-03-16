@@ -3,7 +3,7 @@ const gsap = window.gsap;
 
 const isTouchDevice =
     typeof window !== 'undefined' &&
-    ('ontouchstart' in window || matchMedia('(hover: none)').matches);
+    ('ontouchstart' in window || (window.matchMedia && window.matchMedia('(hover: none)').matches));
 
 const lerp = (start, end, alpha) => start + (end - start) * alpha;
 
