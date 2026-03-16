@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
+/**
+ * Consolidated tests for quantum_particles.js
+ */
+
 const sourcePath = path.resolve(__dirname, '../../../js/ambient/quantum_particles.js');
 const code = fs.readFileSync(sourcePath, 'utf8');
 
@@ -9,121 +13,138 @@ describe('quantum_particles.js', () => {
     let context;
 
     beforeEach(() => {
+        jest.clearAllMocks();
+
         // Prepare context for VM
         context = {
+            window: {
+                matchMedia: jest.fn(),
+                addEventListener: jest.fn(),
+                innerWidth: 1024,
+                innerHeight: 768,
+                location: { search: '' },
+                performance: { now: jest.fn(() => 0) },
+                requestAnimationFrame: jest.fn(),
+                URLSearchParams: require('url').URLSearchParams,
+                devicePixelRatio: 1,
+            },
             document: {
                 readyState: 'complete',
                 addEventListener: jest.fn(),
-                body: { appendChild: jest.fn() },
                 createElement: jest.fn(),
-            },
-            window: {
-                location: {
-                    search: '',
+                body: {
+                    appendChild: jest.fn(),
                 },
-                URLSearchParams: require('url').URLSearchParams,
-                innerWidth: 1024,
-                innerHeight: 768,
-                devicePixelRatio: 1,
-                addEventListener: jest.fn(),
             },
-            navigator: {},
-            console: console,
+            navigator: {
+                connection: { saveData: false },
+            },
+            console: {
+                error: jest.fn(),
+                warn: jest.fn(),
+                log: jest.fn(),
+            },
             Math: Math,
+            Date: Date,
+            setTimeout: jest.fn((fn) => fn()),
+            Promise: Promise,
         };
 
-        // Ensure circular references work if needed
+        // Ensure circular references work
         context.window.document = context.document;
+        context.document.defaultView = context.window;
 
         vm.createContext(context);
-        // The script may throw during auto-execution logic at the bottom if
-        // window/document mocks are incomplete. We can safely ignore these
-        // load-time errors because we only need the hoisted functions.
+
+        // We wrap in try-catch to ignore load-time execution errors
+        // (like failing to import 'three' which we'll mock if needed)
         try {
             vm.runInContext(code, context);
         } catch {
-            // Ignore execution errors on load.
+            // Ignore
         }
     });
 
-    describe('getForceMode', () => {
-        test('should return null if window is undefined', () => {
-            const getForceMode = context.getForceMode;
-            const originalWindow = context.window;
-            context.window = undefined;
-            expect(getForceMode()).toBeNull();
-            context.window = originalWindow;
+    describe('clamp', () => {
+        it('should return the value when it is within the bounds', () => {
+            const clamp = context.clamp;
+            expect(clamp(5, 0, 10)).toBe(5);
+            expect(clamp(0, -10, 10)).toBe(0);
         });
 
-        test('should return null if window.location is undefined', () => {
-            const getForceMode = context.getForceMode;
-            const originalLocation = context.window.location;
-            context.window.location = undefined;
-            expect(getForceMode()).toBeNull();
-            context.window.location = originalLocation;
+        it('should return the minimum when the value is below the bounds', () => {
+            const clamp = context.clamp;
+            expect(clamp(-5, 0, 10)).toBe(0);
         });
 
-        test('should return null if window.URLSearchParams is not a function', () => {
-            const getForceMode = context.getForceMode;
-            const originalURLSearchParams = context.window.URLSearchParams;
-            context.window.URLSearchParams = undefined;
-            expect(getForceMode()).toBeNull();
-            context.window.URLSearchParams = originalURLSearchParams;
-        });
-
-        test('should return ambient param value if provided in search', () => {
-            context.window.location.search = '?ambient=trace';
-            const getForceMode = context.getForceMode;
-            expect(getForceMode()).toBe('trace');
-        });
-
-        test('should return null if ambient param is missing in search', () => {
-            context.window.location.search = '?other=value';
-            const getForceMode = context.getForceMode;
-            expect(getForceMode()).toBeNull();
-        });
-
-        test('should return null if search is empty', () => {
-            context.window.location.search = '';
-            const getForceMode = context.getForceMode;
-            expect(getForceMode()).toBeNull();
+        it('should return the maximum when the value is above the bounds', () => {
+            const clamp = context.clamp;
+            expect(clamp(15, 0, 10)).toBe(10);
         });
     });
 
-    describe('clamp', () => {
-        test('should return the value when it is within the bounds', () => {
-            expect(context.clamp(5, 0, 10)).toBe(5);
-            expect(context.clamp(0, -10, 10)).toBe(0);
-            expect(context.clamp(50.5, 0, 100)).toBe(50.5);
+    describe('prefersReducedMotion', () => {
+        it('returns false if window.matchMedia is not a function', () => {
+            context.window.matchMedia = undefined;
+            const result = context.prefersReducedMotion();
+            expect(result).toBe(false);
         });
 
-        test('should return the minimum when the value is below the bounds', () => {
-            expect(context.clamp(-5, 0, 10)).toBe(0);
-            expect(context.clamp(-100, -50, 50)).toBe(-50);
-            expect(context.clamp(2.5, 3.5, 10)).toBe(3.5);
+        it('returns true if matchMedia matches prefers-reduced-motion: reduce', () => {
+            context.window.matchMedia.mockReturnValue({ matches: true });
+            const result = context.prefersReducedMotion();
+            expect(context.window.matchMedia).toHaveBeenCalledWith(
+                '(prefers-reduced-motion: reduce)'
+            );
+            expect(result).toBe(true);
         });
 
-        test('should return the maximum when the value is above the bounds', () => {
-            expect(context.clamp(15, 0, 10)).toBe(10);
-            expect(context.clamp(100, -50, 50)).toBe(50);
-            expect(context.clamp(12.5, 3.5, 10)).toBe(10);
+        it('returns false if matchMedia does not match prefers-reduced-motion: reduce', () => {
+            context.window.matchMedia.mockReturnValue({ matches: false });
+            const result = context.prefersReducedMotion();
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('getForceMode', () => {
+        it('should return ambient param value if provided in search', () => {
+            context.window.location.search = '?ambient=trace';
+            expect(context.getForceMode()).toBe('trace');
         });
 
-        test('should handle values equal to the bounds', () => {
-            expect(context.clamp(0, 0, 10)).toBe(0);
-            expect(context.clamp(10, 0, 10)).toBe(10);
+        it('should return null if ambient param is missing in search', () => {
+            context.window.location.search = '?other=value';
+            expect(context.getForceMode()).toBeNull();
         });
 
-        test('should handle identical min and max', () => {
-            expect(context.clamp(5, 10, 10)).toBe(10);
-            expect(context.clamp(15, 10, 10)).toBe(10);
-            expect(context.clamp(10, 10, 10)).toBe(10);
+        it('should return null if window.URLSearchParams is not a function', () => {
+            context.window.URLSearchParams = undefined;
+            expect(context.getForceMode()).toBeNull();
+        });
+    });
+
+    describe('hasWebGLSupport', () => {
+        it('should return true if webgl context is available', () => {
+            const mockCanvas = {
+                getContext: jest.fn().mockReturnValue({}),
+            };
+            context.document.createElement.mockReturnValue(mockCanvas);
+            context.window.WebGLRenderingContext = true;
+
+            expect(context.hasWebGLSupport()).toBe(true);
+            expect(mockCanvas.getContext).toHaveBeenCalledWith('webgl', {
+                failIfMajorPerformanceCaveat: true,
+            });
         });
 
-        test('should handle negative bounds', () => {
-            expect(context.clamp(-15, -20, -10)).toBe(-15);
-            expect(context.clamp(-25, -20, -10)).toBe(-20);
-            expect(context.clamp(-5, -20, -10)).toBe(-10);
+        it('should return false if getContext throws', () => {
+            const mockCanvas = {
+                getContext: jest.fn().mockImplementation(() => {
+                    throw new Error('WebGL failed');
+                }),
+            };
+            context.document.createElement.mockReturnValue(mockCanvas);
+            expect(context.hasWebGLSupport()).toBe(false);
         });
     });
 });

@@ -49,6 +49,9 @@
             (function next(i) {
                 if (i >= urls.length) {
                     const last = urls[urls.length - 1];
+                    if (!last) {
+                        return resolve();
+                    }
                     fetch(last, { mode: 'cors' })
                         .then(function (r) {
                             return r.ok ? r.text() : Promise.reject();
