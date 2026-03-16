@@ -52,6 +52,7 @@ describe('DOM XSS Security Tests', () => {
         const mockWindow = {
             location: {
                 href: 'http://localhost/',
+                origin: 'http://localhost',
                 assign: jest.fn(),
             },
             URL: URL, // Use Node's URL
@@ -143,6 +144,20 @@ describe('DOM XSS Security Tests', () => {
         expect(context.window.location.assign).toHaveBeenCalledWith('/about.html');
     });
 
+    test('PageTransition.navigate should block cross-origin URLs', () => {
+        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
+        const pt = new PageTransition();
+
+        pt.navigate('http://example.com/login.html');
+        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(context.console.error).toHaveBeenCalledWith(
+            expect.stringContaining('Blocked cross-origin navigation')
+        );
+
+        pt.navigate('https://malicious-site.com/exploit');
+        expect(context.window.location.assign).not.toHaveBeenCalled();
+    });
+
     test('PageTransition should block javascript: URLs even with leading whitespace or different case', () => {
         const PageTransition = context.window.__PageTransitionForTesting._Constructor;
         const pt = new PageTransition();
@@ -150,7 +165,21 @@ describe('DOM XSS Security Tests', () => {
         pt.navigate('  JAVASCRIPT:alert(1)');
 
         expect(context.window.location.assign).not.toHaveBeenCalled();
-        expect(context.console.error).toHaveBeenCalled();
+        expect(context.console.error).toHaveBeenCalledWith(
+            expect.stringContaining('Blocked potentially malicious URL scheme')
+        );
+    });
+
+    test('PageTransition should block javascript: URLs even with leading control characters', () => {
+        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
+        const pt = new PageTransition();
+
+        pt.navigate('\x01\x02\x09\x1fjavascript:alert(1)');
+
+        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(context.console.error).toHaveBeenCalledWith(
+            expect.stringContaining('Blocked potentially malicious URL scheme')
+        );
     });
 });
 

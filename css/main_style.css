@@ -263,6 +263,21 @@ canvas {
     letter-spacing: 1px;
 }
 
+footer a {
+    color: #aaa;
+    opacity: 0.8;
+    transition:
+        opacity 0.5s ease,
+        color 0.5s ease;
+    text-decoration: none;
+}
+
+footer a:hover,
+footer a:focus {
+    opacity: 1;
+    color: #fff;
+}
+
 #nav dd > a {
     display: inline-block;
     border-radius: 2px;
@@ -432,6 +447,11 @@ footer {
     text-decoration: none;
     transition: color ease 0.5s;
     margin: 0 5.5px;
+}
+
+.social-icons-container a:hover,
+.social-icons-container a:focus {
+    color: #fff;
 }
 
 .social-icons-container .social-icon {
