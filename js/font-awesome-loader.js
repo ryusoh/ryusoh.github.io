@@ -9,6 +9,7 @@ class FontAwesomeLoader {
         this.maxRetries = 10; // Maximum number of checks
         this.retryCount = 0;
         this.faIcons = []; // Cache for Font Awesome icon elements
+        this.testElement = null; // Persistent test element for checking FA load status
     }
 
     /**
@@ -22,6 +23,7 @@ class FontAwesomeLoader {
         if (this.isFontAwesomeLoaded()) {
             this.fontAwesomeLoaded = true;
             this.showIcons();
+            this.stopChecking();
             return;
         }
 
@@ -37,12 +39,19 @@ class FontAwesomeLoader {
      * Check if Font Awesome is loaded by looking for the presence of FA classes
      */
     isFontAwesomeLoaded() {
-        // Create a temporary element to test if FA is loaded
-        const testElement = document.createElement('i');
-        testElement.className = 'fa fa-heart';
-        document.body.appendChild(testElement);
+        // Reuse or create a persistent test element to avoid repeated layout thrashing
+        if (!this.testElement) {
+            this.testElement = document.createElement('i');
+            this.testElement.className = 'fa fa-heart';
+            this.testElement.style.position = 'absolute';
+            this.testElement.style.top = '-9999px';
+            this.testElement.style.left = '-9999px';
+            this.testElement.style.visibility = 'hidden';
+            this.testElement.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(this.testElement);
+        }
 
-        const computedStyle = window.getComputedStyle(testElement, ':before');
+        const computedStyle = window.getComputedStyle(this.testElement, ':before');
         const hasContent = !!(
             computedStyle &&
             computedStyle.content &&
@@ -50,7 +59,6 @@ class FontAwesomeLoader {
             computedStyle.content !== '""'
         );
 
-        document.body.removeChild(testElement);
         return hasContent;
     }
 
@@ -97,12 +105,20 @@ class FontAwesomeLoader {
     }
 
     /**
-     * Stop the checking interval
+     * Stop the checking interval and clean up
      */
     stopChecking() {
         if (this.checkInterval) {
             clearInterval(this.checkInterval);
             this.checkInterval = null;
+        }
+
+        // Clean up the test element once we're done checking
+        if (this.testElement) {
+            if (this.testElement.parentNode) {
+                this.testElement.parentNode.removeChild(this.testElement);
+            }
+            this.testElement = null;
         }
     }
 

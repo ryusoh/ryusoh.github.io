@@ -240,7 +240,7 @@ describe('FontAwesomeLoader', () => {
     });
 
     test('isFontAwesomeLoaded should return true if FA content is present', () => {
-        const mockElement = { className: '', style: {} };
+        const mockElement = { className: '', style: {}, setAttribute: jest.fn() };
         context.document.createElement.mockReturnValue(mockElement);
         context.window.getComputedStyle.mockReturnValue({
             content: '"\\f004"',
@@ -252,12 +252,13 @@ describe('FontAwesomeLoader', () => {
         expect(mockElement.className).toBe('fa fa-heart');
         expect(context.document.body.appendChild).toHaveBeenCalledWith(mockElement);
         expect(context.window.getComputedStyle).toHaveBeenCalledWith(mockElement, ':before');
-        expect(context.document.body.removeChild).toHaveBeenCalledWith(mockElement);
+        // Now it's not removed immediately
+        expect(context.document.body.removeChild).not.toHaveBeenCalled();
         expect(result).toBe(true);
     });
 
     test('isFontAwesomeLoaded should return false if FA content is not present', () => {
-        const mockElement = { className: '', style: {} };
+        const mockElement = { className: '', style: {}, setAttribute: jest.fn() };
         context.document.createElement.mockReturnValue(mockElement);
 
         // Mock non-existent content
@@ -280,7 +281,7 @@ describe('FontAwesomeLoader', () => {
     });
 
     test('isFontAwesomeLoaded should return false if computedStyle is null or undefined', () => {
-        const mockElement = { className: '', style: {} };
+        const mockElement = { className: '', style: {}, setAttribute: jest.fn() };
         context.document.createElement.mockReturnValue(mockElement);
 
         // When window.getComputedStyle returns null (e.g. element is disconnected or in old browsers/edge cases)
