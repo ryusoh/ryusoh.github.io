@@ -1,13 +1,7 @@
 // Ambient background effect (localized copy)
 // Expects window.Sketch and optional window.AMBIENT_CONFIG
 (function () {
-    try {
-        const usp =
-            typeof window.URLSearchParams !== 'undefined'
-                ? new window.URLSearchParams(window.location.search || '')
-                : null;
-        const force = usp ? usp.get('ambient') : null; // 'on' | 'debug' | 'trace'
-        const trace = force === 'trace';
+    function getConfig(force, trace) {
         const C = Object.assign(
             {
                 enabled: true,
@@ -29,17 +23,39 @@
             C.speed = Math.max(C.speed, 0.3);
             C.densityDivisor = Math.max(15000, C.densityDivisor - 10000);
         }
+        return C;
+    }
+
+    function shouldSkip(C, force) {
+        if (!window.Sketch) {
+            return true;
+        }
+        if (force) {
+            return false;
+        }
         const m = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
         const reduce = m && m.matches;
         const large = window.innerWidth >= C.minWidth;
-        const enabled = C.enabled || !!force;
-        if ((!enabled || (reduce && C.respectReducedMotion !== false)) && !force) {
-            return;
+        const enabled = C.enabled;
+        if (!enabled || (reduce && C.respectReducedMotion !== false)) {
+            return true;
         }
-        if (!large && !force) {
-            return;
+        if (!large) {
+            return true;
         }
-        if (!window.Sketch) {
+        return false;
+    }
+
+    try {
+        const usp =
+            typeof window.URLSearchParams !== 'undefined'
+                ? new window.URLSearchParams(window.location.search || '')
+                : null;
+        const force = usp ? usp.get('ambient') : null; // 'on' | 'debug' | 'trace'
+        const trace = force === 'trace';
+        const C = getConfig(force, trace);
+
+        if (shouldSkip(C, force)) {
             return;
         }
         const s = window.Sketch.create({
@@ -161,33 +177,30 @@
         s.resize = function () {
             s.setup();
         };
+        function updateParticle(p, exiting, intro, w, h) {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (exiting) {
+                p.a = Math.max(0, p.a - 0.02);
+            } else if (intro) {
+                p.a = Math.max(0, p.a - 0.01);
+            }
+
+            if (!exiting && !intro && (p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10)) {
+                reset(p);
+            }
+        }
+
         s.update = function () {
-            const w = metrics().width,
-                h = s.height;
+            const w = metrics().width;
+            const h = s.height;
             const exiting = transitionControl.mode === 'exit';
             const intro = transitionControl.mode === 'intro';
+
             for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                if (exiting) {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.a = Math.max(0, p.a - 0.02);
-                } else if (intro) {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.a = Math.max(0, p.a - 0.01);
-                } else {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                }
-                if (
-                    !exiting &&
-                    !intro &&
-                    (p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10)
-                ) {
-                    reset(p);
-                }
+                updateParticle(particles[i], exiting, intro, w, h);
             }
+
             if (exiting || intro) {
                 const elapsed = perfNow() - transitionControl.start;
                 if (elapsed > transitionControl.duration) {
