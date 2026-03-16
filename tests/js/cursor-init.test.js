@@ -1,0 +1,75 @@
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+describe('js/cursor-init.js', () => {
+    let context;
+    let code;
+    let mockInitCursor;
+
+    beforeEach(() => {
+        // We replace the import statement to make it executable in the VM context
+        const sourcePath = path.resolve(__dirname, '../../js/cursor-init.js');
+        const originalCode = fs.readFileSync(sourcePath, 'utf8');
+        code = originalCode.replace("import { initCursor } from './vendor/cursor.js';", '');
+
+        mockInitCursor = jest.fn().mockReturnValue({ cursor: { id: 'mocked-cursor' } });
+
+        context = {
+            window: {},
+            document: {
+                addEventListener: jest.fn((event, cb) => {
+                    if (event === 'DOMContentLoaded') {
+                        // We store the callback to call it manually
+                        context.__domContentLoadedCb = cb;
+                    }
+                }),
+            },
+            initCursor: mockInitCursor,
+            console: console,
+        };
+    });
+
+    test('adds a DOMContentLoaded event listener', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(context.document.addEventListener).toHaveBeenCalledWith(
+            'DOMContentLoaded',
+            expect.any(Function)
+        );
+    });
+
+    test('exits early if window.gsap is not defined', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        // Trigger DOMContentLoaded
+        context.__domContentLoadedCb();
+
+        expect(mockInitCursor).not.toHaveBeenCalled();
+        expect(context.window.cursorInstances).toBeUndefined();
+    });
+
+    test('initializes cursor if window.gsap is available', () => {
+        context.window.gsap = {}; // Mock GSAP
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        // Trigger DOMContentLoaded
+        context.__domContentLoadedCb();
+
+        expect(mockInitCursor).toHaveBeenCalledWith({
+            cursor: {
+                hoverTargets: 'a, button, .container li',
+                followEase: 0.4,
+                fadeEase: 0.1,
+                hoverScale: 3,
+            },
+        });
+
+        expect(context.window.cursorInstances).toBeDefined();
+        expect(context.window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
+    });
+});
