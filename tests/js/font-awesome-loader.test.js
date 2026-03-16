@@ -250,6 +250,10 @@ describe('FontAwesomeLoader', () => {
 
         expect(context.document.createElement).toHaveBeenCalledWith('i');
         expect(mockElement.className).toBe('fa fa-heart');
+        expect(mockElement.setAttribute).toHaveBeenCalledWith('aria-hidden', 'true');
+        expect(mockElement.style.cssText).toBe(
+            'visibility: hidden; position: absolute; top: -9999px; left: -9999px;'
+        );
         expect(context.document.body.appendChild).toHaveBeenCalledWith(mockElement);
         expect(context.window.getComputedStyle).toHaveBeenCalledWith(mockElement, ':before');
         // Now it's not removed immediately
@@ -258,6 +262,7 @@ describe('FontAwesomeLoader', () => {
     });
 
     test('isFontAwesomeLoaded should return false if FA content is not present', () => {
+        loader.testElement = null; // Reset
         const mockElement = { className: '', style: {}, setAttribute: jest.fn() };
         context.document.createElement.mockReturnValue(mockElement);
 
@@ -281,6 +286,7 @@ describe('FontAwesomeLoader', () => {
     });
 
     test('isFontAwesomeLoaded should return false if computedStyle is null or undefined', () => {
+        loader.testElement = null; // Reset
         const mockElement = { className: '', style: {}, setAttribute: jest.fn() };
         context.document.createElement.mockReturnValue(mockElement);
 

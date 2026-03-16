@@ -9,7 +9,7 @@ class FontAwesomeLoader {
         this.maxRetries = 10; // Maximum number of checks
         this.retryCount = 0;
         this.faIcons = []; // Cache for Font Awesome icon elements
-        this.testElement = null; // Persistent test element for checking FA load status
+        this.testElement = null;
     }
 
     /**
@@ -23,7 +23,7 @@ class FontAwesomeLoader {
         if (this.isFontAwesomeLoaded()) {
             this.fontAwesomeLoaded = true;
             this.showIcons();
-            this.stopChecking();
+            this.cleanupTestElement();
             return;
         }
 
@@ -39,15 +39,13 @@ class FontAwesomeLoader {
      * Check if Font Awesome is loaded by looking for the presence of FA classes
      */
     isFontAwesomeLoaded() {
-        // Reuse or create a persistent test element to avoid repeated layout thrashing
+        // Create a persistent hidden element to test if FA is loaded without layout thrashing
         if (!this.testElement) {
             this.testElement = document.createElement('i');
             this.testElement.className = 'fa fa-heart';
-            this.testElement.style.position = 'absolute';
-            this.testElement.style.top = '-9999px';
-            this.testElement.style.left = '-9999px';
-            this.testElement.style.visibility = 'hidden';
             this.testElement.setAttribute('aria-hidden', 'true');
+            this.testElement.style.cssText =
+                'visibility: hidden; position: absolute; top: -9999px; left: -9999px;';
             document.body.appendChild(this.testElement);
         }
 
@@ -112,12 +110,15 @@ class FontAwesomeLoader {
             clearInterval(this.checkInterval);
             this.checkInterval = null;
         }
+        this.cleanupTestElement();
+    }
 
-        // Clean up the test element once we're done checking
-        if (this.testElement) {
-            if (this.testElement.parentNode) {
-                this.testElement.parentNode.removeChild(this.testElement);
-            }
+    /**
+     * Remove the test element from the DOM
+     */
+    cleanupTestElement() {
+        if (this.testElement && this.testElement.parentNode) {
+            this.testElement.parentNode.removeChild(this.testElement);
             this.testElement = null;
         }
     }

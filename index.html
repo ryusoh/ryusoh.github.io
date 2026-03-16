@@ -20,6 +20,10 @@
         />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.bunny.net https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+        />
+        <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1, user-scalable=no, minimal-ui"
         />
@@ -93,7 +97,7 @@
                         </a>
                     </span>
                 </p>
-                <table id="nav">
+                <table id="nav" role="presentation">
                     <tbody>
                         <tr>
                             <td class="portfolio-category" rowspan="3">Portfolio</td>
@@ -125,7 +129,7 @@
         <div id="works-wrap"></div>
         <footer>
             <!-- prettier-ignore -->
-            <a href="https://github.com/ryusoh" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile"><i class="fa fa-github" style="color: #aaa; opacity: 0.5" aria-hidden="true"></i></a>
+            <a href="https://github.com/ryusoh" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile"><i class="fa fa-github" aria-hidden="true"></i></a>
         </footer>
 
         <script defer src="js/vendor/html2canvas.min.js"></script>
