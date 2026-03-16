@@ -237,11 +237,7 @@
         currentIndex = getCurrentIndex();
     }
 
-    function getCurrentIndex() {
-        if (!blocks.length) {
-            return -1;
-        }
-
+    function isAtTopOrBottom() {
         if (topSentinel && window.scrollY <= 1) {
             return 0;
         }
@@ -255,27 +251,25 @@
             return blocks.length - 1;
         }
 
-        if (useObserver) {
-            if (visibleBlocks.size === 0) {
-                // If nothing is intersecting the probe line (e.g. gaps between elements),
-                // we keep the current index.
-                return currentIndex !== -1 ? currentIndex : 0;
-            }
+        return null;
+    }
 
-            // If multiple blocks intersect the 0px line at 25% (unlikely but possible with 0 height blocks),
-            // or if we have overlapping elements, pick the highest index (last one in DOM) to match the original loop logic
-            // (the loop does `if (probe >= blockPositions[i]) currentIndex = i;` which naturally takes the highest index).
-            let bestIndex = 0;
-            visibleBlocks.forEach((element) => {
-                const index = blocks.indexOf(element);
-                if (index > bestIndex) {
-                    bestIndex = index;
-                }
-            });
-            return bestIndex;
+    function getIndexFromObserver() {
+        if (visibleBlocks.size === 0) {
+            return currentIndex !== -1 ? currentIndex : 0;
         }
 
-        // Fallback logic
+        let bestIndex = 0;
+        visibleBlocks.forEach((element) => {
+            const index = blocks.indexOf(element);
+            if (index > bestIndex) {
+                bestIndex = index;
+            }
+        });
+        return bestIndex;
+    }
+
+    function getIndexFromFallback() {
         if (!blockPositions.length) {
             return -1;
         }
@@ -289,6 +283,23 @@
             }
         }
         return bestIndex;
+    }
+
+    function getCurrentIndex() {
+        if (!blocks.length) {
+            return -1;
+        }
+
+        const edgeIndex = isAtTopOrBottom();
+        if (edgeIndex !== null) {
+            return edgeIndex;
+        }
+
+        if (useObserver) {
+            return getIndexFromObserver();
+        }
+
+        return getIndexFromFallback();
     }
 
     function clampScrollTop(value) {
@@ -307,6 +318,19 @@
             pendingIndex = null;
             syncCurrentIndex();
         }, delay);
+    }
+
+    function scrollFallback(target, behavior, isFirstContentBlock) {
+        const rect = target.getBoundingClientRect();
+        const elementHeight = rect.height || target.offsetHeight || 0;
+        const offset = isFirstContentBlock
+            ? 0
+            : Math.max(0, (window.innerHeight - Math.max(elementHeight, 1)) / 2);
+        const top = clampScrollTop(rect.top + window.scrollY - offset);
+        window.scrollTo({
+            top,
+            behavior,
+        });
     }
 
     function scrollToIndex(index) {
@@ -328,9 +352,6 @@
             return;
         }
 
-        const rect = target.getBoundingClientRect();
-        const elementHeight = rect.height || target.offsetHeight || 0;
-
         try {
             target.scrollIntoView({
                 behavior,
@@ -339,15 +360,7 @@
             });
         } catch (error) {
             void error;
-            const offset = isFirstContentBlock
-                ? 0
-                : Math.max(0, (window.innerHeight - Math.max(elementHeight, 1)) / 2);
-            // Use rect.top directly since we have it, plus window.scrollY
-            const top = clampScrollTop(rect.top + window.scrollY - offset);
-            window.scrollTo({
-                top,
-                behavior,
-            });
+            scrollFallback(target, behavior, isFirstContentBlock);
         }
 
         startPending(index, behavior);

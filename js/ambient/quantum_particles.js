@@ -220,6 +220,24 @@ async function initParticles(forceMode) {
     window.requestAnimationFrame(render);
 }
 
+function shouldSkipParticles(forceMode, forceEnabled) {
+    if (forceEnabled) {
+        return false;
+    }
+    const saveData =
+        typeof navigator !== 'undefined' && navigator.connection && navigator.connection.saveData;
+
+    if (
+        prefersReducedMotion() ||
+        saveData ||
+        window.innerWidth < MIN_VIEWPORT_WIDTH ||
+        !hasWebGLSupport()
+    ) {
+        return true;
+    }
+    return false;
+}
+
 ready(() => {
     const forceMode = getForceMode();
     const forceEnabled =
@@ -227,16 +245,8 @@ ready(() => {
         forceMode === 'debug' ||
         forceMode === 'trace' ||
         forceMode === 'lite';
-    const saveData =
-        typeof navigator !== 'undefined' && navigator.connection && navigator.connection.saveData;
 
-    if (
-        !forceEnabled &&
-        (prefersReducedMotion() ||
-            saveData ||
-            window.innerWidth < MIN_VIEWPORT_WIDTH ||
-            !hasWebGLSupport())
-    ) {
+    if (shouldSkipParticles(forceMode, forceEnabled)) {
         return;
     }
 
