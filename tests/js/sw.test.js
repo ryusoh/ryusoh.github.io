@@ -188,6 +188,71 @@ describe('Service Worker', () => {
             await new Promise(process.nextTick);
             expect(mockCache.put).toHaveBeenCalledWith(mockRequest, mockResponseClone);
         });
+
+        test('should skip caching if response is invalid (e.g. status 500) during Cache First fallback', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/images/fail.png',
+                destination: 'image',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            mockCaches.match.mockResolvedValue(undefined); // Cache miss
+
+            const mockResponse = {
+                ok: false,
+                status: 500,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+            // Cache should not be put
+            expect(mockCache.put).not.toHaveBeenCalled();
+        });
+
+        test('should skip caching if request has range headers during Cache First fallback', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/images/large.jpg',
+                destination: 'image',
+                headers: { has: jest.fn().mockReturnValue(true) }, // simulate range header
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            mockCaches.match.mockResolvedValue(undefined);
+
+            const mockResponse = {
+                ok: true,
+                status: 200,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+            expect(mockCache.put).not.toHaveBeenCalled();
+        });
     });
 
     describe('Network Fallback (Mutable assets)', () => {
@@ -257,6 +322,36 @@ describe('Service Worker', () => {
 
             await new Promise(process.nextTick);
             expect(mockCache.put).toHaveBeenCalledWith(mockRequest, mockResponseClone);
+        });
+
+        test('should skip caching if response is invalid during Network First', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/api/data.json',
+                destination: '',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            const mockResponse = {
+                ok: false,
+                status: 404, // Invalid status
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+            expect(mockCache.put).not.toHaveBeenCalled();
         });
 
         test('should return undefined when both network and cache fail', async () => {
