@@ -358,6 +358,15 @@
             return;
         }
 
+        if (event.key === 'Escape') {
+            const backButton = document.querySelector('.nav-back');
+            if (backButton) {
+                event.preventDefault();
+                backButton.click();
+            }
+            return;
+        }
+
         if (!KEY_FORWARD.has(event.key) && !KEY_BACKWARD.has(event.key)) {
             return;
         }
