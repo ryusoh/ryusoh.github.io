@@ -5,7 +5,7 @@
     const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
 
     /**
-     * ⚡ Bolt Optimization:
+     * Bolt Optimization:
      * - What: Extract the large CSS selector array and `.join(', ')` call into a constant.
      * - Why: The original `shouldUseElement` function re-created this array and concatenated it on every call, which happens for every DOM node during `collectBlocks` traversal.
      * - Impact: Eliminates unnecessary garbage collection pressure and main-thread blocking time by evaluating the string concatenation exactly once at startup instead of N times.
@@ -111,7 +111,7 @@
     }
 
     /**
-     * ⚡ Bolt Optimization:
+     * Bolt Optimization:
      * - What: Replaced O(N) DOM-wide `TreeWalker` traversal with a single natively-optimized `querySelectorAll` call.
      * - Why: `TreeWalker` visits every single element in `document.body` (including thousands of wrappers, spans, and non-target nodes on image-heavy pages), invoking expensive `.matches()` and `.closest()` checks in JS-land for each.
      * - Impact: Measurably reduces main-thread JS execution time during page load and resize events by delegating the initial filtering to the browser's highly-optimized C++ selector engine.
@@ -386,7 +386,7 @@
     /**
      * Optimized debounce that aligns execution with the browser's render cycle using requestAnimationFrame.
      *
-     * ⚡ Bolt Optimization:
+     * Bolt Optimization:
      * - What: Wrap the final delayed execution in `requestAnimationFrame`.
      * - Why: The original `debounce` used only `setTimeout`, causing synchronous DOM geometry reads (e.g. `getBoundingClientRect` inside `updatePositions`) to execute out-of-sync with the paint cycle, leading to layout thrashing and scroll jitter on heavy image pages.
      * - Impact: Measurably reduces main-thread blocking time during scroll/resize events by guaranteeing layout recalculations happen immediately before the frame is drawn. Prevents forced synchronous layouts.
