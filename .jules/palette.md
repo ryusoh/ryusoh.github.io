@@ -12,3 +12,8 @@
 
 **Learning:** Using an HTML `<table>` element purely for layout purposes (such as aligning navigation links alongside a category label) will cause screen readers to announce it as a data table with rows and columns, creating a confusing and verbose experience for non-visual users.
 **Action:** Always add `role="presentation"` (or `role="none"`) to layout tables. This strips away the table semantics so that assistive technologies treat the contents as normal layout elements, significantly improving the non-visual user experience without altering the visual structure or relying on new CSS layouts.
+
+## 2026-03-16 - Escape Route
+
+**Learning:** Users often expect standard "Escape" keys to exit immersive, gallery-style views, similar to closing a modal or lightbox. Providing explicit keyboard navigation out of these isolated views reduces friction significantly for keyboard users.
+**Action:** When creating standalone visual projects or deeply nested immersive layouts, ensure `Escape` is bound to navigating "Back" to the main context and exposed via `aria-keyshortcuts`.
