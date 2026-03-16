@@ -14,7 +14,10 @@
                 fragment.appendChild(l);
             }
             document.head.appendChild(fragment);
-        } catch {}
+        } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('Preconnect failed:', e);
+        }
     }
     function loadScriptSequential(urls, attrs) {
         return new Promise(function (resolve, reject) {

@@ -47,7 +47,11 @@ describe('CDNLoader', () => {
             document: mockDocument,
             window: mockWindow,
             fetch: jest.fn(),
-            console: console,
+            console: {
+                error: jest.fn(),
+                warn: jest.fn(),
+                log: jest.fn(),
+            },
             setTimeout: setTimeout,
             Promise: Promise,
         };
@@ -126,10 +130,12 @@ describe('CDNLoader', () => {
         });
 
         it('should gracefully handle errors', () => {
+            const error = new Error('createElement error');
             mockDocument.createElement.mockImplementation(() => {
-                throw new Error('createElement error');
+                throw error;
             });
             expect(() => loader.preconnect(['https://example.com'])).not.toThrow();
+            expect(context.console.error).toHaveBeenCalledWith('Preconnect failed:', error);
         });
     });
 
