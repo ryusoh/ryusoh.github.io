@@ -38,6 +38,7 @@ import * as THREE from './vendor/three.module.min.js';
                 canvas.getContext('experimental-webgl', { failIfMajorPerformanceCaveat: true })
             );
         } catch {
+            // WebGL creation may fail gracefully in certain browsers/environments
             return false;
         }
     }
@@ -50,6 +51,7 @@ import * as THREE from './vendor/three.module.min.js';
             const url = new window.URL(window.location.href);
             return url.searchParams.has(TRANSITION_PARAM);
         } catch {
+            // URL parsing might fail gracefully, meaning no valid param
             return false;
         }
     }
@@ -68,7 +70,9 @@ import * as THREE from './vendor/three.module.min.js';
                 const newUrl = url.pathname + url.search + url.hash;
                 window.history.replaceState({}, document.title, newUrl);
             }
-        } catch {}
+        } catch {
+            // Ignore URL parsing or pushState errors; transition simply won't be cleared visually
+        }
     }
 
     function storeCaptureData(dataUrl) {
@@ -77,7 +81,9 @@ import * as THREE from './vendor/three.module.min.js';
         }
         try {
             window.sessionStorage.setItem(CAPTURE_STORAGE_KEY, dataUrl);
-        } catch {}
+        } catch {
+            // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
+        }
     }
 
     function consumeCaptureData() {
@@ -87,8 +93,39 @@ import * as THREE from './vendor/three.module.min.js';
                 window.sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
                 return data;
             }
-        } catch {}
+        } catch {
+            // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
+        }
         return null;
+    }
+
+    function getCaptureOptions() {
+        const viewportWidth = Math.max(window.innerWidth || 1, 1);
+        const viewportHeight = Math.max(window.innerHeight || 1, 1);
+        const scale = Math.min(
+            1.2,
+            Math.max(CAPTURE_SCALE, 1000 / Math.max(viewportWidth, viewportHeight))
+        );
+        const scrollX = window.scrollX || window.pageXOffset || 0;
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const bgColor =
+            (window.getComputedStyle && window.getComputedStyle(document.body).backgroundColor) ||
+            '#000';
+
+        return {
+            logging: false,
+            useCORS: true,
+            backgroundColor: bgColor,
+            scale,
+            width: viewportWidth,
+            height: viewportHeight,
+            windowWidth: document.documentElement.clientWidth,
+            windowHeight: document.documentElement.clientHeight,
+            scrollX: scrollX,
+            scrollY: scrollY,
+            x: scrollX,
+            y: scrollY,
+        };
     }
 
     function captureScene() {
@@ -100,40 +137,19 @@ import * as THREE from './vendor/three.module.min.js';
             return Promise.resolve(null);
         }
         const target = document.documentElement || document.body;
-        const viewportWidth = Math.max(window.innerWidth || 1, 1);
-        const viewportHeight = Math.max(window.innerHeight || 1, 1);
-        const scale = Math.min(
-            1.2,
-            Math.max(CAPTURE_SCALE, 1000 / Math.max(viewportWidth, viewportHeight))
-        );
-        const scrollX = window.scrollX || window.pageXOffset || 0;
-        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const options = getCaptureOptions();
+
         return window
-            .html2canvas(target, {
-                logging: false,
-                useCORS: true,
-                backgroundColor:
-                    (window.getComputedStyle &&
-                        window.getComputedStyle(document.body).backgroundColor) ||
-                    '#000',
-                scale,
-                width: viewportWidth,
-                height: viewportHeight,
-                windowWidth: document.documentElement.clientWidth,
-                windowHeight: document.documentElement.clientHeight,
-                scrollX: scrollX,
-                scrollY: scrollY,
-                x: scrollX,
-                y: scrollY,
-            })
+            .html2canvas(target, options)
             .then((canvas) => {
                 try {
                     return canvas.toDataURL('image/png', 0.9);
                 } catch {
+                    // Ignore data URL conversion errors (e.g. tainted canvas) and return null
                     return null;
                 }
             })
-            .catch(() => null);
+            .catch(() => null); // Explicitly catch and silence html2canvas failures to fallback gracefully
     }
 
     function loadTextureFromDataURL(dataUrl, THREE) {
@@ -709,40 +725,52 @@ import * as THREE from './vendor/three.module.min.js';
             }
             return true;
         }
+        function isStandardMouseEvent(event) {
+            return (
+                event.button === 0 &&
+                !event.metaKey &&
+                !event.ctrlKey &&
+                !event.shiftKey &&
+                !event.altKey
+            );
+        }
+        function isEligibleAnchor(anchor) {
+            const target = anchor.getAttribute('target');
+            if (target && target !== '_self') {
+                return false;
+            }
+            if (anchor.hasAttribute('download')) {
+                return false;
+            }
+            const href = anchor.getAttribute('href');
+            if (!href || href.indexOf('#') === 0) {
+                return false;
+            }
+            const url = anchor.href;
+            if (!url || url === window.location.href) {
+                return false;
+            }
+            return true;
+        }
+        function isValidTransitionClick(event, anchor) {
+            if (event.defaultPrevented) {
+                return false;
+            }
+            if (!isStandardMouseEvent(event)) {
+                return false;
+            }
+            if (shouldSkipNavBack(anchor)) {
+                return false;
+            }
+            return isEligibleAnchor(anchor);
+        }
         links.forEach(function (anchor) {
             anchor.addEventListener('click', function (event) {
-                if (event.defaultPrevented) {
-                    return;
-                }
-                if (
-                    event.button !== 0 ||
-                    event.metaKey ||
-                    event.ctrlKey ||
-                    event.shiftKey ||
-                    event.altKey
-                ) {
-                    return;
-                }
-                if (shouldSkipNavBack(anchor)) {
-                    return;
-                }
-                const target = anchor.getAttribute('target');
-                if (target && target !== '_self') {
-                    return;
-                }
-                if (anchor.hasAttribute('download')) {
-                    return;
-                }
-                const href = anchor.getAttribute('href');
-                if (!href || href.indexOf('#') === 0) {
-                    return;
-                }
-                const url = anchor.href;
-                if (!url || url === window.location.href) {
+                if (!isValidTransitionClick(event, anchor)) {
                     return;
                 }
                 event.preventDefault();
-                transition.navigate(url);
+                transition.navigate(anchor.href);
             });
         });
 

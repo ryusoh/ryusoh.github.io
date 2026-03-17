@@ -366,17 +366,30 @@
         startPending(index, behavior);
     }
 
+    function handleEscapeKey(event) {
+        const backButton = document.querySelector('.nav-back');
+        if (backButton) {
+            event.preventDefault();
+            backButton.click();
+        }
+    }
+
+    function calculateNextIndex(key) {
+        const delta = KEY_FORWARD.has(key) ? 1 : -1;
+        let startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
+        if (startIndex === -1) {
+            startIndex = 0;
+        }
+        return Math.min(Math.max(startIndex + delta, 0), blocks.length - 1);
+    }
+
     function handleKeydown(event) {
         if (isEditableActive()) {
             return;
         }
 
         if (event.key === 'Escape') {
-            const backButton = document.querySelector('.nav-back');
-            if (backButton) {
-                event.preventDefault();
-                backButton.click();
-            }
+            handleEscapeKey(event);
             return;
         }
 
@@ -388,15 +401,11 @@
             return;
         }
 
-        const delta = KEY_FORWARD.has(event.key) ? 1 : -1;
-        let startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
-        if (startIndex === -1) {
-            startIndex = 0;
-        }
-        const nextIndex = Math.min(Math.max(startIndex + delta, 0), blocks.length - 1);
-
+        const nextIndex = calculateNextIndex(event.key);
         event.preventDefault();
 
+        const startIndex =
+            currentIndex === -1 ? (getCurrentIndex() === -1 ? 0 : getCurrentIndex()) : currentIndex;
         if (nextIndex === startIndex) {
             return;
         }

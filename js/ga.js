@@ -20,4 +20,6 @@ try {
         window.ga('create', 'UA-9097302-10', 'auto');
         window.ga('send', 'pageview');
     }
-} catch {}
+} catch {
+    // Ignore tracking initialisation errors
+}

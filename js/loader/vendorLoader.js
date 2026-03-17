@@ -16,5 +16,7 @@
         ]);
         window.CDNLoader.loadCssWithFallback(fontAwesome);
         window.CDNLoader.loadCssWithFallback(googleFonts);
-    } catch {}
+    } catch {
+        // Silently ignore CDN loader errors as this is a progressive enhancement
+    }
 })();

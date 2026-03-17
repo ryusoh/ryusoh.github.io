@@ -236,14 +236,18 @@
             let shouldIntro = false;
             try {
                 shouldIntro = window.sessionStorage.getItem(TRANSITION_FLAG_KEY) === '1';
-            } catch {}
+            } catch {
+                // Ignore sessionStorage access errors
+            }
             const isProject =
                 document.body && document.body.getAttribute('data-page-type') === 'project';
             if (shouldIntro && isProject) {
                 beginIntroSweep();
                 try {
                     window.sessionStorage.removeItem(TRANSITION_FLAG_KEY);
-                } catch {}
+                } catch {
+                    // Ignore sessionStorage access errors
+                }
                 return;
             }
             if (isProject && !introTriggered) {
