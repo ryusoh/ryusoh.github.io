@@ -18,6 +18,7 @@ describe('page-transition.js', () => {
     let clampUnit;
     let parseRgbFunction;
     let hexToRgbArray;
+    let parseColor;
 
     beforeEach(() => {
         // Mock the minimal DOM environment needed to bypass IIFE execution errors
@@ -86,6 +87,7 @@ describe('page-transition.js', () => {
         clampUnit = context.window.__PageTransitionForTesting.clampUnit;
         parseRgbFunction = context.window.__PageTransitionForTesting.parseRgbFunction;
         hexToRgbArray = context.window.__PageTransitionForTesting.hexToRgbArray;
+        parseColor = context.window.__PageTransitionForTesting.parseColor;
     });
 
     describe('hasTransitionParam', () => {
@@ -257,6 +259,53 @@ describe('page-transition.js', () => {
             expect(hexToRgbArray(' ')).toBeNull();
             expect(hexToRgbArray('#ff008')).toBeNull(); // Length 5 (after removing #)
             expect(hexToRgbArray('#ff00800')).toBeNull(); // Length 7 (after removing #)
+        });
+    });
+
+    describe('parseColor', () => {
+        const fallback = { rgb: [0, 0, 0], alpha: 0.5 };
+
+        test('returns default if value is falsy', () => {
+            expect(parseColor(null, fallback)).toEqual(fallback);
+            expect(parseColor('', fallback)).toEqual(fallback);
+            expect(parseColor(undefined, fallback)).toEqual(fallback);
+        });
+
+        test('parses valid 6-digit hex and retains fallback alpha', () => {
+            expect(parseColor('#ff0000', fallback)).toEqual({
+                rgb: [1, 0, 0],
+                alpha: 0.5,
+            });
+            expect(parseColor('  #00ff00  ', fallback)).toEqual({
+                rgb: [0, 1, 0],
+                alpha: 0.5,
+            });
+        });
+
+        test('parses valid 3-digit hex and retains fallback alpha', () => {
+            expect(parseColor('#00f', fallback)).toEqual({
+                rgb: [0, 0, 1],
+                alpha: 0.5,
+            });
+        });
+
+        test('parses rgb() function and retains rgb alpha from function', () => {
+            expect(parseColor('rgb(255, 128, 0)', fallback)).toEqual({
+                rgb: [1, 128 / 255, 0],
+                alpha: 1, // rgb() implies full opacity
+            });
+        });
+
+        test('parses rgba() function and sets parsed alpha', () => {
+            expect(parseColor('rgba(255, 255, 255, 0.8)', fallback)).toEqual({
+                rgb: [1, 1, 1],
+                alpha: 0.8,
+            });
+        });
+
+        test('returns fallback for completely invalid color strings', () => {
+            expect(parseColor('invalid', fallback)).toEqual(fallback);
+            expect(parseColor('foo', fallback)).toEqual(fallback);
         });
     });
 });

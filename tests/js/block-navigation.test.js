@@ -11,6 +11,7 @@ const code = fs.readFileSync(sourcePath, 'utf8');
 describe('block-navigation', () => {
     let clampScrollTop;
     let isEditableActive;
+    let shouldUseElement;
     let context;
     let mockDocument;
     let mockWindow;
@@ -66,6 +67,7 @@ describe('block-navigation', () => {
 
         clampScrollTop = context.module.exports.clampScrollTop;
         isEditableActive = context.module.exports.isEditableActive;
+        shouldUseElement = context.module.exports.shouldUseElement;
     });
 
     describe('clampScrollTop', () => {
@@ -152,6 +154,108 @@ describe('block-navigation', () => {
                 isContentEditable: false,
             };
             expect(isEditableActive()).toBe(true);
+        });
+    });
+
+    describe('shouldUseElement', () => {
+        const createMockElement = (matchesSelector, closestSelector) => ({
+            matches: jest.fn((selector) => {
+                if (matchesSelector === undefined) {
+                    return false;
+                }
+                if (typeof matchesSelector === 'string') {
+                    return selector === matchesSelector;
+                }
+                if (typeof matchesSelector === 'function') {
+                    return matchesSelector(selector);
+                }
+                if (Array.isArray(matchesSelector)) {
+                    return matchesSelector.includes(selector);
+                }
+                return matchesSelector;
+            }),
+            closest: jest.fn((selector) => {
+                if (closestSelector === undefined) {
+                    return null;
+                }
+                if (typeof closestSelector === 'string') {
+                    return selector === closestSelector ? {} : null;
+                }
+                if (typeof closestSelector === 'function') {
+                    return closestSelector(selector) ? {} : null;
+                }
+                if (Array.isArray(closestSelector)) {
+                    return closestSelector.includes(selector) ? {} : null;
+                }
+                return closestSelector ? {} : null;
+            }),
+        });
+
+        it('should return false if element is falsy', () => {
+            expect(shouldUseElement(null)).toBe(false);
+            expect(shouldUseElement(undefined)).toBe(false);
+        });
+
+        it('should return false for script, style, noscript elements', () => {
+            const el = createMockElement('script, style, noscript');
+            expect(shouldUseElement(el)).toBe(false);
+            expect(el.matches).toHaveBeenCalledWith('script, style, noscript');
+        });
+
+        it('should return false if element is within an ignored block', () => {
+            const el = createMockElement(false, '[data-block-nav="ignore"]');
+            expect(shouldUseElement(el)).toBe(false);
+            expect(el.closest).toHaveBeenCalledWith('[data-block-nav="ignore"]');
+        });
+
+        it('should return true if element has data-block-nav="block"', () => {
+            const el = createMockElement('[data-block-nav="block"]');
+            expect(shouldUseElement(el)).toBe(true);
+        });
+
+        it('should return false if element is a child of an explicitly declared block', () => {
+            const el = createMockElement(false, '[data-block-nav="block"]');
+            expect(shouldUseElement(el)).toBe(false);
+        });
+
+        it('should return true if element has .intro-header class', () => {
+            const el = createMockElement('.intro-header');
+            expect(shouldUseElement(el)).toBe(true);
+        });
+
+        it('should return false for .post-heading if it is inside .intro-header', () => {
+            const el = createMockElement('.post-heading', '.intro-header');
+            expect(shouldUseElement(el)).toBe(false);
+        });
+
+        it('should return true if element matches BLOCK_ELEMENT_SELECTOR', () => {
+            // Need to match against the exact string or use a custom function
+            const BLOCK_ELEMENT_SELECTOR = [
+                '.post-heading',
+                '.post-content h1',
+                '.post-content h2',
+                '.post-content h3',
+                '.post-content h4',
+                '.post-content h5',
+                '.post-content h6',
+                '.post-content p',
+                '.post-content img',
+                '.post-content figure',
+                '.post-content blockquote',
+                '.post-content li',
+                '.post-content pre',
+                '.post-content table',
+                '.post-content video',
+                '.post-content .visual-block',
+            ].join(', ');
+
+            const el = createMockElement(BLOCK_ELEMENT_SELECTOR);
+            expect(shouldUseElement(el)).toBe(true);
+        });
+
+        it('should return false if it does not match any known selector rules', () => {
+            const el = createMockElement(false, false);
+            expect(shouldUseElement(el)).toBe(false);
         });
     });
 });

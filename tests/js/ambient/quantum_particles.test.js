@@ -147,4 +147,54 @@ describe('quantum_particles.js', () => {
             expect(context.hasWebGLSupport()).toBe(false);
         });
     });
+
+    describe('shouldSkipParticles', () => {
+        let shouldSkipParticles;
+
+        beforeEach(() => {
+            shouldSkipParticles = context.window.__QuantumParticlesForTesting.shouldSkipParticles;
+            // Setup default 'pass' conditions
+            context.window.matchMedia.mockReturnValue({ matches: false });
+            context.navigator.connection.saveData = false;
+            context.window.innerWidth = 1200;
+
+            const mockCanvas = { getContext: jest.fn().mockReturnValue({}) };
+            context.document.createElement.mockReturnValue(mockCanvas);
+            context.window.WebGLRenderingContext = true;
+        });
+
+        it('should not skip if forceEnabled is true, ignoring other checks', () => {
+            // Set all checks to fail
+            context.window.matchMedia.mockReturnValue({ matches: true });
+            context.navigator.connection.saveData = true;
+            context.window.innerWidth = 800;
+            context.window.WebGLRenderingContext = false;
+
+            expect(shouldSkipParticles(null, true)).toBe(false);
+        });
+
+        it('should skip if prefersReducedMotion is true', () => {
+            context.window.matchMedia.mockReturnValue({ matches: true });
+            expect(shouldSkipParticles(null, false)).toBe(true);
+        });
+
+        it('should skip if saveData is true', () => {
+            context.navigator.connection.saveData = true;
+            expect(shouldSkipParticles(null, false)).toBe(true);
+        });
+
+        it('should skip if window innerWidth is below MIN_VIEWPORT_WIDTH (1024)', () => {
+            context.window.innerWidth = 1000;
+            expect(shouldSkipParticles(null, false)).toBe(true);
+        });
+
+        it('should skip if WebGL is not supported', () => {
+            context.window.WebGLRenderingContext = false;
+            expect(shouldSkipParticles(null, false)).toBe(true);
+        });
+
+        it('should not skip when all checks pass', () => {
+            expect(shouldSkipParticles(null, false)).toBe(false);
+        });
+    });
 });
