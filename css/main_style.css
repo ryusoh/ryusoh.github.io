@@ -401,23 +401,27 @@ footer {
     text-align: left; /* Align link text to the left, especially if it wraps */
     font-size: 1.2em; /* Base font size for this cell, links can override */
     letter-spacing: 1px;
-    opacity: 0.8; /* Makes the text slightly transparent */
 }
 
 #nav .portfolio-link a {
     text-decoration: none; /* Removes underline from links by default */
     display: block; /* Allows padding/margin if needed, and better click area */
     color: white;
+    opacity: 0.8; /* Makes the text slightly transparent initially */
     /* font-family: 'Lobster', cursive; */ /* Removed to inherit font from parent */
     font-weight: bold; /* Match the "Portfolio" text weight */
     padding: 0.2em 0.4em 0.6em 0.4em; /* top, right&left, bottom - adjusted for box effect */
-    transition: background-color 0.3s ease; /* Smooth transition for the background */
+    transition:
+        background-color 0.3s ease,
+        opacity 0.3s ease; /* Smooth transition for the background and opacity */
 }
 
-#nav .portfolio-link a:hover {
+#nav .portfolio-link a:hover,
+#nav .portfolio-link a:focus {
     background-color: rgba(255, 255, 255, 0.1); /* Light semi-transparent box */
     /* Or for a darker box: background-color: rgba(0, 0, 0, 0.2); */
     border-radius: 3px; /* Optional: rounded corners for the box */
+    opacity: 1; /* Restore full contrast on hover/focus */
 }
 
 #headline {
