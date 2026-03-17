@@ -97,10 +97,7 @@ describe('ga.js bootstrap', () => {
     });
 
     test('handles case where window.ga is not a function', () => {
-        const customCode = code.replace(
-            'i[r] =',
-            "i[r] = 'not-a-function';"
-        );
+        const customCode = code.replace('i[r] =', "i[r] = 'not-a-function';");
 
         vm.createContext(context);
         vm.runInContext(customCode, context);
