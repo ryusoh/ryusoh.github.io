@@ -84,4 +84,27 @@ describe('ga.js bootstrap', () => {
             vm.runInContext(code, context);
         }).not.toThrow();
     });
+
+    test('gracefully handles throwing inside the try-catch block', () => {
+        const customCode = code.replace(
+            "if (typeof window.ga === 'function') {",
+            "if (typeof window.ga === 'function') { throw new Error('GA error');"
+        );
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(customCode, context);
+        }).not.toThrow();
+    });
+
+    test('handles case where window.ga is not a function', () => {
+        const customCode = code.replace(
+            "i[r] =",
+            "i[r] = 'not-a-function';"
+        );
+
+        vm.createContext(context);
+        vm.runInContext(customCode, context);
+
+        expect(context.window.ga).toBe('not-a-function');
+    });
 });

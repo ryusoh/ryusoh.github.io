@@ -72,4 +72,16 @@ describe('js/cursor-init.js', () => {
         expect(context.window.cursorInstances).toBeDefined();
         expect(context.window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
     });
+
+    test('does not throw when document is not defined', () => {
+        const customCode = `
+            let document; // shadow the document
+            ${code}
+        `;
+
+        vm.createContext(context);
+        expect(() => {
+            vm.runInContext(customCode, context);
+        }).not.toThrow();
+    });
 });
