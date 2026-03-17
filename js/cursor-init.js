@@ -1,6 +1,7 @@
 // Custom cursor and UI enhancements
 import { initCursor } from './vendor/cursor.js';
 
+if (typeof document !== 'undefined') {
 document.addEventListener('DOMContentLoaded', () => {
     // Check if GSAP is available
     if (!window.gsap) {
@@ -22,3 +23,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Store instances for cleanup if needed
     window.cursorInstances = { cursor };
 });
+}
