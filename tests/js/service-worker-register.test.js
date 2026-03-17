@@ -77,7 +77,9 @@ describe('service-worker-register', () => {
 
     test('proceeds to register if hostname access throws error', () => {
         Object.defineProperty(context.window.location, 'hostname', {
-            get: () => { throw new Error('SecurityError'); }
+            get: () => {
+                throw new Error('SecurityError');
+            },
         });
         vm.createContext(context);
         vm.runInContext(code, context);
