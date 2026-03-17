@@ -42,6 +42,10 @@
                 /* eslint-enable indent */
                 return Promise.all([legacy, quantum]);
             })
-            .catch(function () {});
-    } catch {}
+            .catch(function () {
+                // Ignore ambient loader errors as these are progressive enhancements
+            });
+    } catch {
+        // Silently ignore synchronous errors during loader initialization
+    }
 })();

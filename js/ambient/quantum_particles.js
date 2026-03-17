@@ -21,6 +21,7 @@ function prefersReducedMotion() {
     try {
         return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     } catch {
+        // Fallback gracefully if matchMedia is unavailable or throws
         return false;
     }
 }
@@ -36,6 +37,7 @@ function hasWebGLSupport() {
             canvas.getContext('experimental-webgl', { failIfMajorPerformanceCaveat: true })
         );
     } catch {
+        // Fallback gracefully if WebGL context creation fails
         return false;
     }
 }
@@ -51,6 +53,7 @@ function getForceMode() {
         const usp = new window.URLSearchParams(window.location.search || '');
         return usp.get('ambient');
     } catch {
+        // Fallback gracefully if URLSearchParams parsing fails
         return null;
     }
 }
