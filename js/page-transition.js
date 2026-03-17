@@ -798,6 +798,7 @@ import * as THREE from './vendor/three.module.min.js';
             clampUnit,
             parseRgbFunction,
             hexToRgbArray,
+            parseColor,
             _Constructor: PageTransition,
         };
     }

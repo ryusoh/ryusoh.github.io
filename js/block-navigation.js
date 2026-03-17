@@ -481,6 +481,7 @@
         module.exports = {
             clampScrollTop,
             isEditableActive,
+            shouldUseElement,
         };
     }
 })();

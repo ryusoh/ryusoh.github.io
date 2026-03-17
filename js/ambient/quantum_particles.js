@@ -265,3 +265,9 @@ ready(() => {
         }
     });
 });
+
+if (typeof window !== 'undefined') {
+    window.__QuantumParticlesForTesting = {
+        shouldSkipParticles,
+    };
+}
