@@ -664,6 +664,8 @@ import * as THREE from './vendor/three.module.min.js';
 
     PageTransition.prototype.navigate = function (url) {
         if (typeof url === 'string') {
+            // Strip leading whitespace and control characters to prevent DOM XSS bypasses
+            url = url.replace(/^[\s\u0000-\u001F]+/g, '');
             try {
                 const parsedUrl = new window.URL(url, window.location.href);
                 if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
