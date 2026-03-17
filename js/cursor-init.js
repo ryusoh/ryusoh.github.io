@@ -2,25 +2,25 @@
 import { initCursor } from './vendor/cursor.js';
 
 if (typeof document !== 'undefined') {
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
     // Check if GSAP is available
-    if (!window.gsap) {
+        if (!window.gsap) {
         // GSAP is required for cursor functionality
-        return;
-    }
+            return;
+        }
 
-    // Initialize just the cursor
-    const { cursor } = initCursor({
-        cursor: {
+        // Initialize just the cursor
+        const { cursor } = initCursor({
+            cursor: {
             // Custom cursor options
-            hoverTargets: 'a, button, .container li',
-            followEase: 0.4,
-            fadeEase: 0.1,
-            hoverScale: 3,
-        },
-    });
+                hoverTargets: 'a, button, .container li',
+                followEase: 0.4,
+                fadeEase: 0.1,
+                hoverScale: 3,
+            },
+        });
 
-    // Store instances for cleanup if needed
-    window.cursorInstances = { cursor };
-});
+        // Store instances for cleanup if needed
+        window.cursorInstances = { cursor };
+    });
 }
