@@ -26,3 +26,8 @@
 
 **Learning:** Found that `AssetPreloader` in `js/preloader.js` was appending up to ~34 image preload `<link>` elements one by one directly into `document.head` in a loop. This repetitive DOM manipulation can cause multiple style recalculations, reflows, and potential layout thrashing on the main thread during initialization.
 **Action:** Always use a `DocumentFragment` (`document.createDocumentFragment()`) to batch multiple DOM insertions when creating elements in a loop. Append the newly created elements to the fragment first, and then append the entire fragment to the DOM in a single operation to minimize main thread blocking time.
+
+## 2026-03-17 - DOM Layout Reads Inside Render Loops
+
+**Learning:** Found that `metrics()` in `js/ambient/ambient.js` was being called inside the 60fps `requestAnimationFrame` loop (`s.update` and `reset()`). This function read `clientWidth` and `clientHeight` from the DOM. Reading layout properties triggers synchronous layout calculations if the DOM is invalidated, which can severely degrade animation performance and cause layout thrashing on the main thread.
+**Action:** Always avoid reading DOM layout properties (`clientWidth`, `offsetWidth`, `getBoundingClientRect`, etc.) inside tight loops like `requestAnimationFrame`. Instead, cache these values during `resize` events and reuse the cached dimensions for calculations.
