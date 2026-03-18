@@ -93,7 +93,9 @@
             return true;
         }
 
-        if (element.matches('.post-heading')) { return !element.closest('.intro-header'); }
+        if (element.matches('.post-heading')) {
+            return !element.closest('.intro-header');
+        }
 
         if (element.matches(BLOCK_ELEMENT_SELECTOR)) {
             return true;
@@ -123,13 +125,23 @@
         const seen = new Set();
 
         const addIfValid = (element) => {
-            if (!shouldUseElement(element) || seen.has(element)) { return; }
+            if (!shouldUseElement(element) || seen.has(element)) {
+                return;
+            }
             const lastElement = ordered.length ? ordered[ordered.length - 1] : null;
-            const shouldGroupParagraph = isParagraphElement(element) && lastElement && isParagraphElement(lastElement) && lastElement.parentElement === element.parentElement;
-            if (!shouldGroupParagraph) { ordered.push(element); }
+            const shouldGroupParagraph =
+                isParagraphElement(element) &&
+                lastElement &&
+                isParagraphElement(lastElement) &&
+                lastElement.parentElement === element.parentElement;
+            if (!shouldGroupParagraph) {
+                ordered.push(element);
+            }
             seen.add(element);
         };
-        for (let i = 0; i < candidates.length; i++) { addIfValid(candidates[i]); }
+        for (let i = 0; i < candidates.length; i++) {
+            addIfValid(candidates[i]);
+        }
 
         return ordered;
     }
@@ -330,7 +342,11 @@
             window.scrollTo({ top: 0, behavior });
         } else {
             try {
-                target.scrollIntoView({ behavior, block: isFirstContentBlock ? 'start' : 'center', inline: 'nearest' });
+                target.scrollIntoView({
+                    behavior,
+                    block: isFirstContentBlock ? 'start' : 'center',
+                    inline: 'nearest',
+                });
             } catch (error) {
                 void error;
                 scrollFallback(target, behavior, isFirstContentBlock);
@@ -377,8 +393,12 @@
         event.preventDefault();
         const nextIndex = calculateNextIndex(event.key);
         let startIndex = currentIndex;
-        if (startIndex === -1) { startIndex = getCurrentIndex(); }
-        if (startIndex === -1) { startIndex = 0; }
+        if (startIndex === -1) {
+            startIndex = getCurrentIndex();
+        }
+        if (startIndex === -1) {
+            startIndex = 0;
+        }
         if (nextIndex !== startIndex) {
             currentIndex = nextIndex;
             scrollToIndex(nextIndex);
