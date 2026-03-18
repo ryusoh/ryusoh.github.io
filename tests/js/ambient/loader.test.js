@@ -110,4 +110,27 @@ describe('ambient/loader.js', () => {
         );
         expect(loadedQuantum).toBe(false);
     });
+
+    test('ignores synchronous errors during initialization gracefully', () => {
+        Object.defineProperty(context.window, 'matchMedia', {
+            get: () => {
+                throw new Error('Simulated synchronous error');
+            },
+        });
+
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+        }).not.toThrow();
+    });
+
+    test('ignores promise rejections from CDNLoader gracefully', async () => {
+        mockCDNLoader.loadCssWithFallback.mockRejectedValue(new Error('Simulated network error'));
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
+    });
 });

@@ -213,4 +213,38 @@ describe('AssetPreloader', () => {
         preloader.init();
         expect(mockWindow.addEventListener).not.toHaveBeenCalled();
     });
+
+    test('initializes preloader on DOMContentLoaded', () => {
+        const sourcePath = path.resolve(__dirname, '../../js/preloader.js');
+        const originalCode = fs.readFileSync(sourcePath, 'utf8');
+
+        context.document.addEventListener = jest.fn((event, cb) => {
+            if (event === 'DOMContentLoaded') {
+                context.__domContentLoadedCb = cb;
+            }
+        });
+
+        vm.createContext(context);
+
+        // Create a fresh context to avoid 'Identifier has already been declared'
+        const freshContext = {
+            document: context.document,
+            window: context.window,
+            navigator: context.navigator,
+            console: console,
+            module: { exports: {} },
+        };
+        freshContext.document.addEventListener = context.document.addEventListener;
+        vm.createContext(freshContext);
+        vm.runInContext(originalCode, freshContext);
+
+        expect(context.document.addEventListener).toHaveBeenCalledWith(
+            'DOMContentLoaded',
+            expect.any(Function)
+        );
+
+        expect(() => {
+            context.__domContentLoadedCb();
+        }).not.toThrow();
+    });
 });
