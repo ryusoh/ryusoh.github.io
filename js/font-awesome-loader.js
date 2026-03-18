@@ -149,36 +149,33 @@ class FontAwesomeLoader {
     waitForFontLoad() {
         // Check for the CSS to be loaded
         const checkCSSLoaded = () => {
+            /**
+             * Bolt Optimization:
+             * - What: Replace separate existence check loop and Array.from().find() with a single loop.
+             * - Why: The previous implementation iterated over the DOM NodeList to find a boolean flag, then converted the same NodeList into an Array (causing memory allocation/GC overhead), and iterated it AGAIN using `.find()` to grab the element.
+             * - Impact: Eliminates redundant O(N) main-thread execution time and an unnecessary Array object allocation during the critical page load phase.
+             */
             const links = document.querySelectorAll('link[rel="stylesheet"]');
-            let fontAwesomeFound = false;
+            let faLink = null;
 
             for (const link of links) {
                 if (
                     link.href &&
                     (link.href.includes('font-awesome') || link.href.includes('fontawesome'))
                 ) {
-                    fontAwesomeFound = true;
+                    faLink = link;
                     break;
                 }
             }
 
-            if (fontAwesomeFound) {
-                // If we found the FA link, check its loading status
-                const faLink = Array.from(links).find(
-                    (link) =>
-                        link.href &&
-                        (link.href.includes('font-awesome') || link.href.includes('fontawesome'))
-                );
-
-                if (faLink) {
-                    faLink.onload = () => {
-                        if (!this.fontAwesomeLoaded) {
-                            this.fontAwesomeLoaded = true;
-                            this.showIcons();
-                            this.stopChecking();
-                        }
-                    };
-                }
+            if (faLink) {
+                faLink.onload = () => {
+                    if (!this.fontAwesomeLoaded) {
+                        this.fontAwesomeLoaded = true;
+                        this.showIcons();
+                        this.stopChecking();
+                    }
+                };
             }
         };
 
