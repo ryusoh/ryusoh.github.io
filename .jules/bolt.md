@@ -33,5 +33,6 @@
 **Action:** Always avoid reading DOM layout properties (`clientWidth`, `offsetWidth`, `getBoundingClientRect`, etc.) inside tight loops like `requestAnimationFrame`. Instead, cache these values during `resize` events and reuse the cached dimensions for calculations.
 
 ## 2026-03-18 - Redundant NodeList to Array conversion and Iteration
+
 **Learning:** Iterating over a DOM `NodeList` multiple times, especially by first doing a boolean check and then converting it to an `Array` using `Array.from()` to use methods like `.find()`, causes unnecessary memory allocations and blocks the main thread during critical page load phases.
 **Action:** Use a single `for...of` loop to iterate over DOM `NodeList` elements and store the reference to the target element directly instead of running multiple iteration passes and creating intermediate `Array` objects.
