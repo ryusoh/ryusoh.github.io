@@ -47,11 +47,11 @@
     }
 
     try {
-        const usp =
-            typeof window.URLSearchParams !== 'undefined'
-                ? new window.URLSearchParams(window.location.search || '')
-                : null;
-        const force = usp ? usp.get('ambient') : null; // 'on' | 'debug' | 'trace'
+        function getAmbientParam() {
+            if (typeof window.URLSearchParams === 'undefined') {return null;}
+            return new window.URLSearchParams(window.location.search || '').get('ambient');
+        }
+        const force = getAmbientParam();
         const trace = force === 'trace';
         const C = getConfig(force, trace);
 
@@ -240,25 +240,28 @@
         if (trace && window.console) {
             window.__ambient = { config: C, instance: s };
         }
-        function maybePlayIntro() {
-            let shouldIntro = false;
-            try {
-                shouldIntro = window.sessionStorage.getItem(TRANSITION_FLAG_KEY) === '1';
-            } catch {
-                // Ignore sessionStorage access errors
+        function getFlag(key) {
+            try { return window.sessionStorage.getItem(key) === '1'; } catch (e) {
+                if (window.console && typeof window.console.warn === 'function') { window.console.warn('[ambient] sessionStorage get error:', e); }
+                return false;
             }
-            const isProject =
-                document.body && document.body.getAttribute('data-page-type') === 'project';
-            if (shouldIntro && isProject) {
+        }
+        function clearFlag(key) {
+            try { window.sessionStorage.removeItem(key); } catch (e) {
+                if (window.console && typeof window.console.warn === 'function') { window.console.warn('[ambient] sessionStorage remove error:', e); }
+            }
+        }
+        function maybePlayIntro() {
+            const isProject = document.body && document.body.getAttribute('data-page-type') === 'project';
+            if (!isProject) { return; }
+
+            const shouldIntro = getFlag(TRANSITION_FLAG_KEY);
+            if (shouldIntro) {
                 beginIntroSweep();
-                try {
-                    window.sessionStorage.removeItem(TRANSITION_FLAG_KEY);
-                } catch {
-                    // Ignore sessionStorage access errors
-                }
+                clearFlag(TRANSITION_FLAG_KEY);
                 return;
             }
-            if (isProject && !introTriggered) {
+            if (!introTriggered) {
                 beginIntroSweep();
             }
         }
@@ -269,8 +272,10 @@
             maybePlayIntro: maybePlayIntro,
         };
         maybePlayIntro();
-        // eslint-disable-next-line no-unused-vars
+
     } catch (e) {
-        // Error handling is intentionally empty for ambient background script
+        if (window.console && typeof window.console.error === 'function') {
+            window.console.error('[ambient] Initialization failed:', e);
+        }
     }
 })();

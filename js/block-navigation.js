@@ -93,9 +93,7 @@
             return true;
         }
 
-        if (element.matches('.post-heading') && element.closest('.intro-header')) {
-            return false;
-        }
+        if (element.matches('.post-heading')) { return !element.closest('.intro-header'); }
 
         if (element.matches(BLOCK_ELEMENT_SELECTOR)) {
             return true;
@@ -124,29 +122,14 @@
         const ordered = [];
         const seen = new Set();
 
-        for (let i = 0; i < candidates.length; i++) {
-            const element = candidates[i];
-            if (!shouldUseElement(element)) {
-                continue;
-            }
-            if (seen.has(element)) {
-                continue;
-            }
-
+        const addIfValid = (element) => {
+            if (!shouldUseElement(element) || seen.has(element)) { return; }
             const lastElement = ordered.length ? ordered[ordered.length - 1] : null;
-            const shouldGroupParagraph =
-                isParagraphElement(element) &&
-                lastElement &&
-                isParagraphElement(lastElement) &&
-                lastElement.parentElement === element.parentElement;
-            if (shouldGroupParagraph) {
-                seen.add(element);
-                continue;
-            }
-
-            ordered.push(element);
+            const shouldGroupParagraph = isParagraphElement(element) && lastElement && isParagraphElement(lastElement) && lastElement.parentElement === element.parentElement;
+            if (!shouldGroupParagraph) { ordered.push(element); }
             seen.add(element);
-        }
+        };
+        for (let i = 0; i < candidates.length; i++) { addIfValid(candidates[i]); }
 
         return ordered;
     }
@@ -344,25 +327,15 @@
         const isFirstContentBlock = index <= (topSentinel ? 1 : 0);
 
         if (isTopSentinel) {
-            window.scrollTo({
-                top: 0,
-                behavior,
-            });
-            startPending(index, behavior);
-            return;
+            window.scrollTo({ top: 0, behavior });
+        } else {
+            try {
+                target.scrollIntoView({ behavior, block: isFirstContentBlock ? 'start' : 'center', inline: 'nearest' });
+            } catch (error) {
+                void error;
+                scrollFallback(target, behavior, isFirstContentBlock);
+            }
         }
-
-        try {
-            target.scrollIntoView({
-                behavior,
-                block: isFirstContentBlock ? 'start' : 'center',
-                inline: 'nearest',
-            });
-        } catch (error) {
-            void error;
-            scrollFallback(target, behavior, isFirstContentBlock);
-        }
-
         startPending(index, behavior);
     }
 
@@ -401,17 +374,15 @@
             return;
         }
 
-        const nextIndex = calculateNextIndex(event.key);
         event.preventDefault();
-
-        const startIndex =
-            currentIndex === -1 ? (getCurrentIndex() === -1 ? 0 : getCurrentIndex()) : currentIndex;
-        if (nextIndex === startIndex) {
-            return;
+        const nextIndex = calculateNextIndex(event.key);
+        let startIndex = currentIndex;
+        if (startIndex === -1) { startIndex = getCurrentIndex(); }
+        if (startIndex === -1) { startIndex = 0; }
+        if (nextIndex !== startIndex) {
+            currentIndex = nextIndex;
+            scrollToIndex(nextIndex);
         }
-
-        currentIndex = nextIndex;
-        scrollToIndex(nextIndex);
     }
 
     /**

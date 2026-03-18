@@ -37,8 +37,9 @@ import * as THREE from './vendor/three.module.min.js';
                 canvas.getContext('webgl', { failIfMajorPerformanceCaveat: true }) ||
                 canvas.getContext('experimental-webgl', { failIfMajorPerformanceCaveat: true })
             );
-        } catch {
+        } catch (e) {
             // WebGL creation may fail gracefully in certain browsers/environments
+            if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] WebGL not supported:', e); }
             return false;
         }
     }
@@ -50,8 +51,9 @@ import * as THREE from './vendor/three.module.min.js';
         try {
             const url = new window.URL(window.location.href);
             return url.searchParams.has(TRANSITION_PARAM);
-        } catch {
+        } catch (e) {
             // URL parsing might fail gracefully, meaning no valid param
+            if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] URL parse error:', e); }
             return false;
         }
     }
@@ -70,8 +72,9 @@ import * as THREE from './vendor/three.module.min.js';
                 const newUrl = url.pathname + url.search + url.hash;
                 window.history.replaceState({}, document.title, newUrl);
             }
-        } catch {
+        } catch (e) {
             // Ignore URL parsing or pushState errors; transition simply won't be cleared visually
+            if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] clear transition param error:', e); }
         }
     }
 
@@ -81,8 +84,9 @@ import * as THREE from './vendor/three.module.min.js';
         }
         try {
             window.sessionStorage.setItem(CAPTURE_STORAGE_KEY, dataUrl);
-        } catch {
+        } catch (e) {
             // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
+            if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] sessionStorage access error:', e); }
         }
     }
 
@@ -93,8 +97,9 @@ import * as THREE from './vendor/three.module.min.js';
                 window.sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
                 return data;
             }
-        } catch {
+        } catch (e) {
             // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
+            if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] sessionStorage access error:', e); }
         }
         return null;
     }
@@ -108,9 +113,8 @@ import * as THREE from './vendor/three.module.min.js';
         );
         const scrollX = window.scrollX || window.pageXOffset || 0;
         const scrollY = window.scrollY || window.pageYOffset || 0;
-        const bgColor =
-            (window.getComputedStyle && window.getComputedStyle(document.body).backgroundColor) ||
-            '#000';
+        const computedStyle = window.getComputedStyle ? window.getComputedStyle(document.body) : null;
+        const bgColor = (computedStyle && computedStyle.backgroundColor) || '#000';
 
         return {
             logging: false,
@@ -144,8 +148,9 @@ import * as THREE from './vendor/three.module.min.js';
             .then((canvas) => {
                 try {
                     return canvas.toDataURL('image/png', 0.9);
-                } catch {
+                } catch (e) {
                     // Ignore data URL conversion errors (e.g. tainted canvas) and return null
+                    if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] canvas.toDataURL failed:', e); }
                     return null;
                 }
             })
@@ -247,7 +252,7 @@ import * as THREE from './vendor/three.module.min.js';
         let styles = null;
         try {
             styles = window.getComputedStyle(document.documentElement);
-        } catch {}
+        } catch (e) { if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] getComputedStyle error:', e); } }
         if (!styles) {
             return {
                 primary: DEFAULT_PRIMARY.slice(),
@@ -377,6 +382,10 @@ import * as THREE from './vendor/three.module.min.js';
         this.canvas = document.createElement('canvas');
         this.container.appendChild(this.canvas);
         document.body.appendChild(this.container);
+        this.initReveal();
+    }
+
+    PageTransition.prototype.initReveal = function () {
         const pendingReveal = hasTransitionParam();
 
         if (!this.enabled) {
@@ -405,7 +414,7 @@ import * as THREE from './vendor/three.module.min.js';
         } else {
             window.addEventListener('load', prepareDestination, { once: true });
         }
-    }
+    };
 
     PageTransition.prototype.setupThree = function () {
         this.renderer = new THREE.WebGLRenderer({
@@ -504,7 +513,8 @@ import * as THREE from './vendor/three.module.min.js';
             const nextUrl = new window.URL(url, window.location.href);
             nextUrl.searchParams.set(TRANSITION_PARAM, '1');
             return nextUrl.toString();
-        } catch {
+        } catch (e) {
+            if (window.console && typeof window.console.warn === 'function') { window.console.warn('[page-transition] buildTransitionUrl error:', e); }
             return url;
         }
     };
@@ -678,9 +688,9 @@ import * as THREE from './vendor/three.module.min.js';
                     console.error('[page-transition] Blocked cross-origin navigation');
                     return;
                 }
-            } catch {
+            } catch (e) {
                 // eslint-disable-next-line no-console
-                console.error('[page-transition] Blocked invalid URL');
+                console.error('[page-transition] Blocked invalid URL', e);
                 return;
             }
         } else {
