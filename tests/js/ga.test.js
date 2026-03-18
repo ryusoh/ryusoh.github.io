@@ -45,7 +45,7 @@ describe('ga.js bootstrap', () => {
         expect(context.document.createElement).toHaveBeenCalledWith('script');
         expect(context.document.getElementsByTagName).toHaveBeenCalledWith('script');
         expect(mockScriptElement.async).toBe(1);
-        expect(mockScriptElement.src).toBe('//www.google-analytics.com/analytics.js');
+        expect(mockScriptElement.src).toBe('https://www.google-analytics.com/analytics.js');
         expect(mockParentNode.insertBefore).toHaveBeenCalledWith(
             mockScriptElement,
             context.document.getElementsByTagName()[0]
