@@ -9,9 +9,3 @@
 **Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis. High cyclomatic complexity (> 10) increases cognitive load and maintenance overhead.
 **Learning:** During the codebase health pass, multiple critical `catch {}` blocks were identified in `js/page-transition.js`, `js/ambient/ambient.js`, and other core modules that masked runtime exceptions. Additionally, core navigational functions had overgrown into tightly coupled, monolithic blocks.
 **Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 10 for maintainability and readability.
-
-## 2026-03-24 - [Cyclomatic Complexity & Silent Failures Cleanup]
-
-**Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis. High cyclomatic complexity (> 10) increases cognitive load and maintenance overhead.
-**Learning:** During the codebase health pass, multiple critical `catch {}` blocks were identified in `js/page-transition.js`, `js/ambient/ambient.js`, and other core modules that masked runtime exceptions. Additionally, core navigational functions had overgrown into tightly coupled, monolithic blocks.
-**Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 10 for maintainability and readability.

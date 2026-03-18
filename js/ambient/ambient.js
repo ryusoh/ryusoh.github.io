@@ -48,7 +48,9 @@
 
     try {
         function getAmbientParam() {
-            if (typeof window.URLSearchParams === 'undefined') {return null;}
+            if (typeof window.URLSearchParams === 'undefined') {
+                return null;
+            }
             return new window.URLSearchParams(window.location.search || '').get('ambient');
         }
         const force = getAmbientParam();
@@ -241,19 +243,30 @@
             window.__ambient = { config: C, instance: s };
         }
         function getFlag(key) {
-            try { return window.sessionStorage.getItem(key) === '1'; } catch (e) {
-                if (window.console && typeof window.console.warn === 'function') { window.console.warn('[ambient] sessionStorage get error:', e); }
+            try {
+                return window.sessionStorage.getItem(key) === '1';
+            } catch (e) {
+                if (window.console && typeof window.console.warn === 'function') {
+                    window.console.warn('[ambient] sessionStorage get error:', e);
+                }
                 return false;
             }
         }
         function clearFlag(key) {
-            try { window.sessionStorage.removeItem(key); } catch (e) {
-                if (window.console && typeof window.console.warn === 'function') { window.console.warn('[ambient] sessionStorage remove error:', e); }
+            try {
+                window.sessionStorage.removeItem(key);
+            } catch (e) {
+                if (window.console && typeof window.console.warn === 'function') {
+                    window.console.warn('[ambient] sessionStorage remove error:', e);
+                }
             }
         }
         function maybePlayIntro() {
-            const isProject = document.body && document.body.getAttribute('data-page-type') === 'project';
-            if (!isProject) { return; }
+            const isProject =
+                document.body && document.body.getAttribute('data-page-type') === 'project';
+            if (!isProject) {
+                return;
+            }
 
             const shouldIntro = getFlag(TRANSITION_FLAG_KEY);
             if (shouldIntro) {
@@ -272,7 +285,6 @@
             maybePlayIntro: maybePlayIntro,
         };
         maybePlayIntro();
-
     } catch (e) {
         if (window.console && typeof window.console.error === 'function') {
             window.console.error('[ambient] Initialization failed:', e);
