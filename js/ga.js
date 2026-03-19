@@ -20,6 +20,13 @@ try {
         window.ga('create', 'UA-9097302-10', 'auto');
         window.ga('send', 'pageview');
     }
-} catch {
-    // Ignore tracking initialisation errors
+} catch (e) {
+    if (
+        typeof window !== 'undefined' &&
+        window !== null &&
+        window.console &&
+        typeof window.console.warn === 'function'
+    ) {
+        window.console.warn('Google Analytics initialization failed:', e);
+    }
 }

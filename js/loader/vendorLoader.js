@@ -16,7 +16,15 @@
         ]);
         window.CDNLoader.loadCssWithFallback(fontAwesome);
         window.CDNLoader.loadCssWithFallback(googleFonts);
-    } catch {
-        // Silently ignore CDN loader errors as this is a progressive enhancement
+    } catch (e) {
+        // Ignore CDN loader errors as this is a progressive enhancement
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn('Vendor Loader failed:', e);
+        }
     }
 })();

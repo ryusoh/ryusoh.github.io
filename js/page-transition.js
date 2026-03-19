@@ -39,7 +39,12 @@ import * as THREE from './vendor/three.module.min.js';
             );
         } catch (e) {
             // WebGL creation may fail gracefully in certain browsers/environments
-            if (window.console && typeof window.console.warn === 'function') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('[page-transition] WebGL not supported:', e);
             }
             return false;
@@ -55,10 +60,22 @@ import * as THREE from './vendor/three.module.min.js';
             return url.searchParams.has(TRANSITION_PARAM);
         } catch (e) {
             // URL parsing might fail gracefully, meaning no valid param
-            if (window.console && typeof window.console.warn === 'function') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('[page-transition] URL parse error:', e);
             }
             return false;
+        }
+    }
+
+    function updateHistoryUrl(url) {
+        if (window.history && typeof window.history.replaceState === 'function') {
+            const newUrl = url.pathname + url.search + url.hash;
+            window.history.replaceState({}, document.title, newUrl);
         }
     }
 
@@ -72,13 +89,15 @@ import * as THREE from './vendor/three.module.min.js';
                 return;
             }
             url.searchParams.delete(TRANSITION_PARAM);
-            if (window.history && typeof window.history.replaceState === 'function') {
-                const newUrl = url.pathname + url.search + url.hash;
-                window.history.replaceState({}, document.title, newUrl);
-            }
+            updateHistoryUrl(url);
         } catch (e) {
             // Ignore URL parsing or pushState errors; transition simply won't be cleared visually
-            if (window.console && typeof window.console.warn === 'function') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('[page-transition] clear transition param error:', e);
             }
         }
@@ -92,7 +111,12 @@ import * as THREE from './vendor/three.module.min.js';
             window.sessionStorage.setItem(CAPTURE_STORAGE_KEY, dataUrl);
         } catch (e) {
             // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
-            if (window.console && typeof window.console.warn === 'function') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('[page-transition] sessionStorage access error:', e);
             }
         }
@@ -107,7 +131,12 @@ import * as THREE from './vendor/three.module.min.js';
             }
         } catch (e) {
             // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
-            if (window.console && typeof window.console.warn === 'function') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('[page-transition] sessionStorage access error:', e);
             }
         }
@@ -162,7 +191,12 @@ import * as THREE from './vendor/three.module.min.js';
                     return canvas.toDataURL('image/png', 0.9);
                 } catch (e) {
                     // Ignore data URL conversion errors (e.g. tainted canvas) and return null
-                    if (window.console && typeof window.console.warn === 'function') {
+                    if (
+                        typeof window !== 'undefined' &&
+                        window !== null &&
+                        window.console &&
+                        typeof window.console.warn === 'function'
+                    ) {
                         window.console.warn('[page-transition] canvas.toDataURL failed:', e);
                     }
                     return null;
@@ -267,7 +301,12 @@ import * as THREE from './vendor/three.module.min.js';
         try {
             styles = window.getComputedStyle(document.documentElement);
         } catch (e) {
-            if (window.console && typeof window.console.warn === 'function') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('[page-transition] getComputedStyle error:', e);
             }
         }
@@ -532,7 +571,12 @@ import * as THREE from './vendor/three.module.min.js';
             nextUrl.searchParams.set(TRANSITION_PARAM, '1');
             return nextUrl.toString();
         } catch (e) {
-            if (window.console && typeof window.console.warn === 'function') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('[page-transition] buildTransitionUrl error:', e);
             }
             return url;

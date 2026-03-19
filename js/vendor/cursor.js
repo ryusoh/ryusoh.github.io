@@ -78,8 +78,11 @@ const canUseSessionStorage = () => {
         storage.setItem(testKey, '1');
         storage.removeItem(testKey);
         sessionStorageAvailable = true;
-    } catch {
+    } catch (e) {
         sessionStorageAvailable = false;
+        if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
+            window.console.warn('Session storage test failed:', e);
+        }
     }
     return sessionStorageAvailable;
 };
@@ -99,8 +102,11 @@ const readStoredCursorPosition = () => {
         ) {
             return parsed;
         }
-    } catch {
+    } catch (e) {
         // ignore JSON/storage errors
+        if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
+            window.console.warn('readStoredCursorPosition JSON parse failed:', e);
+        }
     }
     return null;
 };
@@ -115,8 +121,11 @@ const storeCursorPosition = ({ x, y }) => {
                 y: Math.round(y),
             })
         );
-    } catch {
+    } catch (e) {
         // ignore storage errors
+        if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
+            window.console.warn('storeCursorPosition storage failed:', e);
+        }
     }
 };
 
@@ -132,8 +141,11 @@ const applyInlineCursorToElement = (element) => {
     try {
         element.style.setProperty('cursor', HIDDEN_CURSOR_VALUE, 'important');
         overriddenElements.add(element);
-    } catch {
+    } catch (e) {
         // ignore elements that do not expose style setters (e.g., SVG defs)
+        if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
+            window.console.warn('applyInlineCursorToElement style set failed:', e);
+        }
     }
 };
 
@@ -143,8 +155,11 @@ const clearInlineCursorOverrides = () => {
             if (element.style?.cursor === HIDDEN_CURSOR_VALUE) {
                 element.style.removeProperty('cursor');
             }
-        } catch {
+        } catch (e) {
             // ignore
+            if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
+                window.console.warn('clearInlineCursorOverrides remove property failed:', e);
+            }
         }
     });
     overriddenElements.clear();

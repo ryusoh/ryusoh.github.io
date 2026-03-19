@@ -1,12 +1,13 @@
 /* Ambient assets loader using CDNLoader (no modules) */
 (function () {
-    try {
+    function shouldSkipLoader() {
         const prefersReduced =
             window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (prefersReduced || window.innerWidth < 1024) {
-            return;
-        }
-        if (!window.CDNLoader) {
+        return prefersReduced || window.innerWidth < 1024 || !window.CDNLoader;
+    }
+
+    try {
+        if (shouldSkipLoader()) {
             return;
         }
         const body = document.body;
@@ -42,10 +43,26 @@
                 /* eslint-enable indent */
                 return Promise.all([legacy, quantum]);
             })
-            .catch(function () {
+            .catch(function (e) {
                 // Ignore ambient loader errors as these are progressive enhancements
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('Ambient async loader failed:', e);
+                }
             });
-    } catch {
+    } catch (e) {
         // Silently ignore synchronous errors during loader initialization
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn('Ambient initialization failed:', e);
+        }
     }
 })();
