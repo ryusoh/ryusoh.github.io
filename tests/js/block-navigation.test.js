@@ -12,6 +12,8 @@ describe('block-navigation', () => {
     let clampScrollTop;
     let isEditableActive;
     let shouldUseElement;
+    let handleEscapeKey;
+    let getIndexFromFallback;
     let context;
     let mockDocument;
     let mockWindow;
@@ -68,6 +70,184 @@ describe('block-navigation', () => {
         clampScrollTop = context.module.exports.clampScrollTop;
         isEditableActive = context.module.exports.isEditableActive;
         shouldUseElement = context.module.exports.shouldUseElement;
+        handleEscapeKey = context.module.exports.handleEscapeKey;
+        getIndexFromFallback = context.module.exports.getIndexFromFallback;
+    });
+
+    describe('handleEscapeKey', () => {
+        it('should call click and prevent default if .nav-back exists', () => {
+            const mockClick = jest.fn();
+            const mockPreventDefault = jest.fn();
+            const mockEvent = { preventDefault: mockPreventDefault };
+
+            mockDocument.querySelector = jest.fn().mockImplementation((sel) => {
+                if (sel === '.nav-back') {
+                    return { click: mockClick };
+                }
+                return null;
+            });
+
+            handleEscapeKey(mockEvent);
+
+            expect(mockDocument.querySelector).toHaveBeenCalledWith('.nav-back');
+            expect(mockPreventDefault).toHaveBeenCalled();
+            expect(mockClick).toHaveBeenCalled();
+        });
+
+        it('should do nothing if .nav-back does not exist', () => {
+            const mockPreventDefault = jest.fn();
+            const mockEvent = { preventDefault: mockPreventDefault };
+
+            mockDocument.querySelector = jest.fn().mockReturnValue(null);
+
+            handleEscapeKey(mockEvent);
+
+            expect(mockDocument.querySelector).toHaveBeenCalledWith('.nav-back');
+            expect(mockPreventDefault).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('debounce', () => {
+        beforeEach(() => {
+            jest.useFakeTimers();
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+        });
+
+        it('should debounce function calls and use requestAnimationFrame when available', () => {
+            const mockFn = jest.fn();
+            const mockCancelAnimationFrame = jest.fn();
+
+            // We can test the exported `debounce` function directly. We just need to ensure
+            // the `window` object in our test has the necessary functions.
+            // Since `debounce` relies on lexical scope for `window`, we can test it within the vm context
+            const customCode = `
+                window.cancelAnimationFrame = function(id) {
+                    window.__mockCancelAnimationFrame(id);
+                };
+                window.requestAnimationFrame = function(cb) {
+                    window.__rAFCallback = cb;
+                    return 123;
+                };
+                module.exports.debouncedFn = module.exports.debounce(function() {
+                    window.__mockFn.apply(this, arguments);
+                }, 100);
+            `;
+            // Must inject a fresh setTimeout mock implementation inside customContext because
+            // fakeTimers doesn't automatically wrap vm context setTimeout.
+            const customContext = {
+                ...context,
+                window: {
+                    ...context.window,
+                    __mockFn: mockFn,
+                    __mockCancelAnimationFrame: mockCancelAnimationFrame,
+                },
+                setTimeout: setTimeout,
+                clearTimeout: clearTimeout,
+            };
+            vm.createContext(customContext);
+            vm.runInContext(code, customContext);
+            vm.runInContext(customCode, customContext);
+
+            const debouncedFn = customContext.module.exports.debouncedFn;
+            debouncedFn('arg1');
+            debouncedFn('arg2');
+
+            jest.advanceTimersByTime(150);
+
+            expect(customContext.window.__rAFCallback).not.toBeUndefined();
+            customContext.window.__rAFCallback();
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+            expect(mockFn).toHaveBeenCalledWith('arg2');
+
+            debouncedFn('arg3');
+            // The first call to setTimeout is scheduled, advance again to trigger cancel
+            jest.advanceTimersByTime(150);
+            expect(mockCancelAnimationFrame).toHaveBeenCalledWith(123);
+        });
+
+        it('should fallback to direct execution if requestAnimationFrame is not available', () => {
+            const mockFn = jest.fn();
+
+            const customCode = `
+                delete window.requestAnimationFrame;
+                delete window.cancelAnimationFrame;
+                module.exports.debouncedFn = module.exports.debounce(function() {
+                    window.__mockFn.apply(this, arguments);
+                }, 100);
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, __mockFn: mockFn },
+                setTimeout: setTimeout,
+                clearTimeout: clearTimeout,
+            };
+            vm.createContext(customContext);
+            vm.runInContext(code, customContext);
+            vm.runInContext(customCode, customContext);
+
+            const debouncedFn = customContext.module.exports.debouncedFn;
+            debouncedFn('arg1');
+            debouncedFn('arg2');
+
+            jest.advanceTimersByTime(150);
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+            expect(mockFn).toHaveBeenCalledWith('arg2');
+        });
+    });
+
+    describe('getIndexFromFallback', () => {
+        it('should return -1 if blockPositions is empty', () => {
+            // Need to mock blockPositions, which is an internal variable in the IIFE.
+            // Since we can't easily mock it, we'll create a scenario where blockPositions length is 0.
+            const customCode = `
+                let blockPositions = [];
+                ${getIndexFromFallback.toString()}
+                module.exports.getIndexFromFallbackCustom = getIndexFromFallback;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.getIndexFromFallbackCustom()).toBe(-1);
+        });
+
+        it('should calculate best index based on scroll position and blockPositions', () => {
+            const customCode = `
+                let blockPositions = [0, 400, 800, 1200];
+                ${getIndexFromFallback.toString()}
+                module.exports.getIndexFromFallbackCustom = getIndexFromFallback;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 300, innerHeight: 500 },
+            };
+            // probe = 300 + 125 = 425
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            // 425 >= 0 (best=0), 425 >= 400 (best=1), 425 < 800 (break) -> returns 1
+            expect(customContext.module.exports.getIndexFromFallbackCustom()).toBe(1);
+        });
+
+        it('should handle probe past all blocks', () => {
+            const customCode = `
+                let blockPositions = [0, 400, 800];
+                ${getIndexFromFallback.toString()}
+                module.exports.getIndexFromFallbackCustom = getIndexFromFallback;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 1000, innerHeight: 500 },
+            };
+            // probe = 1000 + 125 = 1125
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            // 1125 >= 0, >= 400, >= 800 -> returns 2
+            expect(customContext.module.exports.getIndexFromFallbackCustom()).toBe(2);
+        });
     });
 
     describe('clampScrollTop', () => {
