@@ -31,6 +31,9 @@ describe('ambient/loader.js', () => {
                 innerWidth: 1200,
                 matchMedia: jest.fn().mockReturnValue({ matches: false }),
                 Promise: Promise,
+                console: {
+                    warn: jest.fn(),
+                },
             },
             document: mockDocument,
         };
@@ -132,5 +135,26 @@ describe('ambient/loader.js', () => {
 
         await new Promise(process.nextTick);
         await new Promise(process.nextTick);
+
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            'Ambient async loader failed:',
+            expect.any(Error)
+        );
+    });
+
+    test('ignores synchronous errors during initialization gracefully and logs warning', () => {
+        Object.defineProperty(context.window, 'matchMedia', {
+            get: () => {
+                throw new Error('Simulated synchronous error');
+            },
+        });
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            'Ambient initialization failed:',
+            expect.any(Error)
+        );
     });
 });

@@ -57,4 +57,27 @@ describe('ambient/config/default.js', () => {
             vm.runInContext(code, context);
         }).not.toThrow();
     });
+
+    test('logs a warning when initialization fails', () => {
+        context.window = {
+            console: {
+                warn: jest.fn(),
+            },
+        };
+
+        // Use a Proxy or defineProperty to throw when AMBIENT_CONFIG is accessed/set
+        Object.defineProperty(context.window, 'AMBIENT_CONFIG', {
+            get: () => {
+                throw new Error('Simulated config error');
+            },
+        });
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            'Ambient config initialization failed:',
+            expect.any(Error)
+        );
+    });
 });

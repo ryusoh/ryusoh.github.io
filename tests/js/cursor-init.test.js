@@ -16,7 +16,11 @@ describe('js/cursor-init.js', () => {
         mockInitCursor = jest.fn().mockReturnValue({ cursor: { id: 'mocked-cursor' } });
 
         context = {
-            window: {},
+            window: {
+                console: {
+                    warn: jest.fn(),
+                },
+            },
             document: {
                 addEventListener: jest.fn((event, cb) => {
                     if (event === 'DOMContentLoaded') {
@@ -26,7 +30,9 @@ describe('js/cursor-init.js', () => {
                 }),
             },
             initCursor: mockInitCursor,
-            console: console,
+            console: {
+                warn: jest.fn(),
+            },
         };
     });
 
@@ -83,5 +89,35 @@ describe('js/cursor-init.js', () => {
         expect(() => {
             vm.runInContext(customCode, context);
         }).not.toThrow();
+    });
+
+    test('does not throw when initCursor throws but allows bubbling', () => {
+        context.window.gsap = {}; // Mock GSAP
+
+        // Let's modify the custom context to throw
+        const customContext = {
+            ...context,
+            initCursor: jest.fn().mockImplementation(() => {
+                throw new Error('initCursor error');
+            }),
+            document: {
+                addEventListener: jest.fn((event, cb) => {
+                    if (event === 'DOMContentLoaded') {
+                        customContext.__domContentLoadedCb = cb;
+                    }
+                }),
+            },
+        };
+
+        vm.createContext(customContext);
+        vm.runInContext(code, customContext);
+
+        // Trigger DOMContentLoaded which calls initCursor
+        // The script doesn't wrap it in a try-catch, so we assert it throws.
+        expect(() => {
+            customContext.__domContentLoadedCb();
+        }).toThrow('initCursor error');
+
+        expect(customContext.window.cursorInstances).toBeUndefined();
     });
 });
