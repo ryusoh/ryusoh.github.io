@@ -434,9 +434,10 @@
     function bindImageLoadHandlers() {
         const debouncedSync = debounce(syncCurrentIndex, 150);
         const debouncedUpdate = debounce(updatePositions, 150);
-        Array.from(document.images).forEach((image) => {
+        const images = document.images;
+        for (const image of images) {
             if (image.complete) {
-                return;
+                continue;
             }
             image.addEventListener('load', () => {
                 if (!useObserver) {
@@ -445,7 +446,7 @@
                     debouncedSync();
                 }
             });
-        });
+        }
     }
 
     function init() {
