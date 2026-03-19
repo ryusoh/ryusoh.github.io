@@ -17,7 +17,8 @@ class FontAwesomeLoader {
      */
     init() {
         // Cache the icon elements once during initialization
-        this.faIcons = Array.from(document.querySelectorAll('i[class*="fa"]'));
+        // Bolt Optimization: Avoiding Array.from() for DOM collections and memory allocations
+        this.faIcons = document.querySelectorAll('i[class*="fa"]');
 
         // First, check if Font Awesome is already loaded
         if (this.isFontAwesomeLoaded()) {
@@ -65,22 +66,22 @@ class FontAwesomeLoader {
      */
     setupPlaceholderHandling() {
         // Initially hide all Font Awesome icons to prevent showing empty boxes
-        this.faIcons.forEach((icon) => {
+        for (const icon of this.faIcons) {
             icon.style.visibility = 'hidden';
             icon.dataset.fahidden = 'true';
-        });
+        }
     }
 
     /**
      * Show the icons once Font Awesome is loaded
      */
     showIcons() {
-        this.faIcons.forEach((icon) => {
+        for (const icon of this.faIcons) {
             if (icon.dataset.fahidden === 'true') {
                 icon.style.visibility = '';
                 icon.dataset.fahidden = '';
             }
-        });
+        }
     }
 
     /**
@@ -128,7 +129,7 @@ class FontAwesomeLoader {
      */
     handleLoadFailure() {
         // Hide icons that failed to load properly
-        this.faIcons.forEach((icon) => {
+        for (const icon of this.faIcons) {
             if (icon.dataset.fahidden === 'true') {
                 // For back icons, we can provide a text alternative
                 if (icon.classList.contains('fa-chevron-left')) {
@@ -140,7 +141,7 @@ class FontAwesomeLoader {
                     icon.style.display = 'none';
                 }
             }
-        });
+        }
     }
 
     /**
