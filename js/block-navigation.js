@@ -473,6 +473,9 @@
             clampScrollTop,
             isEditableActive,
             shouldUseElement,
+            handleEscapeKey,
+            debounce,
+            getIndexFromFallback,
         };
     }
 })();
