@@ -20,8 +20,16 @@ function prefersReducedMotion() {
     }
     try {
         return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    } catch {
+    } catch (e) {
         // Fallback gracefully if matchMedia is unavailable or throws
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn('matchMedia failed in prefersReducedMotion:', e);
+        }
         return false;
     }
 }
@@ -36,8 +44,16 @@ function hasWebGLSupport() {
             canvas.getContext('webgl', { failIfMajorPerformanceCaveat: true }) ||
             canvas.getContext('experimental-webgl', { failIfMajorPerformanceCaveat: true })
         );
-    } catch {
+    } catch (e) {
         // Fallback gracefully if WebGL context creation fails
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn('WebGL context creation failed:', e);
+        }
         return false;
     }
 }
@@ -52,8 +68,16 @@ function getForceMode() {
         }
         const usp = new window.URLSearchParams(window.location.search || '');
         return usp.get('ambient');
-    } catch {
+    } catch (e) {
         // Fallback gracefully if URLSearchParams parsing fails
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn('URLSearchParams parsing failed:', e);
+        }
         return null;
     }
 }
@@ -260,7 +284,12 @@ ready(() => {
 
     initParticles(forceMode).catch((error) => {
         window.__AmbientQuantumParticlesLoaded = false;
-        if (window.console && typeof window.console.error === 'function') {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.error === 'function'
+        ) {
             window.console.error('[ambient] particle backdrop failed to load', error);
         }
     });

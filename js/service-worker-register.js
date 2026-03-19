@@ -9,8 +9,16 @@
         try {
             const host = window.location.hostname;
             return host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '';
-        } catch {
+        } catch (e) {
             // Assume not localhost if hostname parsing fails
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('Hostname parsing failed during localhost check:', e);
+            }
             return false;
         }
     }

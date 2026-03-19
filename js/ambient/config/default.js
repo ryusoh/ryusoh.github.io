@@ -16,8 +16,15 @@
             },
             window.AMBIENT_CONFIG || {}
         );
-        // eslint-disable-next-line no-unused-vars
     } catch (e) {
-        // Do nothing
+        // Do nothing but log
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn('Ambient config initialization failed:', e);
+        }
     }
 })();

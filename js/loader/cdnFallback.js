@@ -62,7 +62,15 @@
                             document.head.appendChild(style);
                             resolve();
                         })
-                        .catch(function () {
+                        .catch(function (e) {
+                            if (
+                                typeof window !== 'undefined' &&
+                                window !== null &&
+                                window.console &&
+                                typeof window.console.warn === 'function'
+                            ) {
+                                window.console.warn('CDN fallback CSS load failed:', e);
+                            }
                             resolve();
                         });
                     return;
