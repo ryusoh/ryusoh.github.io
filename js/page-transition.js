@@ -875,6 +875,9 @@ import * as THREE from './vendor/three.module.min.js';
             parseRgbFunction,
             hexToRgbArray,
             parseColor,
+            updateHistoryUrl,
+            storeCaptureData,
+            consumeCaptureData,
             _Constructor: PageTransition,
         };
     }
