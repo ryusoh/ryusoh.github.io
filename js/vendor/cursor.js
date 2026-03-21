@@ -389,3 +389,10 @@ export function initCursor({ cursor } = {}) {
     const cursorInstance = isTouchDevice ? null : new CustomCursor(cursor);
     return { cursor: cursorInstance };
 }
+
+if (typeof window !== 'undefined') {
+    window.__CursorForTesting = {
+        storeCursorPosition,
+        readStoredCursorPosition,
+    };
+}
