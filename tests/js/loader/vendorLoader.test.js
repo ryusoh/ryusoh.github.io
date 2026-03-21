@@ -74,4 +74,27 @@ describe('loader/vendorLoader.js', () => {
             vm.runInContext(code, context);
         }).not.toThrow();
     });
+
+    test('logs a warning when initialization fails', () => {
+        context.window = {
+            console: {
+                warn: jest.fn(),
+            },
+        };
+
+        // Simulated config error by throwing when CDNLoader is accessed
+        Object.defineProperty(context.window, 'CDNLoader', {
+            get: () => {
+                throw new Error('Simulated config error');
+            },
+        });
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            'Vendor Loader failed:',
+            expect.any(Error)
+        );
+    });
 });
