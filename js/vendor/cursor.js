@@ -323,28 +323,43 @@ export class CustomCursor {
     }
 
     loop() {
-        this.coords.opacity.value = lerp(
-            this.coords.opacity.value,
-            this.coords.opacity.current,
-            this.fadeEase
-        );
-        this.coords.scale.value = lerp(
-            this.coords.scale.value,
-            this.coords.scale.current,
-            this.fadeEase
-        );
-        this.coords.x.value = lerp(this.coords.x.value, this.coords.x.current, this.followEase);
-        this.coords.y.value = lerp(this.coords.y.value, this.coords.y.current, this.followEase);
+        /**
+         * Bolt Optimization:
+         * - What: Skip `gsap.set` and DOM writes if the cursor values have settled.
+         * - Why: The continuous `requestAnimationFrame` loop updates inline styles on every frame, even when the user isn't interacting and the cursor is stationary. This causes unnecessary style recalculations and layout thrashing.
+         * - Impact: Measurably reduces main thread CPU usage and saves battery when the application is idle.
+         */
+        const threshold = 0.001;
+        const needsUpdate =
+            Math.abs(this.coords.opacity.current - this.coords.opacity.value) > threshold ||
+            Math.abs(this.coords.scale.current - this.coords.scale.value) > threshold ||
+            Math.abs(this.coords.x.current - this.coords.x.value) > threshold ||
+            Math.abs(this.coords.y.current - this.coords.y.value) > threshold;
 
-        gsap.set(this.element, {
-            opacity: this.coords.opacity.value,
-            x: this.coords.x.value,
-            y: this.coords.y.value,
-            zIndex: 100,
-        });
-        gsap.set(this.core, {
-            scale: this.coords.scale.value,
-        });
+        if (needsUpdate) {
+            this.coords.opacity.value = lerp(
+                this.coords.opacity.value,
+                this.coords.opacity.current,
+                this.fadeEase
+            );
+            this.coords.scale.value = lerp(
+                this.coords.scale.value,
+                this.coords.scale.current,
+                this.fadeEase
+            );
+            this.coords.x.value = lerp(this.coords.x.value, this.coords.x.current, this.followEase);
+            this.coords.y.value = lerp(this.coords.y.value, this.coords.y.current, this.followEase);
+
+            gsap.set(this.element, {
+                opacity: this.coords.opacity.value,
+                x: this.coords.x.value,
+                y: this.coords.y.value,
+                zIndex: 100,
+            });
+            gsap.set(this.core, {
+                scale: this.coords.scale.value,
+            });
+        }
 
         this.rafId = requestAnimationFrame(this.loop);
     }
