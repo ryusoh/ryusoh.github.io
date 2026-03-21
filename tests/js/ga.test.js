@@ -100,7 +100,10 @@ describe('ga.js bootstrap', () => {
             vm.runInContext(customCode, context);
         }).not.toThrow();
         // The error created in vm does not have the same prototype as the host environment's Error, so expect.any(Error) fails
-        expect(context.window.console.warn).toHaveBeenCalledWith('Google Analytics initialization failed:', expect.anything());
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            'Google Analytics initialization failed:',
+            expect.anything()
+        );
     });
 
     test('handles case where window.ga is not a function', () => {
