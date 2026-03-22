@@ -41,3 +41,8 @@
 
 **Learning:** Found that the custom cursor in `js/vendor/cursor.js` was continuously evaluating and writing layout updates to the DOM (`gsap.set`) during every `requestAnimationFrame` cycle, even when the cursor's visual position (`current`) and the underlying state (`value`) had converged. This resulted in perpetual layout thrashing and main-thread overhead even when the user wasn't interacting with the site.
 **Action:** Always check if a threshold has been reached (e.g., comparing `Math.abs(current - target) > threshold`) inside continuous render loops. If properties have settled, strictly bypass any subsequent DOM and inline style manipulations to preserve CPU cycles and prevent the browser from constantly re-evaluating layouts.
+
+## 2026-03-25 - Event Delegation for Image Load Events
+
+**Learning:** Found that `bindImageLoadHandlers()` in `js/block-navigation.js` was iterating over `document.images` to attach individual `load` event listeners to every incomplete image. On image-heavy pages, this results in O(N) listener allocations and DOM bindings, increasing memory pressure and initialization time.
+**Action:** When tracking `load` events for many elements (like images), use a single document-level event listener with `useCapture: true` (since `load` events do not bubble) and check `event.target.tagName === 'IMG'`. This O(1) approach leverages event delegation, drastically reducing memory overhead and main-thread execution time.
