@@ -22,3 +22,8 @@
 
 **Learning:** Replacing non-semantic wrapper `<div>` and `<section>` elements with HTML5 `<main>` tags, and wrapping layout-based navigation structures with `<nav aria-label="...">` tags drastically improves the ability of screen reader users to navigate web pages using standard keyboard shortcuts (e.g., landmark navigation).
 **Action:** When inspecting a document's HTML structure, ensure that primary content and primary navigation regions are wrapped in semantic landmarks like `<main>` and `<nav>`. Additionally, remember to add these new elements to CSS resets (e.g., `main, nav { display: block; }`) to maintain visual layout consistency.
+
+## 2026-11-20 - [Accessibility: Skip-to-content Targets]
+
+**Learning:** "Skip to content" links (with visually hidden `.sr-only` classes) are great for keyboard users, but if the target element (like `<main id="main">`) is not inherently focusable, some browsers will scroll the viewport but fail to move the actual focus. When the user presses Tab again, focus jumps back to the top of the page.
+**Action:** Always add `tabindex="-1"` to the target element of a skip link. This makes the element programmatically focusable without adding it to the normal tab order, ensuring focus is reliably transferred so the next Tab keypress moves into the main content.
