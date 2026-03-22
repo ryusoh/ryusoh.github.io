@@ -15,3 +15,9 @@
 **Vulnerability:** The Content-Security-Policy (CSP) `script-src` directive contained `'unsafe-inline'`, which allows the execution of arbitrary inline scripts embedded within HTML elements. This poses a significant XSS risk if an attacker manages to inject HTML into the page.
 **Learning:** During review, it was confirmed that all inline scripts (such as Google Analytics bootstrapping) had previously been migrated to external files (e.g., `js/ga.js`). The `'unsafe-inline'` directive was therefore a remnant of older architecture and provided no functional value, only risk.
 **Prevention:** Regularly review CSP directives to ensure they enforce the principle of least privilege. Explicitly omit `'unsafe-inline'` and `'unsafe-eval'` from `script-src` and rely exclusively on external scripts, nonces, or hashes to mitigate DOM XSS.
+
+## 2026-03-24 - [Avoid Empty Catch Blocks]
+
+**Vulnerability:** Empty catch blocks (e.g., `.catch(() => {})`) swallow errors silently, which can mask critical operational failures, underlying bugs, or signs of attack. This hinders debugging and security observability.
+**Learning:** Found instances of `.catch(() => {})` in `js/page-transition.js` that suppressed texture loading failures. While graceful fallback is good, silent failure is an anti-pattern.
+**Prevention:** Replace empty catch blocks with defensive logging using `window.console.warn` (checking `typeof window !== 'undefined'` first for environment safety). This preserves the graceful fallback while ensuring observability.
