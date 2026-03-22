@@ -463,7 +463,16 @@ import * as THREE from './vendor/three.module.min.js';
         }
 
         const prepareDestination = () => {
-            this.prepareDestinationTexture().catch(() => {});
+            this.prepareDestinationTexture().catch((e) => {
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[page-transition] prepareDestinationTexture failed:', e);
+                }
+            });
         };
 
         if (document.readyState === 'complete') {
@@ -538,7 +547,16 @@ import * as THREE from './vendor/three.module.min.js';
                 this.uniforms.uTexture0.value = texture;
                 this.textures.previous = texture;
             })
-            .catch(() => {});
+            .catch((e) => {
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[page-transition] applyStoredCaptureTexture failed:', e);
+                }
+            });
         return null;
     };
 
@@ -553,7 +571,20 @@ import * as THREE from './vendor/three.module.min.js';
                     this.textures.current = texture;
                     return texture;
                 })
-                .catch(() => null);
+                .catch((e) => {
+                    if (
+                        typeof window !== 'undefined' &&
+                        window !== null &&
+                        window.console &&
+                        typeof window.console.warn === 'function'
+                    ) {
+                        window.console.warn(
+                            '[page-transition] prepareDestinationTexture image load failed:',
+                            e
+                        );
+                    }
+                    return null;
+                });
         });
     };
 
