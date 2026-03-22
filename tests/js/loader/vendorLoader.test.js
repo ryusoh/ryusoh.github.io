@@ -97,4 +97,21 @@ describe('loader/vendorLoader.js', () => {
             expect.any(Error)
         );
     });
+
+    test('gracefully handles missing window.console.warn without throwing', () => {
+        context.window = {
+            console: {}, // Missing warn
+        };
+
+        Object.defineProperty(context.window, 'CDNLoader', {
+            get: () => {
+                throw new Error('Simulated config error');
+            },
+        });
+
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+        }).not.toThrow();
+    });
 });

@@ -114,4 +114,18 @@ describe('ga.js bootstrap', () => {
 
         expect(context.window.ga).toBe('not-a-function');
     });
+
+    test('gracefully handles missing window.console.warn without throwing', () => {
+        context.window = {
+            console: {}, // Missing warn
+        };
+        const customCode = code.replace(
+            "if (typeof window.ga === 'function') {",
+            "if (typeof window.ga === 'function') { throw new Error('GA error');"
+        );
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(customCode, context);
+        }).not.toThrow();
+    });
 });
