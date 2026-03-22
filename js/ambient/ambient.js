@@ -179,9 +179,6 @@
             for (let i = 0; i < count; i++) {
                 particles.push(reset({}));
             }
-            if (trace && window.console) {
-                // console.log('[ambient] setup', { count: count, area: area, w: s.width, h: s.height });
-            }
         };
         s.resize = function () {
             s.setup();
