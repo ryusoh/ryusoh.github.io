@@ -11,6 +11,7 @@
 **Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 10 for maintainability and readability.
 
 ## 2026-03-24 - [CSP Inline Script Execution Risk]
+
 **Vulnerability:** The Content-Security-Policy (CSP) `script-src` directive contained `'unsafe-inline'`, which allows the execution of arbitrary inline scripts embedded within HTML elements. This poses a significant XSS risk if an attacker manages to inject HTML into the page.
 **Learning:** During review, it was confirmed that all inline scripts (such as Google Analytics bootstrapping) had previously been migrated to external files (e.g., `js/ga.js`). The `'unsafe-inline'` directive was therefore a remnant of older architecture and provided no functional value, only risk.
 **Prevention:** Regularly review CSP directives to ensure they enforce the principle of least privilege. Explicitly omit `'unsafe-inline'` and `'unsafe-eval'` from `script-src` and rely exclusively on external scripts, nonces, or hashes to mitigate DOM XSS.
