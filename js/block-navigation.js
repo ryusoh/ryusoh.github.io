@@ -340,7 +340,10 @@
                 });
             } catch (error) {
                 if (typeof window !== 'undefined' && window.console) {
-                    window.console.warn('[block-navigation] scrollIntoView failed, using fallback:', error);
+                    window.console.warn(
+                        '[block-navigation] scrollIntoView failed, using fallback:',
+                        error
+                    );
                 }
                 scrollFallback(target, behavior, isFirstContentBlock);
             }
@@ -447,15 +450,19 @@
         const debouncedSync = debounce(syncCurrentIndex, 150);
         const debouncedUpdate = debounce(updatePositions, 150);
 
-        document.addEventListener('load', (event) => {
-            if (event.target && event.target.tagName === 'IMG') {
-                if (!useObserver) {
-                    debouncedUpdate();
-                } else {
-                    debouncedSync();
+        document.addEventListener(
+            'load',
+            (event) => {
+                if (event.target && event.target.tagName === 'IMG') {
+                    if (!useObserver) {
+                        debouncedUpdate();
+                    } else {
+                        debouncedSync();
+                    }
                 }
-            }
-        }, true);
+            },
+            true
+        );
     }
 
     function init() {
