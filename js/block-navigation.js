@@ -328,16 +328,7 @@
         });
     }
 
-    function scrollToIndex(index) {
-        if (index < 0 || index >= blocks.length) {
-            return;
-        }
-
-        const target = blocks[index];
-        const isTopSentinel = topSentinel && target === topSentinel;
-        const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
-        const isFirstContentBlock = index <= (topSentinel ? 1 : 0);
-
+    function performScroll(target, isTopSentinel, behavior, isFirstContentBlock) {
         if (isTopSentinel) {
             window.scrollTo({ top: 0, behavior });
         } else {
@@ -348,10 +339,25 @@
                     inline: 'nearest',
                 });
             } catch (error) {
-                void error;
+                if (typeof window !== 'undefined' && window.console) {
+                    window.console.warn('[block-navigation] scrollIntoView failed, using fallback:', error);
+                }
                 scrollFallback(target, behavior, isFirstContentBlock);
             }
         }
+    }
+
+    function scrollToIndex(index) {
+        if (index < 0 || index >= blocks.length) {
+            return;
+        }
+
+        const target = blocks[index];
+        const isTopSentinel = topSentinel && target === topSentinel;
+        const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+        const isFirstContentBlock = index <= (topSentinel ? 1 : 0);
+
+        performScroll(target, isTopSentinel, behavior, isFirstContentBlock);
         startPending(index, behavior);
     }
 

@@ -202,7 +202,15 @@ import * as THREE from './vendor/three.module.min.js';
                     return null;
                 }
             })
-            .catch(() => null); // Explicitly catch and silence html2canvas failures to fallback gracefully
+            .catch((e) => {
+                if (typeof window !== 'undefined' && window.console) {
+                    window.console.warn(
+                        '[page-transition] prepareDestinationTexture returned null',
+                        e
+                    );
+                }
+                return null;
+            }); // Explicitly catch and silence html2canvas failures to fallback gracefully
     }
 
     function loadTextureFromDataURL(dataUrl, THREE) {
@@ -463,7 +471,11 @@ import * as THREE from './vendor/three.module.min.js';
         }
 
         const prepareDestination = () => {
-            this.prepareDestinationTexture().catch(() => {});
+            this.prepareDestinationTexture().catch((e) => {
+                if (typeof window !== 'undefined' && window.console) {
+                    window.console.warn('[page-transition] prepareDestinationTexture failed', e);
+                }
+            });
         };
 
         if (document.readyState === 'complete') {
@@ -538,7 +550,11 @@ import * as THREE from './vendor/three.module.min.js';
                 this.uniforms.uTexture0.value = texture;
                 this.textures.previous = texture;
             })
-            .catch(() => {});
+            .catch((e) => {
+                if (typeof window !== 'undefined' && window.console) {
+                    window.console.warn('[page-transition] prepareDestinationTexture failed', e);
+                }
+            });
         return null;
     };
 
@@ -553,7 +569,15 @@ import * as THREE from './vendor/three.module.min.js';
                     this.textures.current = texture;
                     return texture;
                 })
-                .catch(() => null);
+                .catch((e) => {
+                    if (typeof window !== 'undefined' && window.console) {
+                        window.console.warn(
+                            '[page-transition] prepareDestinationTexture returned null',
+                            e
+                        );
+                    }
+                    return null;
+                });
         });
     };
 
