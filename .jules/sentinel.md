@@ -11,6 +11,7 @@
 **Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 10 for maintainability and readability.
 
 ## 2026-03-24 - [Avoid Empty Catch Blocks]
+
 **Vulnerability:** Empty catch blocks (e.g., `.catch(() => {})`) swallow errors silently, which can mask critical operational failures, underlying bugs, or signs of attack. This hinders debugging and security observability.
 **Learning:** Found instances of `.catch(() => {})` in `js/page-transition.js` that suppressed texture loading failures. While graceful fallback is good, silent failure is an anti-pattern.
 **Prevention:** Replace empty catch blocks with defensive logging using `window.console.warn` (checking `typeof window !== 'undefined'` first for environment safety). This preserves the graceful fallback while ensuring observability.
