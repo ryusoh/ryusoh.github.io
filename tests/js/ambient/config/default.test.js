@@ -80,4 +80,22 @@ describe('ambient/config/default.js', () => {
             expect.any(Error)
         );
     });
+
+    test('gracefully handles missing window.console.warn without throwing', () => {
+        context.window = {
+            console: {}, // Missing warn
+        };
+
+        // Use a Proxy or defineProperty to throw when AMBIENT_CONFIG is accessed/set
+        Object.defineProperty(context.window, 'AMBIENT_CONFIG', {
+            get: () => {
+                throw new Error('Simulated config error');
+            },
+        });
+
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+        }).not.toThrow();
+    });
 });
