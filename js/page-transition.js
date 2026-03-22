@@ -463,7 +463,9 @@ import * as THREE from './vendor/three.module.min.js';
         }
 
         const prepareDestination = () => {
-            this.prepareDestinationTexture().catch(() => {});
+            this.prepareDestinationTexture().catch(() => {
+                // Ignore pre-fetch failures gracefully (e.g., cross-origin or network error)
+            });
         };
 
         if (document.readyState === 'complete') {
@@ -538,7 +540,9 @@ import * as THREE from './vendor/three.module.min.js';
                 this.uniforms.uTexture0.value = texture;
                 this.textures.previous = texture;
             })
-            .catch(() => {});
+            .catch(() => {
+                // Ignore stored texture loading errors gracefully
+            });
         return null;
     };
 
