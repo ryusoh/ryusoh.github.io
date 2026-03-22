@@ -186,6 +186,9 @@ describe('block-navigation', () => {
                 let blocks = [window.__topSentinel, 2];
                 function prefersReducedMotion() { return false; }
                 function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?\}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?\}\n    }/)[0]}
                 ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
                 module.exports.scrollToIndexCustom = scrollToIndex;
             `;
@@ -210,6 +213,9 @@ describe('block-navigation', () => {
                 let blocks = [window.__mockTarget];
                 function prefersReducedMotion() { return false; }
                 function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?\}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?\}\n    }/)[0]}
                 ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
                 module.exports.scrollToIndexCustom = scrollToIndex;
             `;
@@ -243,6 +249,7 @@ describe('block-navigation', () => {
                 function startPending() {}
                 ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
                 ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?\}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?\}\n    }/)[0]}
                 ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
                 module.exports.scrollToIndexCustom = scrollToIndex;
             `;
