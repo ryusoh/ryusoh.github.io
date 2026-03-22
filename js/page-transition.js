@@ -472,8 +472,13 @@ import * as THREE from './vendor/three.module.min.js';
 
         const prepareDestination = () => {
             this.prepareDestinationTexture().catch((e) => {
-                if (typeof window !== 'undefined' && window.console) {
-                    window.console.warn('[page-transition] prepareDestinationTexture failed', e);
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[page-transition] prepareDestinationTexture failed:', e);
                 }
             });
         };
@@ -551,8 +556,13 @@ import * as THREE from './vendor/three.module.min.js';
                 this.textures.previous = texture;
             })
             .catch((e) => {
-                if (typeof window !== 'undefined' && window.console) {
-                    window.console.warn('[page-transition] prepareDestinationTexture failed', e);
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[page-transition] applyStoredCaptureTexture failed:', e);
                 }
             });
         return null;
@@ -570,9 +580,14 @@ import * as THREE from './vendor/three.module.min.js';
                     return texture;
                 })
                 .catch((e) => {
-                    if (typeof window !== 'undefined' && window.console) {
+                    if (
+                        typeof window !== 'undefined' &&
+                        window !== null &&
+                        window.console &&
+                        typeof window.console.warn === 'function'
+                    ) {
                         window.console.warn(
-                            '[page-transition] prepareDestinationTexture returned null',
+                            '[page-transition] prepareDestinationTexture image load failed:',
                             e
                         );
                     }
@@ -815,7 +830,13 @@ import * as THREE from './vendor/three.module.min.js';
             return;
         }
 
-        const links = Array.prototype.slice.call(document.querySelectorAll('a[' + LINK_ATTR + ']'));
+        /**
+         * Bolt Optimization:
+         * - What: Avoid converting NodeList to Array and use for...of loop directly.
+         * - Why: `document.querySelectorAll` returns a NodeList. Iterating over it directly instead of converting it to an Array with `Array.prototype.slice.call()` avoids unnecessary memory allocation and garbage collection overhead during initialization.
+         * - Impact: Eliminates unnecessary Array object allocation and improves initialization performance.
+         */
+        const links = document.querySelectorAll('a[' + LINK_ATTR + ']');
         function shouldSkipNavBack(element) {
             if (!element) {
                 return false;
@@ -864,7 +885,7 @@ import * as THREE from './vendor/three.module.min.js';
             }
             return isEligibleAnchor(anchor);
         }
-        links.forEach(function (anchor) {
+        for (const anchor of links) {
             anchor.addEventListener('click', function (event) {
                 if (!isValidTransitionClick(event, anchor)) {
                     return;
@@ -872,7 +893,7 @@ import * as THREE from './vendor/three.module.min.js';
                 event.preventDefault();
                 transition.navigate(anchor.href);
             });
-        });
+        }
 
         window.addEventListener('pageshow', function (event) {
             if (!transition.enabled) {
@@ -899,6 +920,9 @@ import * as THREE from './vendor/three.module.min.js';
             parseRgbFunction,
             hexToRgbArray,
             parseColor,
+            updateHistoryUrl,
+            storeCaptureData,
+            consumeCaptureData,
             _Constructor: PageTransition,
         };
     }

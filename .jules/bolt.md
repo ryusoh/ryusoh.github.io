@@ -36,3 +36,8 @@
 
 **Learning:** Iterating over a DOM `NodeList` multiple times, especially by first doing a boolean check and then converting it to an `Array` using `Array.from()` to use methods like `.find()`, causes unnecessary memory allocations and blocks the main thread during critical page load phases.
 **Action:** Use a single `for...of` loop to iterate over DOM `NodeList` elements and store the reference to the target element directly instead of running multiple iteration passes and creating intermediate `Array` objects.
+
+## 2026-03-24 - Unnecessary DOM/Style Writes in Continuous requestAnimationFrame Loops
+
+**Learning:** Found that the custom cursor in `js/vendor/cursor.js` was continuously evaluating and writing layout updates to the DOM (`gsap.set`) during every `requestAnimationFrame` cycle, even when the cursor's visual position (`current`) and the underlying state (`value`) had converged. This resulted in perpetual layout thrashing and main-thread overhead even when the user wasn't interacting with the site.
+**Action:** Always check if a threshold has been reached (e.g., comparing `Math.abs(current - target) > threshold`) inside continuous render loops. If properties have settled, strictly bypass any subsequent DOM and inline style manipulations to preserve CPU cycles and prevent the browser from constantly re-evaluating layouts.

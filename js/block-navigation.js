@@ -483,6 +483,8 @@
             handleEscapeKey,
             debounce,
             getIndexFromFallback,
+            calculateNextIndex,
+            scrollToIndex,
         };
     }
 })();

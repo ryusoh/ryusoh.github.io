@@ -19,6 +19,9 @@ describe('page-transition.js', () => {
     let parseRgbFunction;
     let hexToRgbArray;
     let parseColor;
+    let updateHistoryUrl;
+    let storeCaptureData;
+    let consumeCaptureData;
 
     beforeEach(() => {
         // Mock the minimal DOM environment needed to bypass IIFE execution errors
@@ -88,6 +91,9 @@ describe('page-transition.js', () => {
         parseRgbFunction = context.window.__PageTransitionForTesting.parseRgbFunction;
         hexToRgbArray = context.window.__PageTransitionForTesting.hexToRgbArray;
         parseColor = context.window.__PageTransitionForTesting.parseColor;
+        updateHistoryUrl = context.window.__PageTransitionForTesting.updateHistoryUrl;
+        storeCaptureData = context.window.__PageTransitionForTesting.storeCaptureData;
+        consumeCaptureData = context.window.__PageTransitionForTesting.consumeCaptureData;
     });
 
     describe('hasTransitionParam', () => {
@@ -306,6 +312,151 @@ describe('page-transition.js', () => {
         test('returns fallback for completely invalid color strings', () => {
             expect(parseColor('invalid', fallback)).toEqual(fallback);
             expect(parseColor('foo', fallback)).toEqual(fallback);
+        });
+    });
+
+    describe('updateHistoryUrl', () => {
+        test('should replace history state with new url components', () => {
+            const mockReplaceState = jest.fn();
+            context.window.history = { replaceState: mockReplaceState };
+            context.document.title = 'Test Title';
+
+            const mockUrl = {
+                pathname: '/test-path',
+                search: '?param=1',
+                hash: '#section',
+            };
+
+            updateHistoryUrl(mockUrl);
+
+            expect(mockReplaceState).toHaveBeenCalledWith(
+                {},
+                'Test Title',
+                '/test-path?param=1#section'
+            );
+        });
+
+        test('should not throw if window.history is undefined', () => {
+            context.window.history = undefined;
+            expect(() => updateHistoryUrl({})).not.toThrow();
+        });
+
+        test('should not throw if replaceState is not a function', () => {
+            context.window.history = { replaceState: null };
+            expect(() => updateHistoryUrl({})).not.toThrow();
+        });
+    });
+
+    describe('storeCaptureData', () => {
+        test('should set item in sessionStorage if dataUrl is provided', () => {
+            context.window.sessionStorage.setItem.mockClear();
+            storeCaptureData('data:image/png;base64,1234');
+
+            expect(context.window.sessionStorage.setItem).toHaveBeenCalledWith(
+                'page-transition:capture',
+                'data:image/png;base64,1234'
+            );
+        });
+
+        test('should return early if dataUrl is falsy', () => {
+            context.window.sessionStorage.setItem.mockClear();
+            storeCaptureData(null);
+            storeCaptureData('');
+            storeCaptureData(undefined);
+
+            expect(context.window.sessionStorage.setItem).not.toHaveBeenCalled();
+        });
+
+        test('should catch and log error if sessionStorage throws (e.g., Safari private browsing)', () => {
+            const error = new Error('QuotaExceededError');
+            context.window.sessionStorage.setItem.mockImplementation(() => {
+                throw error;
+            });
+            context.window.console = { warn: jest.fn() };
+
+            expect(() => storeCaptureData('data:image/png;base64,test')).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalledWith(
+                '[page-transition] sessionStorage access error:',
+                error
+            );
+        });
+
+        test('should not throw if window or console is missing during error', () => {
+            const error = new Error('QuotaExceededError');
+            context.window.sessionStorage.setItem.mockImplementation(() => {
+                throw error;
+            });
+
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+
+            expect(() => storeCaptureData('data:image/png;base64,test')).not.toThrow();
+
+            context.window.console = prevConsole;
+        });
+    });
+
+    describe('consumeCaptureData', () => {
+        test('should return data and remove item from sessionStorage if data exists', () => {
+            context.window.sessionStorage.getItem.mockReturnValue('data:image/png;base64,1234');
+            context.window.sessionStorage.removeItem.mockClear();
+
+            const result = consumeCaptureData();
+
+            expect(result).toBe('data:image/png;base64,1234');
+            expect(context.window.sessionStorage.getItem).toHaveBeenCalledWith(
+                'page-transition:capture'
+            );
+            expect(context.window.sessionStorage.removeItem).toHaveBeenCalledWith(
+                'page-transition:capture'
+            );
+        });
+
+        test('should return null and not call removeItem if no data exists', () => {
+            context.window.sessionStorage.getItem.mockReturnValue(null);
+            context.window.sessionStorage.removeItem.mockClear();
+
+            const result = consumeCaptureData();
+
+            expect(result).toBeNull();
+            expect(context.window.sessionStorage.getItem).toHaveBeenCalledWith(
+                'page-transition:capture'
+            );
+            expect(context.window.sessionStorage.removeItem).not.toHaveBeenCalled();
+        });
+
+        test('should catch and log error if sessionStorage throws, and return null', () => {
+            const error = new Error('SecurityError');
+            context.window.sessionStorage.getItem.mockImplementation(() => {
+                throw error;
+            });
+            context.window.console = { warn: jest.fn() };
+
+            const result = consumeCaptureData();
+
+            expect(result).toBeNull();
+            expect(context.window.console.warn).toHaveBeenCalledWith(
+                '[page-transition] sessionStorage access error:',
+                error
+            );
+        });
+
+        test('should not throw if window or console is missing during error, and return null', () => {
+            const error = new Error('SecurityError');
+            context.window.sessionStorage.getItem.mockImplementation(() => {
+                throw error;
+            });
+
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+
+            let result;
+            expect(() => {
+                result = consumeCaptureData();
+            }).not.toThrow();
+            expect(result).toBeNull();
+
+            context.window.console = prevConsole;
         });
     });
 });

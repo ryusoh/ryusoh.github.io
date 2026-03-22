@@ -167,4 +167,64 @@ describe('js/vendor/cursor.js', () => {
         expect(cursor.coords.y.current).toBe(200);
         expect(cursor.coords.opacity.current).toBe(1);
     });
+
+    describe('storeCursorPosition & readStoredCursorPosition fallback', () => {
+        test('gracefully handles sessionStorage SecurityError without throwing', () => {
+            const spyWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            // Create a custom mock window object instead of using global window
+            const mockWindow = {
+                document: {},
+                sessionStorage: {
+                    getItem: jest.fn().mockImplementation(() => {
+                        throw new Error('SecurityError');
+                    }),
+                    setItem: jest.fn().mockImplementation(() => {
+                        throw new Error('SecurityError');
+                    }),
+                    removeItem: jest.fn(),
+                },
+                matchMedia: jest.fn().mockReturnValue({ matches: false }),
+                innerWidth: 1024,
+                innerHeight: 768,
+                console: console,
+            };
+
+            const fs = require('fs');
+            const path = require('path');
+            const vm = require('vm');
+
+            const sourcePath = path.resolve(__dirname, '../../../js/vendor/cursor.js');
+            const code = fs
+                .readFileSync(sourcePath, 'utf8')
+                .replace('export class CustomCursor', 'class CustomCursor')
+                .replace('export function initCursor', 'function initCursor');
+
+            const context = {
+                window: mockWindow,
+                document: mockWindow.document,
+                console: console,
+                setTimeout: setTimeout,
+                clearTimeout: clearTimeout,
+                Date: Date,
+                JSON: JSON,
+                Math: Math,
+                Number: Number,
+            };
+            vm.createContext(context);
+            vm.runInContext(code, context);
+
+            const storeCursorPosition = context.window.__CursorForTesting.storeCursorPosition;
+            const readStoredCursorPosition =
+                context.window.__CursorForTesting.readStoredCursorPosition;
+
+            expect(() => storeCursorPosition({ x: 100, y: 100 })).not.toThrow();
+            expect(() => readStoredCursorPosition()).not.toThrow();
+
+            const result = readStoredCursorPosition();
+            expect(result).toBeNull();
+
+            spyWarn.mockRestore();
+        });
+    });
 });
