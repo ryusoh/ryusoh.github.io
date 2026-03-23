@@ -27,3 +27,8 @@
 
 **Learning:** "Skip to content" links (with visually hidden `.sr-only` classes) are great for keyboard users, but if the target element (like `<main id="main">`) is not inherently focusable, some browsers will scroll the viewport but fail to move the actual focus. When the user presses Tab again, focus jumps back to the top of the page.
 **Action:** Always add `tabindex="-1"` to the target element of a skip link. This makes the element programmatically focusable without adding it to the normal tab order, ensuring focus is reliably transferred so the next Tab keypress moves into the main content.
+
+## 2026-11-21 - [Accessibility: Styling Skip-to-content Links and Suppressing Main Outline]
+
+**Learning:** When a "Skip to content" link uses `.sr-only-focusable` to appear upon keyboard focus, reverting simply to `position: static` without additional styling causes the link to appear as plain text, often disrupting page layout and offering a poor user experience. Additionally, when focus is programmatically transferred to the target container (e.g., `<main tabindex="-1">`) via the skip link, some browsers display a massive, distracting default focus ring around the entire container because the focus was initiated by a keyboard interaction.
+**Action:** Style `.sr-only-focusable:focus` to appear as a highly visible, absolutely positioned overlay button (e.g., using a bright background color, padding, and `z-index`) so it doesn't shift the surrounding layout. Furthermore, globally append `[tabindex="-1"]:focus { outline: none !important; }` to CSS resets to suppress the focus ring on non-interactive target containers.
