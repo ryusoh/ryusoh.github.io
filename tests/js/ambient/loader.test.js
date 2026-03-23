@@ -48,6 +48,17 @@ describe('ambient/loader.js', () => {
         expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
     });
 
+    test('handles missing window.matchMedia gracefully', () => {
+        delete context.window.matchMedia;
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
+            '/css/ambient/ambient.css',
+        ]);
+    });
+
     test('exits early if window innerWidth is less than 1024', () => {
         context.window.innerWidth = 800;
 
@@ -140,6 +151,20 @@ describe('ambient/loader.js', () => {
             'Ambient async loader failed:',
             expect.any(Error)
         );
+    });
+
+    test('ignores promise rejections from CDNLoader without throwing when console.warn is missing', async () => {
+        delete context.window.console.warn;
+        mockCDNLoader.loadCssWithFallback.mockRejectedValue(new Error('Simulated network error'));
+
+        vm.createContext(context);
+
+        expect(() => {
+            vm.runInContext(code, context);
+        }).not.toThrow();
+
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
     });
 
     test('ignores synchronous errors during initialization gracefully and logs warning', () => {
