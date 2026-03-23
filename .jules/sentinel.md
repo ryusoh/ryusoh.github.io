@@ -21,3 +21,9 @@
 **Vulnerability:** Empty catch blocks (e.g., `.catch(() => {})`) swallow errors silently, which can mask critical operational failures, underlying bugs, or signs of attack. This hinders debugging and security observability.
 **Learning:** Found instances of `.catch(() => {})` in `js/page-transition.js` that suppressed texture loading failures. While graceful fallback is good, silent failure is an anti-pattern.
 **Prevention:** Replace empty catch blocks with defensive logging using `window.console.warn` (checking `typeof window !== 'undefined'` first for environment safety). This preserves the graceful fallback while ensuring observability.
+
+## 2026-03-24 - [Unbounded JSON Parse Length Limit DoS]
+
+**Vulnerability:** Parsing arbitrarily large JSON payloads from untrusted client-side storage (`sessionStorage`) without length validation can lead to Denial of Service (DoS) attacks by exhausting memory and blocking the main thread execution during the `JSON.parse` operation.
+**Learning:** Functions that retrieve and deserialize stored values (like cursor positions) must implement bounds checking _before_ passing strings to expensive parsers. Even if the data is expected to be a small object, malicious actors can manipulate client storage.
+**Prevention:** Implement strict string length limits on all data read from `sessionStorage` or `localStorage` prior to parsing (e.g., `if (raw.length > 100) return null`) to mitigate memory exhaustion risks.

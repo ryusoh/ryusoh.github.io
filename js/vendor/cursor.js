@@ -91,7 +91,7 @@ const readStoredCursorPosition = () => {
     if (!canUseSessionStorage()) return null;
     try {
         const raw = window.sessionStorage.getItem(CURSOR_STORAGE_KEY);
-        if (!raw) return null;
+        if (!raw || raw.length > 100) return null;
         const parsed = JSON.parse(raw);
         if (
             parsed &&
