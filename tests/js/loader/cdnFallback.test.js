@@ -76,6 +76,22 @@ describe('CDNLoader', () => {
         loader = context.window.CDNLoader;
     });
 
+    describe('initialization', () => {
+        it('should exit early if window.CDNLoader already exists', () => {
+            const existingLoader = { preconnect: jest.fn() };
+            const customContext = {
+                window: {
+                    CDNLoader: existingLoader,
+                },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(code, customContext);
+
+            // It should not have been overwritten
+            expect(customContext.window.CDNLoader).toBe(existingLoader);
+        });
+    });
+
     describe('preconnect', () => {
         it('should append link elements for each origin', () => {
             const origins = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
