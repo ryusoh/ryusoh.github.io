@@ -241,7 +241,11 @@
         }
         function getFlag(key) {
             try {
-                return window.sessionStorage.getItem(key) === '1';
+                const val = window.sessionStorage.getItem(key);
+                if (val && val.length > 5) {
+                    return false;
+                }
+                return val === '1';
             } catch (e) {
                 if (
                     typeof window !== 'undefined' &&
