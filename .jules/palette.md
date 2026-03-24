@@ -27,3 +27,8 @@
 
 **Learning:** "Skip to content" links (with visually hidden `.sr-only` classes) are great for keyboard users, but if the target element (like `<main id="main">`) is not inherently focusable, some browsers will scroll the viewport but fail to move the actual focus. When the user presses Tab again, focus jumps back to the top of the page.
 **Action:** Always add `tabindex="-1"` to the target element of a skip link. This makes the element programmatically focusable without adding it to the normal tab order, ensuring focus is reliably transferred so the next Tab keypress moves into the main content.
+
+## 2025-02-28 - [Accessibility: Skip-to-content Visibility]
+
+**Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
+**Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
