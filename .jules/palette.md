@@ -37,3 +37,8 @@
 
 **Learning:** Opening a new tab merely to trigger an email client is an unnecessary friction point and a known anti-pattern. Applying `target="_blank"` to `mailto:` links spawns a confusing blank tab that users must manually close. Furthermore, external links lacking an explicit indication that they open in a new tab can disorient screen reader users due to sudden context switching.
 **Action:** Always avoid applying `target="_blank"` to `mailto:` links. For any external links that correctly open in a new tab using `target="_blank"`, strictly append `(opens in a new tab)` to their `aria-label` to ensure predictability for screen reader users.
+
+## 2025-02-28 - [Accessibility: Skip-to-content Visibility]
+
+**Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
+**Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.

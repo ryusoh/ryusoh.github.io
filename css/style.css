@@ -308,7 +308,7 @@ nav {
     line-clamp: 10;
     -webkit-box-orient: vertical;
 }
-.post-preview blockquote {
+.post-preview blockhandle {
     margin-left: 36%;
     padding: 0.7em;
     margin-top: 10px;
@@ -1112,29 +1112,18 @@ td {
 .sr-only-focusable:active,
 .sr-only-focusable:focus {
     position: absolute;
+    z-index: 9999;
+    background-color: #fff;
+    color: #000;
+    padding: 10px 15px;
+    border-radius: 0 0 4px 0;
+    top: 0;
+    left: 0;
     width: auto;
     height: auto;
     margin: 0;
     overflow: visible;
     clip: auto;
-    z-index: 9999;
-    background: #fff;
-    color: #000;
-    padding: 1em;
-    top: 0;
-    left: 0;
-}
-
-[tabindex='-1']:focus {
-    outline: none !important;
-}
-
-[tabindex='-1']:focus {
-    outline: none !important;
-}
-
-[tabindex='-1']:focus {
-    outline: none !important;
 }
 
 /* Global focus-visible for accessibility */
@@ -1143,10 +1132,6 @@ td {
     outline-offset: 4px;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
     border-radius: 2px;
-}
-
-[tabindex='-1']:focus {
-    outline: none !important;
 }
 
 /* --- Scroll Reveal Instagram Icon --- */
@@ -1192,7 +1177,7 @@ td {
     }
 }
 
-/* Remove default focus ring for programmatically focusable non-interactive layout elements */
+/* Hide default focus ring on programmatically focusable elements (like <main>) */
 [tabindex='-1']:focus {
     outline: none !important;
 }
