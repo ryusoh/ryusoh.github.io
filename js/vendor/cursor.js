@@ -114,13 +114,12 @@ const readStoredCursorPosition = () => {
 const storeCursorPosition = ({ x, y }) => {
     if (!canUseSessionStorage()) return;
     try {
-        window.sessionStorage.setItem(
-            CURSOR_STORAGE_KEY,
-            JSON.stringify({
-                x: Math.round(x),
-                y: Math.round(y),
-            })
-        );
+        const payload = JSON.stringify({
+            x: Math.round(x),
+            y: Math.round(y),
+        });
+        if (payload.length > 200) return; // Prevent excessive payload lengths
+        window.sessionStorage.setItem(CURSOR_STORAGE_KEY, payload);
     } catch (e) {
         // ignore storage errors
         if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {

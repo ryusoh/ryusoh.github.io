@@ -104,7 +104,8 @@ import * as THREE from './vendor/three.module.min.js';
     }
 
     function storeCaptureData(dataUrl) {
-        if (!dataUrl) {
+        if (!dataUrl || dataUrl.length > 5242880) {
+            // Limit to ~5MB
             return;
         }
         try {
@@ -127,6 +128,10 @@ import * as THREE from './vendor/three.module.min.js';
             const data = window.sessionStorage.getItem(CAPTURE_STORAGE_KEY);
             if (data) {
                 window.sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
+                // Mitigate memory exhaustion DoS: limit to 10MB base64
+                if (data.length > 10485760) {
+                    return null;
+                }
                 return data;
             }
         } catch (e) {
