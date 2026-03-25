@@ -480,12 +480,23 @@ footer {
 }
 .sr-only-focusable:active,
 .sr-only-focusable:focus {
-    position: static;
+    position: absolute;
     width: auto;
     height: auto;
     margin: 0;
     overflow: visible;
     clip: auto;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    padding: 10px;
+    background: #ce2323;
+    color: #fff;
+    text-decoration: none;
+}
+
+[tabindex='-1']:focus {
+    outline: none !important;
 }
 
 /* Global focus-visible for accessibility */
