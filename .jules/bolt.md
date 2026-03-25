@@ -46,3 +46,8 @@
 
 **Learning:** Found that `bindImageLoadHandlers()` in `js/block-navigation.js` was iterating over `document.images` to attach individual `load` event listeners to every incomplete image. On image-heavy pages, this results in O(N) listener allocations and DOM bindings, increasing memory pressure and initialization time.
 **Action:** When tracking `load` events for many elements (like images), use a single document-level event listener with `useCapture: true` (since `load` events do not bubble) and check `event.target.tagName === 'IMG'`. This O(1) approach leverages event delegation, drastically reducing memory overhead and main-thread execution time.
+
+## 2024-03-24 - Document-Level Event Delegation
+
+**Learning:** Attaching individual event listeners to multiple DOM nodes using `.querySelectorAll().forEach()` or `for...of` loops causes unnecessary memory allocation, increases initialization time, and risks memory leaks on dynamic DOM nodes.
+**Action:** Always use event delegation (e.g., a single event listener on `document` or a high-level container) combined with `event.target.closest(selector)` when handling events for multiple interactive elements like links or buttons across the page.
