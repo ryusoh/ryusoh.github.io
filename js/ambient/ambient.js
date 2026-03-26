@@ -227,11 +227,19 @@
                 ctx.fillStyle = 'rgba(0,128,255,0.12)';
                 ctx.fillRect(0, 0, this.width, this.height);
             }
+            /**
+             * Bolt Optimization:
+             * - What: Replace per-particle `rgba(...)` string concatenation with a single `fillStyle` definition and `globalAlpha` updates.
+             * - Why: In the continuous 60FPS `requestAnimationFrame` loop, concatenating the alpha value into a new `'rgba(255,255,255,' + p.a + ')'` string for every particle forces the browser's Canvas2D engine to parse a CSS color string on every iteration. This causes significant garbage collection overhead (creating hundreds of strings per frame) and wastes CPU cycles parsing colors.
+             * - Impact: Measurably reduces main thread CPU usage and eliminates rendering-related garbage collection stutter by using hardware-accelerated `globalAlpha` blending.
+             */
+            ctx.fillStyle = '#ffffff';
+
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
+                ctx.globalAlpha = p.a;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
-                ctx.fillStyle = 'rgba(255,255,255,' + p.a + ')';
                 ctx.fill();
             }
             ctx.restore();

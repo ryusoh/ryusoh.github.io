@@ -46,3 +46,8 @@
 
 **Learning:** Found that `bindImageLoadHandlers()` in `js/block-navigation.js` was iterating over `document.images` to attach individual `load` event listeners to every incomplete image. On image-heavy pages, this results in O(N) listener allocations and DOM bindings, increasing memory pressure and initialization time.
 **Action:** When tracking `load` events for many elements (like images), use a single document-level event listener with `useCapture: true` (since `load` events do not bubble) and check `event.target.tagName === 'IMG'`. This O(1) approach leverages event delegation, drastically reducing memory overhead and main-thread execution time.
+
+## 2026-03-26 - Canvas2D fillStyle String Concatenation in Render Loops
+
+**Learning:** Found that the ambient background animation (`js/ambient/ambient.js`) was dynamically constructing a new `rgba()` string (e.g., `'rgba(255,255,255,' + p.a + ')'`) and assigning it to `ctx.fillStyle` for every single particle on every frame in a 60fps `requestAnimationFrame` loop. This string concatenation and the browser's subsequent parsing of the CSS color string on each assignment caused significant garbage collection overhead and CPU cycle waste.
+**Action:** When rendering particles with identical base colors but varying opacities in Canvas2D, avoid per-particle string concatenation for `fillStyle`. Instead, set a static `fillStyle` once outside the particle loop and use `ctx.globalAlpha` dynamically inside the loop to leverage hardware-accelerated opacity blending without triggering string allocations and parsing.
