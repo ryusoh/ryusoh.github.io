@@ -96,6 +96,31 @@ describe('page-transition.js', () => {
         consumeCaptureData = context.window.__PageTransitionForTesting.consumeCaptureData;
     });
 
+    describe('support', () => {
+        test('canUseWebGL should catch error and handle missing console', () => {
+            const getContext = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.document.createElement = jest.fn().mockReturnValue({ getContext });
+            context.window.WebGLRenderingContext = {}; // mock it
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+            expect(() => context.window.__PageTransitionForTesting.canUseWebGL()).not.toThrow();
+            context.window.console = prevConsole;
+        });
+
+        test('canUseWebGL should catch error and handle console.warn', () => {
+            const getContext = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.document.createElement = jest.fn().mockReturnValue({ getContext });
+            context.window.WebGLRenderingContext = {}; // mock it
+            context.window.console = { warn: jest.fn() };
+            expect(() => context.window.__PageTransitionForTesting.canUseWebGL()).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalled();
+        });
+    });
+
     describe('hasTransitionParam', () => {
         test('should return false when window.URL constructor throws an error', () => {
             // Mock window.URL to throw an error
@@ -127,6 +152,25 @@ describe('page-transition.js', () => {
             context.window.location = prevLocation;
         });
 
+        test('should not throw if console missing in catch block', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+            expect(() => hasTransitionParam()).not.toThrow();
+            context.window.console = prevConsole;
+        });
+
+        test('should console.warn if parsing fails', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.window.console = { warn: jest.fn() };
+            expect(() => hasTransitionParam()).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalled();
+        });
+
         test('should return true when transition param is present', () => {
             context.window.URL = jest.fn().mockImplementation(() => ({
                 searchParams: {
@@ -134,6 +178,31 @@ describe('page-transition.js', () => {
                 },
             }));
             expect(hasTransitionParam()).toBe(true);
+        });
+    });
+
+    describe('clearTransitionParam', () => {
+        test('should catch error and gracefully fallback missing console', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+            expect(() =>
+                context.window.__PageTransitionForTesting.clearTransitionParam()
+            ).not.toThrow();
+            context.window.console = prevConsole;
+        });
+
+        test('should catch error and gracefully fallback console.warn', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.window.console = { warn: jest.fn() };
+            expect(() =>
+                context.window.__PageTransitionForTesting.clearTransitionParam()
+            ).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalled();
         });
     });
 
