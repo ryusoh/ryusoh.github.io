@@ -780,37 +780,44 @@ import * as THREE from './vendor/three.module.min.js';
         this.progressRaf = window.requestAnimationFrame(step);
     };
 
-    PageTransition.prototype.navigate = function (url) {
-        if (typeof url === 'string') {
-            // Strip leading whitespace and control characters to prevent DOM XSS bypasses
-            url = url.replace(/^[\s\u0000-\u001F]+/g, '');
-            try {
-                const parsedUrl = new window.URL(url, window.location.href);
-                if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-                    // eslint-disable-next-line no-console
-                    console.error('[page-transition] Blocked potentially malicious URL scheme');
-                    return;
-                }
-                if (parsedUrl.origin !== window.location.origin) {
-                    // eslint-disable-next-line no-console
-                    console.error('[page-transition] Blocked cross-origin navigation');
-                    return;
-                }
-            } catch (e) {
+    function getValidatedUrl(url) {
+        if (typeof url !== 'string') {
+            return null;
+        }
+        // Strip leading whitespace and control characters to prevent DOM XSS bypasses
+        const cleanUrl = url.replace(/^[\s\u0000-\u001F]+/g, '');
+        try {
+            const parsedUrl = new window.URL(cleanUrl, window.location.href);
+            if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
                 // eslint-disable-next-line no-console
-                console.error('[page-transition] Blocked invalid URL', e);
-                return;
+                console.error('[page-transition] Blocked potentially malicious URL scheme');
+                return null;
             }
-        } else {
-            return; // URL must be a string
+            if (parsedUrl.origin !== window.location.origin) {
+                // eslint-disable-next-line no-console
+                console.error('[page-transition] Blocked cross-origin navigation');
+                return null;
+            }
+            return cleanUrl;
+        } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('[page-transition] Blocked invalid URL', e);
+            return null;
+        }
+    }
+
+    PageTransition.prototype.navigate = function (url) {
+        const validatedUrl = getValidatedUrl(url);
+        if (!validatedUrl) {
+            return;
         }
 
         if (!this.enabled || this.isAnimating) {
-            window.location.assign(url);
+            window.location.assign(validatedUrl);
             return;
         }
         this.isAnimating = true;
-        const targetUrl = this.buildTransitionUrl(url);
+        const targetUrl = this.buildTransitionUrl(validatedUrl);
         this.showOverlay(false);
         this.dimContent(true);
         this.setProgress(0);
