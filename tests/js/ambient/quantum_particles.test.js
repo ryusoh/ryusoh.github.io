@@ -92,6 +92,8 @@ describe('quantum_particles.js', () => {
 
         it('returns true if matchMedia matches prefers-reduced-motion: reduce', () => {
             context.window.matchMedia.mockReturnValue({ matches: true });
+            // Since prefersReducedMotion caches the result, we need to reset the cache if it was set
+            vm.runInContext('prefersReducedMotionMediaQuery = null;', context);
             const result = context.prefersReducedMotion();
             expect(context.window.matchMedia).toHaveBeenCalledWith(
                 '(prefers-reduced-motion: reduce)'
@@ -101,6 +103,7 @@ describe('quantum_particles.js', () => {
 
         it('returns false if matchMedia does not match prefers-reduced-motion: reduce', () => {
             context.window.matchMedia.mockReturnValue({ matches: false });
+            vm.runInContext('prefersReducedMotionMediaQuery = null;', context);
             const result = context.prefersReducedMotion();
             expect(result).toBe(false);
         });
@@ -175,11 +178,13 @@ describe('quantum_particles.js', () => {
 
         it('should skip if prefersReducedMotion is true', () => {
             context.window.matchMedia.mockReturnValue({ matches: true });
+            vm.runInContext('prefersReducedMotionMediaQuery = null;', context);
             expect(shouldSkipParticles(null, false)).toBe(true);
         });
 
         it('should skip if saveData is true', () => {
             context.navigator.connection.saveData = true;
+            vm.runInContext('prefersReducedMotionMediaQuery = null;', context);
             expect(shouldSkipParticles(null, false)).toBe(true);
         });
 
