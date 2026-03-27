@@ -1106,12 +1106,24 @@ td {
 }
 .sr-only-focusable:active,
 .sr-only-focusable:focus {
-    position: static;
+    position: absolute;
     width: auto;
     height: auto;
     margin: 0;
     overflow: visible;
     clip: auto;
+    z-index: 9999;
+    background-color: #000;
+    color: #fff;
+    padding: 10px;
+    border: 2px solid #ce2323;
+    border-radius: 4px;
+    top: 10px;
+    left: 10px;
+}
+
+[tabindex='-1']:focus {
+    outline: none !important;
 }
 
 /* Global focus-visible for accessibility */
