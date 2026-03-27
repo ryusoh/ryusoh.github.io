@@ -14,12 +14,23 @@ function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
 }
 
+/**
+ * Bolt Optimization:
+ * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+ * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
+ * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+ */
+let prefersReducedMotionMediaQuery = null;
+
 function prefersReducedMotion() {
     if (typeof window.matchMedia !== 'function') {
         return false;
     }
     try {
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReducedMotionMediaQuery === null) {
+            prefersReducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        }
+        return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
     } catch (e) {
         // Fallback gracefully if matchMedia is unavailable or throws
         if (

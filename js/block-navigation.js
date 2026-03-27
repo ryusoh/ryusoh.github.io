@@ -49,8 +49,25 @@
         }
     }
 
+    /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     */
+    let prefersReducedMotionMediaQuery = null;
+
     function prefersReducedMotion() {
-        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try {
+            if (prefersReducedMotionMediaQuery === null && window.matchMedia) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+            return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
+        } catch {
+            return false;
+        }
     }
 
     function isEditableActive() {

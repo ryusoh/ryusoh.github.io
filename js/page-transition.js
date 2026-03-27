@@ -20,11 +20,28 @@ import * as THREE from './vendor/three.module.min.js';
         }
     }
 
+    /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     */
+    let prefersReducedMotionMediaQuery = null;
+
     function prefersReducedMotion() {
         if (typeof window.matchMedia !== 'function') {
             return false;
         }
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try {
+            if (prefersReducedMotionMediaQuery === null) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+            return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
+        } catch {
+            return false;
+        }
     }
 
     function canUseWebGL() {
