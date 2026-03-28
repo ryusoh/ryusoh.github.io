@@ -314,6 +314,13 @@
             maybePlayIntro: maybePlayIntro,
         };
         maybePlayIntro();
+
+        if (typeof window !== 'undefined') {
+            window.__AmbientForTesting = {
+                getConfig: getConfig,
+                shouldSkip: shouldSkip,
+            };
+        }
     } catch (e) {
         if (
             typeof window !== 'undefined' &&

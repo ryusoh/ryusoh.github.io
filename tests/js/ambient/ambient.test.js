@@ -56,6 +56,45 @@ describe('js/ambient/ambient.js', () => {
         context.window.document = context.document;
     });
 
+    describe('getConfig', () => {
+        let getConfig;
+
+        beforeEach(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+            getConfig = context.window.__AmbientForTesting.getConfig;
+        });
+
+        test('returns default configuration', () => {
+            const config = getConfig(null, false);
+            expect(config.enabled).toBe(true);
+            expect(config.minWidth).toBe(1024);
+            expect(config.maxParticles).toBe(120);
+            expect(config.radius).toEqual({ min: 4.0, max: 8.0 });
+        });
+
+        test('merges with window.AMBIENT_CONFIG', () => {
+            context.window.AMBIENT_CONFIG = { minWidth: 800, maxParticles: 200 };
+            const config = getConfig(null, false);
+            expect(config.minWidth).toBe(800);
+            expect(config.maxParticles).toBe(200);
+        });
+
+        test('applies force overrides when force is debug', () => {
+            const config = getConfig('debug', false);
+            expect(config.zIndex).toBe(999);
+            expect(config.radius).toEqual({ min: 8.0, max: 16.0 });
+            expect(config.alpha.max).toBe(0.8);
+            expect(config.speed).toBeGreaterThanOrEqual(0.3);
+        });
+
+        test('applies trace overrides when trace is true', () => {
+            const config = getConfig(null, true);
+            expect(config.zIndex).toBe(999);
+            expect(config.radius).toEqual({ min: 8.0, max: 16.0 });
+        });
+    });
+
     test('initializes Sketch if conditions are met', () => {
         vm.createContext(context);
         vm.runInContext(code, context);
