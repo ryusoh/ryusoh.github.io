@@ -27,3 +27,9 @@
 **Vulnerability:** Parsing arbitrarily large JSON payloads from untrusted client-side storage (`sessionStorage`) without length validation can lead to Denial of Service (DoS) attacks by exhausting memory and blocking the main thread execution during the `JSON.parse` operation.
 **Learning:** Functions that retrieve and deserialize stored values (like cursor positions) must implement bounds checking _before_ passing strings to expensive parsers. Even if the data is expected to be a small object, malicious actors can manipulate client storage.
 **Prevention:** Implement strict string length limits on all data read from `sessionStorage` or `localStorage` prior to parsing (e.g., `if (raw.length > 100) return null`) to mitigate memory exhaustion risks.
+
+## 2026-03-28 - [Empty Catch Blocks in prefersReducedMotion]
+
+**Vulnerability:** Empty catch blocks in `prefersReducedMotion` handlers across the codebase (`js/page-transition.js`, `js/ambient/ambient.js`, `js/block-navigation.js`) suppressed `window.matchMedia` errors. This silent failure hid potential issues in unsupported environments or testing contexts where `matchMedia` might throw.
+**Learning:** While gracefully falling back to `false` (meaning motion is enabled) is the correct functional behavior when `matchMedia` fails, the error itself must still be observable for debugging and health monitoring. A silent `catch {}` prevents this visibility.
+**Prevention:** Replace all empty catch blocks with defensive logging (e.g., `window.console.warn`). Always wrap the logging call in environmental safety checks (e.g., `typeof window !== 'undefined' && window.console`) to ensure the logging attempt itself does not cause a secondary fatal error.
