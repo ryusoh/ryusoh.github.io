@@ -1124,6 +1124,10 @@ td {
     outline: none !important;
 }
 
+[tabindex='-1']:focus {
+    outline: none !important;
+}
+
 /* Global focus-visible for accessibility */
 :focus-visible {
     outline: 2px solid rgba(206, 35, 35, 0.8) !important;
