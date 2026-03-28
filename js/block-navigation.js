@@ -65,7 +65,15 @@
                 );
             }
             return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
-        } catch {
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[block-navigation] prefersReducedMotion error:', e);
+            }
             return false;
         }
     }

@@ -50,6 +50,11 @@ describe('DOM XSS Security Tests', () => {
         };
 
         const mockWindow = {
+            console: {
+                error: jest.fn(),
+                warn: jest.fn(),
+                log: jest.fn(),
+            },
             location: {
                 href: 'http://localhost/',
                 origin: 'http://localhost',
@@ -84,10 +89,6 @@ describe('DOM XSS Security Tests', () => {
             window: mockWindow,
             document: mockDocument,
             Promise: Promise,
-            console: {
-                error: jest.fn(),
-                log: jest.fn(),
-            },
             setTimeout: mockWindow.setTimeout,
             clearTimeout: mockWindow.clearTimeout,
             requestAnimationFrame: mockWindow.requestAnimationFrame,
@@ -120,7 +121,7 @@ describe('DOM XSS Security Tests', () => {
 
         pt.navigate('javascript:alert(1)');
         expect(context.window.location.assign).not.toHaveBeenCalled();
-        expect(context.console.error).toHaveBeenCalledWith(
+        expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
 
@@ -150,7 +151,7 @@ describe('DOM XSS Security Tests', () => {
 
         pt.navigate('http://example.com/login.html');
         expect(context.window.location.assign).not.toHaveBeenCalled();
-        expect(context.console.error).toHaveBeenCalledWith(
+        expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked cross-origin navigation')
         );
 
@@ -165,7 +166,7 @@ describe('DOM XSS Security Tests', () => {
         pt.navigate('  JAVASCRIPT:alert(1)');
 
         expect(context.window.location.assign).not.toHaveBeenCalled();
-        expect(context.console.error).toHaveBeenCalledWith(
+        expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
     });
@@ -177,7 +178,7 @@ describe('DOM XSS Security Tests', () => {
         pt.navigate('\x01\x02\x09\x1fjavascript:alert(1)');
 
         expect(context.window.location.assign).not.toHaveBeenCalled();
-        expect(context.console.error).toHaveBeenCalledWith(
+        expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
     });

@@ -39,7 +39,15 @@ import * as THREE from './vendor/three.module.min.js';
                 );
             }
             return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
-        } catch {
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[page-transition] prefersReducedMotion error:', e);
+            }
             return false;
         }
     }
@@ -806,19 +814,39 @@ import * as THREE from './vendor/three.module.min.js';
         try {
             const parsedUrl = new window.URL(cleanUrl, window.location.href);
             if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-                // eslint-disable-next-line no-console
-                console.error('[page-transition] Blocked potentially malicious URL scheme');
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.error === 'function'
+                ) {
+                    window.console.error(
+                        '[page-transition] Blocked potentially malicious URL scheme'
+                    );
+                }
                 return null;
             }
             if (parsedUrl.origin !== window.location.origin) {
-                // eslint-disable-next-line no-console
-                console.error('[page-transition] Blocked cross-origin navigation');
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.error === 'function'
+                ) {
+                    window.console.error('[page-transition] Blocked cross-origin navigation');
+                }
                 return null;
             }
             return cleanUrl;
         } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error('[page-transition] Blocked invalid URL', e);
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.error === 'function'
+            ) {
+                window.console.error('[page-transition] Blocked invalid URL', e);
+            }
             return null;
         }
     }

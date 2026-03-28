@@ -47,8 +47,15 @@
                     '(prefers-reduced-motion: reduce)'
                 );
             }
-        } catch {
-            // Ignore matchMedia errors
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[ambient] prefersReducedMotion error:', e);
+            }
         }
         const reduce = prefersReducedMotionMediaQuery
             ? prefersReducedMotionMediaQuery.matches
