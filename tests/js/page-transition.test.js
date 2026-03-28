@@ -22,6 +22,7 @@ describe('page-transition.js', () => {
     let updateHistoryUrl;
     let storeCaptureData;
     let consumeCaptureData;
+    let getValidatedUrl;
 
     beforeEach(() => {
         // Mock the minimal DOM environment needed to bypass IIFE execution errors
@@ -94,6 +95,73 @@ describe('page-transition.js', () => {
         updateHistoryUrl = context.window.__PageTransitionForTesting.updateHistoryUrl;
         storeCaptureData = context.window.__PageTransitionForTesting.storeCaptureData;
         consumeCaptureData = context.window.__PageTransitionForTesting.consumeCaptureData;
+        getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
+    });
+
+    describe('getValidatedUrl', () => {
+        beforeEach(() => {
+            context.window.URL = URL;
+            context.window.console = {
+                error: jest.fn(),
+                warn: jest.fn(),
+            };
+            // Since getValidatedUrl relies on console, we need to inject our mock into the context's console
+            // since the code uses window.console directly if available, but in Node context it might use the global console.
+            // Let's ensure the context has the mock console
+            context.console = context.window.console;
+        });
+
+        test('returns null for non-string input', () => {
+            expect(getValidatedUrl(null)).toBeNull();
+            expect(getValidatedUrl(undefined)).toBeNull();
+            expect(getValidatedUrl({})).toBeNull();
+        });
+
+        test('validates and returns clean same-origin URL', () => {
+            context.window.location.href = 'https://example.com/page1';
+            context.window.location.origin = 'https://example.com';
+            expect(getValidatedUrl('https://example.com/page2')).toBe('https://example.com/page2');
+            expect(getValidatedUrl('/page2')).toBe('/page2');
+        });
+
+        test('strips leading whitespace and control characters', () => {
+            context.window.location.href = 'https://example.com/page1';
+            context.window.location.origin = 'https://example.com';
+            // Include spaces and null byte
+            const maliciousUrl = '   \u0000\u001F/page2';
+            expect(getValidatedUrl(maliciousUrl)).toBe('/page2');
+        });
+
+        test('blocks non-http/https protocols', () => {
+            context.window.location.href = 'https://example.com/';
+            context.window.location.origin = 'https://example.com';
+            expect(getValidatedUrl('javascript:alert(1)')).toBeNull();
+            expect(getValidatedUrl('data:text/html,<html>')).toBeNull();
+            expect(context.window.console.error).toHaveBeenCalledWith(
+                '[page-transition] Blocked potentially malicious URL scheme'
+            );
+        });
+
+        test('blocks cross-origin navigation', () => {
+            context.window.location.href = 'https://example.com/';
+            context.window.location.origin = 'https://example.com';
+            expect(getValidatedUrl('https://evil.com/page')).toBeNull();
+            expect(context.window.console.error).toHaveBeenCalledWith(
+                '[page-transition] Blocked cross-origin navigation'
+            );
+        });
+
+        test('returns null when URL parsing throws', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('Invalid URL');
+            });
+            expect(getValidatedUrl('/page')).toBeNull();
+            // Error objects generated within Node's vm context in Jest should use expect.anything()
+            expect(context.window.console.error).toHaveBeenCalledWith(
+                '[page-transition] Blocked invalid URL',
+                expect.anything()
+            );
+        });
     });
 
     describe('support', () => {

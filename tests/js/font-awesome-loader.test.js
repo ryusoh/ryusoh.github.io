@@ -47,9 +47,15 @@ describe('FontAwesomeLoader', () => {
             document: mockDocument,
             window: mockWindow,
             console: console,
-            setInterval: jest.fn(),
+            setInterval: jest.fn((cb) => {
+                context.__intervalCb = cb;
+                return 123;
+            }),
             clearInterval: jest.fn(),
-            setTimeout: jest.fn(),
+            setTimeout: jest.fn((cb) => {
+                context.__timeoutCb = cb;
+                return 456;
+            }),
         };
         // Ensure circular references work if needed
         context.window.document = mockDocument;
@@ -297,5 +303,89 @@ describe('FontAwesomeLoader', () => {
         // When window.getComputedStyle returns undefined
         context.window.getComputedStyle.mockReturnValue(undefined);
         expect(loader.isFontAwesomeLoaded()).toBe(false);
+    });
+
+    describe('checking lifecycle', () => {
+        beforeEach(() => {
+            loader.isFontAwesomeLoaded = jest.fn();
+            loader.showIcons = jest.fn();
+            loader.handleLoadFailure = jest.fn();
+            loader.cleanupTestElement = jest.fn();
+        });
+
+        test('startChecking resolves successfully', () => {
+            loader.isFontAwesomeLoaded.mockReturnValue(true);
+            loader.startChecking();
+
+            expect(context.setInterval).toHaveBeenCalledWith(expect.any(Function), 100);
+
+            // Trigger interval callback
+            context.__intervalCb();
+
+            expect(loader.fontAwesomeLoaded).toBe(true);
+            expect(loader.showIcons).toHaveBeenCalled();
+            expect(context.clearInterval).toHaveBeenCalledWith(123);
+            expect(loader.cleanupTestElement).toHaveBeenCalled();
+        });
+
+        test('startChecking increments retryCount and handles failure', () => {
+            loader.isFontAwesomeLoaded.mockReturnValue(false);
+            loader.maxRetries = 2;
+            loader.startChecking();
+
+            context.__intervalCb(); // retry 1
+            expect(loader.retryCount).toBe(1);
+            expect(loader.handleLoadFailure).not.toHaveBeenCalled();
+
+            context.__intervalCb(); // retry 2
+            expect(loader.retryCount).toBe(2);
+            expect(loader.handleLoadFailure).toHaveBeenCalled();
+            expect(context.clearInterval).toHaveBeenCalledWith(123);
+        });
+
+        test('stopChecking clears interval and cleans up', () => {
+            loader.checkInterval = 123;
+            loader.stopChecking();
+
+            expect(context.clearInterval).toHaveBeenCalledWith(123);
+            expect(loader.checkInterval).toBeNull();
+            expect(loader.cleanupTestElement).toHaveBeenCalled();
+        });
+
+        test('cleanupTestElement removes element from DOM', () => {
+            const mockParent = { removeChild: jest.fn() };
+            loader.testElement = { parentNode: mockParent };
+
+            // Call the real method
+            const realCleanup = loader.constructor.prototype.cleanupTestElement.bind(loader);
+            realCleanup();
+
+            expect(mockParent.removeChild).toHaveBeenCalledWith(expect.any(Object));
+            expect(loader.testElement).toBeNull();
+        });
+
+        test('waitForFontLoad checks CSS correctly', () => {
+            const mockLink1 = { href: 'https://example.com/style.css' };
+            const mockLink2 = { href: 'https://example.com/font-awesome.css', onload: null };
+            context.document.querySelectorAll.mockReturnValue([mockLink1, mockLink2]);
+
+            loader.waitForFontLoad();
+
+            // trigger timeout
+            context.__timeoutCb();
+
+            expect(context.document.querySelectorAll).toHaveBeenCalledWith(
+                'link[rel="stylesheet"]'
+            );
+            expect(mockLink2.onload).toEqual(expect.any(Function));
+
+            // Trigger onload
+            loader.stopChecking = jest.fn();
+            mockLink2.onload();
+
+            expect(loader.fontAwesomeLoaded).toBe(true);
+            expect(loader.showIcons).toHaveBeenCalled();
+            expect(loader.stopChecking).toHaveBeenCalled();
+        });
     });
 });
