@@ -416,3 +416,253 @@ describe('Service Worker', () => {
         });
     });
 });
+
+describe('sw.js uncovered lines', () => {
+    let mockCache;
+    let mockCaches;
+    let mockFetch;
+    let mockSelf;
+    let context;
+    const fs = require('fs');
+    const path = require('path');
+    const vm = require('vm');
+    const { URL } = require('url');
+
+    const sourcePath = path.resolve(__dirname, '../../sw.js');
+    const code = fs.readFileSync(sourcePath, 'utf8');
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        mockCache = {
+            addAll: jest.fn().mockResolvedValue(),
+            put: jest.fn().mockResolvedValue(),
+            delete: jest.fn().mockResolvedValue(),
+        };
+
+        mockCaches = {
+            open: jest.fn().mockResolvedValue(mockCache),
+            keys: jest.fn().mockResolvedValue(['ryusoh-cache-v1', 'ryusoh-cache-v2']),
+            delete: jest.fn().mockResolvedValue(true),
+            match: jest.fn().mockResolvedValue(undefined),
+        };
+
+        mockFetch = jest.fn();
+
+        mockSelf = {
+            addEventListener: jest.fn(),
+            skipWaiting: jest.fn().mockResolvedValue(),
+            clients: { claim: jest.fn().mockResolvedValue() },
+            location: { origin: 'https://example.com' },
+            console: { warn: jest.fn() },
+        };
+
+        context = vm.createContext({
+            self: mockSelf,
+            caches: mockCaches,
+            fetch: mockFetch,
+            URL,
+            Promise,
+            console: { warn: jest.fn() },
+        });
+
+        vm.runInContext(code, context);
+    });
+
+    const getEventHandler = (event) => {
+        const call = mockSelf.addEventListener.mock.calls.find((call) => call[0] === event);
+        return call ? call[1] : null;
+    };
+
+    it('should ignore requests with range headers in isValidResponse check', async () => {
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(true) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const res = {
+            ok: true,
+            status: 200,
+            type: 'basic',
+            headers: { get: jest.fn().mockReturnValue(null) },
+        };
+        mockFetch.mockResolvedValue(res);
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(res);
+        expect(req.headers.has).toHaveBeenCalledWith('range');
+        // Because has('range') is true, it fails isValidResponse, so cache.put is not called
+        await new Promise(process.nextTick);
+        expect(mockCache.put).not.toHaveBeenCalled();
+    });
+
+    it('should ignore responses with Content-Range header in isValidResponse check', async () => {
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const res = {
+            ok: true,
+            status: 200,
+            type: 'basic',
+            headers: { get: jest.fn().mockReturnValue('bytes 0-100/200') },
+        };
+        mockFetch.mockResolvedValue(res);
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(res);
+        expect(res.headers.get).toHaveBeenCalledWith('Content-Range');
+        // Because get('Content-Range') returns true, it fails isValidResponse
+        await new Promise(process.nextTick);
+        expect(mockCache.put).not.toHaveBeenCalled();
+    });
+
+    it('should handle network failure gracefully without self.console', async () => {
+        // Remove console from mockSelf
+        mockSelf.console = undefined;
+
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const mockCachedResponse = { status: 200, body: 'cached fallback' };
+        mockCaches.match.mockResolvedValue(mockCachedResponse);
+        mockFetch.mockRejectedValue(new Error('Network offline'));
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(mockCachedResponse);
+        expect(mockCaches.match).toHaveBeenCalledWith(req);
+    });
+
+    it('should fall back correctly if a fetch for an image throws an error', async () => {
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/image.png',
+            destination: 'image',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        // Cache miss
+        mockCaches.match.mockResolvedValue(undefined);
+        mockFetch.mockRejectedValue(new Error('Network offline'));
+
+        fetchHandler(event);
+
+        // Ensure the error from fetch rejects the promise because Cache First Strategy does not catch error.
+        await expect(event.respondWith.mock.calls[0][0]).rejects.toThrow('Network offline');
+    });
+});
+
+describe('more sw.js coverage', () => {
+    let mockCache;
+    let mockCaches;
+    let mockFetch;
+    let mockSelf;
+    let context;
+    const fs = require('fs');
+    const path = require('path');
+    const vm = require('vm');
+    const { URL } = require('url');
+
+    const sourcePath = path.resolve(__dirname, '../../sw.js');
+    const code = fs.readFileSync(sourcePath, 'utf8');
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        mockCache = {
+            addAll: jest.fn().mockResolvedValue(),
+            put: jest.fn().mockResolvedValue(),
+            delete: jest.fn().mockResolvedValue(),
+        };
+
+        mockCaches = {
+            open: jest.fn().mockResolvedValue(mockCache),
+            keys: jest.fn().mockResolvedValue(['ryusoh-cache-v1', 'ryusoh-cache-v2']),
+            delete: jest.fn().mockResolvedValue(true),
+            match: jest.fn().mockResolvedValue(undefined),
+        };
+
+        mockFetch = jest.fn();
+
+        mockSelf = {
+            addEventListener: jest.fn(),
+            skipWaiting: jest.fn().mockResolvedValue(),
+            clients: { claim: jest.fn().mockResolvedValue() },
+            location: { origin: 'https://example.com' },
+            console: { warn: jest.fn() },
+        };
+
+        context = vm.createContext({
+            self: mockSelf,
+            caches: mockCaches,
+            fetch: mockFetch,
+            URL,
+            Promise,
+            console: { warn: jest.fn() },
+        });
+
+        vm.runInContext(code, context);
+    });
+
+    const getEventHandler = (event) => {
+        const call = mockSelf.addEventListener.mock.calls.find((call) => call[0] === event);
+        return call ? call[1] : null;
+    };
+
+    it('should test typeof self.console.warn is not function', async () => {
+        // Mock so warn is not a function
+        mockSelf.console.warn = 'not a function';
+
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const mockCachedResponse = { status: 200, body: 'cached fallback' };
+        mockCaches.match.mockResolvedValue(mockCachedResponse);
+        mockFetch.mockRejectedValue(new Error('Network offline'));
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(mockCachedResponse);
+        expect(mockCaches.match).toHaveBeenCalledWith(req);
+    });
+});
