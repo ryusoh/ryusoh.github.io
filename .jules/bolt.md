@@ -52,6 +52,7 @@
 **Learning:** Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. Since `MediaQueryList` properties like `.matches` update automatically when system preferences change, running string query evaluations constantly creates unnecessary bottlenecks.
 **Action:** To minimize main-thread overhead and garbage collection, cache `MediaQueryList` objects from `window.matchMedia` (e.g., for `prefers-reduced-motion`) in module-scoped variables rather than calling the method repeatedly. The `.matches` property of the cached object remains reactive to system preference changes without re-parsing the query. When unit testing this behavior in Node's `vm` context, ensure the cached variable is reset between tests to avoid state leakage.
 
+
 ## 2026-03-27 - Throttle Synchronous DOM Reads in Scroll Listeners
 
 **Learning:** Found that `updateVisibility` in `js/scroll-reveal-icon.js` was being called synchronously on every `scroll` and `resize` event. This function reads `scrollHeight`, `scrollTop`, and `innerHeight`. Calling these layout properties inside high-frequency event listeners forces the browser to synchronously recalculate layout on the main thread multiple times per frame, causing scroll jitter and layout thrashing.
@@ -131,3 +132,4 @@
 
 **Learning:** Found that \`js/scroll-reveal.js\` was reading \`document.body.offsetHeight\` simply to force the browser to commit the hidden state of images before attaching the \`IntersectionObserver\`. Reading layout properties synchronously during script initialization forces the browser into premature layout recalculations, causing main-thread overhead and blocking Time to Interactive.
 **Action:** Replace synchronous layout reads used purely to force style commits with a double \`requestAnimationFrame\` block. This ensures the browser paints the hidden state asynchronously in the next frame without forcing synchronous layouts on the main thread.
+
