@@ -1121,3 +1121,41 @@ td {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
     border-radius: 2px;
 }
+
+/* --- Scroll Reveal Instagram Icon --- */
+.scroll-reveal-instagram {
+    display: block;
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    mix-blend-mode: difference;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.5s ease,
+        color 0.5s ease,
+        visibility 0s linear 0.5s;
+    font-size: 12px;
+    color: #aaa !important;
+    text-decoration: none;
+}
+
+.scroll-reveal-instagram.is-visible {
+    opacity: 0.8;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.scroll-reveal-instagram:hover,
+.scroll-reveal-instagram:focus {
+    opacity: 1;
+    color: #fff !important;
+}
+
+@supports (bottom: env(safe-area-inset-bottom)) {
+    .scroll-reveal-instagram {
+        bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+}
