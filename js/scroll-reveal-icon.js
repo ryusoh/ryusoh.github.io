@@ -1,7 +1,7 @@
 /**
  * Shows the scroll-reveal-instagram icon only when the user has scrolled to the bottom.
  */
-(function() {
+(function () {
     const icon = document.querySelector('.scroll-reveal-instagram');
     if (!icon) {
         return;
