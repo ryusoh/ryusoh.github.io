@@ -7,6 +7,8 @@
         return;
     }
 
+    let ticking = false;
+
     function updateVisibility() {
         const scrollHeight = document.documentElement.scrollHeight;
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -18,10 +20,25 @@
         } else {
             icon.classList.remove('is-visible');
         }
+
+        ticking = false;
     }
 
-    window.addEventListener('scroll', updateVisibility, { passive: true });
-    window.addEventListener('resize', updateVisibility, { passive: true });
+    function onScrollOrResize() {
+        if (!ticking) {
+            window.requestAnimationFrame(updateVisibility);
+            ticking = true;
+        }
+    }
+
+    /**
+     * Bolt Optimization:
+     * - What: Throttle `scroll` and `resize` event handlers using `requestAnimationFrame`.
+     * - Why: The previous implementation fired synchronous DOM geometry reads (`scrollHeight`, `scrollTop`, `innerHeight`) on every `scroll` and `resize` event, causing layout thrashing and scroll jitter on the main thread.
+     * - Impact: Measurably reduces main-thread blocking time by guaranteeing layout recalculations only happen once per frame, preventing forced synchronous layouts.
+     */
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize, { passive: true });
 
     // Initial check
     window.addEventListener('load', updateVisibility);
