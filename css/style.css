@@ -25,7 +25,7 @@
 .article-container {
     animation: bodyshow 0.9s linear;
 }
-@-moz-keyframes 'bodyshow' {
+@-moz-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -43,7 +43,7 @@
         opacity: 1;
     }
 }
-@-webkit-keyframes 'bodyshow' {
+@-webkit-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -61,7 +61,7 @@
         opacity: 1;
     }
 }
-@-o-keyframes 'bodyshow' {
+@-o-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -79,7 +79,7 @@
         opacity: 1;
     }
 }
-@keyframes 'bodyshow' {
+@keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -305,6 +305,7 @@ nav {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 10;
+    line-clamp: 10;
     -webkit-box-orient: vertical;
 }
 .post-preview blockquote {
@@ -341,6 +342,7 @@ nav {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 7;
+    line-clamp: 7;
 }
 .post-preview > a > .post-title.archive {
     font-size: 22px;
@@ -433,8 +435,6 @@ footer {
     margin: 0;
     font-size: 0.85em;
     line-height: 1.764705882em;
-    vertical-align: middle;
-    vertical-align: baseline;
     opacity: 0;
     -webkit-transition:
         top 0.3s ease,
@@ -557,7 +557,7 @@ body {
 .article-container {
     animation: bodyshow 0.9s linear;
 }
-@-moz-keyframes 'bodyshow' {
+@-moz-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -575,7 +575,7 @@ body {
         opacity: 1;
     }
 }
-@-webkit-keyframes 'bodyshow' {
+@-webkit-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -593,7 +593,7 @@ body {
         opacity: 1;
     }
 }
-@-o-keyframes 'bodyshow' {
+@-o-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -611,7 +611,7 @@ body {
         opacity: 1;
     }
 }
-@keyframes 'bodyshow' {
+@keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
