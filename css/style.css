@@ -1125,10 +1125,8 @@ td {
 /* --- Scroll Reveal Instagram Icon --- */
 .scroll-reveal-instagram {
     display: block;
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+    width: fit-content;
+    margin: -30px auto 0px auto;
     z-index: 1000;
     mix-blend-mode: difference;
     opacity: 0;
@@ -1154,8 +1152,15 @@ td {
     color: #fff !important;
 }
 
-@supports (bottom: env(safe-area-inset-bottom)) {
-    .scroll-reveal-instagram {
-        bottom: calc(10px + env(safe-area-inset-bottom));
+.project-footer {
+    text-align: center;
+    padding-top: 0;
+    padding-bottom: 10px;
+    margin: 0;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .project-footer {
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
     }
 }
