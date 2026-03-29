@@ -245,4 +245,63 @@ describe('service-worker-register', () => {
         );
         expect(context.window.dispatchEvent).toHaveBeenCalledWith(mockEvent);
     });
+
+    test('falls back to document.createEvent on registration failure', async () => {
+        delete context.window.CustomEvent;
+        delete context.CustomEvent;
+
+        context.navigator.serviceWorker.register.mockRejectedValue(
+            new Error('Registration failed')
+        );
+
+        const mockEvent = {
+            initCustomEvent: jest.fn(),
+        };
+        context.document.createEvent = jest.fn().mockReturnValue(mockEvent);
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        await new Promise(process.nextTick);
+
+        expect(context.document.createEvent).toHaveBeenCalledWith('CustomEvent');
+        expect(mockEvent.initCustomEvent).toHaveBeenCalledWith(
+            'serviceWorker:registrationError',
+            false,
+            false,
+            { message: 'Registration failed' }
+        );
+        expect(context.window.dispatchEvent).toHaveBeenCalledWith(mockEvent);
+    });
+
+    test('falls back to document.createEvent if window.CustomEvent is not a function', async () => {
+        context.window.CustomEvent = 'not-a-function';
+        delete context.CustomEvent;
+
+        const mockEvent = {
+            initCustomEvent: jest.fn(),
+        };
+        context.document.createEvent = jest.fn().mockReturnValue(mockEvent);
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        await new Promise(process.nextTick);
+
+        expect(context.document.createEvent).toHaveBeenCalledWith('CustomEvent');
+        expect(context.window.dispatchEvent).toHaveBeenCalledWith(mockEvent);
+    });
+
+    test('does not crash if both CustomEvent and document.createEvent are missing', async () => {
+        delete context.window.CustomEvent;
+        delete context.CustomEvent;
+        delete context.document.createEvent;
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        await new Promise(process.nextTick);
+
+        expect(context.window.dispatchEvent).not.toHaveBeenCalled();
+    });
 });
