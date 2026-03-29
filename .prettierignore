@@ -11,3 +11,4 @@ js/vendor/
 .idea/
 .vscode/
 .git/
+.github/workflows/
