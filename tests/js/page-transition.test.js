@@ -19,6 +19,10 @@ describe('page-transition.js', () => {
     let parseRgbFunction;
     let hexToRgbArray;
     let parseColor;
+    let updateHistoryUrl;
+    let storeCaptureData;
+    let consumeCaptureData;
+    let getValidatedUrl;
 
     beforeEach(() => {
         // Mock the minimal DOM environment needed to bypass IIFE execution errors
@@ -88,6 +92,101 @@ describe('page-transition.js', () => {
         parseRgbFunction = context.window.__PageTransitionForTesting.parseRgbFunction;
         hexToRgbArray = context.window.__PageTransitionForTesting.hexToRgbArray;
         parseColor = context.window.__PageTransitionForTesting.parseColor;
+        updateHistoryUrl = context.window.__PageTransitionForTesting.updateHistoryUrl;
+        storeCaptureData = context.window.__PageTransitionForTesting.storeCaptureData;
+        consumeCaptureData = context.window.__PageTransitionForTesting.consumeCaptureData;
+        getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
+    });
+
+    describe('getValidatedUrl', () => {
+        beforeEach(() => {
+            context.window.URL = URL;
+            context.window.console = {
+                error: jest.fn(),
+                warn: jest.fn(),
+            };
+            // Since getValidatedUrl relies on console, we need to inject our mock into the context's console
+            // since the code uses window.console directly if available, but in Node context it might use the global console.
+            // Let's ensure the context has the mock console
+            context.console = context.window.console;
+        });
+
+        test('returns null for non-string input', () => {
+            expect(getValidatedUrl(null)).toBeNull();
+            expect(getValidatedUrl(undefined)).toBeNull();
+            expect(getValidatedUrl({})).toBeNull();
+        });
+
+        test('validates and returns clean same-origin URL', () => {
+            context.window.location.href = 'https://example.com/page1';
+            context.window.location.origin = 'https://example.com';
+            expect(getValidatedUrl('https://example.com/page2')).toBe('https://example.com/page2');
+            expect(getValidatedUrl('/page2')).toBe('/page2');
+        });
+
+        test('strips leading whitespace and control characters', () => {
+            context.window.location.href = 'https://example.com/page1';
+            context.window.location.origin = 'https://example.com';
+            // Include spaces and null byte
+            const maliciousUrl = '   \u0000\u001F/page2';
+            expect(getValidatedUrl(maliciousUrl)).toBe('/page2');
+        });
+
+        test('blocks non-http/https protocols', () => {
+            context.window.location.href = 'https://example.com/';
+            context.window.location.origin = 'https://example.com';
+            expect(getValidatedUrl('javascript:alert(1)')).toBeNull();
+            expect(getValidatedUrl('data:text/html,<html>')).toBeNull();
+            expect(context.window.console.error).toHaveBeenCalledWith(
+                '[page-transition] Blocked potentially malicious URL scheme'
+            );
+        });
+
+        test('blocks cross-origin navigation', () => {
+            context.window.location.href = 'https://example.com/';
+            context.window.location.origin = 'https://example.com';
+            expect(getValidatedUrl('https://evil.com/page')).toBeNull();
+            expect(context.window.console.error).toHaveBeenCalledWith(
+                '[page-transition] Blocked cross-origin navigation'
+            );
+        });
+
+        test('returns null when URL parsing throws', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('Invalid URL');
+            });
+            expect(getValidatedUrl('/page')).toBeNull();
+            // Error objects generated within Node's vm context in Jest should use expect.anything()
+            expect(context.window.console.error).toHaveBeenCalledWith(
+                '[page-transition] Blocked invalid URL',
+                expect.anything()
+            );
+        });
+    });
+
+    describe('support', () => {
+        test('canUseWebGL should catch error and handle missing console', () => {
+            const getContext = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.document.createElement = jest.fn().mockReturnValue({ getContext });
+            context.window.WebGLRenderingContext = {}; // mock it
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+            expect(() => context.window.__PageTransitionForTesting.canUseWebGL()).not.toThrow();
+            context.window.console = prevConsole;
+        });
+
+        test('canUseWebGL should catch error and handle console.warn', () => {
+            const getContext = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.document.createElement = jest.fn().mockReturnValue({ getContext });
+            context.window.WebGLRenderingContext = {}; // mock it
+            context.window.console = { warn: jest.fn() };
+            expect(() => context.window.__PageTransitionForTesting.canUseWebGL()).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalled();
+        });
     });
 
     describe('hasTransitionParam', () => {
@@ -121,6 +220,25 @@ describe('page-transition.js', () => {
             context.window.location = prevLocation;
         });
 
+        test('should not throw if console missing in catch block', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+            expect(() => hasTransitionParam()).not.toThrow();
+            context.window.console = prevConsole;
+        });
+
+        test('should console.warn if parsing fails', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.window.console = { warn: jest.fn() };
+            expect(() => hasTransitionParam()).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalled();
+        });
+
         test('should return true when transition param is present', () => {
             context.window.URL = jest.fn().mockImplementation(() => ({
                 searchParams: {
@@ -128,6 +246,31 @@ describe('page-transition.js', () => {
                 },
             }));
             expect(hasTransitionParam()).toBe(true);
+        });
+    });
+
+    describe('clearTransitionParam', () => {
+        test('should catch error and gracefully fallback missing console', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+            expect(() =>
+                context.window.__PageTransitionForTesting.clearTransitionParam()
+            ).not.toThrow();
+            context.window.console = prevConsole;
+        });
+
+        test('should catch error and gracefully fallback console.warn', () => {
+            context.window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('foo');
+            });
+            context.window.console = { warn: jest.fn() };
+            expect(() =>
+                context.window.__PageTransitionForTesting.clearTransitionParam()
+            ).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalled();
         });
     });
 
@@ -306,6 +449,151 @@ describe('page-transition.js', () => {
         test('returns fallback for completely invalid color strings', () => {
             expect(parseColor('invalid', fallback)).toEqual(fallback);
             expect(parseColor('foo', fallback)).toEqual(fallback);
+        });
+    });
+
+    describe('updateHistoryUrl', () => {
+        test('should replace history state with new url components', () => {
+            const mockReplaceState = jest.fn();
+            context.window.history = { replaceState: mockReplaceState };
+            context.document.title = 'Test Title';
+
+            const mockUrl = {
+                pathname: '/test-path',
+                search: '?param=1',
+                hash: '#section',
+            };
+
+            updateHistoryUrl(mockUrl);
+
+            expect(mockReplaceState).toHaveBeenCalledWith(
+                {},
+                'Test Title',
+                '/test-path?param=1#section'
+            );
+        });
+
+        test('should not throw if window.history is undefined', () => {
+            context.window.history = undefined;
+            expect(() => updateHistoryUrl({})).not.toThrow();
+        });
+
+        test('should not throw if replaceState is not a function', () => {
+            context.window.history = { replaceState: null };
+            expect(() => updateHistoryUrl({})).not.toThrow();
+        });
+    });
+
+    describe('storeCaptureData', () => {
+        test('should set item in sessionStorage if dataUrl is provided', () => {
+            context.window.sessionStorage.setItem.mockClear();
+            storeCaptureData('data:image/png;base64,1234');
+
+            expect(context.window.sessionStorage.setItem).toHaveBeenCalledWith(
+                'page-transition:capture',
+                'data:image/png;base64,1234'
+            );
+        });
+
+        test('should return early if dataUrl is falsy', () => {
+            context.window.sessionStorage.setItem.mockClear();
+            storeCaptureData(null);
+            storeCaptureData('');
+            storeCaptureData(undefined);
+
+            expect(context.window.sessionStorage.setItem).not.toHaveBeenCalled();
+        });
+
+        test('should catch and log error if sessionStorage throws (e.g., Safari private browsing)', () => {
+            const error = new Error('QuotaExceededError');
+            context.window.sessionStorage.setItem.mockImplementation(() => {
+                throw error;
+            });
+            context.window.console = { warn: jest.fn() };
+
+            expect(() => storeCaptureData('data:image/png;base64,test')).not.toThrow();
+            expect(context.window.console.warn).toHaveBeenCalledWith(
+                '[page-transition] sessionStorage access error:',
+                error
+            );
+        });
+
+        test('should not throw if window or console is missing during error', () => {
+            const error = new Error('QuotaExceededError');
+            context.window.sessionStorage.setItem.mockImplementation(() => {
+                throw error;
+            });
+
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+
+            expect(() => storeCaptureData('data:image/png;base64,test')).not.toThrow();
+
+            context.window.console = prevConsole;
+        });
+    });
+
+    describe('consumeCaptureData', () => {
+        test('should return data and remove item from sessionStorage if data exists', () => {
+            context.window.sessionStorage.getItem.mockReturnValue('data:image/png;base64,1234');
+            context.window.sessionStorage.removeItem.mockClear();
+
+            const result = consumeCaptureData();
+
+            expect(result).toBe('data:image/png;base64,1234');
+            expect(context.window.sessionStorage.getItem).toHaveBeenCalledWith(
+                'page-transition:capture'
+            );
+            expect(context.window.sessionStorage.removeItem).toHaveBeenCalledWith(
+                'page-transition:capture'
+            );
+        });
+
+        test('should return null and not call removeItem if no data exists', () => {
+            context.window.sessionStorage.getItem.mockReturnValue(null);
+            context.window.sessionStorage.removeItem.mockClear();
+
+            const result = consumeCaptureData();
+
+            expect(result).toBeNull();
+            expect(context.window.sessionStorage.getItem).toHaveBeenCalledWith(
+                'page-transition:capture'
+            );
+            expect(context.window.sessionStorage.removeItem).not.toHaveBeenCalled();
+        });
+
+        test('should catch and log error if sessionStorage throws, and return null', () => {
+            const error = new Error('SecurityError');
+            context.window.sessionStorage.getItem.mockImplementation(() => {
+                throw error;
+            });
+            context.window.console = { warn: jest.fn() };
+
+            const result = consumeCaptureData();
+
+            expect(result).toBeNull();
+            expect(context.window.console.warn).toHaveBeenCalledWith(
+                '[page-transition] sessionStorage access error:',
+                error
+            );
+        });
+
+        test('should not throw if window or console is missing during error, and return null', () => {
+            const error = new Error('SecurityError');
+            context.window.sessionStorage.getItem.mockImplementation(() => {
+                throw error;
+            });
+
+            const prevConsole = context.window.console;
+            context.window.console = undefined;
+
+            let result;
+            expect(() => {
+                result = consumeCaptureData();
+            }).not.toThrow();
+            expect(result).toBeNull();
+
+            context.window.console = prevConsole;
         });
     });
 });

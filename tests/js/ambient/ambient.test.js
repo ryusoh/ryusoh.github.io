@@ -56,6 +56,45 @@ describe('js/ambient/ambient.js', () => {
         context.window.document = context.document;
     });
 
+    describe('getConfig', () => {
+        let getConfig;
+
+        beforeEach(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+            getConfig = context.window.__AmbientForTesting.getConfig;
+        });
+
+        test('returns default configuration', () => {
+            const config = getConfig(null, false);
+            expect(config.enabled).toBe(true);
+            expect(config.minWidth).toBe(1024);
+            expect(config.maxParticles).toBe(120);
+            expect(config.radius).toEqual({ min: 4.0, max: 8.0 });
+        });
+
+        test('merges with window.AMBIENT_CONFIG', () => {
+            context.window.AMBIENT_CONFIG = { minWidth: 800, maxParticles: 200 };
+            const config = getConfig(null, false);
+            expect(config.minWidth).toBe(800);
+            expect(config.maxParticles).toBe(200);
+        });
+
+        test('applies force overrides when force is debug', () => {
+            const config = getConfig('debug', false);
+            expect(config.zIndex).toBe(999);
+            expect(config.radius).toEqual({ min: 8.0, max: 16.0 });
+            expect(config.alpha.max).toBe(0.8);
+            expect(config.speed).toBeGreaterThanOrEqual(0.3);
+        });
+
+        test('applies trace overrides when trace is true', () => {
+            const config = getConfig(null, true);
+            expect(config.zIndex).toBe(999);
+            expect(config.radius).toEqual({ min: 8.0, max: 16.0 });
+        });
+    });
+
     test('initializes Sketch if conditions are met', () => {
         vm.createContext(context);
         vm.runInContext(code, context);
@@ -155,5 +194,82 @@ describe('js/ambient/ambient.js', () => {
 
         expect(sketchInstance.canvas.style.transition).toBe('opacity 0.4s ease');
         expect(sketchInstance.canvas.style.opacity).toBe('1');
+    });
+
+    test('perfNow falls back to Date.now when window.performance is missing', () => {
+        delete context.window.performance;
+        const mockNow = jest.spyOn(Date, 'now').mockReturnValue(5000);
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        context.window.AmbientTransitionController.playIntro();
+
+        expect(mockNow).toHaveBeenCalled();
+        mockNow.mockRestore();
+    });
+
+    test('s.setup initializes particles correctly', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const sketchInstance = mockSketch.create.mock.results[0].value;
+        sketchInstance.setup();
+
+        // Let's call update to see it runs without errors
+        sketchInstance.update();
+
+        // draw should also run without errors
+        sketchInstance.save = jest.fn();
+        sketchInstance.restore = jest.fn();
+        sketchInstance.beginPath = jest.fn();
+        sketchInstance.arc = jest.fn();
+        sketchInstance.fill = jest.fn();
+        sketchInstance.fillRect = jest.fn();
+
+        sketchInstance.draw();
+
+        // Also test resize which calls setup
+        sketchInstance.resize();
+
+        expect(sketchInstance.save).toHaveBeenCalled();
+        expect(sketchInstance.restore).toHaveBeenCalled();
+    });
+
+    test('getFlag and clearFlag handle sessionStorage exceptions and log warnings', () => {
+        // To hit getFlag('ambientTransition:intro') we must be on a project page
+        context.document.body.getAttribute.mockReturnValue('project');
+
+        context.window.sessionStorage.getItem.mockImplementation(() => {
+            throw new Error('Storage disabled');
+        });
+        context.window.sessionStorage.removeItem.mockImplementation(() => {
+            throw new Error('Storage disabled');
+        });
+
+        context.window.console.warn = jest.fn();
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        // VM context errors are not instances of global.Error, so use expect.anything()
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            '[ambient] sessionStorage get error:',
+            expect.anything()
+        );
+
+        // We can trigger clearFlag by faking a success in getFlag then forcing playIntro
+        context.window.sessionStorage.getItem.mockReturnValue('1');
+
+        // reset mock calls before re-eval
+        context.window.console.warn.mockClear();
+
+        // re-eval to trigger maybePlayIntro with the updated mock
+        vm.runInContext(code, context);
+
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            '[ambient] sessionStorage remove error:',
+            expect.anything()
+        );
     });
 });

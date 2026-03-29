@@ -49,8 +49,33 @@
         }
     }
 
+    /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     */
+    let prefersReducedMotionMediaQuery = null;
+
     function prefersReducedMotion() {
-        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try {
+            if (prefersReducedMotionMediaQuery === null && window.matchMedia) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+            return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[block-navigation] prefersReducedMotion error:', e);
+            }
+            return false;
+        }
     }
 
     function isEditableActive() {
@@ -328,16 +353,7 @@
         });
     }
 
-    function scrollToIndex(index) {
-        if (index < 0 || index >= blocks.length) {
-            return;
-        }
-
-        const target = blocks[index];
-        const isTopSentinel = topSentinel && target === topSentinel;
-        const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
-        const isFirstContentBlock = index <= (topSentinel ? 1 : 0);
-
+    function performScroll(target, isTopSentinel, behavior, isFirstContentBlock) {
         if (isTopSentinel) {
             window.scrollTo({ top: 0, behavior });
         } else {
@@ -348,10 +364,28 @@
                     inline: 'nearest',
                 });
             } catch (error) {
-                void error;
+                if (typeof window !== 'undefined' && window.console) {
+                    window.console.warn(
+                        '[block-navigation] scrollIntoView failed, using fallback:',
+                        error
+                    );
+                }
                 scrollFallback(target, behavior, isFirstContentBlock);
             }
         }
+    }
+
+    function scrollToIndex(index) {
+        if (index < 0 || index >= blocks.length) {
+            return;
+        }
+
+        const target = blocks[index];
+        const isTopSentinel = topSentinel && target === topSentinel;
+        const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+        const isFirstContentBlock = index <= (topSentinel ? 1 : 0);
+
+        performScroll(target, isTopSentinel, behavior, isFirstContentBlock);
         startPending(index, behavior);
     }
 
@@ -431,22 +465,29 @@
         };
     }
 
+    /**
+     * Bolt Optimization:
+     * - What: Replace O(N) individual image `load` event listeners with a single O(1) document-level capturing listener.
+     * - Why: The previous implementation iterated over all `document.images` and attached individual event listeners to each incomplete image. On image-heavy pages, this consumes extra memory and increases initialization time.
+     * - Impact: Measurably reduces memory allocation for event listeners and eliminates O(N) main-thread execution time during initialization by leveraging event delegation (capturing phase for `load` events).
+     */
     function bindImageLoadHandlers() {
         const debouncedSync = debounce(syncCurrentIndex, 150);
         const debouncedUpdate = debounce(updatePositions, 150);
-        const images = document.images;
-        for (const image of images) {
-            if (image.complete) {
-                continue;
-            }
-            image.addEventListener('load', () => {
-                if (!useObserver) {
-                    debouncedUpdate();
-                } else {
-                    debouncedSync();
+
+        document.addEventListener(
+            'load',
+            (event) => {
+                if (event.target && event.target.tagName === 'IMG') {
+                    if (!useObserver) {
+                        debouncedUpdate();
+                    } else {
+                        debouncedSync();
+                    }
                 }
-            });
-        }
+            },
+            true
+        );
     }
 
     function init() {
@@ -477,6 +518,8 @@
             handleEscapeKey,
             debounce,
             getIndexFromFallback,
+            calculateNextIndex,
+            scrollToIndex,
         };
     }
 })();

@@ -29,7 +29,7 @@ try {
         '@stylistic/string-quotes': 'single',
         '@stylistic/number-leading-zero': 'always',
     });
-} catch (_) {
+} catch {
     // plugin not available; proceed without stylistic rules
 }
 

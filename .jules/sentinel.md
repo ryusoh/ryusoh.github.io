@@ -9,3 +9,27 @@
 **Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis. High cyclomatic complexity (> 10) increases cognitive load and maintenance overhead.
 **Learning:** During the codebase health pass, multiple critical `catch {}` blocks were identified in `js/page-transition.js`, `js/ambient/ambient.js`, and other core modules that masked runtime exceptions. Additionally, core navigational functions had overgrown into tightly coupled, monolithic blocks.
 **Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 10 for maintainability and readability.
+
+## 2026-03-24 - [CSP Inline Script Execution Risk]
+
+**Vulnerability:** The Content-Security-Policy (CSP) `script-src` directive contained `'unsafe-inline'`, which allows the execution of arbitrary inline scripts embedded within HTML elements. This poses a significant XSS risk if an attacker manages to inject HTML into the page.
+**Learning:** During review, it was confirmed that all inline scripts (such as Google Analytics bootstrapping) had previously been migrated to external files (e.g., `js/ga.js`). The `'unsafe-inline'` directive was therefore a remnant of older architecture and provided no functional value, only risk.
+**Prevention:** Regularly review CSP directives to ensure they enforce the principle of least privilege. Explicitly omit `'unsafe-inline'` and `'unsafe-eval'` from `script-src` and rely exclusively on external scripts, nonces, or hashes to mitigate DOM XSS.
+
+## 2026-03-24 - [Avoid Empty Catch Blocks]
+
+**Vulnerability:** Empty catch blocks (e.g., `.catch(() => {})`) swallow errors silently, which can mask critical operational failures, underlying bugs, or signs of attack. This hinders debugging and security observability.
+**Learning:** Found instances of `.catch(() => {})` in `js/page-transition.js` that suppressed texture loading failures. While graceful fallback is good, silent failure is an anti-pattern.
+**Prevention:** Replace empty catch blocks with defensive logging using `window.console.warn` (checking `typeof window !== 'undefined'` first for environment safety). This preserves the graceful fallback while ensuring observability.
+
+## 2026-03-24 - [Unbounded JSON Parse Length Limit DoS]
+
+**Vulnerability:** Parsing arbitrarily large JSON payloads from untrusted client-side storage (`sessionStorage`) without length validation can lead to Denial of Service (DoS) attacks by exhausting memory and blocking the main thread execution during the `JSON.parse` operation.
+**Learning:** Functions that retrieve and deserialize stored values (like cursor positions) must implement bounds checking _before_ passing strings to expensive parsers. Even if the data is expected to be a small object, malicious actors can manipulate client storage.
+**Prevention:** Implement strict string length limits on all data read from `sessionStorage` or `localStorage` prior to parsing (e.g., `if (raw.length > 100) return null`) to mitigate memory exhaustion risks.
+
+## 2026-03-28 - [Empty Catch Blocks in prefersReducedMotion]
+
+**Vulnerability:** Empty catch blocks in `prefersReducedMotion` handlers across the codebase (`js/page-transition.js`, `js/ambient/ambient.js`, `js/block-navigation.js`) suppressed `window.matchMedia` errors. This silent failure hid potential issues in unsupported environments or testing contexts where `matchMedia` might throw.
+**Learning:** While gracefully falling back to `false` (meaning motion is enabled) is the correct functional behavior when `matchMedia` fails, the error itself must still be observable for debugging and health monitoring. A silent `catch {}` prevents this visibility.
+**Prevention:** Replace all empty catch blocks with defensive logging (e.g., `window.console.warn`). Always wrap the logging call in environmental safety checks (e.g., `typeof window !== 'undefined' && window.console`) to ensure the logging attempt itself does not cause a secondary fatal error.

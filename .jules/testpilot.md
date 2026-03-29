@@ -17,3 +17,7 @@
 ## 2025-03-18 - Exposing global context tools and stripping exports for Node VM
 
 **Learning:** When using Node `vm` to evaluate modular scripts (ES6 `export` classes/functions) that rely on DOM timer APIs (`requestAnimationFrame`, `cancelAnimationFrame`), the script text must be sanitized to remove `export` keywords prior to evaluation. Furthermore, global context variables required directly by the file (e.g. `cancelAnimationFrame`) must be provided explicitly in the `context` object passed to `vm.createContext`, as they are not intrinsically available unless mirrored from the mocked `window` object.
+
+## 2025-03-21 - Extracting nested unexported functions in IIFEs
+
+**Learning:** When extracting an internal function from an IIFE for isolated testing in a vm context, use a non-greedy multiline regex (e.g., `code.match(/function myFunc\(\) {[\s\S]*?}/)[0]`) to reliably extract its exact source string, rather than complex `.replace()` chains that mangle closure scopes.

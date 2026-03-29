@@ -189,6 +189,39 @@ describe('Service Worker', () => {
             expect(mockCache.put).toHaveBeenCalledWith(mockRequest, mockResponseClone);
         });
 
+        test('should skip caching if response has Content-Range header during Cache First fallback', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/images/large.jpg',
+                destination: 'image',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            mockCaches.match.mockResolvedValue(undefined);
+
+            const mockResponse = {
+                ok: true,
+                status: 200,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue('bytes 21010-47021/47022') }, // Content-Range header present
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+
+            expect(mockCache.put).not.toHaveBeenCalled();
+        });
+
         test('should skip caching if response is invalid (e.g. status 500) during Cache First fallback', async () => {
             const fetchHandler = getEventHandler('fetch');
             const mockRequest = {

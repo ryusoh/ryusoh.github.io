@@ -74,6 +74,206 @@ describe('block-navigation', () => {
         getIndexFromFallback = context.module.exports.getIndexFromFallback;
     });
 
+    describe('calculateNextIndex', () => {
+        beforeEach(() => {});
+
+        it('should return next index when pressing forward keys', () => {
+            const customCode = `
+                let blocks = [1, 2, 3, 4];
+                let currentIndex = 1;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowRight')).toBe(2);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowDown')).toBe(2);
+        });
+
+        it('should return previous index when pressing backward keys', () => {
+            const customCode = `
+                let blocks = [1, 2, 3, 4];
+                let currentIndex = 2;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowLeft')).toBe(1);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowUp')).toBe(1);
+        });
+
+        it('should not exceed blocks.length - 1 when going forward', () => {
+            const customCode = `
+                let blocks = [1, 2, 3];
+                let currentIndex = 2;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowRight')).toBe(2);
+        });
+
+        it('should not fall below 0 when going backward', () => {
+            const customCode = `
+                let blocks = [1, 2, 3];
+                let currentIndex = 0;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowLeft')).toBe(0);
+        });
+
+        it('should handle currentIndex being -1 by falling back to getCurrentIndex', () => {
+            const customCode = `
+                let blocks = [1, 2, 3];
+                let currentIndex = -1;
+                function getCurrentIndex() { return 1; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowRight')).toBe(2);
+        });
+    });
+
+    describe('scrollToIndex', () => {
+        it('should not do anything if index is out of bounds', () => {
+            const customCode = `
+                let blocks = [1, 2];
+                let topSentinel = null;
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+
+            customContext.module.exports.scrollToIndexCustom(-1);
+            customContext.module.exports.scrollToIndexCustom(2);
+            expect(customContext.window.scrollTo).not.toHaveBeenCalled();
+        });
+
+        it('should scroll top sentinel to 0', () => {
+            const topSentinel = {};
+            const customCode = `
+                let topSentinel = window.__topSentinel;
+                let blocks = [window.__topSentinel, 2];
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?\}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?\}\n    }/)[0]}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, __topSentinel: topSentinel },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+
+            customContext.module.exports.scrollToIndexCustom(0);
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
+        });
+
+        it('should call scrollIntoView on the target block', () => {
+            const mockTarget = { scrollIntoView: jest.fn() };
+            const customCode = `
+                let topSentinel = null;
+                let blocks = [window.__mockTarget];
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?\}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?\}\n    }/)[0]}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, __mockTarget: mockTarget },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+
+            customContext.module.exports.scrollToIndexCustom(0);
+            expect(mockTarget.scrollIntoView).toHaveBeenCalledWith({
+                behavior: 'smooth',
+                block: 'start',
+                inline: 'nearest',
+            });
+        });
+
+        it('should call fallback window.scrollTo if scrollIntoView throws', () => {
+            const mockTarget = {
+                scrollIntoView: jest.fn().mockImplementation(() => {
+                    throw new Error('Not supported');
+                }),
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 50 }),
+                offsetHeight: 50,
+            };
+            const customCode = `
+                let topSentinel = null;
+                let blocks = [window.__mockTarget];
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?\}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?\}\n    }/)[0]}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = {
+                ...context,
+                window: {
+                    ...context.window,
+                    __mockTarget: mockTarget,
+                    scrollY: 10,
+                    innerHeight: 500,
+                },
+                document: { ...context.document, documentElement: { scrollHeight: 1000 } },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+
+            customContext.module.exports.scrollToIndexCustom(0);
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 110,
+                behavior: 'smooth',
+            });
+        });
+    });
+
     describe('handleEscapeKey', () => {
         it('should call click and prevent default if .nav-back exists', () => {
             const mockClick = jest.fn();

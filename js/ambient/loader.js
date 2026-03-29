@@ -1,12 +1,27 @@
 /* Ambient assets loader using CDNLoader (no modules) */
 (function () {
-    function shouldSkipLoader() {
-        const prefersReduced =
-            window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        return prefersReduced || window.innerWidth < 1024 || !window.CDNLoader;
-    }
-
     try {
+        /**
+         * Bolt Optimization:
+         * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+         * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
+         * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+         */
+        let prefersReducedMotionMediaQuery = null;
+
+        function shouldSkipLoader() {
+            if (prefersReducedMotionMediaQuery === null && window.matchMedia) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+
+            const prefersReduced = prefersReducedMotionMediaQuery
+                ? prefersReducedMotionMediaQuery.matches
+                : false;
+            return prefersReduced || window.innerWidth < 1024 || !window.CDNLoader;
+        }
+
         if (shouldSkipLoader()) {
             return;
         }

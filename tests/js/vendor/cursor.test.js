@@ -24,11 +24,15 @@ describe('js/vendor/cursor.js', () => {
             appendChild: jest.fn(),
             style: { setProperty: jest.fn(), removeProperty: jest.fn() },
             querySelectorAll: jest.fn().mockReturnValue([]),
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
         };
 
         const mockDocumentElement = {
             classList: { add: jest.fn(), remove: jest.fn(), contains: jest.fn() },
             style: { setProperty: jest.fn(), removeProperty: jest.fn() },
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
         };
 
         context = {
@@ -137,12 +141,25 @@ describe('js/vendor/cursor.js', () => {
         vm.createContext(context);
         vm.runInContext(code, context);
 
+        const mockAddEventListener = jest.fn();
+        const mockRemoveEventListener = jest.fn();
+        const mockRoot = {
+            addEventListener: mockAddEventListener,
+            removeEventListener: mockRemoveEventListener,
+            querySelectorAll: jest.fn().mockReturnValue([]),
+            appendChild: jest.fn(),
+        };
+
         const CustomCursor = vm.runInContext('CustomCursor', context);
-        const cursor = new CustomCursor();
+        const cursor = new CustomCursor({ root: mockRoot });
 
         expect(context.window.addEventListener).toHaveBeenCalledWith(
             'mousemove',
             cursor.onMouseMove
+        );
+        expect(mockRoot.addEventListener).toHaveBeenCalledWith(
+            'mouseover',
+            cursor.onMouseOverHoverTarget
         );
 
         cursor.destroy();
@@ -151,7 +168,54 @@ describe('js/vendor/cursor.js', () => {
             'mousemove',
             cursor.onMouseMove
         );
+        expect(mockRoot.removeEventListener).toHaveBeenCalledWith(
+            'mouseover',
+            cursor.onMouseOverHoverTarget
+        );
         expect(context.cancelAnimationFrame).toHaveBeenCalledWith(123);
+    });
+
+    test('onMouseOverHoverTarget and onMouseOutHoverTarget handle classes correctly', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const CustomCursor = vm.runInContext('CustomCursor', context);
+        const cursor = new CustomCursor();
+
+        const mockTarget = {
+            style: { setProperty: jest.fn() },
+        };
+
+        const mockEventWithTarget = {
+            target: {
+                closest: jest.fn().mockReturnValue(mockTarget),
+            },
+        };
+
+        const mockEventWithoutTarget = {
+            target: {
+                closest: jest.fn().mockReturnValue(null),
+            },
+        };
+
+        // Test over
+        cursor.onMouseOverHoverTarget(mockEventWithTarget);
+        expect(cursor.core.classList.add).toHaveBeenCalledWith(cursor.hoverClass);
+        expect(cursor.coords.scale.current).toBe(cursor.hoverScale);
+        expect(mockTarget.style.setProperty).toHaveBeenCalledWith(
+            'cursor',
+            expect.any(String),
+            'important'
+        );
+
+        cursor.onMouseOverHoverTarget(mockEventWithoutTarget); // should not throw
+
+        // Test out
+        cursor.onMouseOutHoverTarget(mockEventWithTarget);
+        expect(cursor.core.classList.remove).toHaveBeenCalledWith(cursor.hoverClass);
+        expect(cursor.coords.scale.current).toBe(1);
+
+        cursor.onMouseOutHoverTarget(mockEventWithoutTarget); // should not throw
     });
 
     test('onMouseMove updates coordinates', () => {
@@ -166,5 +230,65 @@ describe('js/vendor/cursor.js', () => {
         expect(cursor.coords.x.current).toBe(100);
         expect(cursor.coords.y.current).toBe(200);
         expect(cursor.coords.opacity.current).toBe(1);
+    });
+
+    describe('storeCursorPosition & readStoredCursorPosition fallback', () => {
+        test('gracefully handles sessionStorage SecurityError without throwing', () => {
+            const spyWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            // Create a custom mock window object instead of using global window
+            const mockWindow = {
+                document: {},
+                sessionStorage: {
+                    getItem: jest.fn().mockImplementation(() => {
+                        throw new Error('SecurityError');
+                    }),
+                    setItem: jest.fn().mockImplementation(() => {
+                        throw new Error('SecurityError');
+                    }),
+                    removeItem: jest.fn(),
+                },
+                matchMedia: jest.fn().mockReturnValue({ matches: false }),
+                innerWidth: 1024,
+                innerHeight: 768,
+                console: console,
+            };
+
+            const fs = require('fs');
+            const path = require('path');
+            const vm = require('vm');
+
+            const sourcePath = path.resolve(__dirname, '../../../js/vendor/cursor.js');
+            const code = fs
+                .readFileSync(sourcePath, 'utf8')
+                .replace('export class CustomCursor', 'class CustomCursor')
+                .replace('export function initCursor', 'function initCursor');
+
+            const context = {
+                window: mockWindow,
+                document: mockWindow.document,
+                console: console,
+                setTimeout: setTimeout,
+                clearTimeout: clearTimeout,
+                Date: Date,
+                JSON: JSON,
+                Math: Math,
+                Number: Number,
+            };
+            vm.createContext(context);
+            vm.runInContext(code, context);
+
+            const storeCursorPosition = context.window.__CursorForTesting.storeCursorPosition;
+            const readStoredCursorPosition =
+                context.window.__CursorForTesting.readStoredCursorPosition;
+
+            expect(() => storeCursorPosition({ x: 100, y: 100 })).not.toThrow();
+            expect(() => readStoredCursorPosition()).not.toThrow();
+
+            const result = readStoredCursorPosition();
+            expect(result).toBeNull();
+
+            spyWarn.mockRestore();
+        });
     });
 });

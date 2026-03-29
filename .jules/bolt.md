@@ -36,3 +36,18 @@
 
 **Learning:** Iterating over a DOM `NodeList` multiple times, especially by first doing a boolean check and then converting it to an `Array` using `Array.from()` to use methods like `.find()`, causes unnecessary memory allocations and blocks the main thread during critical page load phases.
 **Action:** Use a single `for...of` loop to iterate over DOM `NodeList` elements and store the reference to the target element directly instead of running multiple iteration passes and creating intermediate `Array` objects.
+
+## 2026-03-24 - Unnecessary DOM/Style Writes in Continuous requestAnimationFrame Loops
+
+**Learning:** Found that the custom cursor in `js/vendor/cursor.js` was continuously evaluating and writing layout updates to the DOM (`gsap.set`) during every `requestAnimationFrame` cycle, even when the cursor's visual position (`current`) and the underlying state (`value`) had converged. This resulted in perpetual layout thrashing and main-thread overhead even when the user wasn't interacting with the site.
+**Action:** Always check if a threshold has been reached (e.g., comparing `Math.abs(current - target) > threshold`) inside continuous render loops. If properties have settled, strictly bypass any subsequent DOM and inline style manipulations to preserve CPU cycles and prevent the browser from constantly re-evaluating layouts.
+
+## 2026-03-25 - Event Delegation for Image Load Events
+
+**Learning:** Found that `bindImageLoadHandlers()` in `js/block-navigation.js` was iterating over `document.images` to attach individual `load` event listeners to every incomplete image. On image-heavy pages, this results in O(N) listener allocations and DOM bindings, increasing memory pressure and initialization time.
+**Action:** When tracking `load` events for many elements (like images), use a single document-level event listener with `useCapture: true` (since `load` events do not bubble) and check `event.target.tagName === 'IMG'`. This O(1) approach leverages event delegation, drastically reducing memory overhead and main-thread execution time.
+
+## 2026-03-26 - Cached MediaQueryList Evaluation
+
+**Learning:** Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. Since `MediaQueryList` properties like `.matches` update automatically when system preferences change, running string query evaluations constantly creates unnecessary bottlenecks.
+**Action:** To minimize main-thread overhead and garbage collection, cache `MediaQueryList` objects from `window.matchMedia` (e.g., for `prefers-reduced-motion`) in module-scoped variables rather than calling the method repeatedly. The `.matches` property of the cached object remains reactive to system preference changes without re-parsing the query. When unit testing this behavior in Node's `vm` context, ensure the cached variable is reset between tests to avoid state leakage.

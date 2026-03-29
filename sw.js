@@ -96,7 +96,17 @@ self.addEventListener('fetch', (event) => {
                     }
                     return res;
                 })
-                .catch(() => {
+                .catch((e) => {
+                    if (
+                        typeof self !== 'undefined' &&
+                        self.console &&
+                        typeof self.console.warn === 'function'
+                    ) {
+                        self.console.warn(
+                            '[ServiceWorker] Network fetch failed, falling back to cache:',
+                            e
+                        );
+                    }
                     // Network failed, try cache
                     return caches.match(req);
                 })

@@ -86,6 +86,11 @@ describe('ga.js bootstrap', () => {
     });
 
     test('gracefully handles throwing inside the try-catch block', () => {
+        context.window = {
+            console: {
+                warn: jest.fn(),
+            },
+        };
         const customCode = code.replace(
             "if (typeof window.ga === 'function') {",
             "if (typeof window.ga === 'function') { throw new Error('GA error');"
@@ -94,6 +99,11 @@ describe('ga.js bootstrap', () => {
             vm.createContext(context);
             vm.runInContext(customCode, context);
         }).not.toThrow();
+        // The error created in vm does not have the same prototype as the host environment's Error, so expect.any(Error) fails
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            'Google Analytics initialization failed:',
+            expect.anything()
+        );
     });
 
     test('handles case where window.ga is not a function', () => {
@@ -103,5 +113,19 @@ describe('ga.js bootstrap', () => {
         vm.runInContext(customCode, context);
 
         expect(context.window.ga).toBe('not-a-function');
+    });
+
+    test('gracefully handles missing window.console.warn without throwing', () => {
+        context.window = {
+            console: {}, // Missing warn
+        };
+        const customCode = code.replace(
+            "if (typeof window.ga === 'function') {",
+            "if (typeof window.ga === 'function') { throw new Error('GA error');"
+        );
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(customCode, context);
+        }).not.toThrow();
     });
 });

@@ -20,11 +20,36 @@ import * as THREE from './vendor/three.module.min.js';
         }
     }
 
+    /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     */
+    let prefersReducedMotionMediaQuery = null;
+
     function prefersReducedMotion() {
         if (typeof window.matchMedia !== 'function') {
             return false;
         }
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try {
+            if (prefersReducedMotionMediaQuery === null) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+            return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[page-transition] prefersReducedMotion error:', e);
+            }
+            return false;
+        }
     }
 
     function canUseWebGL() {
@@ -104,7 +129,8 @@ import * as THREE from './vendor/three.module.min.js';
     }
 
     function storeCaptureData(dataUrl) {
-        if (!dataUrl) {
+        if (!dataUrl || dataUrl.length > 5242880) {
+            // Limit to ~5MB
             return;
         }
         try {
@@ -127,6 +153,10 @@ import * as THREE from './vendor/three.module.min.js';
             const data = window.sessionStorage.getItem(CAPTURE_STORAGE_KEY);
             if (data) {
                 window.sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
+                // Mitigate memory exhaustion DoS: limit to 10MB base64
+                if (data.length > 10485760) {
+                    return null;
+                }
                 return data;
             }
         } catch (e) {
@@ -202,7 +232,15 @@ import * as THREE from './vendor/three.module.min.js';
                     return null;
                 }
             })
-            .catch(() => null); // Explicitly catch and silence html2canvas failures to fallback gracefully
+            .catch((e) => {
+                if (typeof window !== 'undefined' && window.console) {
+                    window.console.warn(
+                        '[page-transition] prepareDestinationTexture returned null',
+                        e
+                    );
+                }
+                return null;
+            }); // Explicitly catch and silence html2canvas failures to fallback gracefully
     }
 
     function loadTextureFromDataURL(dataUrl, THREE) {
@@ -463,7 +501,16 @@ import * as THREE from './vendor/three.module.min.js';
         }
 
         const prepareDestination = () => {
-            this.prepareDestinationTexture().catch(() => {});
+            this.prepareDestinationTexture().catch((e) => {
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[page-transition] prepareDestinationTexture failed:', e);
+                }
+            });
         };
 
         if (document.readyState === 'complete') {
@@ -538,7 +585,16 @@ import * as THREE from './vendor/three.module.min.js';
                 this.uniforms.uTexture0.value = texture;
                 this.textures.previous = texture;
             })
-            .catch(() => {});
+            .catch((e) => {
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[page-transition] applyStoredCaptureTexture failed:', e);
+                }
+            });
         return null;
     };
 
@@ -553,7 +609,20 @@ import * as THREE from './vendor/three.module.min.js';
                     this.textures.current = texture;
                     return texture;
                 })
-                .catch(() => null);
+                .catch((e) => {
+                    if (
+                        typeof window !== 'undefined' &&
+                        window !== null &&
+                        window.console &&
+                        typeof window.console.warn === 'function'
+                    ) {
+                        window.console.warn(
+                            '[page-transition] prepareDestinationTexture image load failed:',
+                            e
+                        );
+                    }
+                    return null;
+                });
         });
     };
 
@@ -736,37 +805,64 @@ import * as THREE from './vendor/three.module.min.js';
         this.progressRaf = window.requestAnimationFrame(step);
     };
 
-    PageTransition.prototype.navigate = function (url) {
-        if (typeof url === 'string') {
-            // Strip leading whitespace and control characters to prevent DOM XSS bypasses
-            url = url.replace(/^[\s\u0000-\u001F]+/g, '');
-            try {
-                const parsedUrl = new window.URL(url, window.location.href);
-                if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-                    // eslint-disable-next-line no-console
-                    console.error('[page-transition] Blocked potentially malicious URL scheme');
-                    return;
+    function getValidatedUrl(url) {
+        if (typeof url !== 'string') {
+            return null;
+        }
+        // Strip leading whitespace and control characters to prevent DOM XSS bypasses
+        const cleanUrl = url.replace(/^[\s\u0000-\u001F]+/g, '');
+        try {
+            const parsedUrl = new window.URL(cleanUrl, window.location.href);
+            if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.error === 'function'
+                ) {
+                    window.console.error(
+                        '[page-transition] Blocked potentially malicious URL scheme'
+                    );
                 }
-                if (parsedUrl.origin !== window.location.origin) {
-                    // eslint-disable-next-line no-console
-                    console.error('[page-transition] Blocked cross-origin navigation');
-                    return;
-                }
-            } catch (e) {
-                // eslint-disable-next-line no-console
-                console.error('[page-transition] Blocked invalid URL', e);
-                return;
+                return null;
             }
-        } else {
-            return; // URL must be a string
+            if (parsedUrl.origin !== window.location.origin) {
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.error === 'function'
+                ) {
+                    window.console.error('[page-transition] Blocked cross-origin navigation');
+                }
+                return null;
+            }
+            return cleanUrl;
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.error === 'function'
+            ) {
+                window.console.error('[page-transition] Blocked invalid URL', e);
+            }
+            return null;
+        }
+    }
+
+    PageTransition.prototype.navigate = function (url) {
+        const validatedUrl = getValidatedUrl(url);
+        if (!validatedUrl) {
+            return;
         }
 
         if (!this.enabled || this.isAnimating) {
-            window.location.assign(url);
+            window.location.assign(validatedUrl);
             return;
         }
         this.isAnimating = true;
-        const targetUrl = this.buildTransitionUrl(url);
+        const targetUrl = this.buildTransitionUrl(validatedUrl);
         this.showOverlay(false);
         this.dimContent(true);
         this.setProgress(0);
@@ -791,7 +887,13 @@ import * as THREE from './vendor/three.module.min.js';
             return;
         }
 
-        const links = Array.prototype.slice.call(document.querySelectorAll('a[' + LINK_ATTR + ']'));
+        /**
+         * Bolt Optimization:
+         * - What: Avoid converting NodeList to Array and use for...of loop directly.
+         * - Why: `document.querySelectorAll` returns a NodeList. Iterating over it directly instead of converting it to an Array with `Array.prototype.slice.call()` avoids unnecessary memory allocation and garbage collection overhead during initialization.
+         * - Impact: Eliminates unnecessary Array object allocation and improves initialization performance.
+         */
+        const links = document.querySelectorAll('a[' + LINK_ATTR + ']');
         function shouldSkipNavBack(element) {
             if (!element) {
                 return false;
@@ -840,7 +942,7 @@ import * as THREE from './vendor/three.module.min.js';
             }
             return isEligibleAnchor(anchor);
         }
-        links.forEach(function (anchor) {
+        for (const anchor of links) {
             anchor.addEventListener('click', function (event) {
                 if (!isValidTransitionClick(event, anchor)) {
                     return;
@@ -848,7 +950,7 @@ import * as THREE from './vendor/three.module.min.js';
                 event.preventDefault();
                 transition.navigate(anchor.href);
             });
-        });
+        }
 
         window.addEventListener('pageshow', function (event) {
             if (!transition.enabled) {
@@ -870,11 +972,17 @@ import * as THREE from './vendor/three.module.min.js';
 
     if (typeof window !== 'undefined') {
         window.__PageTransitionForTesting = {
+            canUseWebGL,
             hasTransitionParam,
+            clearTransitionParam,
             clampUnit,
             parseRgbFunction,
             hexToRgbArray,
             parseColor,
+            updateHistoryUrl,
+            storeCaptureData,
+            consumeCaptureData,
+            getValidatedUrl,
             _Constructor: PageTransition,
         };
     }
