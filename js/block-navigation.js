@@ -520,6 +520,7 @@
             getIndexFromFallback,
             calculateNextIndex,
             scrollToIndex,
+            performScroll,
         };
     }
 })();
