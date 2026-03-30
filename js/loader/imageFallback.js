@@ -4,7 +4,7 @@
     try {
         function attach(el) {
             const listAttr = el.getAttribute('data-fallbacks');
-            if (!listAttr) {
+            if (!listAttr || listAttr.length > 1024) {
                 return;
             }
             let list;
