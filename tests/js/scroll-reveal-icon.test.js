@@ -40,6 +40,7 @@ describe('scroll-reveal-icon.js', () => {
                 scrollY: 0,
                 innerHeight: 500,
                 addEventListener: addEventListenerMock,
+                requestAnimationFrame: jest.fn((cb) => cb()),
             },
             setTimeout: setTimeoutMock,
         });
