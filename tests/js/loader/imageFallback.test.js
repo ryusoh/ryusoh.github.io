@@ -59,6 +59,13 @@ describe('imageFallback.js', () => {
         expect(imgElement.addEventListener).not.toHaveBeenCalled();
     });
 
+    it('should do nothing if data-fallbacks string exceeds length limit', () => {
+        const longString = '[' + '"a"'.repeat(1000) + ']';
+        imgElement.getAttribute.mockReturnValue(longString);
+        vm.runInContext(sourceCode, context);
+        expect(imgElement.addEventListener).not.toHaveBeenCalled();
+    });
+
     it('should do nothing if data-fallbacks is not an array', () => {
         imgElement.getAttribute.mockReturnValue('{"key": "value"}');
         vm.runInContext(sourceCode, context);
