@@ -40,6 +40,7 @@ describe('scroll-reveal-icon.js', () => {
                 scrollY: 0,
                 innerHeight: 500,
                 addEventListener: addEventListenerMock,
+                requestAnimationFrame: jest.fn((cb) => cb()),
             },
             setTimeout: setTimeoutMock,
         });
@@ -67,7 +68,7 @@ describe('scroll-reveal-icon.js', () => {
         context.window.scrollY = 450; // 450 + 500 = 950 >= 1000 - 50
         vm.runInContext(sourceCode, context);
 
-        const updateVisibility = addEventListenerMock.mock.calls.find(
+        const onScrollOrResize = addEventListenerMock.mock.calls.find(
             (call) => call[0] === 'scroll'
         )[1];
 
@@ -78,7 +79,7 @@ describe('scroll-reveal-icon.js', () => {
         iconElement.classList.remove.mockClear();
 
         context.window.scrollY = 900;
-        updateVisibility();
+        onScrollOrResize();
         expect(iconElement.classList.add).toHaveBeenCalledWith('is-visible');
     });
 
@@ -86,7 +87,7 @@ describe('scroll-reveal-icon.js', () => {
         context.window.scrollY = 0; // 0 + 500 = 500 < 1000 - 50
         vm.runInContext(sourceCode, context);
 
-        const updateVisibility = addEventListenerMock.mock.calls.find(
+        const onScrollOrResize = addEventListenerMock.mock.calls.find(
             (call) => call[0] === 'scroll'
         )[1];
 
@@ -97,7 +98,7 @@ describe('scroll-reveal-icon.js', () => {
         iconElement.classList.remove.mockClear();
 
         context.window.scrollY = 400;
-        updateVisibility();
+        onScrollOrResize();
         expect(iconElement.classList.remove).toHaveBeenCalledWith('is-visible');
     });
 

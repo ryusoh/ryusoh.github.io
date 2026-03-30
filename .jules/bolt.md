@@ -51,3 +51,8 @@
 
 **Learning:** Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. Since `MediaQueryList` properties like `.matches` update automatically when system preferences change, running string query evaluations constantly creates unnecessary bottlenecks.
 **Action:** To minimize main-thread overhead and garbage collection, cache `MediaQueryList` objects from `window.matchMedia` (e.g., for `prefers-reduced-motion`) in module-scoped variables rather than calling the method repeatedly. The `.matches` property of the cached object remains reactive to system preference changes without re-parsing the query. When unit testing this behavior in Node's `vm` context, ensure the cached variable is reset between tests to avoid state leakage.
+
+## 2026-03-29 - Layout Thrashing from Synchronous DOM Reads in Scroll Listeners
+
+**Learning:** Found that `js/scroll-reveal-icon.js` attached raw `scroll` and `resize` event handlers (`window.addEventListener('scroll', updateVisibility)`) that immediately read DOM layout properties (`document.documentElement.scrollHeight`, `window.scrollY`, `window.innerHeight`). On complex pages, these frequent, un-throttled DOM geometry queries inside scroll ticks force the browser to recalculate layouts synchronously, causing layout thrashing and scroll jitter.
+**Action:** Always throttle `scroll` and `resize` event handlers that query or manipulate the DOM by deferring execution to the next frame using a `requestAnimationFrame` loop, managed by a boolean `ticking` lock. This ensures layout recalculations occur exactly once per frame, preventing main-thread congestion.
