@@ -1132,6 +1132,10 @@ td {
     border-radius: 2px;
 }
 
+[tabindex='-1']:focus {
+    outline: none !important;
+}
+
 /* --- Scroll Reveal Instagram Icon --- */
 .scroll-reveal-instagram {
     display: block;

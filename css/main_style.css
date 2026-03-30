@@ -506,6 +506,10 @@ footer {
     border-radius: 2px;
 }
 
+[tabindex='-1']:focus {
+    outline: none !important;
+}
+
 /* --- Mobile Banner --- */
 @media (min-width: 769px) {
     .mobile-banner {

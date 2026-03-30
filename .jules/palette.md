@@ -27,3 +27,8 @@
 
 **Learning:** "Skip to content" links (with visually hidden `.sr-only` classes) are great for keyboard users, but if the target element (like `<main id="main">`) is not inherently focusable, some browsers will scroll the viewport but fail to move the actual focus. When the user presses Tab again, focus jumps back to the top of the page.
 **Action:** Always add `tabindex="-1"` to the target element of a skip link. This makes the element programmatically focusable without adding it to the normal tab order, ensuring focus is reliably transferred so the next Tab keypress moves into the main content.
+
+## 2026-11-22 - [Hide Focus Ring on Skip Link Targets]
+
+**Learning:** When using `tabindex="-1"` to make non-interactive layout elements programmatically focusable (like `<main>` for 'Skip to content' targets), browsers often apply a default focus ring. This ring is visually confusing as the element is not interactive.
+**Action:** Pair the `tabindex="-1"` attribute on layout targets with a global CSS rule like `[tabindex="-1"]:focus { outline: none !important; }` to prevent default focus rings, ensuring a clean visual experience while maintaining accessibility.
