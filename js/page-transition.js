@@ -813,9 +813,7 @@ import * as THREE from './vendor/three.module.min.js';
                 window.console &&
                 typeof window.console.error === 'function'
             ) {
-                window.console.error(
-                    '[page-transition] Blocked potentially malicious URL scheme'
-                );
+                window.console.error('[page-transition] Blocked potentially malicious URL scheme');
             }
             return false;
         }
