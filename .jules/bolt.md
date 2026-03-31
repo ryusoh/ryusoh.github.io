@@ -56,3 +56,7 @@
 
 **Learning:** Found that `updateVisibility` in `js/scroll-reveal-icon.js` was being called synchronously on every `scroll` and `resize` event. This function reads `scrollHeight`, `scrollTop`, and `innerHeight`. Calling these layout properties inside high-frequency event listeners forces the browser to synchronously recalculate layout on the main thread multiple times per frame, causing scroll jitter and layout thrashing.
 **Action:** When handling `scroll` or `resize` events that require reading DOM layout geometry, always decouple the callback execution from the event listener by using `requestAnimationFrame` paired with a boolean locking flag (`ticking`). This ensures that the expensive DOM reads happen at most once per frame and are synchronized with the browser's native render cycle.
+
+## 2026-03-28 - Avoid String Concatenation in Canvas Render Loops
+**Learning:** Found that the ambient canvas effect was concatenating strings (`'rgba(255,255,255,' + p.a + ')'`) to set `ctx.fillStyle` for every particle inside the 60FPS `requestAnimationFrame` loop. With hundreds of particles, this creates thousands of short-lived string allocations per second, leading to significant memory churn and garbage collection pauses.
+**Action:** Always prefer using a static `ctx.fillStyle` combined with dynamically updating `ctx.globalAlpha` inside high-frequency canvas drawing loops to eliminate string allocation overhead.
