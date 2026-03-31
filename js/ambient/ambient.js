@@ -34,19 +34,16 @@
      */
     let prefersReducedMotionMediaQuery = null;
 
-    function shouldSkip(C, force) {
-        if (!window.Sketch) {
-            return true;
-        }
-        if (force) {
-            return false;
-        }
+    function getPrefersReducedMotion() {
         try {
             if (prefersReducedMotionMediaQuery === null && window.matchMedia) {
                 prefersReducedMotionMediaQuery = window.matchMedia(
                     '(prefers-reduced-motion: reduce)'
                 );
             }
+            return prefersReducedMotionMediaQuery
+                ? prefersReducedMotionMediaQuery.matches
+                : false;
         } catch (e) {
             if (
                 typeof window !== 'undefined' &&
@@ -56,10 +53,18 @@
             ) {
                 window.console.warn('[ambient] prefersReducedMotion error:', e);
             }
+            return false;
         }
-        const reduce = prefersReducedMotionMediaQuery
-            ? prefersReducedMotionMediaQuery.matches
-            : false;
+    }
+
+    function shouldSkip(C, force) {
+        if (!window.Sketch) {
+            return true;
+        }
+        if (force) {
+            return false;
+        }
+        const reduce = getPrefersReducedMotion();
         const large = window.innerWidth >= C.minWidth;
         const enabled = C.enabled;
         if (!enabled || (reduce && C.respectReducedMotion !== false)) {

@@ -240,7 +240,7 @@ import * as THREE from './vendor/three.module.min.js';
                     );
                 }
                 return null;
-            }); // Explicitly catch and silence html2canvas failures to fallback gracefully
+            });
     }
 
     function loadTextureFromDataURL(dataUrl, THREE) {
@@ -805,6 +805,38 @@ import * as THREE from './vendor/three.module.min.js';
         this.progressRaf = window.requestAnimationFrame(step);
     };
 
+    function isValidProtocol(parsedUrl) {
+        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.error === 'function'
+            ) {
+                window.console.error(
+                    '[page-transition] Blocked potentially malicious URL scheme'
+                );
+            }
+            return false;
+        }
+        return true;
+    }
+
+    function isValidOrigin(parsedUrl) {
+        if (parsedUrl.origin !== window.location.origin) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.error === 'function'
+            ) {
+                window.console.error('[page-transition] Blocked cross-origin navigation');
+            }
+            return false;
+        }
+        return true;
+    }
+
     function getValidatedUrl(url) {
         if (typeof url !== 'string') {
             return null;
@@ -813,28 +845,10 @@ import * as THREE from './vendor/three.module.min.js';
         const cleanUrl = url.replace(/^[\s\u0000-\u001F]+/g, '');
         try {
             const parsedUrl = new window.URL(cleanUrl, window.location.href);
-            if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.error === 'function'
-                ) {
-                    window.console.error(
-                        '[page-transition] Blocked potentially malicious URL scheme'
-                    );
-                }
+            if (!isValidProtocol(parsedUrl)) {
                 return null;
             }
-            if (parsedUrl.origin !== window.location.origin) {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.error === 'function'
-                ) {
-                    window.console.error('[page-transition] Blocked cross-origin navigation');
-                }
+            if (!isValidOrigin(parsedUrl)) {
                 return null;
             }
             return cleanUrl;
