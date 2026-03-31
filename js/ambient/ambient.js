@@ -41,9 +41,7 @@
                     '(prefers-reduced-motion: reduce)'
                 );
             }
-            return prefersReducedMotionMediaQuery
-                ? prefersReducedMotionMediaQuery.matches
-                : false;
+            return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
         } catch (e) {
             if (
                 typeof window !== 'undefined' &&
