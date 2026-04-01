@@ -805,6 +805,52 @@ import * as THREE from './vendor/three.module.min.js';
         this.progressRaf = window.requestAnimationFrame(step);
     };
 
+    function logTransitionError(message, error = null) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.error === 'function'
+        ) {
+            if (error) {
+                window.console.error(message, error);
+            } else {
+                window.console.error(message);
+            }
+        }
+    }
+
+    function logTransitionWarn(message, error = null) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            if (error) {
+                window.console.warn(message, error);
+            } else {
+                window.console.warn(message);
+            }
+        }
+    }
+
+    function validateUrlProtocol(parsedUrl) {
+        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+            logTransitionError('[page-transition] Blocked potentially malicious URL scheme');
+            return false;
+        }
+        return true;
+    }
+
+    function validateUrlOrigin(parsedUrl) {
+        if (parsedUrl.origin !== window.location.origin) {
+            logTransitionError('[page-transition] Blocked cross-origin navigation');
+            return false;
+        }
+        return true;
+    }
+
     function getValidatedUrl(url) {
         if (typeof url !== 'string') {
             return null;
@@ -813,40 +859,15 @@ import * as THREE from './vendor/three.module.min.js';
         const cleanUrl = url.replace(/^[\s\u0000-\u001F]+/g, '');
         try {
             const parsedUrl = new window.URL(cleanUrl, window.location.href);
-            if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.error === 'function'
-                ) {
-                    window.console.error(
-                        '[page-transition] Blocked potentially malicious URL scheme'
-                    );
-                }
+            if (!validateUrlProtocol(parsedUrl)) {
                 return null;
             }
-            if (parsedUrl.origin !== window.location.origin) {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.error === 'function'
-                ) {
-                    window.console.error('[page-transition] Blocked cross-origin navigation');
-                }
+            if (!validateUrlOrigin(parsedUrl)) {
                 return null;
             }
             return cleanUrl;
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.error === 'function'
-            ) {
-                window.console.error('[page-transition] Blocked invalid URL', e);
-            }
+            logTransitionWarn('[page-transition] Blocked invalid URL', e);
             return null;
         }
     }

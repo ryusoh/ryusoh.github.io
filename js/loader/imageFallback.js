@@ -11,8 +11,10 @@
             try {
                 list = JSON.parse(listAttr);
             } catch (error) {
-                // eslint-disable-next-line no-console
-                console.warn('Caught exception:', error);
+                if (typeof window !== 'undefined' && window.console) {
+                    // eslint-disable-next-line no-console
+                    console.warn('Caught exception:', error);
+                }
                 list = [];
             }
             if (!Array.isArray(list) || list.length === 0) {
@@ -44,7 +46,9 @@
             attach(imgs[j]);
         }
     } catch (error) {
-        // eslint-disable-next-line no-console
-        console.warn('Caught exception:', error);
+        if (typeof window !== 'undefined' && window.console) {
+            // eslint-disable-next-line no-console
+            console.warn('Caught exception:', error);
+        }
     }
 })();

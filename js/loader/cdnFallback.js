@@ -15,8 +15,10 @@
             }
             document.head.appendChild(fragment);
         } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error('Preconnect failed:', e);
+            if (typeof window !== 'undefined' && window.console) {
+                // eslint-disable-next-line no-console
+                console.warn('Preconnect failed:', e);
+            }
         }
     }
     function loadScriptSequential(urls, attrs) {

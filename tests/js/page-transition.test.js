@@ -157,7 +157,7 @@ describe('page-transition.js', () => {
             });
             expect(getValidatedUrl('/page')).toBeNull();
             // Error objects generated within Node's vm context in Jest should use expect.anything()
-            expect(context.window.console.error).toHaveBeenCalledWith(
+            expect(context.window.console.warn).toHaveBeenCalledWith(
                 '[page-transition] Blocked invalid URL',
                 expect.anything()
             );

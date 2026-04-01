@@ -67,6 +67,7 @@ describe('CDNLoader', () => {
             Promise: Promise,
         };
 
+        context.window.console = context.console;
         context.window.document = mockDocument;
         context.document.defaultView = mockWindow;
 
@@ -114,7 +115,7 @@ describe('CDNLoader', () => {
                 throw error;
             });
             expect(() => loader.preconnect(['https://example.com'])).not.toThrow();
-            expect(context.console.error).toHaveBeenCalledWith('Preconnect failed:', error);
+            expect(context.console.warn).toHaveBeenCalledWith('Preconnect failed:', error);
         });
 
         it('should not append anything if origins array is empty', () => {
