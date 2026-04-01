@@ -117,6 +117,22 @@ describe('FontAwesomeLoader', () => {
             expect(() => loader.handleLoadFailure()).not.toThrow();
         });
 
+        test('should process chevron-right fallback correctly', () => {
+            const chevronRight = {
+                style: { visibility: 'hidden' },
+                dataset: { fahidden: 'true' },
+                classList: { contains: (cls) => cls === 'fa-chevron-right' },
+                textContent: '',
+            };
+
+            loader.faIcons = [chevronRight];
+            loader.handleLoadFailure();
+
+            // Right now handleLoadFailure doesn't handle chevron-right specifically, it falls into the `else` and gets hidden.
+            // Wait, does it?
+            expect(chevronRight.style.display).toBe('none');
+        });
+
         test('should process chevron-left fallback correctly', () => {
             const chevron = {
                 style: { visibility: 'hidden' },

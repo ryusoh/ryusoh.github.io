@@ -247,4 +247,11 @@ describe('CDNLoader', () => {
             await expect(promise).resolves.toBeUndefined();
         });
     });
+
+    describe('empty urls edge case for loadScriptSequential', () => {
+        it('should reject if urls is empty', async () => {
+            const { loadScriptSequential } = context.window.CDNLoader;
+            await expect(loadScriptSequential([])).rejects.toThrow('all failed: ');
+        });
+    });
 });
