@@ -140,4 +140,26 @@ describe('imageFallback.js', () => {
 
         expect(consoleWarnMock).toHaveBeenCalledWith('Caught exception:', expect.any(Error));
     });
+
+    it('should sanitize fallback array and remove non-string elements', () => {
+        imgElement.getAttribute.mockReturnValue('["url1", 123, "url2", null, {}, "url3"]');
+        vm.runInContext(sourceCode, context);
+
+        expect(imgElement.src).toBe('url1');
+
+        const errorListener = addEventListenerMock.mock.calls.find(
+            (call) => call[0] === 'error'
+        )[1];
+        errorListener(); // Next sets src to list[0] which is url1
+        expect(imgElement.src).toBe('url1');
+
+        errorListener(); // Next should be url2
+        expect(imgElement.src).toBe('url2');
+
+        errorListener(); // Next should be url3
+        expect(imgElement.src).toBe('url3');
+
+        errorListener(); // Stop at url3
+        expect(imgElement.src).toBe('url3');
+    });
 });
