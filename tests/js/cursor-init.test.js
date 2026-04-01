@@ -120,4 +120,16 @@ describe('js/cursor-init.js', () => {
 
         expect(customContext.window.cursorInstances).toBeUndefined();
     });
+
+    test('does not execute if document is not defined', () => {
+        const customCode = `
+            let document; // shadow the document
+            ${code}
+        `;
+
+        vm.createContext(context);
+        vm.runInContext(customCode, context);
+
+        expect(context.document.addEventListener).not.toHaveBeenCalled();
+    });
 });

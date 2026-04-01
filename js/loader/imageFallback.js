@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 /* Simple <img> fallback: looks for data-fallbacks='["url1","url2",...]' */
 (function () {
     try {
