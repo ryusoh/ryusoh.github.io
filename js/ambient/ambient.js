@@ -88,24 +88,29 @@
         if (shouldSkip(C, force)) {
             return;
         }
-        const s = window.Sketch.create({
-            container: document.body,
-            retina: true,
-            interval: 2,
-            globals: false,
-            autopause: true,
-        });
-        s.canvas.className += ' ambient-canvas';
-        s.canvas.style.position = 'fixed';
-        s.canvas.style.top = '0';
-        s.canvas.style.left = '0';
-        s.canvas.style.pointerEvents = 'none';
-        s.canvas.style.zIndex = String(C.zIndex);
-        s.canvas.style.width = '100vw';
-        s.canvas.style.height = '100vh';
-        if (trace) {
-            s.canvas.style.background = 'rgba(255,0,0,0.06)';
+        function initSketchCanvas(C, trace) {
+            const sketchInstance = window.Sketch.create({
+                container: document.body,
+                retina: true,
+                interval: 2,
+                globals: false,
+                autopause: true,
+            });
+            sketchInstance.canvas.className += ' ambient-canvas';
+            sketchInstance.canvas.style.position = 'fixed';
+            sketchInstance.canvas.style.top = '0';
+            sketchInstance.canvas.style.left = '0';
+            sketchInstance.canvas.style.pointerEvents = 'none';
+            sketchInstance.canvas.style.zIndex = String(C.zIndex);
+            sketchInstance.canvas.style.width = '100vw';
+            sketchInstance.canvas.style.height = '100vh';
+            if (trace) {
+                sketchInstance.canvas.style.background = 'rgba(255,0,0,0.06)';
+            }
+            return sketchInstance;
         }
+
+        const s = initSketchCanvas(C, trace);
         function metrics() {
             const ratio = window.devicePixelRatio || 1;
             const cw = s.canvas && s.canvas.clientWidth ? s.canvas.clientWidth : window.innerWidth;
