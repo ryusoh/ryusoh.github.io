@@ -326,6 +326,8 @@
             window.__AmbientForTesting = {
                 getConfig: getConfig,
                 shouldSkip: shouldSkip,
+                getAmbientParam: getAmbientParam,
+                metrics: metrics,
             };
         }
     } catch (e) {
