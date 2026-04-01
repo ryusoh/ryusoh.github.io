@@ -495,6 +495,16 @@ describe('page-transition.js', () => {
             );
         });
 
+        test('should catch and log error if dataUrl payload exceeds 5MB limit', () => {
+            context.window.sessionStorage.setItem.mockClear();
+
+            // Generate a string larger than 5242880 characters
+            const largeString = 'a'.repeat(5242881);
+            storeCaptureData(largeString);
+
+            expect(context.window.sessionStorage.setItem).not.toHaveBeenCalled();
+        });
+
         test('should return early if dataUrl is falsy', () => {
             context.window.sessionStorage.setItem.mockClear();
             storeCaptureData(null);
