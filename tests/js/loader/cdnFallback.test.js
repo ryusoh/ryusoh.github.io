@@ -69,7 +69,7 @@ describe('CDNLoader', () => {
                 throw error;
             });
             expect(() => loader.preconnect(['https://example.com'])).not.toThrow();
-            expect(console.error).toHaveBeenCalledWith('Preconnect failed:', error);
+            expect(console.warn).toHaveBeenCalledWith('Preconnect failed:', error);
         });
 
         it('should not append anything if origins array is empty', () => {
