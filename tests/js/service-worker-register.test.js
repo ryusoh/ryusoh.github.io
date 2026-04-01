@@ -87,6 +87,22 @@ describe('service-worker-register', () => {
         expect(context.navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
     });
 
+    test('gracefully handles missing window.console.warn when hostname parsing fails', () => {
+        Object.defineProperty(context.window.location, 'hostname', {
+            get: () => {
+                throw new Error('SecurityError');
+            },
+        });
+        context.window.console = {}; // no warn
+
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+        }).not.toThrow();
+
+        expect(context.navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
+    });
+
     test('bails out if window is undefined', () => {
         delete context.window;
         vm.createContext(context);
