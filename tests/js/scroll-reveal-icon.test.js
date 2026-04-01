@@ -108,4 +108,17 @@ describe('scroll-reveal-icon.js', () => {
         vm.runInContext(sourceCode, context);
         expect(iconElement.classList.add).toHaveBeenCalledWith('is-visible');
     });
+
+    it('should not call requestAnimationFrame if ticking is true', () => {
+        // mock requestAnimationFrame to not call cb so ticking stays true
+        context.window.requestAnimationFrame = jest.fn();
+        vm.runInContext(sourceCode, context);
+
+        const onScroll = addEventListenerMock.mock.calls.find((call) => call[0] === 'scroll')[1];
+        onScroll();
+        expect(context.window.requestAnimationFrame).toHaveBeenCalledTimes(1);
+
+        onScroll();
+        expect(context.window.requestAnimationFrame).toHaveBeenCalledTimes(1); // Still 1 because ticking is true
+    });
 });

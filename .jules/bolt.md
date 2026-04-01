@@ -52,7 +52,14 @@
 **Learning:** Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. Since `MediaQueryList` properties like `.matches` update automatically when system preferences change, running string query evaluations constantly creates unnecessary bottlenecks.
 **Action:** To minimize main-thread overhead and garbage collection, cache `MediaQueryList` objects from `window.matchMedia` (e.g., for `prefers-reduced-motion`) in module-scoped variables rather than calling the method repeatedly. The `.matches` property of the cached object remains reactive to system preference changes without re-parsing the query. When unit testing this behavior in Node's `vm` context, ensure the cached variable is reset between tests to avoid state leakage.
 
-## 2026-03-29 - Layout Thrashing from Synchronous DOM Reads in Scroll Listeners
 
-**Learning:** Found that `js/scroll-reveal-icon.js` attached raw `scroll` and `resize` event handlers (`window.addEventListener('scroll', updateVisibility)`) that immediately read DOM layout properties (`document.documentElement.scrollHeight`, `window.scrollY`, `window.innerHeight`). On complex pages, these frequent, un-throttled DOM geometry queries inside scroll ticks force the browser to recalculate layouts synchronously, causing layout thrashing and scroll jitter.
-**Action:** Always throttle `scroll` and `resize` event handlers that query or manipulate the DOM by deferring execution to the next frame using a `requestAnimationFrame` loop, managed by a boolean `ticking` lock. This ensures layout recalculations occur exactly once per frame, preventing main-thread congestion.
+## 2026-03-27 - Throttle Synchronous DOM Reads in Scroll Listeners
+
+**Learning:** Found that `updateVisibility` in `js/scroll-reveal-icon.js` was being called synchronously on every `scroll` and `resize` event. This function reads `scrollHeight`, `scrollTop`, and `innerHeight`. Calling these layout properties inside high-frequency event listeners forces the browser to synchronously recalculate layout on the main thread multiple times per frame, causing scroll jitter and layout thrashing.
+**Action:** When handling `scroll` or `resize` events that require reading DOM layout geometry, always decouple the callback execution from the event listener by using `requestAnimationFrame` paired with a boolean locking flag (`ticking`). This ensures that the expensive DOM reads happen at most once per frame and are synchronized with the browser's native render cycle.
+
+## 2026-03-28 - Avoid String Concatenation in Canvas Render Loops
+
+**Learning:** Found that the ambient canvas effect was concatenating strings (`'rgba(255,255,255,' + p.a + ')'`) to set `ctx.fillStyle` for every particle inside the 60FPS `requestAnimationFrame` loop. With hundreds of particles, this creates thousands of short-lived string allocations per second, leading to significant memory churn and garbage collection pauses.
+
+**Action:** Always prefer using a static `ctx.fillStyle` combined with dynamically updating `ctx.globalAlpha` inside high-frequency canvas drawing loops to eliminate string allocation overhead.

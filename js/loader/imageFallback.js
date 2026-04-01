@@ -1,10 +1,9 @@
-/* istanbul ignore file */
 /* Simple <img> fallback: looks for data-fallbacks='["url1","url2",...]' */
 (function () {
     try {
         function attach(el) {
             const listAttr = el.getAttribute('data-fallbacks');
-            if (!listAttr) {
+            if (!listAttr || listAttr.length > 1024) {
                 return;
             }
             let list;
@@ -18,6 +17,19 @@
             if (!Array.isArray(list) || list.length === 0) {
                 return;
             }
+
+            // Return a sanitized, fresh array containing only validated string properties
+            const sanitizedList = [];
+            for (let k = 0; k < list.length; k++) {
+                if (typeof list[k] === 'string') {
+                    sanitizedList.push(list[k]);
+                }
+            }
+            list = sanitizedList;
+            if (list.length === 0) {
+                return;
+            }
+
             el.classList.remove('is-fallback-ready');
             let i = 0;
             function tryNext() {

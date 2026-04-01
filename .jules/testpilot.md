@@ -21,3 +21,11 @@
 ## 2025-03-21 - Extracting nested unexported functions in IIFEs
 
 **Learning:** When extracting an internal function from an IIFE for isolated testing in a vm context, use a non-greedy multiline regex (e.g., `code.match(/function myFunc\(\) {[\s\S]*?}/)[0]`) to reliably extract its exact source string, rather than complex `.replace()` chains that mangle closure scopes.
+
+## 2024-05-18 - Defensive Missing Global Fallback
+
+**Learning:** When asserting behavior in Edge Cases for utilities expecting globals (e.g. `window.console` during failure states), one must test both if `window.console` is missing entirely and if specific properties (e.g. `window.console.warn`) are missing, to ensure defensive coding doesn't inadvertently mask failures by crashing.
+
+## 2024-05-18 - Testing Early Exit and Rate Limit Conditions
+
+**Learning:** When checking logic that includes rate limits, boundaries, or early exits to avoid re-running calculations (e.g., bypassing fallback logic in `font-awesome-loader` if `this.fontAwesomeLoaded` is already true, or early exiting in `page-transition.js` if the payload exceeds 5MB), verify that these explicit conditions prevent internal API calls like `sessionStorage.setItem` or `stopChecking` using `.not.toHaveBeenCalled()`.
