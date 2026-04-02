@@ -117,6 +117,22 @@ describe('FontAwesomeLoader', () => {
             expect(() => loader.handleLoadFailure()).not.toThrow();
         });
 
+        test('should process chevron-right fallback correctly', () => {
+            const chevronRight = {
+                style: { visibility: 'hidden' },
+                dataset: { fahidden: 'true' },
+                classList: { contains: (cls) => cls === 'fa-chevron-right' },
+                textContent: '',
+            };
+
+            loader.faIcons = [chevronRight];
+            loader.handleLoadFailure();
+
+            // Right now handleLoadFailure doesn't handle chevron-right specifically, it falls into the `else` and gets hidden.
+            // Wait, does it?
+            expect(chevronRight.style.display).toBe('none');
+        });
+
         test('should process chevron-left fallback correctly', () => {
             const chevron = {
                 style: { visibility: 'hidden' },
@@ -386,6 +402,24 @@ describe('FontAwesomeLoader', () => {
             expect(loader.fontAwesomeLoaded).toBe(true);
             expect(loader.showIcons).toHaveBeenCalled();
             expect(loader.stopChecking).toHaveBeenCalled();
+        });
+
+        test('should do nothing if fontAwesomeLoaded is true when CSS onload fires', () => {
+            const mockLink1 = { href: 'https://example.com/font-awesome.css', onload: null };
+            context.document.querySelectorAll.mockReturnValue([mockLink1]);
+
+            loader.waitForFontLoad();
+            context.__timeoutCb();
+
+            // Set it to true before the onload callback executes (simulating the interval check already finding it)
+            loader.fontAwesomeLoaded = true;
+            loader.stopChecking = jest.fn();
+
+            mockLink1.onload();
+
+            // Should not call showIcons or stopChecking again
+            expect(loader.showIcons).not.toHaveBeenCalled();
+            expect(loader.stopChecking).not.toHaveBeenCalled();
         });
     });
 });

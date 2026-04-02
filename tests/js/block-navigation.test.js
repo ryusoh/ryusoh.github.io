@@ -160,6 +160,183 @@ describe('block-navigation', () => {
         });
     });
 
+    describe('scrollFallback', () => {
+        it('should scroll with top offset 0 if isFirstContentBlock is true', () => {
+            const mockTarget = {
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 200 }),
+                offsetHeight: 200,
+            };
+            const customCode = `
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                module.exports.scrollFallbackCustom = scrollFallback;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 50, innerHeight: 500 },
+                document: { ...context.document, documentElement: { scrollHeight: 1000 } },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            customContext.module.exports.scrollFallbackCustom(mockTarget, 'smooth', true);
+
+            // top: clampScrollTop(100 + 50 - 0) = 150
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 150,
+                behavior: 'smooth',
+            });
+        });
+
+        it('should scroll with centered offset if isFirstContentBlock is false', () => {
+            const mockTarget = {
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 200 }),
+                offsetHeight: 200,
+            };
+            const customCode = `
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                module.exports.scrollFallbackCustom = scrollFallback;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 50, innerHeight: 500 },
+                document: { ...context.document, documentElement: { scrollHeight: 1000 } },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            customContext.module.exports.scrollFallbackCustom(mockTarget, 'smooth', false);
+
+            // offset: Math.max(0, (500 - Math.max(200, 1)) / 2) = (500 - 200) / 2 = 150
+            // top: clampScrollTop(100 + 50 - 150) = clampScrollTop(0) = 0
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
+        });
+
+        it('should use offsetHeight if getBoundingClientRect().height is falsy', () => {
+            const mockTarget = {
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 0 }),
+                offsetHeight: 200,
+            };
+            const customCode = `
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                module.exports.scrollFallbackCustom = scrollFallback;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 50, innerHeight: 500 },
+                document: { ...context.document, documentElement: { scrollHeight: 1000 } },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            customContext.module.exports.scrollFallbackCustom(mockTarget, 'smooth', false);
+
+            // offset: Math.max(0, (500 - Math.max(200, 1)) / 2) = (500 - 200) / 2 = 150
+            // top: clampScrollTop(100 + 50 - 150) = clampScrollTop(0) = 0
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
+        });
+    });
+
+    describe('performScroll', () => {
+        it('should scroll to top if isTopSentinel is true', () => {
+            const mockTarget = {};
+            const customCode = `
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?scrollFallback\(target, behavior, isFirstContentBlock\);\n            }\n        }\n    }/)[0]}
+                module.exports.performScrollCustom = performScroll;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            customContext.module.exports.performScrollCustom(mockTarget, true, 'smooth', true);
+
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
+        });
+
+        it("should use scrollIntoView if scrollIntoView is available and doesn't throw", () => {
+            const mockTarget = { scrollIntoView: jest.fn() };
+            const customCode = `
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?scrollFallback\(target, behavior, isFirstContentBlock\);\n            }\n        }\n    }/)[0]}
+                module.exports.performScrollCustom = performScroll;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            customContext.module.exports.performScrollCustom(mockTarget, false, 'smooth', true);
+
+            expect(mockTarget.scrollIntoView).toHaveBeenCalledWith({
+                behavior: 'smooth',
+                block: 'start',
+                inline: 'nearest',
+            });
+            expect(customContext.window.scrollTo).not.toHaveBeenCalled();
+        });
+
+        it('should fallback to scrollFallback if scrollIntoView is not available', () => {
+            const mockTarget = {
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 200 }),
+                offsetHeight: 200,
+            };
+            const customCode = `
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?scrollFallback\(target, behavior, isFirstContentBlock\);\n            }\n        }\n    }/)[0]}
+                module.exports.performScrollCustom = performScroll;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 50, innerHeight: 500 },
+                document: { ...context.document, documentElement: { scrollHeight: 1000 } },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            customContext.module.exports.performScrollCustom(mockTarget, false, 'smooth', true);
+
+            // top: clampScrollTop(100 + 50 - 0) = 150
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 150,
+                behavior: 'smooth',
+            });
+        });
+
+        it('should fallback to scrollFallback if scrollIntoView throws an error', () => {
+            const mockTarget = {
+                scrollIntoView: jest.fn().mockImplementation(() => {
+                    throw new Error('Not supported');
+                }),
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 200 }),
+                offsetHeight: 200,
+            };
+            const customCode = `
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?scrollFallback\(target, behavior, isFirstContentBlock\);\n            }\n        }\n    }/)[0]}
+                module.exports.performScrollCustom = performScroll;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 50, innerHeight: 500 },
+                document: { ...context.document, documentElement: { scrollHeight: 1000 } },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            customContext.module.exports.performScrollCustom(mockTarget, false, 'smooth', true);
+
+            // top: clampScrollTop(100 + 50 - 0) = 150
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 150,
+                behavior: 'smooth',
+            });
+        });
+    });
+
     describe('scrollToIndex', () => {
         it('should not do anything if index is out of bounds', () => {
             const customCode = `
@@ -487,6 +664,61 @@ describe('block-navigation', () => {
             // maxScroll = NaN
             expect(clampScrollTop(300)).toBe(300);
             expect(clampScrollTop(-100)).toBe(0);
+        });
+    });
+
+    describe('isParagraphElement', () => {
+        it('should return true if element matches .post-content p', () => {
+            const mockElement = {
+                matches: jest.fn().mockReturnValue(true),
+            };
+            const customCode = `
+                ${code.match(/function isParagraphElement\(element\) {[\s\S]*?return \([\s\S]*?\);\n    }/)[0]}
+                module.exports.isParagraphElementCustom = isParagraphElement;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.isParagraphElementCustom(mockElement)).toBe(true);
+            expect(mockElement.matches).toHaveBeenCalledWith('.post-content p');
+        });
+
+        it('should return false if element does not match .post-content p', () => {
+            const mockElement = {
+                matches: jest.fn().mockReturnValue(false),
+            };
+            const customCode = `
+                ${code.match(/function isParagraphElement\(element\) {[\s\S]*?return \([\s\S]*?\);\n    }/)[0]}
+                module.exports.isParagraphElementCustom = isParagraphElement;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.isParagraphElementCustom(mockElement)).toBe(false);
+            expect(mockElement.matches).toHaveBeenCalledWith('.post-content p');
+        });
+
+        it('should return falsy if element is falsy', () => {
+            const customCode = `
+                ${code.match(/function isParagraphElement\(element\) {[\s\S]*?return \([\s\S]*?\);\n    }/)[0]}
+                module.exports.isParagraphElementCustom = isParagraphElement;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.isParagraphElementCustom(null)).toBeFalsy();
+        });
+
+        it('should return falsy if element has no matches method', () => {
+            const mockElement = {};
+            const customCode = `
+                ${code.match(/function isParagraphElement\(element\) {[\s\S]*?return \([\s\S]*?\);\n    }/)[0]}
+                module.exports.isParagraphElementCustom = isParagraphElement;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.isParagraphElementCustom(mockElement)).toBe(false);
         });
     });
 

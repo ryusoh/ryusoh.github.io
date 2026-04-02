@@ -56,6 +56,191 @@ describe('js/ambient/ambient.js', () => {
         context.window.document = context.document;
     });
 
+    describe('getAmbientParam', () => {
+        let getAmbientParam;
+
+        beforeEach(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+            getAmbientParam = context.window.__AmbientForTesting.getAmbientParam;
+        });
+
+        test('returns null if URLSearchParams is missing', () => {
+            delete context.window.URLSearchParams;
+            expect(getAmbientParam()).toBeNull();
+        });
+
+        test('returns the value of ambient param', () => {
+            context.window.location.search = '?ambient=debug';
+            expect(getAmbientParam()).toBe('debug');
+        });
+
+        test('returns null if search is empty', () => {
+            context.window.location.search = '';
+            expect(getAmbientParam()).toBeNull();
+        });
+
+        test('returns null if ambient is not present', () => {
+            context.window.location.search = '?other=true';
+            expect(getAmbientParam()).toBeNull();
+        });
+    });
+
+    describe('metrics', () => {
+        let metrics;
+        let mockSketchInstance;
+
+        beforeEach(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+            metrics = context.window.__AmbientForTesting.metrics;
+            // Get the instance created inside the script
+            mockSketchInstance = mockSketch.create.mock.results[0].value;
+        });
+
+        test('returns default metrics using window dimensions', () => {
+            mockSketchInstance.canvas = null; // simulate missing canvas
+            const m = metrics();
+            expect(m.cw).toBe(1200);
+            expect(m.ch).toBe(800);
+            expect(m.width).toBe(1200);
+            expect(m.height).toBe(800);
+            expect(m.ratio).toBe(1);
+        });
+
+        test('returns metrics based on canvas dimensions', () => {
+            mockSketchInstance.canvas.clientWidth = 500;
+            mockSketchInstance.canvas.clientHeight = 400;
+            mockSketchInstance.canvas.width = 1000;
+            mockSketchInstance.canvas.height = 800;
+            context.window.devicePixelRatio = 2;
+
+            const m = metrics();
+            expect(m.cw).toBe(500);
+            expect(m.ch).toBe(400);
+            expect(m.width).toBe(500);
+            expect(m.height).toBe(400);
+            expect(m.ratio).toBe(2);
+        });
+
+        test('handles missing devicePixelRatio gracefully', () => {
+            delete context.window.devicePixelRatio;
+            const m = metrics();
+            expect(m.ratio).toBe(1);
+        });
+    });
+
+    describe('shouldSkip', () => {
+        let shouldSkip;
+        let getConfig;
+
+        beforeEach(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+            shouldSkip = context.window.__AmbientForTesting.shouldSkip;
+            getConfig = context.window.__AmbientForTesting.getConfig;
+        });
+
+        test('returns true if window.Sketch is missing', () => {
+            delete context.window.Sketch;
+            expect(shouldSkip(getConfig(null, false), false)).toBe(true);
+        });
+
+        test('returns false if force is true', () => {
+            expect(shouldSkip(getConfig(null, false), true)).toBe(false);
+        });
+
+        test('handles window.matchMedia throwing an error and logs warning', () => {
+            context.window.matchMedia.mockImplementation(() => {
+                throw new Error('matchMedia error');
+            });
+            context.window.console.warn = jest.fn();
+
+            // Re-eval in fresh context to reset cached media query
+            const freshContext = { ...context };
+            freshContext.window.matchMedia = jest.fn().mockImplementation(() => {
+                throw new Error('matchMedia error');
+            });
+            freshContext.window.console.warn = jest.fn();
+            vm.createContext(freshContext);
+            vm.runInContext(code, freshContext);
+
+            const freshShouldSkip = freshContext.window.__AmbientForTesting.shouldSkip;
+            const freshGetConfig = freshContext.window.__AmbientForTesting.getConfig;
+
+            const C = freshGetConfig(null, false);
+            expect(freshShouldSkip(C, false)).toBe(false); // falls back to false for reduce
+            expect(freshContext.window.console.warn).toHaveBeenCalledWith(
+                '[ambient] prefersReducedMotion error:',
+                expect.anything()
+            );
+        });
+
+        test('returns true if C.enabled is false', () => {
+            const C = getConfig(null, false);
+            C.enabled = false;
+            expect(shouldSkip(C, false)).toBe(true);
+        });
+
+        test('returns true if reduce is true and respectReducedMotion is true', () => {
+            const modifiedCode = code.replace(
+                /let prefersReducedMotionMediaQuery = null;/g,
+                'var prefersReducedMotionMediaQuery = null;'
+            );
+            const freshContext = {
+                ...context,
+                window: {
+                    ...context.window,
+                    matchMedia: jest.fn().mockReturnValue({ matches: true }),
+                    location: { search: '?ambient=on' }, // force it to load so __AmbientForTesting is attached
+                },
+            };
+            vm.createContext(freshContext);
+            vm.runInContext(modifiedCode, freshContext);
+
+            const freshShouldSkip = freshContext.window.__AmbientForTesting.shouldSkip;
+            const freshGetConfig = freshContext.window.__AmbientForTesting.getConfig;
+
+            const C = freshGetConfig(null, false);
+            C.respectReducedMotion = true;
+            C.minWidth = 0; // Ensure minWidth doesn't cause it to be true independently
+            freshContext.window.innerWidth = 1000;
+            expect(freshShouldSkip(C, false)).toBe(true);
+        });
+
+        test('returns false if reduce is true but respectReducedMotion is false', () => {
+            const modifiedCode = code.replace(
+                /let prefersReducedMotionMediaQuery = null;/g,
+                'var prefersReducedMotionMediaQuery = null;'
+            );
+            const freshContext = {
+                ...context,
+                window: {
+                    ...context.window,
+                    matchMedia: jest.fn().mockReturnValue({ matches: true }),
+                    location: { search: '?ambient=on' },
+                },
+            };
+            vm.createContext(freshContext);
+            vm.runInContext(modifiedCode, freshContext);
+
+            const freshShouldSkip = freshContext.window.__AmbientForTesting.shouldSkip;
+            const freshGetConfig = freshContext.window.__AmbientForTesting.getConfig;
+
+            const C = freshGetConfig(null, false);
+            C.respectReducedMotion = false;
+            C.minWidth = 0;
+            freshContext.window.innerWidth = 1000;
+            expect(freshShouldSkip(C, false)).toBe(false);
+        });
+
+        test('returns true if not large enough', () => {
+            const C = getConfig(null, false);
+            context.window.innerWidth = 500;
+            expect(shouldSkip(C, false)).toBe(true);
+        });
+    });
+
     describe('getConfig', () => {
         let getConfig;
 

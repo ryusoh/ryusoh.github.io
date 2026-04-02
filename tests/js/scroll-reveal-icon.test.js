@@ -40,6 +40,7 @@ describe('scroll-reveal-icon.js', () => {
                 scrollY: 0,
                 innerHeight: 500,
                 addEventListener: addEventListenerMock,
+                requestAnimationFrame: jest.fn((cb) => cb()),
             },
             setTimeout: setTimeoutMock,
         });
@@ -106,5 +107,18 @@ describe('scroll-reveal-icon.js', () => {
         context.document.documentElement.scrollTop = 450; // 450 + 500 = 950 >= 1000 - 50
         vm.runInContext(sourceCode, context);
         expect(iconElement.classList.add).toHaveBeenCalledWith('is-visible');
+    });
+
+    it('should not call requestAnimationFrame if ticking is true', () => {
+        // mock requestAnimationFrame to not call cb so ticking stays true
+        context.window.requestAnimationFrame = jest.fn();
+        vm.runInContext(sourceCode, context);
+
+        const onScroll = addEventListenerMock.mock.calls.find((call) => call[0] === 'scroll')[1];
+        onScroll();
+        expect(context.window.requestAnimationFrame).toHaveBeenCalledTimes(1);
+
+        onScroll();
+        expect(context.window.requestAnimationFrame).toHaveBeenCalledTimes(1); // Still 1 because ticking is true
     });
 });
