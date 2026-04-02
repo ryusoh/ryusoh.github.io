@@ -1,3 +1,5 @@
+
 ## 2025-04-02 - Extracting methods for cyclomatic complexity
+
 **Learning:** When using the `eslint.ESLint` API programmatically (e.g., via a Node script) to lint files with flat configs, avoid passing negated glob patterns (like `!js/vendor/**/*.js`) to `lintFiles()`, as this can throw an `AllFilesIgnoredError`. Instead, rely on the existing ignores in `eslint.config.cjs`, or pass explicit file lists.
 **Action:** Created internal helper functions in `js/ambient/ambient.js`, `js/ambient/quantum_particles.js`, and `js/page-transition.js` to keep cyclomatic complexity strictly below 10 while maintaining identical functionality.
