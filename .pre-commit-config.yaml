@@ -39,6 +39,7 @@ repos:
             language: system
             files: '\\.(js|css|json|yml|yaml|md|html)$'
             pass_filenames: true
+            stages: [pre-commit, manual]
 
     - repo: local
       hooks:
@@ -48,6 +49,7 @@ repos:
             language: system
             types_or: [javascript]
             pass_filenames: true
+            stages: [pre-commit, manual]
 
     - repo: local
       hooks:
@@ -57,6 +59,7 @@ repos:
             language: system
             types_or: [css]
             pass_filenames: true
+            stages: [pre-commit, manual]
 
     # JS tests (commit): related tests only
     - repo: local
