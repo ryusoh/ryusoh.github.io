@@ -176,12 +176,14 @@ import * as THREE from './vendor/three.module.min.js';
     function getCaptureScroll() {
         return {
             x: window.scrollX || window.pageXOffset || 0,
-            y: window.scrollY || window.pageYOffset || 0
+            y: window.scrollY || window.pageYOffset || 0,
         };
     }
 
     function getCaptureBgColor() {
-        const computedStyle = window.getComputedStyle ? window.getComputedStyle(document.body) : null;
+        const computedStyle = window.getComputedStyle
+            ? window.getComputedStyle(document.body)
+            : null;
         return (computedStyle && computedStyle.backgroundColor) || '#000';
     }
 
