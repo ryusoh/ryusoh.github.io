@@ -18,12 +18,13 @@ describe('imageFallback.js', () => {
         consoleWarnMock = jest.fn();
 
         imgElement = {
+            tagName: 'IMG',
+            hasAttribute: jest.fn().mockImplementation((attr) => attr === 'data-fallbacks'),
             getAttribute: jest.fn(),
             classList: {
                 add: jest.fn(),
                 remove: jest.fn(),
             },
-            addEventListener: addEventListenerMock,
             src: '',
             complete: false,
             naturalWidth: 0,
@@ -32,6 +33,7 @@ describe('imageFallback.js', () => {
         context = vm.createContext({
             document: {
                 querySelectorAll: jest.fn(() => [imgElement]),
+                addEventListener: addEventListenerMock,
             },
             console: {
                 warn: consoleWarnMock,
@@ -49,42 +51,42 @@ describe('imageFallback.js', () => {
     it('should do nothing if data-fallbacks is missing', () => {
         imgElement.getAttribute.mockReturnValue(null);
         vm.runInContext(sourceCode, context);
-        expect(imgElement.addEventListener).not.toHaveBeenCalled();
+        expect(imgElement.src).toBe(''); // No changes
     });
 
     it('should warn and do nothing if data-fallbacks is invalid JSON', () => {
         imgElement.getAttribute.mockReturnValue('invalid-json');
         vm.runInContext(sourceCode, context);
         expect(consoleWarnMock).toHaveBeenCalledWith('Caught exception:', expect.any(Error));
-        expect(imgElement.addEventListener).not.toHaveBeenCalled();
+        expect(imgElement.src).toBe(''); // No changes
     });
 
     it('should do nothing if data-fallbacks string exceeds length limit', () => {
         const longString = '[' + '"a"'.repeat(1000) + ']';
         imgElement.getAttribute.mockReturnValue(longString);
         vm.runInContext(sourceCode, context);
-        expect(imgElement.addEventListener).not.toHaveBeenCalled();
+        expect(imgElement.src).toBe(''); // No changes
     });
 
     it('should do nothing if data-fallbacks is not an array', () => {
         imgElement.getAttribute.mockReturnValue('{"key": "value"}');
         vm.runInContext(sourceCode, context);
-        expect(imgElement.addEventListener).not.toHaveBeenCalled();
+        expect(imgElement.src).toBe(''); // No changes
     });
 
     it('should do nothing if data-fallbacks is an empty array', () => {
         imgElement.getAttribute.mockReturnValue('[]');
         vm.runInContext(sourceCode, context);
-        expect(imgElement.addEventListener).not.toHaveBeenCalled();
+        expect(imgElement.src).toBe(''); // No changes
     });
 
-    it('should setup fallback listeners and set src to first fallback if src is empty', () => {
+    it('should set internal properties and set src to first fallback if src is empty', () => {
         imgElement.getAttribute.mockReturnValue('["url1", "url2"]');
         vm.runInContext(sourceCode, context);
 
         expect(imgElement.classList.remove).toHaveBeenCalledWith('is-fallback-ready');
-        expect(imgElement.addEventListener).toHaveBeenCalledWith('load', expect.any(Function));
-        expect(imgElement.addEventListener).toHaveBeenCalledWith('error', expect.any(Function));
+        expect(imgElement.__fallbackList).toEqual(['url1', 'url2']);
+        expect(imgElement.__fallbackIndex).toBe(0);
         expect(imgElement.src).toBe('url1');
     });
 
@@ -99,17 +101,24 @@ describe('imageFallback.js', () => {
         expect(imgElement.classList.add).toHaveBeenCalledWith('is-fallback-ready');
     });
 
-    it('should add "is-fallback-ready" class on load event', () => {
+    it('should bind global document load and error event listeners correctly', () => {
+        vm.runInContext(sourceCode, context);
+        expect(addEventListenerMock).toHaveBeenCalledWith('load', expect.any(Function), true);
+        expect(addEventListenerMock).toHaveBeenCalledWith('error', expect.any(Function), true);
+    });
+
+    it('should add "is-fallback-ready" class when global load event fires for valid image', () => {
         imgElement.getAttribute.mockReturnValue('["url1", "url2"]');
         vm.runInContext(sourceCode, context);
 
         const loadListener = addEventListenerMock.mock.calls.find((call) => call[0] === 'load')[1];
-        loadListener();
+
+        loadListener({ target: imgElement });
 
         expect(imgElement.classList.add).toHaveBeenCalledWith('is-fallback-ready');
     });
 
-    it('should try next url on error event', () => {
+    it('should try next url when global error event fires for valid image', () => {
         imgElement.getAttribute.mockReturnValue('["url1", "url2"]');
         vm.runInContext(sourceCode, context);
 
@@ -119,14 +128,14 @@ describe('imageFallback.js', () => {
 
         expect(imgElement.src).toBe('url1');
 
-        errorListener(); // Trigger error
+        errorListener({ target: imgElement }); // First error listener triggers list[i++] where i=0, so it sets it to list[0] which is 'url1'
 
-        expect(imgElement.src).toBe('url1'); // The first call to error listener actually sets list[i++] where i was 0. So it sets to list[0] which is 'url1'. This is fine. Wait, let's verify if tryNext works:
+        expect(imgElement.src).toBe('url1');
 
-        errorListener(); // Next call sets it to 'url2'
+        errorListener({ target: imgElement }); // Next sets it to 'url2'
         expect(imgElement.src).toBe('url2');
 
-        errorListener(); // No more fallbacks
+        errorListener({ target: imgElement }); // No more fallbacks
         expect(imgElement.src).toBe('url2');
     });
 
@@ -150,16 +159,17 @@ describe('imageFallback.js', () => {
         const errorListener = addEventListenerMock.mock.calls.find(
             (call) => call[0] === 'error'
         )[1];
-        errorListener(); // Next sets src to list[0] which is url1
+
+        errorListener({ target: imgElement }); // Next sets src to list[0] which is url1
         expect(imgElement.src).toBe('url1');
 
-        errorListener(); // Next should be url2
+        errorListener({ target: imgElement }); // Next should be url2
         expect(imgElement.src).toBe('url2');
 
-        errorListener(); // Next should be url3
+        errorListener({ target: imgElement }); // Next should be url3
         expect(imgElement.src).toBe('url3');
 
-        errorListener(); // Stop at url3
+        errorListener({ target: imgElement }); // Stop at url3
         expect(imgElement.src).toBe('url3');
     });
 });

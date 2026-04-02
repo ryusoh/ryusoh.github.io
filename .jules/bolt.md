@@ -62,3 +62,8 @@
 **Learning:** Found that the ambient canvas effect was concatenating strings (`'rgba(255,255,255,' + p.a + ')'`) to set `ctx.fillStyle` for every particle inside the 60FPS `requestAnimationFrame` loop. With hundreds of particles, this creates thousands of short-lived string allocations per second, leading to significant memory churn and garbage collection pauses.
 
 **Action:** Always prefer using a static `ctx.fillStyle` combined with dynamically updating `ctx.globalAlpha` inside high-frequency canvas drawing loops to eliminate string allocation overhead.
+## 2026-04-02 - Event Delegation for Fallback Images
+
+**Learning:** Found that `imageFallback.js` was iterating over all images with `data-fallbacks` and attaching individual `load` and `error` event listeners. On image-heavy pages with hundreds of fallback images, this consumes unnecessary memory (O(N) listeners) and increases initialization overhead.
+
+**Action:** To optimize tracking of numerous image loading states and minimize memory allocations on image-heavy pages, utilize event delegation via a single document-level capturing listener for `load` and `error` events (using `useCapture: true`) rather than attaching individual listeners to iterating DOM node collections.
