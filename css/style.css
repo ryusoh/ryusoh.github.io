@@ -1178,3 +1178,8 @@ td {
         padding-bottom: calc(10px + env(safe-area-inset-bottom));
     }
 }
+
+/* Remove default focus ring for programmatically focusable non-interactive layout elements */
+[tabindex='-1']:focus {
+    outline: none !important;
+}
