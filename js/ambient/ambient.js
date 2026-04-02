@@ -1,6 +1,15 @@
 // Ambient background effect (localized copy)
 // Expects window.Sketch and optional window.AMBIENT_CONFIG
-(function () {
+(function initAmbient() {
+    function applyDebugOverrides(C) {
+        C.zIndex = 999;
+        C.radius = { min: C.radius.min * 2, max: C.radius.max * 2 };
+        C.alpha = { min: Math.min(0.4, C.alpha.min * 2), max: Math.min(0.8, C.alpha.max * 2) };
+        C.speed = Math.max(C.speed, 0.3);
+        C.densityDivisor = Math.max(15000, C.densityDivisor - 10000);
+        return C;
+    }
+
     function getConfig(force, trace) {
         const C = Object.assign(
             {
@@ -17,11 +26,7 @@
             window.AMBIENT_CONFIG || {}
         );
         if (force === 'debug' || trace) {
-            C.zIndex = 999;
-            C.radius = { min: C.radius.min * 2, max: C.radius.max * 2 };
-            C.alpha = { min: Math.min(0.4, C.alpha.min * 2), max: Math.min(0.8, C.alpha.max * 2) };
-            C.speed = Math.max(C.speed, 0.3);
-            C.densityDivisor = Math.max(15000, C.densityDivisor - 10000);
+            return applyDebugOverrides(C);
         }
         return C;
     }
@@ -74,20 +79,14 @@
         return false;
     }
 
-    try {
-        function getAmbientParam() {
-            if (typeof window.URLSearchParams === 'undefined') {
-                return null;
-            }
-            return new window.URLSearchParams(window.location.search || '').get('ambient');
+    function getAmbientParam() {
+        if (typeof window.URLSearchParams === 'undefined') {
+            return null;
         }
-        const force = getAmbientParam();
-        const trace = force === 'trace';
-        const C = getConfig(force, trace);
+        return new window.URLSearchParams(window.location.search || '').get('ambient');
+    }
 
-        if (shouldSkip(C, force)) {
-            return;
-        }
+    function runAmbient(C, force, trace) {
         function initSketchCanvas(C, trace) {
             const sketchInstance = window.Sketch.create({
                 container: document.body,
@@ -111,18 +110,22 @@
         }
 
         const s = initSketchCanvas(C, trace);
+        function getDim(c, clientProp, baseProp, winVal, ratio) {
+            const cv = c && c[clientProp] ? c[clientProp] : winVal;
+            const bv = c && c[baseProp] ? c[baseProp] : cv * ratio;
+            return { cv, bv };
+        }
+
         function metrics() {
             const ratio = window.devicePixelRatio || 1;
-            const cw = s.canvas && s.canvas.clientWidth ? s.canvas.clientWidth : window.innerWidth;
-            const ch =
-                s.canvas && s.canvas.clientHeight ? s.canvas.clientHeight : window.innerHeight;
-            const pw = s.canvas && s.canvas.width ? s.canvas.width : cw * ratio;
-            const ph = s.canvas && s.canvas.height ? s.canvas.height : ch * ratio;
-            const width = pw / ratio;
-            const height = ph / ratio;
+            const w = getDim(s.canvas, 'clientWidth', 'width', window.innerWidth, ratio);
+            const h = getDim(s.canvas, 'clientHeight', 'height', window.innerHeight, ratio);
+
+            const width = w.bv / ratio;
+            const height = h.bv / ratio;
             s.width = width;
             s.height = height;
-            return { width: width, height: height, cw: cw, ch: ch, ratio: ratio };
+            return { width: width, height: height, cw: w.cv, ch: h.cv, ratio: ratio };
         }
 
         const MAX = C.maxParticles,
@@ -347,6 +350,18 @@
                 metrics: metrics,
             };
         }
+    }
+
+    try {
+        const force = getAmbientParam();
+        const trace = force === 'trace';
+        const C = getConfig(force, trace);
+
+        if (shouldSkip(C, force)) {
+            return;
+        }
+
+        runAmbient(C, force, trace);
     } catch (e) {
         if (
             typeof window !== 'undefined' &&

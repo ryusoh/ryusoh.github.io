@@ -173,6 +173,18 @@ import * as THREE from './vendor/three.module.min.js';
         return null;
     }
 
+    function getCaptureScroll() {
+        return {
+            x: window.scrollX || window.pageXOffset || 0,
+            y: window.scrollY || window.pageYOffset || 0
+        };
+    }
+
+    function getCaptureBgColor() {
+        const computedStyle = window.getComputedStyle ? window.getComputedStyle(document.body) : null;
+        return (computedStyle && computedStyle.backgroundColor) || '#000';
+    }
+
     function getCaptureOptions() {
         const viewportWidth = Math.max(window.innerWidth || 1, 1);
         const viewportHeight = Math.max(window.innerHeight || 1, 1);
@@ -180,12 +192,9 @@ import * as THREE from './vendor/three.module.min.js';
             1.2,
             Math.max(CAPTURE_SCALE, 1000 / Math.max(viewportWidth, viewportHeight))
         );
-        const scrollX = window.scrollX || window.pageXOffset || 0;
-        const scrollY = window.scrollY || window.pageYOffset || 0;
-        const computedStyle = window.getComputedStyle
-            ? window.getComputedStyle(document.body)
-            : null;
-        const bgColor = (computedStyle && computedStyle.backgroundColor) || '#000';
+
+        const scroll = getCaptureScroll();
+        const bgColor = getCaptureBgColor();
 
         return {
             logging: false,
@@ -196,10 +205,10 @@ import * as THREE from './vendor/three.module.min.js';
             height: viewportHeight,
             windowWidth: document.documentElement.clientWidth,
             windowHeight: document.documentElement.clientHeight,
-            scrollX: scrollX,
-            scrollY: scrollY,
-            x: scrollX,
-            y: scrollY,
+            scrollX: scroll.x,
+            scrollY: scroll.y,
+            x: scroll.x,
+            y: scroll.y,
         };
     }
 
