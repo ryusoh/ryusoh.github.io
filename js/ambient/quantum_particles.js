@@ -70,13 +70,20 @@ function hasWebGLSupport() {
 }
 
 function isSearchParamAvailable() {
-    return typeof window !== 'undefined' &&
-           typeof window.location !== 'undefined' &&
-           typeof window.URLSearchParams === 'function';
+    return (
+        typeof window !== 'undefined' &&
+        typeof window.location !== 'undefined' &&
+        typeof window.URLSearchParams === 'function'
+    );
 }
 
 function logWarning(msg, e) {
-    if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
+    if (
+        typeof window !== 'undefined' &&
+        window !== null &&
+        window.console &&
+        typeof window.console.warn === 'function'
+    ) {
         window.console.warn(msg, e);
     }
 }
