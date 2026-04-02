@@ -69,26 +69,26 @@ function hasWebGLSupport() {
     }
 }
 
+function isSearchParamAvailable() {
+    return typeof window !== 'undefined' &&
+           typeof window.location !== 'undefined' &&
+           typeof window.URLSearchParams === 'function';
+}
+
+function logWarning(msg, e) {
+    if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
+        window.console.warn(msg, e);
+    }
+}
+
 function getForceMode() {
-    if (typeof window === 'undefined' || typeof window.location === 'undefined') {
+    if (!isSearchParamAvailable()) {
         return null;
     }
     try {
-        if (typeof window.URLSearchParams !== 'function') {
-            return null;
-        }
-        const usp = new window.URLSearchParams(window.location.search || '');
-        return usp.get('ambient');
+        return new window.URLSearchParams(window.location.search || '').get('ambient');
     } catch (e) {
-        // Fallback gracefully if URLSearchParams parsing fails
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
-            window.console.warn('URLSearchParams parsing failed:', e);
-        }
+        logWarning('URLSearchParams parsing failed:', e);
         return null;
     }
 }
