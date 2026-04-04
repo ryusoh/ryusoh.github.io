@@ -114,4 +114,19 @@ describe('loader/vendorLoader.js', () => {
             vm.runInContext(code, context);
         }).not.toThrow();
     });
+
+    test('gracefully handles completely missing window.console without throwing', () => {
+        context.window = {}; // Missing console completely
+
+        Object.defineProperty(context.window, 'CDNLoader', {
+            get: () => {
+                throw new Error('Simulated config error');
+            },
+        });
+
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+        }).not.toThrow();
+    });
 });

@@ -91,6 +91,18 @@ describe('js/cursor-init.js', () => {
         }).not.toThrow();
     });
 
+    test('does not execute if window.gsap is missing and document exists', () => {
+        delete context.window.gsap;
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        // Trigger DOMContentLoaded
+        context.__domContentLoadedCb();
+
+        expect(mockInitCursor).not.toHaveBeenCalled();
+    });
+
     test('does not throw when initCursor throws but allows bubbling', () => {
         context.window.gsap = {}; // Mock GSAP
 
