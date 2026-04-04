@@ -98,4 +98,20 @@ describe('ambient/config/default.js', () => {
             vm.runInContext(code, context);
         }).not.toThrow();
     });
+
+    test('gracefully handles completely missing window.console without throwing', () => {
+        context.window = {}; // Missing console entirely
+
+        // Use a Proxy or defineProperty to throw when AMBIENT_CONFIG is accessed/set
+        Object.defineProperty(context.window, 'AMBIENT_CONFIG', {
+            get: () => {
+                throw new Error('Simulated config error');
+            },
+        });
+
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+        }).not.toThrow();
+    });
 });
