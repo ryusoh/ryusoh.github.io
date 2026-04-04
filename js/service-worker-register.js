@@ -53,6 +53,14 @@
                 });
             })
             .catch(function (error) {
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('Service worker registration failed:', error);
+                }
                 emitEvent('serviceWorker:registrationError', {
                     message: error && error.message ? error.message : '',
                 });
