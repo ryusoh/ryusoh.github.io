@@ -174,7 +174,17 @@ class AssetPreloader {
         if ('serviceWorker' in navigator) {
             // Wait for content to load, then preload other page assets
             window.addEventListener('load', () => {
-                this.preloadForCurrentPage();
+                /**
+                 * Bolt Optimization:
+                 * - What: Defer asset preloading using `requestIdleCallback`.
+                 * - Why: Preloading assets immediately on `load` can block the main thread and compete with other post-load tasks (like rendering the page or hydrating).
+                 * - Impact: Improves Time to Interactive (TTI) by shifting low-priority preloading work to browser idle periods.
+                 */
+                if (window.requestIdleCallback) {
+                    window.requestIdleCallback(() => this.preloadForCurrentPage());
+                } else {
+                    setTimeout(() => this.preloadForCurrentPage(), 1);
+                }
             });
         }
     }
