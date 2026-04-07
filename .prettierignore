@@ -4,6 +4,8 @@ assets/
 dist/
 venv/
 js/vendor/
+js/viewer.min.js
+js/ga.js
 .husky/_/
 .mypy_cache/
 .pytest_cache/
