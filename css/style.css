@@ -210,6 +210,20 @@ a.nav-back:focus {
     color: #ce2323;
     opacity: 1;
 }
+a.nav-back .kbd-hint {
+    font-family: monospace;
+    font-size: 0.6em;
+    margin-left: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    vertical-align: middle;
+    letter-spacing: 1px;
+}
+a.nav-back:hover .kbd-hint,
+a.nav-back:focus .kbd-hint {
+    opacity: 1;
+}
+
 nav {
     position: fixed;
     top: 0;
