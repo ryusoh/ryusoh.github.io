@@ -45,11 +45,13 @@ describe('AssetPreloader', () => {
                 pathname: '/',
             },
             addEventListener: jest.fn(),
+            requestIdleCallback: jest.fn((cb) => cb()),
         };
 
         context = {
             document: mockDocument,
             window: mockWindow,
+            setTimeout: jest.fn((cb) => cb()),
             navigator: {
                 serviceWorker: {},
             },
