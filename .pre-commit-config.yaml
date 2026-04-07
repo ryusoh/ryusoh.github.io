@@ -35,7 +35,7 @@ repos:
       hooks:
           - id: prettier
             name: prettier (staged files)
-            entry: ./scripts/run-npx.sh -y -p prettier@3.5.2 prettier --write --config .prettierrc.cjs --ignore-path .prettierignore --
+            entry: ./scripts/run-npx.sh -y -p prettier@3.8.1 prettier --write --config .prettierrc.cjs --ignore-path .prettierignore --
             language: system
             files: '\\.(js|css|json|yml|yaml|md|html)$'
             pass_filenames: true

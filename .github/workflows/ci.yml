@@ -95,9 +95,9 @@ jobs:
                   if [ -f .prettierrc.cjs ]; then
                     IGNORE_ARG=""
                     if [ -f .prettierignore ]; then IGNORE_ARG="--ignore-path .prettierignore"; fi
-                    npx --yes -p prettier@3.5.2 prettier -c . --config .prettierrc.cjs $IGNORE_ARG
+                    npx --yes -p prettier@3.8.1 prettier -c . --config .prettierrc.cjs $IGNORE_ARG
                   elif [ -n "${{ hashFiles('.prettierrc*') }}" ]; then
-                    npx --yes -p prettier@3.5.2 prettier -c .
+                    npx --yes -p prettier@3.8.1 prettier -c .
                   else
                     echo "No Prettier config found; skipping"
                   fi
