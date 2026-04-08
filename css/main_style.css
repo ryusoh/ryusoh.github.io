@@ -579,4 +579,8 @@ footer {
 [tabindex='-1']:focus {
     outline: none !important;
 }
-.quote-attribution { font-style: italic; font-size: 16px; text-align: right; }
+.quote-attribution {
+    font-style: italic;
+    font-size: 16px;
+    text-align: right;
+}
