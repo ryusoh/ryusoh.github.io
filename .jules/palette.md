@@ -32,3 +32,8 @@
 
 **Learning:** When using `tabindex="-1"` to make non-interactive layout elements programmatically focusable (like `<main>` for 'Skip to content' targets), browsers often apply a default focus ring. This ring is visually confusing as the element is not interactive.
 **Action:** Pair the `tabindex="-1"` attribute on layout targets with a global CSS rule like `[tabindex="-1"]:focus { outline: none !important; }` to prevent default focus rings, ensuring a clean visual experience while maintaining accessibility.
+
+## 2024-04-08 - [Accessibility: Predictability of External Links]
+
+**Learning:** When using `target="_blank"` on links, screen reader users can be disoriented if a new window/tab opens without warning. Additionally, applying `target="_blank"` to `mailto:` links is a UX anti-pattern that spawns an unnecessary blank browser tab before opening the native email client.
+**Action:** Always append " (opens in a new tab)" to the `aria-label` (or include visually hidden text) for links with `target="_blank"`. Never use `target="_blank"` on `mailto:` links.
