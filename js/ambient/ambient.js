@@ -83,7 +83,19 @@
         if (typeof window.URLSearchParams === 'undefined') {
             return null;
         }
-        return new window.URLSearchParams(window.location.search || '').get('ambient');
+        try {
+            return new window.URLSearchParams(window.location.search || '').get('ambient');
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('URLSearchParams parsing failed:', e);
+            }
+            return null;
+        }
     }
 
     function runAmbient(C, force, trace) {
