@@ -677,6 +677,11 @@ article .container .row blockquote footer cite:before {
     color: #ccc;
     padding: 0 0.5em;
 }
+.quote-attribution {
+    font-style: italic;
+    font-size: 16px;
+    text-align: right;
+}
 article .container .row .pullquote {
     float: right;
     border: none;
