@@ -29,3 +29,7 @@
 ## 2024-05-18 - Testing Early Exit and Rate Limit Conditions
 
 **Learning:** When checking logic that includes rate limits, boundaries, or early exits to avoid re-running calculations (e.g., bypassing fallback logic in `font-awesome-loader` if `this.fontAwesomeLoaded` is already true, or early exiting in `page-transition.js` if the payload exceeds 5MB), verify that these explicit conditions prevent internal API calls like `sessionStorage.setItem` or `stopChecking` using `.not.toHaveBeenCalled()`.
+
+## 2025-03-24 - Defensive Coding Practices and Refactoring Code
+
+**Learning:** When addressing code smells like 'no-empty' catch blocks, 'no-unused-expressions', and complexity violations in vanilla JS utilities, it is crucial to employ defensive checking for the global environment (e.g. `typeof window !== 'undefined'`, checking if `window.console` and `window.console.warn` exist). The `void` operator can be used to explicitly evaluate an expression while safely indicating to tools like ESLint that the return value is intentionally ignored (e.g., `void this.container.offsetHeight;`).
