@@ -102,7 +102,10 @@
             return false;
         }
 
-        if (element.matches('script, style, noscript') || element.closest('[data-block-nav="ignore"]')) {
+        if (
+            element.matches('script, style, noscript') ||
+            element.closest('[data-block-nav="ignore"]')
+        ) {
             return false;
         }
 

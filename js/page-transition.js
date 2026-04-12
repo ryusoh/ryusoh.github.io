@@ -576,9 +576,7 @@ import * as THREE from './vendor/three.module.min.js';
                     return texture;
                 })
                 .catch((e) => {
-                    logWarning(
-                        '[page-transition] prepareDestinationTexture image load failed:', e
-                    );
+                    logWarning('[page-transition] prepareDestinationTexture image load failed:', e);
                     return null;
                 });
         });
