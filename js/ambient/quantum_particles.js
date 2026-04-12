@@ -20,6 +20,17 @@ function clamp(value, min, max) {
  * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
  * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
  */
+function logSafeWarning(msg, e) {
+    if (
+        typeof window !== 'undefined' &&
+        window !== null &&
+        window.console &&
+        typeof window.console.warn === 'function'
+    ) {
+        window.console.warn(msg, e);
+    }
+}
+
 let prefersReducedMotionMediaQuery = null;
 
 function prefersReducedMotion() {
@@ -33,14 +44,7 @@ function prefersReducedMotion() {
         return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
     } catch (e) {
         // Fallback gracefully if matchMedia is unavailable or throws
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
-            window.console.warn('matchMedia failed in prefersReducedMotion:', e);
-        }
+        logSafeWarning('matchMedia failed in prefersReducedMotion:', e);
         return false;
     }
 }
@@ -57,14 +61,7 @@ function hasWebGLSupport() {
         );
     } catch (e) {
         // Fallback gracefully if WebGL context creation fails
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
-            window.console.warn('WebGL context creation failed:', e);
-        }
+        logSafeWarning('WebGL context creation failed:', e);
         return false;
     }
 }
