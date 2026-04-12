@@ -543,6 +543,67 @@ describe('page-transition.js', () => {
         });
     });
 
+    describe('initReveal - project page skips intro animation', () => {
+        let Constructor;
+
+        beforeEach(() => {
+            Constructor = context.window.__PageTransitionForTesting._Constructor;
+            context.window.URL = jest.fn().mockImplementation(() => ({
+                searchParams: {
+                    has: jest.fn((param) => param === '__pt'),
+                    delete: jest.fn(),
+                },
+                pathname: '/',
+                search: '',
+                hash: '',
+            }));
+            context.window.history = { replaceState: jest.fn() };
+        });
+
+        function createMockInstance(pageType) {
+            return {
+                enabled: true,
+                pageType: pageType,
+                container: { style: {} },
+                uniforms: { uProgress: { value: 0 } },
+                setupThree: jest.fn(),
+                refreshColorUniforms: jest.fn(),
+                applyStoredCaptureTexture: jest.fn(),
+                setProgress: jest.fn(),
+                hideOverlay: jest.fn(),
+                showOverlay: jest.fn(),
+                prepareDestinationTexture: jest.fn().mockReturnValue(Promise.resolve()),
+                playIntro: jest.fn(),
+            };
+        }
+
+        test('project pages with transition param should hide overlay immediately without intro', () => {
+            const instance = createMockInstance('project');
+            Constructor.prototype.initReveal.call(instance);
+
+            expect(instance.setProgress).toHaveBeenCalledWith(0);
+            expect(instance.hideOverlay).toHaveBeenCalledWith(true);
+            expect(instance.showOverlay).not.toHaveBeenCalled();
+            expect(instance.prepareDestinationTexture).not.toHaveBeenCalled();
+        });
+
+        test('non-project pages with transition param should show overlay and start intro', () => {
+            const instance = createMockInstance('home');
+            Constructor.prototype.initReveal.call(instance);
+
+            expect(instance.setProgress).toHaveBeenCalledWith(1);
+            expect(instance.showOverlay).toHaveBeenCalledWith(true);
+        });
+
+        test('project page with null pageType should still play intro', () => {
+            const instance = createMockInstance(null);
+            Constructor.prototype.initReveal.call(instance);
+
+            expect(instance.showOverlay).toHaveBeenCalledWith(true);
+            expect(instance.hideOverlay).not.toHaveBeenCalled();
+        });
+    });
+
     describe('consumeCaptureData', () => {
         test('should return data and remove item from sessionStorage if data exists', () => {
             context.window.sessionStorage.getItem.mockReturnValue('data:image/png;base64,1234');

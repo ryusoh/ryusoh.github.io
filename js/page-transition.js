@@ -457,6 +457,13 @@ import * as THREE from './vendor/three.module.min.js';
 
         if (pendingReveal) {
             clearTransitionParam();
+
+            if (this.pageType === 'project') {
+                this.setProgress(0);
+                this.hideOverlay(true);
+                return;
+            }
+
             this.setProgress(1);
             this.showOverlay(true);
 
@@ -816,7 +823,9 @@ import * as THREE from './vendor/three.module.min.js';
 
     PageTransition.prototype.playIntro = function () {
         this.dimContent(false);
-        this.hideOverlay(false);
+        this.animateProgress(0, this.duration, () => {
+            this.hideOverlay(false);
+        });
     };
 
     ready(function () {
