@@ -29,6 +29,17 @@
         '.post-content .visual-block',
     ].join(', ');
     let blocks = [];
+    function logWarning(msg, e) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn(msg, e);
+        }
+    }
+
     let blockPositions = []; // Used for fallback
     let topSentinel = null;
     let currentIndex = -1;
@@ -66,14 +77,7 @@
             }
             return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[block-navigation] prefersReducedMotion error:', e);
-            }
+            logWarning('[block-navigation] prefersReducedMotion error:', e);
             return false;
         }
     }
@@ -98,11 +102,7 @@
             return false;
         }
 
-        if (element.matches('script, style, noscript')) {
-            return false;
-        }
-
-        if (element.closest('[data-block-nav="ignore"]')) {
+        if (element.matches('script, style, noscript') || element.closest('[data-block-nav="ignore"]')) {
             return false;
         }
 
@@ -116,9 +116,7 @@
 
         if (element.matches('.intro-header')) {
             return true;
-        }
-
-        if (element.matches('.post-heading')) {
+        } else if (element.matches('.post-heading')) {
             return !element.closest('.intro-header');
         }
 
@@ -406,6 +404,10 @@
         return Math.min(Math.max(startIndex + delta, 0), blocks.length - 1);
     }
 
+    function isNavigationKey(key) {
+        return KEY_FORWARD.has(key) || KEY_BACKWARD.has(key);
+    }
+
     function handleKeydown(event) {
         if (isEditableActive()) {
             return;
@@ -416,23 +418,15 @@
             return;
         }
 
-        if (!KEY_FORWARD.has(event.key) && !KEY_BACKWARD.has(event.key)) {
-            return;
-        }
-
-        if (!blocks.length) {
+        if (!isNavigationKey(event.key) || !blocks.length) {
             return;
         }
 
         event.preventDefault();
         const nextIndex = calculateNextIndex(event.key);
-        let startIndex = currentIndex;
-        if (startIndex === -1) {
-            startIndex = getCurrentIndex();
-        }
-        if (startIndex === -1) {
-            startIndex = 0;
-        }
+        let startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
+        startIndex = startIndex === -1 ? 0 : startIndex;
+
         if (nextIndex !== startIndex) {
             currentIndex = nextIndex;
             scrollToIndex(nextIndex);

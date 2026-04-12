@@ -1,5 +1,16 @@
 /* Simple <img> fallback: looks for data-fallbacks='["url1","url2",...]' */
 (function () {
+    function logWarning(msg, e) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn(msg, e);
+        }
+    }
+
     try {
         function parseFallbacks(el) {
             const listAttr = el.getAttribute('data-fallbacks');
@@ -21,8 +32,7 @@
                 }
                 return sanitizedList.length > 0 ? sanitizedList : null;
             } catch (error) {
-                // eslint-disable-next-line no-console
-                console.warn('Caught exception:', error);
+                logWarning('Caught exception:', error);
                 return null;
             }
         }
@@ -85,7 +95,6 @@
             true
         );
     } catch (error) {
-        // eslint-disable-next-line no-console
-        console.warn('Caught exception:', error);
+        logWarning('Caught exception:', error);
     }
 })();

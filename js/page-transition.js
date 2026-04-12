@@ -11,6 +11,32 @@ import * as THREE from './vendor/three.module.min.js';
     const DEFAULT_PRIMARY = { rgb: [0.38, 0.63, 1.0], alpha: 0.55 };
     const DEFAULT_SECONDARY = { rgb: [0.2, 0.55, 0.95], alpha: 0.4 };
 
+    function logWarning(msg, e) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn(msg, e);
+        }
+    }
+
+    function logError(msg, e) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.error === 'function'
+        ) {
+            if (e) {
+                window.console.error(msg, e);
+            } else {
+                window.console.error(msg);
+            }
+        }
+    }
+
     function ready(fn) {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fn);
@@ -39,14 +65,7 @@ import * as THREE from './vendor/three.module.min.js';
             }
             return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] prefersReducedMotion error:', e);
-            }
+            logWarning('[page-transition] prefersReducedMotion error:', e);
             return false;
         }
     }
@@ -63,14 +82,7 @@ import * as THREE from './vendor/three.module.min.js';
             );
         } catch (e) {
             // WebGL creation may fail gracefully in certain browsers/environments
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] WebGL not supported:', e);
-            }
+            logWarning('[page-transition] WebGL not supported:', e);
             return false;
         }
     }
@@ -84,14 +96,7 @@ import * as THREE from './vendor/three.module.min.js';
             return url.searchParams.has(TRANSITION_PARAM);
         } catch (e) {
             // URL parsing might fail gracefully, meaning no valid param
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] URL parse error:', e);
-            }
+            logWarning('[page-transition] URL parse error:', e);
             return false;
         }
     }
@@ -116,14 +121,7 @@ import * as THREE from './vendor/three.module.min.js';
             updateHistoryUrl(url);
         } catch (e) {
             // Ignore URL parsing or pushState errors; transition simply won't be cleared visually
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] clear transition param error:', e);
-            }
+            logWarning('[page-transition] clear transition param error:', e);
         }
     }
 
@@ -136,14 +134,7 @@ import * as THREE from './vendor/three.module.min.js';
             window.sessionStorage.setItem(CAPTURE_STORAGE_KEY, dataUrl);
         } catch (e) {
             // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] sessionStorage access error:', e);
-            }
+            logWarning('[page-transition] sessionStorage access error:', e);
         }
     }
 
@@ -160,14 +151,7 @@ import * as THREE from './vendor/three.module.min.js';
             }
         } catch (e) {
             // Ignore sessionStorage limits or strict mode errors (e.g. Safari private browsing)
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] sessionStorage access error:', e);
-            }
+            logWarning('[page-transition] sessionStorage access error:', e);
         }
         return null;
     }
@@ -231,14 +215,7 @@ import * as THREE from './vendor/three.module.min.js';
                     return canvas.toDataURL('image/png', 0.9);
                 } catch (e) {
                     // Ignore data URL conversion errors (e.g. tainted canvas) and return null
-                    if (
-                        typeof window !== 'undefined' &&
-                        window !== null &&
-                        window.console &&
-                        typeof window.console.warn === 'function'
-                    ) {
-                        window.console.warn('[page-transition] canvas.toDataURL failed:', e);
-                    }
+                    logWarning('[page-transition] canvas.toDataURL failed:', e);
                     return null;
                 }
             })
@@ -349,14 +326,7 @@ import * as THREE from './vendor/three.module.min.js';
         try {
             styles = window.getComputedStyle(document.documentElement);
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] getComputedStyle error:', e);
-            }
+            logWarning('[page-transition] getComputedStyle error:', e);
         }
         if (!styles) {
             return {
@@ -512,14 +482,7 @@ import * as THREE from './vendor/three.module.min.js';
 
         const prepareDestination = () => {
             this.prepareDestinationTexture().catch((e) => {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.warn === 'function'
-                ) {
-                    window.console.warn('[page-transition] prepareDestinationTexture failed:', e);
-                }
+                logWarning('[page-transition] prepareDestinationTexture failed:', e);
             });
         };
 
@@ -596,14 +559,7 @@ import * as THREE from './vendor/three.module.min.js';
                 this.textures.previous = texture;
             })
             .catch((e) => {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.warn === 'function'
-                ) {
-                    window.console.warn('[page-transition] applyStoredCaptureTexture failed:', e);
-                }
+                logWarning('[page-transition] applyStoredCaptureTexture failed:', e);
             });
         return null;
     };
@@ -620,17 +576,9 @@ import * as THREE from './vendor/three.module.min.js';
                     return texture;
                 })
                 .catch((e) => {
-                    if (
-                        typeof window !== 'undefined' &&
-                        window !== null &&
-                        window.console &&
-                        typeof window.console.warn === 'function'
-                    ) {
-                        window.console.warn(
-                            '[page-transition] prepareDestinationTexture image load failed:',
-                            e
-                        );
-                    }
+                    logWarning(
+                        '[page-transition] prepareDestinationTexture image load failed:', e
+                    );
                     return null;
                 });
         });
@@ -650,14 +598,7 @@ import * as THREE from './vendor/three.module.min.js';
             nextUrl.searchParams.set(TRANSITION_PARAM, '1');
             return nextUrl.toString();
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[page-transition] buildTransitionUrl error:', e);
-            }
+            logWarning('[page-transition] buildTransitionUrl error:', e);
             return url;
         }
     };
@@ -817,14 +758,7 @@ import * as THREE from './vendor/three.module.min.js';
 
     function isValidProtocol(parsedUrl) {
         if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.error === 'function'
-            ) {
-                window.console.error('[page-transition] Blocked potentially malicious URL scheme');
-            }
+            logError('[page-transition] Blocked potentially malicious URL scheme');
             return false;
         }
         return true;
@@ -832,14 +766,7 @@ import * as THREE from './vendor/three.module.min.js';
 
     function isValidOrigin(parsedUrl) {
         if (parsedUrl.origin !== window.location.origin) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.error === 'function'
-            ) {
-                window.console.error('[page-transition] Blocked cross-origin navigation');
-            }
+            logError('[page-transition] Blocked cross-origin navigation');
             return false;
         }
         return true;
@@ -861,14 +788,7 @@ import * as THREE from './vendor/three.module.min.js';
             }
             return cleanUrl;
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.error === 'function'
-            ) {
-                window.console.error('[page-transition] Blocked invalid URL', e);
-            }
+            logError('[page-transition] Blocked invalid URL', e);
             return null;
         }
     }

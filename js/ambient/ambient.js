@@ -37,6 +37,32 @@
      * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
      * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
      */
+    function logWarning(msg, e) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn(msg, e);
+        }
+    }
+
+    function logError(msg, e) {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.error === 'function'
+        ) {
+            if (e) {
+                window.console.error(msg, e);
+            } else {
+                window.console.error(msg);
+            }
+        }
+    }
+
     let prefersReducedMotionMediaQuery = null;
 
     function getPrefersReducedMotion() {
@@ -48,14 +74,7 @@
             }
             return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[ambient] prefersReducedMotion error:', e);
-            }
+            logWarning('[ambient] prefersReducedMotion error:', e);
             return false;
         }
     }
@@ -86,14 +105,7 @@
         try {
             return new window.URLSearchParams(window.location.search || '').get('ambient');
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('URLSearchParams parsing failed:', e);
-            }
+            logWarning('URLSearchParams parsing failed:', e);
             return null;
         }
     }
@@ -231,6 +243,10 @@
         s.resize = function () {
             s.setup();
         };
+        function isOutOfBounds(p, w, h) {
+            return p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10;
+        }
+
         function updateParticle(p, exiting, intro, w, h) {
             p.x += p.vx;
             p.y += p.vy;
@@ -238,9 +254,7 @@
                 p.a = Math.max(0, p.a - 0.02);
             } else if (intro) {
                 p.a = Math.max(0, p.a - 0.01);
-            }
-
-            if (!exiting && !intro && (p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10)) {
+            } else if (isOutOfBounds(p, w, h)) {
                 reset(p);
             }
         }
@@ -304,14 +318,7 @@
                 }
                 return val === '1';
             } catch (e) {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.warn === 'function'
-                ) {
-                    window.console.warn('[ambient] sessionStorage get error:', e);
-                }
+                logWarning('[ambient] sessionStorage get error:', e);
                 return false;
             }
         }
@@ -319,14 +326,7 @@
             try {
                 window.sessionStorage.removeItem(key);
             } catch (e) {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.warn === 'function'
-                ) {
-                    window.console.warn('[ambient] sessionStorage remove error:', e);
-                }
+                logWarning('[ambient] sessionStorage remove error:', e);
             }
         }
         function maybePlayIntro() {
@@ -375,13 +375,6 @@
 
         runAmbient(C, force, trace);
     } catch (e) {
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.error === 'function'
-        ) {
-            window.console.error('[ambient] Initialization failed:', e);
-        }
+        logError('[ambient] Initialization failed:', e);
     }
 })();
