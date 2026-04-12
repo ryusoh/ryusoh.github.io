@@ -103,7 +103,11 @@
             return null;
         }
         try {
-            return new window.URLSearchParams(window.location.search || '').get('ambient');
+            const searchStr = window.location.search || '';
+            if (searchStr.length > 1000) {
+                return null;
+            }
+            return new window.URLSearchParams(searchStr).get('ambient');
         } catch (e) {
             logWarning('URLSearchParams parsing failed:', e);
             return null;
