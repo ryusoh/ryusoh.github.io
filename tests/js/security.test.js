@@ -194,9 +194,7 @@ describe('DOM XSS Security Tests', () => {
 
         // Verify no <style> element was created and appended to <head>
         const createCalls = context.document.createElement.mock.calls;
-        const styleCreations = createCalls.filter(
-            (call) => call[0] === 'style'
-        );
+        const styleCreations = createCalls.filter((call) => call[0] === 'style');
         expect(styleCreations).toHaveLength(0);
 
         const headAppendCalls = context.document.head.appendChild.mock.calls;
