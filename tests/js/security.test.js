@@ -136,13 +136,19 @@ describe('DOM XSS Security Tests', () => {
         const PageTransition = context.window.__PageTransitionForTesting._Constructor;
         const pt = new PageTransition();
 
-        pt.navigate('/about.html');
+        // When enabled, navigate returns true (will handle navigation via animation)
+        const result = pt.navigate('/about.html');
+        expect(result).toBe(true);
+    });
 
-        // Should eventually call location.assign (either immediately or after animation)
-        // For simplicity, we disable the transition or mock the end of it
+    test('PageTransition.navigate should return false when disabled', () => {
+        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
+        const pt = new PageTransition();
+
+        // When disabled, navigate returns false (browser handles navigation normally)
         pt.enabled = false;
-        pt.navigate('/about.html');
-        expect(context.window.location.assign).toHaveBeenCalledWith('/about.html');
+        const result = pt.navigate('/about.html');
+        expect(result).toBe(false);
     });
 
     test('PageTransition.navigate should block cross-origin URLs', () => {
@@ -181,6 +187,58 @@ describe('DOM XSS Security Tests', () => {
         expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
+    });
+    test('PageTransition should not inject inline style elements (CSP compliance)', () => {
+        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
+        new PageTransition();
+
+        // Verify no <style> element was created and appended to <head>
+        const createCalls = context.document.createElement.mock.calls;
+        const styleCreations = createCalls.filter(
+            (call) => call[0] === 'style'
+        );
+        expect(styleCreations).toHaveLength(0);
+
+        const headAppendCalls = context.document.head.appendChild.mock.calls;
+        expect(headAppendCalls).toHaveLength(0);
+    });
+});
+
+// --- CSP Compliance: Page transition styles in external CSS ---
+
+describe('CSP Compliance: page transition styles in external CSS', () => {
+    const requiredSelectors = [
+        '.page-transition-overlay',
+        '.page-transition-overlay canvas',
+        'html.page-transition--active .page-transition-overlay',
+        'html.page-transition--dimming body',
+    ];
+
+    const cssFiles = [
+        path.resolve(__dirname, '../../css/main_style.css'),
+        path.resolve(__dirname, '../../css/style.css'),
+    ];
+
+    cssFiles.forEach((cssFile) => {
+        const fileName = path.basename(cssFile);
+
+        describe(fileName, () => {
+            const css = fs.readFileSync(cssFile, 'utf8');
+
+            requiredSelectors.forEach((selector) => {
+                test(`should contain "${selector}" rule`, () => {
+                    expect(css).toContain(selector);
+                });
+            });
+        });
+    });
+
+    test('page-transition.js source should not contain injectStyles or createElement style', () => {
+        const jsSource = fs.readFileSync(
+            path.resolve(__dirname, '../../js/page-transition.js'),
+            'utf8'
+        );
+        expect(jsSource).not.toMatch(/createElement\s*\(\s*['"]style['"]\s*\)/);
     });
 });
 

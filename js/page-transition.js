@@ -6,7 +6,6 @@ import * as THREE from './vendor/three.module.min.js';
     const TRANSITION_PARAM = '__pt';
     const CAPTURE_STORAGE_KEY = 'page-transition:capture';
     const CAPTURE_SCALE = 0.6;
-    const STYLE_ID = 'page-transition-overlay-styles';
     const INTRO_DURATION = 750;
     const DEFAULT_PRIMARY = { rgb: [0.38, 0.63, 1.0], alpha: 0.55 };
     const DEFAULT_SECONDARY = { rgb: [0.2, 0.55, 0.95], alpha: 0.4 };
@@ -220,12 +219,7 @@ import * as THREE from './vendor/three.module.min.js';
                 }
             })
             .catch((e) => {
-                if (typeof window !== 'undefined' && window.console) {
-                    window.console.warn(
-                        '[page-transition] prepareDestinationTexture returned null',
-                        e
-                    );
-                }
+                logWarning('[page-transition] captureScene failed:', e);
                 return null;
             });
     }
@@ -330,8 +324,8 @@ import * as THREE from './vendor/three.module.min.js';
         }
         if (!styles) {
             return {
-                primary: DEFAULT_PRIMARY.slice(),
-                secondary: DEFAULT_SECONDARY.slice(),
+                primary: { rgb: DEFAULT_PRIMARY.rgb.slice(), alpha: DEFAULT_PRIMARY.alpha },
+                secondary: { rgb: DEFAULT_SECONDARY.rgb.slice(), alpha: DEFAULT_SECONDARY.alpha },
             };
         }
         const primaryVar = styles.getPropertyValue('--page-transition-primary');
@@ -346,20 +340,7 @@ import * as THREE from './vendor/three.module.min.js';
         return new THREE.Vector3(array[0], array[1], array[2]);
     }
 
-    function injectStyles() {
-        if (document.getElementById(STYLE_ID)) {
-            return;
-        }
-        const style = document.createElement('style');
-        style.id = STYLE_ID;
-        style.type = 'text/css';
-        style.textContent =
-            '.page-transition-overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.4s ease;background:rgba(0,0,0,0.25);}' +
-            '.page-transition-overlay canvas{display:block;width:100%;height:100%;}' +
-            'html.page-transition--active .page-transition-overlay{opacity:1;}' +
-            'html.page-transition--dimming body{transition:opacity 0.45s ease;opacity:0.35;}';
-        document.head.appendChild(style);
-    }
+    // Styles are in external CSS files (main_style.css, style.css) to comply with CSP
 
     function createGradientTexture(stops, THREE) {
         const canvas = document.createElement('canvas');
@@ -441,7 +422,6 @@ import * as THREE from './vendor/three.module.min.js';
     ].join('\n');
 
     function PageTransition() {
-        injectStyles();
         this.enabled = !!THREE && canUseWebGL() && !prefersReducedMotion() && document.body != null;
         this.pageType = (document.body && document.body.getAttribute('data-page-type')) || null;
         this.colors = getTransitionColors();
@@ -473,23 +453,44 @@ import * as THREE from './vendor/three.module.min.js';
 
         this.setupThree();
         this.refreshColorUniforms();
-        this.setProgress(0);
-        this.hideOverlay(true);
         this.applyStoredCaptureTexture();
+
         if (pendingReveal) {
             clearTransitionParam();
-        }
+            this.setProgress(1);
+            this.showOverlay(true);
 
-        const prepareDestination = () => {
-            this.prepareDestinationTexture().catch((e) => {
-                logWarning('[page-transition] prepareDestinationTexture failed:', e);
-            });
-        };
+            const startIntro = () => {
+                this.prepareDestinationTexture()
+                    .then(() => {
+                        this.playIntro();
+                    })
+                    .catch((e) => {
+                        logWarning('[page-transition] prepareDestinationTexture failed:', e);
+                        this.playIntro();
+                    });
+            };
 
-        if (document.readyState === 'complete') {
-            prepareDestination();
+            if (document.readyState === 'complete') {
+                startIntro();
+            } else {
+                window.addEventListener('load', startIntro, { once: true });
+            }
         } else {
-            window.addEventListener('load', prepareDestination, { once: true });
+            this.setProgress(0);
+            this.hideOverlay(true);
+
+            const prepareDestination = () => {
+                this.prepareDestinationTexture().catch((e) => {
+                    logWarning('[page-transition] prepareDestinationTexture failed:', e);
+                });
+            };
+
+            if (document.readyState === 'complete') {
+                prepareDestination();
+            } else {
+                window.addEventListener('load', prepareDestination, { once: true });
+            }
         }
     };
 
@@ -678,24 +679,24 @@ import * as THREE from './vendor/three.module.min.js';
         this.container.style.display = 'block';
         if (immediate) {
             this.container.style.transition = 'none';
+            document.documentElement.classList.add('page-transition--active');
             void this.container.offsetHeight;
             this.container.style.transition = '';
         } else {
-            this.container.style.transition = '';
+            document.documentElement.classList.add('page-transition--active');
         }
-        document.documentElement.classList.add('page-transition--active');
         this.startRender();
     };
 
     PageTransition.prototype.hideOverlay = function (immediate) {
         if (immediate) {
             this.container.style.transition = 'none';
+            document.documentElement.classList.remove('page-transition--active');
             void this.container.offsetHeight;
             this.container.style.transition = '';
         } else {
-            this.container.style.transition = '';
+            document.documentElement.classList.remove('page-transition--active');
         }
-        document.documentElement.classList.remove('page-transition--active');
         this.visible = false;
         clearTimeout(this.hideTimeout);
         this.hideTimeout = window.setTimeout(
@@ -794,12 +795,11 @@ import * as THREE from './vendor/three.module.min.js';
     PageTransition.prototype.navigate = function (url) {
         const validatedUrl = getValidatedUrl(url);
         if (!validatedUrl) {
-            return;
+            return false;
         }
 
         if (!this.enabled || this.isAnimating) {
-            window.location.assign(validatedUrl);
-            return;
+            return false;
         }
         this.isAnimating = true;
         const targetUrl = this.buildTransitionUrl(validatedUrl);
@@ -811,14 +811,12 @@ import * as THREE from './vendor/three.module.min.js';
                 window.location.assign(targetUrl);
             });
         });
+        return true;
     };
 
     PageTransition.prototype.playIntro = function () {
         this.dimContent(false);
-        this.animateProgress(0, this.duration, () => {
-            this.hideOverlay(false);
-            this.setProgress(0);
-        });
+        this.hideOverlay(false);
     };
 
     ready(function () {
@@ -890,20 +888,16 @@ import * as THREE from './vendor/three.module.min.js';
             if (!isValidTransitionClick(event, anchor)) {
                 return;
             }
-            event.preventDefault();
-            transition.navigate(anchor.href);
+            if (transition.navigate(anchor.href)) {
+                event.preventDefault();
+            }
         });
 
         window.addEventListener('pageshow', function (event) {
             if (!transition.enabled) {
                 return;
             }
-            if (hasTransitionParam()) {
-                clearTransitionParam();
-                transition.hideOverlay(true);
-                transition.setProgress(0);
-                transition.dimContent(false);
-            } else if (event.persisted) {
+            if (event.persisted) {
                 transition.hideOverlay(true);
                 transition.setProgress(0);
                 transition.dimContent(false);
