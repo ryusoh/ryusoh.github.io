@@ -194,9 +194,10 @@ describe('AssetPreloader', () => {
         expect(mockWindow.addEventListener).toHaveBeenCalledWith('load', expect.any(Function));
     });
 
-    test('init load event listener calls preloadForCurrentPage', () => {
+    test('init load event listener calls preloadForCurrentPage via requestIdleCallback', () => {
         const preloader = new AssetPreloader();
         preloader.preloadForCurrentPage = jest.fn();
+        mockWindow.requestIdleCallback = jest.fn((cb) => cb());
         preloader.init();
 
         const loadCallback = mockWindow.addEventListener.mock.calls.find(
@@ -204,6 +205,23 @@ describe('AssetPreloader', () => {
         )[1];
         loadCallback();
 
+        expect(mockWindow.requestIdleCallback).toHaveBeenCalled();
+        expect(preloader.preloadForCurrentPage).toHaveBeenCalled();
+    });
+
+    test('init load event listener calls preloadForCurrentPage via setTimeout fallback', () => {
+        const preloader = new AssetPreloader();
+        preloader.preloadForCurrentPage = jest.fn();
+        mockWindow.requestIdleCallback = undefined;
+        mockWindow.setTimeout = jest.fn((cb) => cb());
+        preloader.init();
+
+        const loadCallback = mockWindow.addEventListener.mock.calls.find(
+            (call) => call[0] === 'load'
+        )[1];
+        loadCallback();
+
+        expect(mockWindow.setTimeout).toHaveBeenCalled();
         expect(preloader.preloadForCurrentPage).toHaveBeenCalled();
     });
 

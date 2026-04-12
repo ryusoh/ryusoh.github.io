@@ -182,4 +182,32 @@ describe('ambient/loader.js', () => {
             expect.any(Error)
         );
     });
+
+    test('gracefully handles missing window.console.warn during async rejection', async () => {
+        delete context.window.console;
+        mockCDNLoader.loadCssWithFallback.mockRejectedValue(new Error('Simulated network error'));
+
+        vm.createContext(context);
+
+        expect(() => {
+            vm.runInContext(code, context);
+        }).not.toThrow();
+
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
+    });
+
+    test('gracefully handles missing window.console during sync error', () => {
+        delete context.window.console;
+        Object.defineProperty(context.window, 'matchMedia', {
+            get: () => {
+                throw new Error('Simulated synchronous error');
+            },
+        });
+
+        vm.createContext(context);
+        expect(() => {
+            vm.runInContext(code, context);
+        }).not.toThrow();
+    });
 });

@@ -1,8 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 
-('use strict');
-
 (function () {
+    'use strict';
     const LINK_ATTR = 'data-page-transition';
     const TRANSITION_PARAM = '__pt';
     const CAPTURE_STORAGE_KEY = 'page-transition:capture';
@@ -740,7 +739,7 @@ import * as THREE from './vendor/three.module.min.js';
         this.container.style.display = 'block';
         if (immediate) {
             this.container.style.transition = 'none';
-            this.container.offsetHeight;
+            void this.container.offsetHeight;
             this.container.style.transition = '';
         } else {
             this.container.style.transition = '';
@@ -752,7 +751,7 @@ import * as THREE from './vendor/three.module.min.js';
     PageTransition.prototype.hideOverlay = function (immediate) {
         if (immediate) {
             this.container.style.transition = 'none';
-            this.container.offsetHeight;
+            void this.container.offsetHeight;
             this.container.style.transition = '';
         } else {
             this.container.style.transition = '';

@@ -172,4 +172,24 @@ describe('imageFallback.js', () => {
         errorListener({ target: imgElement }); // Stop at url3
         expect(imgElement.src).toBe('url3');
     });
+
+    it('should handle exception when window.console.warn is missing', () => {
+        imgElement.getAttribute.mockReturnValue('invalid-json');
+        delete context.window.console;
+
+        expect(() => {
+            vm.runInContext(sourceCode, context);
+        }).not.toThrow();
+    });
+
+    it('should handle general exception when window.console.warn is missing', () => {
+        context.document.querySelectorAll = jest.fn(() => {
+            throw new Error('Test general exception');
+        });
+        delete context.window.console;
+
+        expect(() => {
+            vm.runInContext(sourceCode, context);
+        }).not.toThrow();
+    });
 });

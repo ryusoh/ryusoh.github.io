@@ -248,6 +248,41 @@ describe('CDNLoader', () => {
         });
     });
 
+    describe('fallback edge cases', () => {
+        it('should gracefully handle missing window.console.warn', async () => {
+            const urls = ['style.css'];
+            context.fetch.mockRejectedValueOnce(new Error('Network Error'));
+
+            // Remove warn from console
+            delete context.window.console;
+
+            const promise = loader.loadCssWithFallback(urls);
+            const linkEl = createdElements.find((el) => el.tagName === 'link');
+            linkEl.onerror();
+
+            await expect(promise).resolves.toBeUndefined();
+        });
+
+        it('should call window.console.warn when fetch fails after link tag fails', async () => {
+            context.window.console = {
+                warn: jest.fn(),
+            };
+            const urls = ['style.css'];
+            const mockError = new Error('Network Error');
+            context.fetch.mockRejectedValueOnce(mockError);
+
+            const promise = loader.loadCssWithFallback(urls);
+            const linkEl = createdElements.find((el) => el.tagName === 'link');
+            linkEl.onerror();
+
+            await expect(promise).resolves.toBeUndefined();
+            expect(context.window.console.warn).toHaveBeenCalledWith(
+                'CDN fallback CSS load failed:',
+                mockError
+            );
+        });
+    });
+
     describe('empty urls edge case for loadScriptSequential', () => {
         it('should reject if urls is empty', async () => {
             const { loadScriptSequential } = context.window.CDNLoader;

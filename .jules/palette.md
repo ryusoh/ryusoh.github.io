@@ -37,3 +37,8 @@
 
 **Learning:** When using `target="_blank"` on links, screen reader users can be disoriented if a new window/tab opens without warning. Additionally, applying `target="_blank"` to `mailto:` links is a UX anti-pattern that spawns an unnecessary blank browser tab before opening the native email client.
 **Action:** Always append " (opens in a new tab)" to the `aria-label` (or include visually hidden text) for links with `target="_blank"`. Never use `target="_blank"` on `mailto:` links.
+
+## 2026-11-23 - [UX/Accessibility: target="_blank" and mailto: links]
+
+**Learning:** Opening a new tab merely to trigger an email client is an unnecessary friction point and a known anti-pattern. Applying `target="_blank"` to `mailto:` links spawns a confusing blank tab that users must manually close. Furthermore, external links lacking an explicit indication that they open in a new tab can disorient screen reader users due to sudden context switching.
+**Action:** Always avoid applying `target="_blank"` to `mailto:` links. For any external links that correctly open in a new tab using `target="_blank"`, strictly append `(opens in a new tab)` to their `aria-label` to ensure predictability for screen reader users.
