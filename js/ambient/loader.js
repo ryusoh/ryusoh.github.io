@@ -9,6 +9,17 @@
          */
         let prefersReducedMotionMediaQuery = null;
 
+        function exportTesting(api) {
+            if (typeof window !== 'undefined') {
+                window.__AmbientLoaderForTesting = api;
+            }
+            /* eslint-disable no-undef */
+            if (typeof module !== 'undefined' && module.exports) {
+                module.exports = api;
+            }
+            /* eslint-enable no-undef */
+        }
+
         function shouldSkipLoader() {
             if (prefersReducedMotionMediaQuery === null && window.matchMedia) {
                 prefersReducedMotionMediaQuery = window.matchMedia(
@@ -24,22 +35,10 @@
 
         if (shouldSkipLoader()) {
             // Expose for testing before early exit
-            if (typeof window !== 'undefined') {
-                window.__AmbientLoaderForTesting = {
-                    shouldSkipLoader,
-                    loadLegacyAmbient:
-                        typeof loadLegacyAmbient !== 'undefined' ? loadLegacyAmbient : null,
-                };
-            }
-            /* eslint-disable no-undef */
-            if (typeof module !== 'undefined' && module.exports) {
-                module.exports = {
-                    shouldSkipLoader,
-                    loadLegacyAmbient:
-                        typeof loadLegacyAmbient !== 'undefined' ? loadLegacyAmbient : null,
-                };
-            }
-            /* eslint-enable no-undef */
+            exportTesting({
+                shouldSkipLoader,
+                loadLegacyAmbient: typeof loadLegacyAmbient !== 'undefined' ? loadLegacyAmbient : null,
+            });
             return;
         }
 
@@ -88,29 +87,15 @@
                 }
             });
 
-        if (typeof window !== 'undefined') {
-            window.__AmbientLoaderForTesting = {
-                shouldSkipLoader,
-                loadLegacyAmbient,
-            };
-        }
-        /* eslint-disable no-undef */
-        if (typeof module !== 'undefined' && module.exports) {
-            module.exports = {
-                shouldSkipLoader,
-                loadLegacyAmbient,
-            };
-        }
-        /* eslint-enable no-undef */
+        exportTesting({ shouldSkipLoader, loadLegacyAmbient });
     } catch (e) {
-        // Silently ignore synchronous errors during loader initialization
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
-            window.console.warn('Ambient initialization failed:', e);
+        // Handle synchronous errors during loader initialization
+        if (typeof window !== 'undefined') {
+            if (window.AppLogger && typeof window.AppLogger.error === 'function') {
+                window.AppLogger.error('Ambient initialization failed:', e);
+            } else if (window !== null && window.console && typeof window.console.warn === 'function') {
+                window.console.warn('Ambient initialization failed:', e);
+            }
         }
     }
 })();
