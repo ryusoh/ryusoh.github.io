@@ -33,3 +33,11 @@
 ## 2025-03-24 - Defensive Coding Practices and Refactoring Code
 
 **Learning:** When addressing code smells like 'no-empty' catch blocks, 'no-unused-expressions', and complexity violations in vanilla JS utilities, it is crucial to employ defensive checking for the global environment (e.g. `typeof window !== 'undefined'`, checking if `window.console` and `window.console.warn` exist). The `void` operator can be used to explicitly evaluate an expression while safely indicating to tools like ESLint that the return value is intentionally ignored (e.g., `void this.container.offsetHeight;`).
+
+## 2025-03-24 - Defensive Testing for Global Fallbacks
+
+**Learning:** When testing defensive fallback structures (e.g.  fallbacks when an API throws), always include tests that verify the code gracefully handles the scenario where the fallback itself (like ) is missing from the environment, to ensure defensive code doesn't inadvertently introduce new crashing bugs.
+
+## 2025-03-24 - Defensive Testing for Global Fallbacks
+
+**Learning:** When testing defensive fallback structures (e.g. `console.warn` fallbacks when an API throws), always include tests that verify the code gracefully handles the scenario where the fallback itself (like `console.warn`) is missing from the environment, to ensure defensive code doesn't inadvertently introduce new crashing bugs.

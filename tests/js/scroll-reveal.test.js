@@ -124,4 +124,46 @@ describe('Scroll Reveal', () => {
         expect(img.classList.contains('scroll-reveal--visible')).toBe(true);
         expect(unobserveMock).toHaveBeenCalledWith(img);
     });
+
+    test('should reveal element on image error event', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        document.body.innerHTML =
+            '<div class="post-content"><img id="testImg" src="broken.jpg"/></div>';
+        const img = document.getElementById('testImg');
+
+        // Image is not complete
+        Object.defineProperty(img, 'complete', { value: false, writable: false });
+
+        require('../../js/scroll-reveal.js');
+
+        const observerInstance = intersectionObserverMock.mock.results[0].value;
+        observerInstance.callback([{ isIntersecting: true, target: img }]);
+
+        // Fire error event
+        img.dispatchEvent(new Event('error'));
+
+        // Now it should be visible
+        expect(img.classList.contains('scroll-reveal--visible')).toBe(true);
+        expect(unobserveMock).toHaveBeenCalledWith(img);
+    });
+
+    test('should early return if .post-content container is missing', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        // No .post-content
+        document.body.innerHTML = '<div><img src="test.jpg"/></div>';
+
+        require('../../js/scroll-reveal.js');
+
+        expect(intersectionObserverMock).not.toHaveBeenCalled();
+    });
+
+    test('should early return if no images are present in .post-content', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        // Container exists, but no images
+        document.body.innerHTML = '<div class="post-content"><p>Text only</p></div>';
+
+        require('../../js/scroll-reveal.js');
+
+        expect(intersectionObserverMock).not.toHaveBeenCalled();
+    });
 });
