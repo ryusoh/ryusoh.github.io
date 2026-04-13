@@ -208,7 +208,6 @@ describe('CSP Compliance: page transition styles in external CSS', () => {
     const requiredSelectors = [
         '.page-transition-overlay',
         '.page-transition-overlay canvas',
-        'html.page-transition--active .page-transition-overlay',
         'html.page-transition--dimming body',
     ];
 

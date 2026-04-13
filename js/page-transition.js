@@ -432,6 +432,7 @@ import * as THREE from './vendor/three.module.min.js';
         this.renderRaf = null;
         this.hideTimeout = null;
         this.textures = { previous: null, current: null };
+        this.capturedDataUrl = null;
         this.container = document.createElement('div');
         this.container.className = 'page-transition-overlay';
         this.canvas = document.createElement('canvas');
@@ -577,6 +578,7 @@ import * as THREE from './vendor/three.module.min.js';
             if (!dataUrl) {
                 return null;
             }
+            this.capturedDataUrl = dataUrl;
             return loadTextureFromDataURL(dataUrl, THREE)
                 .then((texture) => {
                     this.uniforms.uTexture1.value = texture;
@@ -686,11 +688,11 @@ import * as THREE from './vendor/three.module.min.js';
         this.container.style.display = 'block';
         if (immediate) {
             this.container.style.transition = 'none';
-            document.documentElement.classList.add('page-transition--active');
+            this.container.style.opacity = '1';
             void this.container.offsetHeight;
             this.container.style.transition = '';
         } else {
-            document.documentElement.classList.add('page-transition--active');
+            this.container.style.opacity = '1';
         }
         this.startRender();
     };
@@ -698,11 +700,11 @@ import * as THREE from './vendor/three.module.min.js';
     PageTransition.prototype.hideOverlay = function (immediate) {
         if (immediate) {
             this.container.style.transition = 'none';
-            document.documentElement.classList.remove('page-transition--active');
+            this.container.style.opacity = '0';
             void this.container.offsetHeight;
             this.container.style.transition = '';
         } else {
-            document.documentElement.classList.remove('page-transition--active');
+            this.container.style.opacity = '0';
         }
         this.visible = false;
         clearTimeout(this.hideTimeout);
@@ -810,14 +812,10 @@ import * as THREE from './vendor/three.module.min.js';
         }
         this.isAnimating = true;
         const targetUrl = this.buildTransitionUrl(validatedUrl);
-        this.showOverlay(false);
-        this.dimContent(true);
-        this.setProgress(0);
-        Promise.resolve(this.captureAndStoreCurrentScene()).finally(() => {
-            this.animateProgress(1, this.duration, () => {
-                window.location.assign(targetUrl);
-            });
-        });
+        if (this.capturedDataUrl) {
+            storeCaptureData(this.capturedDataUrl);
+        }
+        window.location.assign(targetUrl);
         return true;
     };
 

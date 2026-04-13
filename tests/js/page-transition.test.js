@@ -604,6 +604,149 @@ describe('page-transition.js', () => {
         });
     });
 
+    describe('#cont layout containment', () => {
+        const cssPath = path.resolve(__dirname, '../../css/main_style.css');
+        const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+        test('#cont must have contain: layout to prevent external style recalc from shifting its children', () => {
+            const contBlockMatch = cssContent.match(
+                /#cont\s*\{[^}]*contain\s*:\s*[^;]*layout[^;]*;/
+            );
+            expect(contBlockMatch).not.toBeNull();
+        });
+    });
+
+    describe('overlay must not modify document.documentElement.classList', () => {
+        let Constructor;
+
+        beforeEach(() => {
+            Constructor = context.window.__PageTransitionForTesting._Constructor;
+        });
+
+        test('showOverlay (non-immediate) must not add class to documentElement', () => {
+            const addSpy = context.document.documentElement.classList.add;
+            addSpy.mockClear();
+            const instance = {
+                enabled: true,
+                visible: false,
+                container: { style: {}, offsetHeight: 0 },
+                startRender: jest.fn(),
+            };
+            Constructor.prototype.showOverlay.call(instance, false);
+
+            expect(addSpy).not.toHaveBeenCalledWith('page-transition--active');
+        });
+
+        test('showOverlay (immediate) must not add class to documentElement', () => {
+            const addSpy = context.document.documentElement.classList.add;
+            addSpy.mockClear();
+            const instance = {
+                enabled: true,
+                visible: false,
+                container: { style: {}, offsetHeight: 0 },
+                startRender: jest.fn(),
+            };
+            Constructor.prototype.showOverlay.call(instance, true);
+
+            expect(addSpy).not.toHaveBeenCalledWith('page-transition--active');
+        });
+
+        test('hideOverlay must not remove class from documentElement', () => {
+            const removeSpy = context.document.documentElement.classList.remove;
+            removeSpy.mockClear();
+            const instance = {
+                visible: true,
+                container: { style: {}, offsetHeight: 0 },
+                hideTimeout: null,
+            };
+            context.window.setTimeout = jest.fn();
+            context.window.clearTimeout = jest.fn();
+            Constructor.prototype.hideOverlay.call(instance, false);
+
+            expect(removeSpy).not.toHaveBeenCalledWith('page-transition--active');
+        });
+    });
+
+    describe('navigate - no layout shift on page content', () => {
+        let Constructor;
+
+        beforeEach(() => {
+            Constructor = context.window.__PageTransitionForTesting._Constructor;
+            context.window.URL = URL;
+            context.window.location = {
+                href: 'https://example.com/',
+                origin: 'https://example.com',
+                assign: jest.fn(),
+            };
+            context.window.console = { error: jest.fn(), warn: jest.fn() };
+        });
+
+        function createNavigateInstance(capturedDataUrl) {
+            return {
+                enabled: true,
+                isAnimating: false,
+                duration: 750,
+                capturedDataUrl: capturedDataUrl || null,
+                uniforms: { uProgress: { value: 0 } },
+                buildTransitionUrl: jest.fn((u) => u),
+                showOverlay: jest.fn(),
+                dimContent: jest.fn(),
+                setProgress: jest.fn(),
+                captureAndStoreCurrentScene: jest.fn(() => Promise.resolve()),
+                animateProgress: jest.fn(),
+            };
+        }
+
+        test('navigate stores pre-captured data URL then navigates immediately', () => {
+            context.window.sessionStorage.setItem.mockClear();
+            const instance = createNavigateInstance('data:image/png;base64,precaptured');
+            Constructor.prototype.navigate.call(instance, 'https://example.com/p1');
+
+            expect(context.window.sessionStorage.setItem).toHaveBeenCalledWith(
+                'page-transition:capture',
+                'data:image/png;base64,precaptured'
+            );
+            expect(context.window.location.assign).toHaveBeenCalled();
+        });
+
+        test('navigate works without pre-captured data', () => {
+            context.window.sessionStorage.setItem.mockClear();
+            const instance = createNavigateInstance(null);
+            const result = Constructor.prototype.navigate.call(instance, 'https://example.com/p1');
+
+            expect(result).toBe(true);
+            expect(context.window.sessionStorage.setItem).not.toHaveBeenCalled();
+            expect(context.window.location.assign).toHaveBeenCalled();
+        });
+
+        test('navigate must not touch DOM — no overlay, no animation, no dimming', () => {
+            const instance = createNavigateInstance();
+            Constructor.prototype.navigate.call(instance, 'https://example.com/p1');
+
+            expect(instance.showOverlay).not.toHaveBeenCalled();
+            expect(instance.animateProgress).not.toHaveBeenCalled();
+            expect(instance.setProgress).not.toHaveBeenCalled();
+            expect(instance.dimContent).not.toHaveBeenCalled();
+            expect(instance.captureAndStoreCurrentScene).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('navigate - no outgoing animation on source page', () => {
+        test('navigate source code must not contain showOverlay or animateProgress calls', () => {
+            const jsSource = fs.readFileSync(
+                path.resolve(__dirname, '../../js/page-transition.js'),
+                'utf8'
+            );
+            const navigateBlock = jsSource.match(
+                /PageTransition\.prototype\.navigate\s*=\s*function[\s\S]*?return true;\s*\}/
+            );
+            expect(navigateBlock).not.toBeNull();
+            expect(navigateBlock[0]).not.toMatch(/showOverlay/);
+            expect(navigateBlock[0]).not.toMatch(/animateProgress/);
+            expect(navigateBlock[0]).toMatch(/location\.assign/);
+        });
+    });
+
     describe('consumeCaptureData', () => {
         test('should return data and remove item from sessionStorage if data exists', () => {
             context.window.sessionStorage.getItem.mockReturnValue('data:image/png;base64,1234');

@@ -1199,10 +1199,6 @@ td {
     height: 100%;
 }
 
-html.page-transition--active .page-transition-overlay {
-    opacity: 1;
-}
-
 html.page-transition--dimming body {
     transition: opacity 0.45s ease;
     opacity: 0.35;
