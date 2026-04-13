@@ -358,26 +358,25 @@
         };
         maybePlayIntro();
 
-        if (typeof window !== 'undefined') {
-            window.__AmbientForTesting = {
-                getConfig: getConfig,
-                shouldSkip: shouldSkip,
-                getAmbientParam: getAmbientParam,
-                metrics: metrics,
-            };
-        }
+        window.__AmbientForTesting = {
+            getConfig: getConfig,
+            shouldSkip: shouldSkip,
+            getAmbientParam: getAmbientParam,
+            metrics: metrics,
+        };
     }
 
     try {
-        const force = getAmbientParam();
+        const force =
+            typeof window !== 'undefined' && typeof window.URLSearchParams !== 'undefined'
+                ? getAmbientParam()
+                : null;
         const trace = force === 'trace';
         const C = getConfig(force, trace);
 
-        if (shouldSkip(C, force)) {
-            return;
+        if (!shouldSkip(C, force)) {
+            runAmbient(C, force, trace);
         }
-
-        runAmbient(C, force, trace);
     } catch (e) {
         logError('[ambient] Initialization failed:', e);
     }

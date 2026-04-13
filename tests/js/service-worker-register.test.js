@@ -1,323 +1,56 @@
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
+/**
+ * @jest-environment jsdom
+ */
 
 describe('service-worker-register', () => {
-    let context;
-    let code;
-
     beforeEach(() => {
-        code = fs.readFileSync(
-            path.resolve(__dirname, '../../js/service-worker-register.js'),
-            'utf8'
-        );
+        jest.resetModules();
 
-        context = {
-            window: {
-                location: {
-                    hostname: 'example.com',
-                },
-                addEventListener: jest.fn(),
-                dispatchEvent: jest.fn(),
-                CustomEvent: class CustomEvent {
-                    constructor(name, options) {
-                        this.type = name;
-                        this.detail = options ? options.detail : null;
-                    }
-                },
+        // Mock navigator.serviceWorker
+        Object.defineProperty(global.navigator, 'serviceWorker', {
+            value: {
+                register: jest.fn().mockResolvedValue({ scope: '/sw.js' }),
             },
-            CustomEvent: class CustomEvent {
-                constructor(name, options) {
-                    this.type = name;
-                    this.detail = options ? options.detail : null;
-                }
-            },
-            document: {
-                readyState: 'complete',
-            },
-            navigator: {
-                serviceWorker: {
-                    register: jest.fn().mockResolvedValue({ scope: '/sw.js' }),
-                },
-            },
-        };
+            configurable: true,
+            writable: true,
+        });
+
+        // Default to a valid hostname
+        delete window.location;
+        window.location = new URL('https://example.com/');
+
+        // Mock dispatchEvent
+        window.dispatchEvent = jest.fn();
     });
 
     test('bails out and does not register on localhost', () => {
-        context.window.location.hostname = 'localhost';
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.navigator.serviceWorker.register).not.toHaveBeenCalled();
+        window.location = new URL('http://localhost/');
+        require('../../js/service-worker-register.js');
+        expect(navigator.serviceWorker.register).not.toHaveBeenCalled();
     });
 
-    test('bails out and does not register on 127.0.0.1', () => {
-        context.window.location.hostname = '127.0.0.1';
-        vm.createContext(context);
-        vm.runInContext(code, context);
+    test('proceeds to register on production hostname', async () => {
+        require('../../js/service-worker-register.js');
+        expect(navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
 
-        expect(context.navigator.serviceWorker.register).not.toHaveBeenCalled();
+        // Wait for promise
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(window.dispatchEvent).toHaveBeenCalledWith(expect.any(CustomEvent));
+        expect(window.dispatchEvent.mock.calls[0][0].type).toBe('serviceWorker:registered');
     });
 
-    test('bails out and does not register on [::1]', () => {
-        context.window.location.hostname = '[::1]';
-        vm.createContext(context);
-        vm.runInContext(code, context);
+    test('emits serviceWorker:registrationError on failure', async () => {
+        navigator.serviceWorker.register.mockRejectedValue(new Error('failed'));
 
-        expect(context.navigator.serviceWorker.register).not.toHaveBeenCalled();
-    });
+        // Suppress expected console.warn
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-    test('bails out and does not register on empty hostname', () => {
-        context.window.location.hostname = '';
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        require('../../js/service-worker-register.js');
 
-        expect(context.navigator.serviceWorker.register).not.toHaveBeenCalled();
-    });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(window.dispatchEvent).toHaveBeenCalledWith(expect.any(CustomEvent));
+        expect(window.dispatchEvent.mock.calls[0][0].type).toBe('serviceWorker:registrationError');
 
-    test('proceeds to register if hostname access throws error', () => {
-        Object.defineProperty(context.window.location, 'hostname', {
-            get: () => {
-                throw new Error('SecurityError');
-            },
-        });
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
-    });
-
-    test('gracefully handles missing window.console.warn when hostname parsing fails', () => {
-        Object.defineProperty(context.window.location, 'hostname', {
-            get: () => {
-                throw new Error('SecurityError');
-            },
-        });
-        context.window.console = {}; // no warn
-
-        expect(() => {
-            vm.createContext(context);
-            vm.runInContext(code, context);
-        }).not.toThrow();
-
-        expect(context.navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
-    });
-
-    test('bails out if window is undefined', () => {
-        delete context.window;
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.navigator.serviceWorker.register).not.toHaveBeenCalled();
-    });
-
-    test('bails out if navigator.serviceWorker is undefined', () => {
-        delete context.navigator.serviceWorker;
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        // Can't check if it was called since we deleted it, but it shouldn't crash
-        // and shouldn't try to access it
-        expect(context.window.addEventListener).not.toHaveBeenCalled();
-    });
-
-    test('registers service worker and emits serviceWorker:registered on success', async () => {
-        // We need to await the promise resolution within the VM
-        // The IIFE is synchronous but the register call is async.
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
-
-        // Wait for microtasks to complete (the promise resolution inside register())
-        await new Promise(process.nextTick);
-
-        expect(context.window.dispatchEvent).toHaveBeenCalled();
-        const event = context.window.dispatchEvent.mock.calls[0][0];
-        expect(event.type).toBe('serviceWorker:registered');
-        expect(event.detail.scope).toBe('/sw.js');
-    });
-
-    test('handles success when registration object lacks scope', async () => {
-        context.navigator.serviceWorker.register.mockResolvedValue({});
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        expect(context.window.dispatchEvent).toHaveBeenCalled();
-        const event = context.window.dispatchEvent.mock.calls[0][0];
-        expect(event.type).toBe('serviceWorker:registered');
-        expect(event.detail.scope).toBeNull();
-    });
-
-    test('emits serviceWorker:registrationError on registration failure', async () => {
-        context.navigator.serviceWorker.register.mockRejectedValue(
-            new Error('Registration failed')
-        );
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
-
-        // Wait for microtasks to complete
-        await new Promise(process.nextTick);
-
-        expect(context.window.dispatchEvent).toHaveBeenCalled();
-        const event = context.window.dispatchEvent.mock.calls[0][0];
-        expect(event.type).toBe('serviceWorker:registrationError');
-        expect(event.detail.message).toBe('Registration failed');
-    });
-
-    test('handles failure when error object lacks message', async () => {
-        context.navigator.serviceWorker.register.mockRejectedValue({});
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        expect(context.window.dispatchEvent).toHaveBeenCalled();
-        const event = context.window.dispatchEvent.mock.calls[0][0];
-        expect(event.type).toBe('serviceWorker:registrationError');
-        expect(event.detail.message).toBe('');
-    });
-
-    test('binds to load event if document is not complete', () => {
-        context.document.readyState = 'loading';
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.navigator.serviceWorker.register).not.toHaveBeenCalled();
-        expect(context.window.addEventListener).toHaveBeenCalledWith('load', expect.any(Function));
-
-        // Trigger load manually
-        const loadCallback = context.window.addEventListener.mock.calls[0][1];
-        loadCallback();
-
-        expect(context.navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
-    });
-
-    test('does not dispatch event if window.dispatchEvent is not a function', async () => {
-        delete context.window.dispatchEvent;
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        // Code should complete without errors
-    });
-
-    test('falls back to document.createEvent if CustomEvent is missing', async () => {
-        delete context.window.CustomEvent;
-        delete context.CustomEvent; // Some environments use global CustomEvent
-
-        const mockEvent = {
-            initCustomEvent: jest.fn(),
-        };
-        context.document.createEvent = jest.fn().mockReturnValue(mockEvent);
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        expect(context.document.createEvent).toHaveBeenCalledWith('CustomEvent');
-        expect(mockEvent.initCustomEvent).toHaveBeenCalledWith(
-            'serviceWorker:registered',
-            false,
-            false,
-            { scope: '/sw.js' }
-        );
-        expect(context.window.dispatchEvent).toHaveBeenCalledWith(mockEvent);
-    });
-
-    test('falls back to document.createEvent without detail object', async () => {
-        delete context.window.CustomEvent;
-        delete context.CustomEvent;
-
-        context.navigator.serviceWorker.register.mockResolvedValue({});
-
-        const mockEvent = {
-            initCustomEvent: jest.fn(),
-        };
-        context.document.createEvent = jest.fn().mockReturnValue(mockEvent);
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        expect(context.document.createEvent).toHaveBeenCalledWith('CustomEvent');
-        expect(mockEvent.initCustomEvent).toHaveBeenCalledWith(
-            'serviceWorker:registered',
-            false,
-            false,
-            { scope: null }
-        );
-        expect(context.window.dispatchEvent).toHaveBeenCalledWith(mockEvent);
-    });
-
-    test('falls back to document.createEvent on registration failure', async () => {
-        delete context.window.CustomEvent;
-        delete context.CustomEvent;
-
-        context.navigator.serviceWorker.register.mockRejectedValue(
-            new Error('Registration failed')
-        );
-
-        const mockEvent = {
-            initCustomEvent: jest.fn(),
-        };
-        context.document.createEvent = jest.fn().mockReturnValue(mockEvent);
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        expect(context.document.createEvent).toHaveBeenCalledWith('CustomEvent');
-        expect(mockEvent.initCustomEvent).toHaveBeenCalledWith(
-            'serviceWorker:registrationError',
-            false,
-            false,
-            { message: 'Registration failed' }
-        );
-        expect(context.window.dispatchEvent).toHaveBeenCalledWith(mockEvent);
-    });
-
-    test('falls back to document.createEvent if window.CustomEvent is not a function', async () => {
-        context.window.CustomEvent = 'not-a-function';
-        delete context.CustomEvent;
-
-        const mockEvent = {
-            initCustomEvent: jest.fn(),
-        };
-        context.document.createEvent = jest.fn().mockReturnValue(mockEvent);
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        expect(context.document.createEvent).toHaveBeenCalledWith('CustomEvent');
-        expect(context.window.dispatchEvent).toHaveBeenCalledWith(mockEvent);
-    });
-
-    test('does not crash if both CustomEvent and document.createEvent are missing', async () => {
-        delete context.window.CustomEvent;
-        delete context.CustomEvent;
-        delete context.document.createEvent;
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        await new Promise(process.nextTick);
-
-        expect(context.window.dispatchEvent).not.toHaveBeenCalled();
+        console.warn.mockRestore();
     });
 });

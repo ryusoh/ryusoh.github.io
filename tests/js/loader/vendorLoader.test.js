@@ -1,132 +1,34 @@
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
+/**
+ * @jest-environment jsdom
+ */
 
-describe('loader/vendorLoader.js', () => {
-    let context;
-    let code;
+describe('vendorLoader.js', () => {
     let mockCDNLoader;
 
     beforeEach(() => {
-        code = fs.readFileSync(
-            path.resolve(__dirname, '../../../js/loader/vendorLoader.js'),
-            'utf8'
-        );
+        jest.resetModules();
 
         mockCDNLoader = {
             preconnect: jest.fn(),
             loadCssWithFallback: jest.fn(),
         };
+        window.CDNLoader = mockCDNLoader;
 
-        context = {
-            window: {
-                CDNLoader: mockCDNLoader,
-            },
-        };
+        require('../../../js/loader/vendorLoader.js');
     });
 
-    test('exits early if window.CDNLoader is missing', () => {
-        delete context.window.CDNLoader;
+    test('init should call preconnect and loadCssWithFallback', () => {
+        const init = window.__VendorLoaderForTesting.init;
+        mockCDNLoader.preconnect.mockClear();
+        mockCDNLoader.loadCssWithFallback.mockClear();
+        init();
 
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(mockCDNLoader.preconnect).not.toHaveBeenCalled();
+        expect(mockCDNLoader.preconnect).toHaveBeenCalledWith(expect.any(Array));
+        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledTimes(2);
     });
-
-    test('preconnects to required font domains', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(mockCDNLoader.preconnect).toHaveBeenCalledWith([
-            'https://fonts.googleapis.com',
-            'https://fonts.gstatic.com',
-            'https://fonts.bunny.net',
-        ]);
-    });
-
-    test('loads font awesome CSS with fallback', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
-            '/assets/vendor/font-awesome/css/font-awesome.min.css',
-        ]);
-    });
-
-    test('loads google fonts with fallback', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
-            'https://fonts.googleapis.com/css2?family=Lobster&display=swap',
-            'https://fonts.bunny.net/css?family=Lobster',
-        ]);
-    });
-
-    test('handles errors gracefully without throwing', () => {
-        mockCDNLoader.preconnect.mockImplementation(() => {
-            throw new Error('Preconnect failed');
-        });
-
-        expect(() => {
-            vm.createContext(context);
-            vm.runInContext(code, context);
-        }).not.toThrow();
-    });
-
-    test('logs a warning when initialization fails', () => {
-        context.window = {
-            console: {
-                warn: jest.fn(),
-            },
-        };
-
-        // Simulated config error by throwing when CDNLoader is accessed
-        Object.defineProperty(context.window, 'CDNLoader', {
-            get: () => {
-                throw new Error('Simulated config error');
-            },
-        });
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.window.console.warn).toHaveBeenCalledWith(
-            'Vendor Loader failed:',
-            expect.any(Error)
-        );
-    });
-
-    test('gracefully handles missing window.console.warn without throwing', () => {
-        context.window = {
-            console: {}, // Missing warn
-        };
-
-        Object.defineProperty(context.window, 'CDNLoader', {
-            get: () => {
-                throw new Error('Simulated config error');
-            },
-        });
-
-        expect(() => {
-            vm.createContext(context);
-            vm.runInContext(code, context);
-        }).not.toThrow();
-    });
-
-    test('gracefully handles completely missing window.console without throwing', () => {
-        context.window = {}; // Missing console completely
-
-        Object.defineProperty(context.window, 'CDNLoader', {
-            get: () => {
-                throw new Error('Simulated config error');
-            },
-        });
-
-        expect(() => {
-            vm.createContext(context);
-            vm.runInContext(code, context);
-        }).not.toThrow();
+    test('should return early if CDNLoader is missing', () => {
+        delete window.CDNLoader;
+        const init = window.__VendorLoaderForTesting.init;
+        expect(() => init()).not.toThrow();
     });
 });

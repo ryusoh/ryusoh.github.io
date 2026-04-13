@@ -1,88 +1,34 @@
+/**
+ * @jest-environment jsdom
+ */
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
-
-// --- DOM XSS Security Tests ---
-
-const sourcePath = path.resolve(__dirname, '../../js/page-transition.js');
-const sourceCode = fs.readFileSync(sourcePath, 'utf8');
-
-// The source is a plain IIFE with no ES module imports, so it runs directly in vm.
-const codeToEvaluate = sourceCode;
 
 describe('DOM XSS Security Tests', () => {
-    let context;
+    let getValidatedUrl;
 
     beforeEach(() => {
         jest.useFakeTimers();
-        // Mock the minimal DOM environment
-        const mockDocument = {
-            readyState: 'complete',
-            documentElement: {
-                classList: { add: jest.fn(), remove: jest.fn(), contains: jest.fn() },
-                clientWidth: 1024,
-                clientHeight: 768,
-            },
-            body: {
-                getAttribute: jest.fn(),
-                appendChild: jest.fn(),
-                removeChild: jest.fn(),
-                offsetHeight: 0,
-                querySelector: jest.fn().mockReturnValue(null),
-            },
-            querySelectorAll: jest.fn().mockReturnValue([]),
-            querySelector: jest.fn().mockReturnValue(null),
-            addEventListener: jest.fn(),
-            createElement: jest.fn().mockReturnValue({
-                appendChild: jest.fn(),
-                style: {},
-                setAttribute: jest.fn(),
-                className: '',
-                offsetHeight: 0,
-            }),
-            getElementById: jest.fn().mockReturnValue(null),
-            head: { appendChild: jest.fn() },
+        jest.resetModules();
+
+        // Reset the DOM
+        document.documentElement.innerHTML = '<html><head></head><body></body></html>';
+
+        // Mock window.location
+        delete window.location;
+        window.location = new URL('http://localhost/');
+        window.location.assign = jest.fn();
+
+        // Mock console
+        window.console = {
+            error: jest.fn(),
+            warn: jest.fn(),
+            log: jest.fn(),
         };
 
-        const mockWindow = {
-            console: {
-                error: jest.fn(),
-                warn: jest.fn(),
-                log: jest.fn(),
-            },
-            location: {
-                href: 'http://localhost/',
-                origin: 'http://localhost',
-                assign: jest.fn(),
-            },
-            URL: URL, // Use Node's URL
-            URLSearchParams: URLSearchParams,
-            addEventListener: jest.fn(),
-            matchMedia: jest.fn().mockReturnValue({ matches: false }),
-            getComputedStyle: jest.fn().mockReturnValue({
-                getPropertyValue: jest.fn().mockReturnValue(''),
-            }),
-            innerWidth: 1024,
-            innerHeight: 768,
-            devicePixelRatio: 1,
-            requestAnimationFrame: jest.fn((cb) => setTimeout(() => cb(Date.now()), 16)),
-            cancelAnimationFrame: jest.fn((id) => clearTimeout(id)),
-            setTimeout: jest.fn((cb, ms) => setTimeout(cb, ms)),
-            clearTimeout: jest.fn((id) => clearTimeout(id)),
-        };
-
-        context = {
-            window: mockWindow,
-            document: mockDocument,
-            Promise: Promise,
-            setTimeout: mockWindow.setTimeout,
-            clearTimeout: mockWindow.clearTimeout,
-            requestAnimationFrame: mockWindow.requestAnimationFrame,
-            cancelAnimationFrame: mockWindow.cancelAnimationFrame,
-        };
-
-        vm.createContext(context);
-        vm.runInContext(codeToEvaluate, context);
+        // Load the source file
+        require('../../js/page-transition.js');
+        getValidatedUrl = window.__PageTransitionForTesting.getValidatedUrl;
     });
 
     afterEach(() => {
@@ -92,10 +38,8 @@ describe('DOM XSS Security Tests', () => {
     });
 
     test('getValidatedUrl should block malicious URL schemes', () => {
-        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
-
         expect(getValidatedUrl('javascript:alert(1)')).toBeNull();
-        expect(context.window.console.error).toHaveBeenCalledWith(
+        expect(window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
 
@@ -104,17 +48,13 @@ describe('DOM XSS Security Tests', () => {
     });
 
     test('getValidatedUrl should allow valid same-origin URLs', () => {
-        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
-
         const result = getValidatedUrl('/about.html');
         expect(result).toBe('/about.html');
     });
 
     test('getValidatedUrl should block cross-origin URLs', () => {
-        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
-
         expect(getValidatedUrl('http://example.com/login.html')).toBeNull();
-        expect(context.window.console.error).toHaveBeenCalledWith(
+        expect(window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked cross-origin navigation')
         );
 
@@ -122,31 +62,24 @@ describe('DOM XSS Security Tests', () => {
     });
 
     test('getValidatedUrl should block javascript: URLs even with leading whitespace or different case', () => {
-        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
-
         expect(getValidatedUrl('  JAVASCRIPT:alert(1)')).toBeNull();
-        expect(context.window.console.error).toHaveBeenCalledWith(
+        expect(window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
     });
 
     test('getValidatedUrl should block javascript: URLs even with leading control characters', () => {
-        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
-
         expect(getValidatedUrl('\x01\x02\x09\x1fjavascript:alert(1)')).toBeNull();
-        expect(context.window.console.error).toHaveBeenCalledWith(
+        expect(window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
     });
 
     test('PageTransition should not inject inline style elements (CSP compliance)', () => {
-        // Verify no <style> element was created and appended to <head>
-        const createCalls = context.document.createElement.mock.calls;
-        const styleCreations = createCalls.filter((call) => call[0] === 'style');
-        expect(styleCreations).toHaveLength(0);
-
-        const headAppendCalls = context.document.head.appendChild.mock.calls;
-        expect(headAppendCalls).toHaveLength(0);
+        // Since we are using JSDOM and required the file in beforeEach,
+        // we can just check the current document.
+        const styles = document.getElementsByTagName('style');
+        expect(styles.length).toBe(0);
     });
 });
 
@@ -185,15 +118,12 @@ describe('CSP Compliance: page transition styles in external CSS', () => {
 
 // --- Security: target="_blank" links Tests ---
 
-// Simple regex parser as we don't have jsdom installed
-// and the environment is node (based on earlier check)
 function findTags(html, tagName) {
     const regex = new RegExp(`<${tagName}[^>]*>`, 'gi');
     return html.match(regex) || [];
 }
 
 function getAttribute(tag, attrName) {
-    // Regex to match attribute safely, handling single or double quotes
     const regex = new RegExp(`${attrName}=["']([^"']*)["']`, 'i');
     const match = tag.match(regex);
     return match ? match[1] : null;
@@ -202,14 +132,12 @@ function getAttribute(tag, attrName) {
 describe('Security: target="_blank" links', () => {
     const rootDir = path.resolve(__dirname, '../../');
 
-    // Find all HTML files
     function getHtmlFiles(dir, fileList = []) {
         const files = fs.readdirSync(dir);
 
         files.forEach((file) => {
             const filePath = path.join(dir, file);
             if (fs.statSync(filePath).isDirectory()) {
-                // Ignore node_modules, .git, etc
                 if (!file.startsWith('.') && file !== 'node_modules') {
                     getHtmlFiles(filePath, fileList);
                 }

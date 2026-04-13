@@ -89,9 +89,21 @@
             })(0);
         });
     }
-    window.CDNLoader = {
-        preconnect: preconnect,
-        loadScriptSequential: loadScriptSequential,
-        loadCssWithFallback: loadCssWithFallback,
-    };
+    if (typeof window !== 'undefined') {
+        window.CDNLoader = {
+            preconnect: preconnect,
+            loadScriptSequential: loadScriptSequential,
+            loadCssWithFallback: loadCssWithFallback,
+        };
+    }
+
+    /* eslint-disable no-undef */
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = {
+            preconnect: preconnect,
+            loadScriptSequential: loadScriptSequential,
+            loadCssWithFallback: loadCssWithFallback,
+        };
+    }
+    /* eslint-enable no-undef */
 })();

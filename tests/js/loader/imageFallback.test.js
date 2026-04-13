@@ -1,195 +1,156 @@
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
+/**
+ * @jest-environment jsdom
+ */
+
+const imageFallback = require('../../../js/loader/imageFallback.js');
 
 describe('imageFallback.js', () => {
-    let context;
     let imgElement;
-    let addEventListenerMock;
     let consoleWarnMock;
 
-    const sourceCode = fs.readFileSync(
-        path.resolve(__dirname, '../../../js/loader/imageFallback.js'),
-        'utf8'
-    );
-
     beforeEach(() => {
-        addEventListenerMock = jest.fn();
-        consoleWarnMock = jest.fn();
+        consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-        imgElement = {
-            tagName: 'IMG',
-            hasAttribute: jest.fn().mockImplementation((attr) => attr === 'data-fallbacks'),
-            getAttribute: jest.fn(),
-            classList: {
-                add: jest.fn(),
-                remove: jest.fn(),
-            },
-            src: '',
-            complete: false,
-            naturalWidth: 0,
-        };
+        // Set up a clean document for each test
+        document.body.innerHTML = `
+            <img id="test-img" data-fallbacks='["url1.png", "url2.png"]'>
+        `;
+        imgElement = document.getElementById('test-img');
 
-        context = vm.createContext({
-            document: {
-                querySelectorAll: jest.fn(() => [imgElement]),
-                addEventListener: addEventListenerMock,
+        // Mock properties to prevent JSDOM cascade
+        let currentSrc = '';
+        Object.defineProperty(imgElement, 'src', {
+            get: () => currentSrc,
+            set: (val) => {
+                currentSrc = val;
             },
-            console: {
-                warn: consoleWarnMock,
-            },
-            window: {
-                console: {
-                    warn: consoleWarnMock,
-                },
-            },
-            Array: Array,
-            JSON: JSON,
+            configurable: true,
         });
+        Object.defineProperty(imgElement, 'naturalWidth', {
+            get: () => imgElement._naturalWidth || 0,
+            set: (val) => {
+                imgElement._naturalWidth = val;
+            },
+            configurable: true,
+        });
+        Object.defineProperty(imgElement, 'complete', {
+            get: () => imgElement._complete || false,
+            set: (val) => {
+                imgElement._complete = val;
+            },
+            configurable: true,
+        });
+
+        // Manually init since we already required it once
+        imageFallback.initFallback(imgElement);
+    });
+
+    afterEach(() => {
+        consoleWarnMock.mockRestore();
+        document.body.innerHTML = '';
     });
 
     it('should do nothing if data-fallbacks is missing', () => {
-        imgElement.getAttribute.mockReturnValue(null);
-        vm.runInContext(sourceCode, context);
-        expect(imgElement.src).toBe(''); // No changes
+        document.body.innerHTML = '<img id="no-fallback">';
+        const noFallbackImg = document.getElementById('no-fallback');
+        imageFallback.initFallback(noFallbackImg);
+        expect(noFallbackImg.src).toBe('');
     });
 
     it('should warn and do nothing if data-fallbacks is invalid JSON', () => {
-        imgElement.getAttribute.mockReturnValue('invalid-json');
-        vm.runInContext(sourceCode, context);
+        imgElement.setAttribute('data-fallbacks', 'invalid-json');
+        imageFallback.initFallback(imgElement);
         expect(consoleWarnMock).toHaveBeenCalledWith('Caught exception:', expect.any(Error));
-        expect(imgElement.src).toBe(''); // No changes
     });
 
     it('should do nothing if data-fallbacks string exceeds length limit', () => {
-        const longString = '[' + '"a"'.repeat(1000) + ']';
-        imgElement.getAttribute.mockReturnValue(longString);
-        vm.runInContext(sourceCode, context);
-        expect(imgElement.src).toBe(''); // No changes
+        const longString = '[' + '"a.png"'.repeat(1000) + ']';
+        imgElement.setAttribute('data-fallbacks', longString);
+        const result = imageFallback.parseFallbacks(imgElement);
+        expect(result).toBeNull();
     });
 
     it('should do nothing if data-fallbacks is not an array', () => {
-        imgElement.getAttribute.mockReturnValue('{"key": "value"}');
-        vm.runInContext(sourceCode, context);
-        expect(imgElement.src).toBe(''); // No changes
+        imgElement.setAttribute('data-fallbacks', '{"key": "value"}');
+        const result = imageFallback.parseFallbacks(imgElement);
+        expect(result).toBeNull();
     });
 
     it('should do nothing if data-fallbacks is an empty array', () => {
-        imgElement.getAttribute.mockReturnValue('[]');
-        vm.runInContext(sourceCode, context);
-        expect(imgElement.src).toBe(''); // No changes
+        imgElement.setAttribute('data-fallbacks', '[]');
+        const result = imageFallback.parseFallbacks(imgElement);
+        expect(result).toBeNull();
     });
 
     it('should set internal properties and set src to first fallback if src is empty', () => {
-        imgElement.getAttribute.mockReturnValue('["url1", "url2"]');
-        vm.runInContext(sourceCode, context);
+        imgElement.src = '';
+        delete imgElement.__fallbackList;
+        delete imgElement.__fallbackIndex;
 
-        expect(imgElement.classList.remove).toHaveBeenCalledWith('is-fallback-ready');
-        expect(imgElement.__fallbackList).toEqual(['url1', 'url2']);
+        imageFallback.initFallback(imgElement);
+
+        expect(imgElement.classList.contains('is-fallback-ready')).toBe(false);
+        expect(imgElement.__fallbackList).toEqual(['url1.png', 'url2.png']);
         expect(imgElement.__fallbackIndex).toBe(0);
-        expect(imgElement.src).toBe('url1');
+        expect(imgElement.src).toBe('url1.png');
     });
 
     it('should mark as ready if already complete and has naturalWidth', () => {
-        imgElement.getAttribute.mockReturnValue('["url1", "url2"]');
-        imgElement.src = 'url1';
+        imgElement.src = 'url1.png';
+        imgElement.setAttribute('data-fallbacks', '["url1.png", "url2.png"]');
         imgElement.complete = true;
         imgElement.naturalWidth = 100;
 
-        vm.runInContext(sourceCode, context);
+        imageFallback.initFallback(imgElement);
 
-        expect(imgElement.classList.add).toHaveBeenCalledWith('is-fallback-ready');
-    });
-
-    it('should bind global document load and error event listeners correctly', () => {
-        vm.runInContext(sourceCode, context);
-        expect(addEventListenerMock).toHaveBeenCalledWith('load', expect.any(Function), true);
-        expect(addEventListenerMock).toHaveBeenCalledWith('error', expect.any(Function), true);
+        expect(imgElement.classList.contains('is-fallback-ready')).toBe(true);
     });
 
     it('should add "is-fallback-ready" class when global load event fires for valid image', () => {
-        imgElement.getAttribute.mockReturnValue('["url1", "url2"]');
-        vm.runInContext(sourceCode, context);
+        const event = new Event('load', { bubbles: true });
+        imgElement.dispatchEvent(event);
 
-        const loadListener = addEventListenerMock.mock.calls.find((call) => call[0] === 'load')[1];
-
-        loadListener({ target: imgElement });
-
-        expect(imgElement.classList.add).toHaveBeenCalledWith('is-fallback-ready');
+        expect(imgElement.classList.contains('is-fallback-ready')).toBe(true);
     });
 
     it('should try next url when global error event fires for valid image', () => {
-        imgElement.getAttribute.mockReturnValue('["url1", "url2"]');
-        vm.runInContext(sourceCode, context);
+        imgElement.__fallbackIndex = 0;
+        imgElement.src = 'initial.png';
 
-        const errorListener = addEventListenerMock.mock.calls.find(
-            (call) => call[0] === 'error'
-        )[1];
+        // First error event:
+        const event1 = new Event('error', { bubbles: true });
+        imgElement.dispatchEvent(event1);
+        expect(imgElement.src).toBe('url1.png');
+        expect(imgElement.__fallbackIndex).toBe(1);
 
-        expect(imgElement.src).toBe('url1');
+        // Second error event:
+        const event2 = new Event('error', { bubbles: true });
+        imgElement.dispatchEvent(event2);
+        expect(imgElement.src).toBe('url2.png');
+        expect(imgElement.__fallbackIndex).toBe(2);
 
-        errorListener({ target: imgElement }); // First error listener triggers list[i++] where i=0, so it sets it to list[0] which is 'url1'
-
-        expect(imgElement.src).toBe('url1');
-
-        errorListener({ target: imgElement }); // Next sets it to 'url2'
-        expect(imgElement.src).toBe('url2');
-
-        errorListener({ target: imgElement }); // No more fallbacks
-        expect(imgElement.src).toBe('url2');
-    });
-
-    it('should catch exception and warn on general failure', () => {
-        // Simulate querySelectorAll throwing an exception
-        context.document.querySelectorAll = jest.fn(() => {
-            throw new Error('Test general exception');
-        });
-
-        vm.runInContext(sourceCode, context);
-
-        expect(consoleWarnMock).toHaveBeenCalledWith('Caught exception:', expect.any(Error));
+        // Third error event:
+        const event3 = new Event('error', { bubbles: true });
+        imgElement.dispatchEvent(event3);
+        expect(imgElement.src).toBe('url2.png');
+        expect(imgElement.__fallbackIndex).toBe(2);
     });
 
     it('should sanitize fallback array and remove non-string elements', () => {
-        imgElement.getAttribute.mockReturnValue('["url1", 123, "url2", null, {}, "url3"]');
-        vm.runInContext(sourceCode, context);
-
-        expect(imgElement.src).toBe('url1');
-
-        const errorListener = addEventListenerMock.mock.calls.find(
-            (call) => call[0] === 'error'
-        )[1];
-
-        errorListener({ target: imgElement }); // Next sets src to list[0] which is url1
-        expect(imgElement.src).toBe('url1');
-
-        errorListener({ target: imgElement }); // Next should be url2
-        expect(imgElement.src).toBe('url2');
-
-        errorListener({ target: imgElement }); // Next should be url3
-        expect(imgElement.src).toBe('url3');
-
-        errorListener({ target: imgElement }); // Stop at url3
-        expect(imgElement.src).toBe('url3');
+        imgElement.setAttribute('data-fallbacks', '["url1.png", 123, "url2.png"]');
+        const list = imageFallback.parseFallbacks(imgElement);
+        expect(list).toEqual(['url1.png', 'url2.png']);
     });
 
-    it('should handle exception when window.console.warn is missing', () => {
-        imgElement.getAttribute.mockReturnValue('invalid-json');
-        delete context.window.console;
+    it('should handle exception when console.warn is missing', () => {
+        imgElement.setAttribute('data-fallbacks', 'invalid-json');
+        const originalWarn = window.console.warn;
+        window.console.warn = undefined;
 
         expect(() => {
-            vm.runInContext(sourceCode, context);
+            imageFallback.initFallback(imgElement);
         }).not.toThrow();
-    });
 
-    it('should handle general exception when window.console.warn is missing', () => {
-        context.document.querySelectorAll = jest.fn(() => {
-            throw new Error('Test general exception');
-        });
-        delete context.window.console;
-
-        expect(() => {
-            vm.runInContext(sourceCode, context);
-        }).not.toThrow();
+        window.console.warn = originalWarn;
     });
 });

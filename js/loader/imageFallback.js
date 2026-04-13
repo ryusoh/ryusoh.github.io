@@ -94,6 +94,21 @@
             },
             true
         );
+
+        if (typeof window !== 'undefined') {
+            window.__ImageFallbackForTesting = {
+                parseFallbacks,
+                initFallback,
+            };
+        }
+        /* eslint-disable no-undef */
+        if (typeof module !== 'undefined' && module.exports) {
+            module.exports = {
+                parseFallbacks,
+                initFallback,
+            };
+        }
+        /* eslint-enable no-undef */
     } catch (error) {
         logWarning('Caught exception:', error);
     }

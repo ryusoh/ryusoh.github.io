@@ -505,19 +505,25 @@
 
     ready(init);
 
-    // eslint-disable-next-line no-undef
-    if (typeof module !== 'undefined' && module.exports) {
-        // eslint-disable-next-line no-undef
-        module.exports = {
-            clampScrollTop,
-            isEditableActive,
-            shouldUseElement,
-            handleEscapeKey,
-            debounce,
-            getIndexFromFallback,
-            calculateNextIndex,
-            scrollToIndex,
-            performScroll,
-        };
+    const testing = {
+        clampScrollTop,
+        isEditableActive,
+        shouldUseElement,
+        handleEscapeKey,
+        debounce,
+        getIndexFromFallback,
+        calculateNextIndex,
+        scrollToIndex,
+        performScroll,
+    };
+
+    if (typeof window !== 'undefined') {
+        window.__BlockNavigationForTesting = testing;
     }
+
+    /* eslint-disable no-undef */
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = testing;
+    }
+    /* eslint-enable no-undef */
 })();

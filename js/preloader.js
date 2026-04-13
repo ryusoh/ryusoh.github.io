@@ -2,205 +2,210 @@
  * Asset preloader for cross-page performance optimization
  * Preloads images from other portfolio pages to improve navigation experience
  */
-class AssetPreloader {
-    constructor() {
-        // Define the image directories that need preloading
-        this.imageDirectories = {
-            p1: '/assets/img/p1/',
-            p2: '/assets/img/p2/',
-            p3: '/assets/img/p3/',
-        };
+(function () {
+    class AssetPreloader {
+        constructor() {
+            // Define the image directories that need preloading
+            this.imageDirectories = {
+                p1: '/assets/img/p1/',
+                p2: '/assets/img/p2/',
+                p3: '/assets/img/p3/',
+            };
 
-        // Define the actual image sets for each portfolio page (these are the specific images referenced in each portfolio)
-        this.assetSets = {
-            p1: [
-                '/assets/img/p1/DSCF4775.jpg',
-                '/assets/img/p1/DSCF8974-2.jpg',
-                '/assets/img/p1/DSCF0361-2.jpg',
-                '/assets/img/p1/DSCF8927-2.jpg',
-                '/assets/img/p1/DSCF8961-2.jpg',
-                '/assets/img/p1/DSCF7141.jpg',
-                '/assets/img/p1/R0002885-2.jpg',
-                '/assets/img/p1/DSCF2432-2.jpg',
-                '/assets/img/p1/DSCF6943.jpg',
-                '/assets/img/p1/DSCF2441-3.jpg',
-                '/assets/img/p1/DSCF1157.jpg',
-                '/assets/img/p1/DSCF5423-5.jpg',
-                '/assets/img/p1/DSCF1093.jpg',
-                '/assets/img/p1/286FC1B3-5576-440B-8718-2E872C98E713.JPG',
-                '/assets/img/p1/DSCF5891-9.JPG',
-                '/assets/img/p1/DSCF5903-2.JPG',
-                '/assets/img/p1/DSCF4402-8.jpg',
-                '/assets/img/p1/DSCF5916-4.JPG',
-            ],
-            p2: [
-                '/assets/img/p2/DSCF4295-2.JPG',
-                '/assets/img/p2/R0002358.JPG',
-                '/assets/img/p2/DSCF5163-8.JPG',
-                '/assets/img/p2/DSCF8593-3.jpg',
-                '/assets/img/p2/DSCF8402-3.jpg',
-                '/assets/img/p2/DSCF8444-3.jpg',
-                '/assets/img/p2/DSCF3433.jpg',
-                '/assets/img/p2/A20E2E39-AF83-4FD0-A6F7-3D2243A753DC.JPG',
-                '/assets/img/p2/DSCF7203-9.jpg',
-                '/assets/img/p2/DSCF8772.jpg',
-                '/assets/img/p2/DSCF3495-2.jpg',
-                '/assets/img/p2/DSCF8739.jpg',
-                '/assets/img/p2/DSCF3487-3.jpg',
-                '/assets/img/p2/DSCF3445-2.jpg',
-                '/assets/img/p2/R0004664.JPG',
-                '/assets/img/p2/DSCF2862-3.jpg',
-            ],
-            p3: [
-                '/assets/img/p3/DSCF7765.jpg',
-                '/assets/img/p3/DSCF7728.jpg',
-                '/assets/img/p3/DSCF7753-3.jpg',
-                '/assets/img/p3/DSCF7186-2.jpg',
-                '/assets/img/p3/DSCF6946.jpg',
-                '/assets/img/p3/8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG',
-                '/assets/img/p3/DSCF5338.JPG',
-                '/assets/img/p3/DSCF0490.JPG',
-                '/assets/img/p3/DSCF4237-2.jpg',
-                '/assets/img/p3/B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG',
-                '/assets/img/p3/DSCF1137.jpg',
-                '/assets/img/p3/DSCF3579.JPG',
-                '/assets/img/p3/DSCF7318-3.jpg',
-                '/assets/img/p3/DSCF5759-5.jpg',
-                '/assets/img/p3/DSCF5719-3.jpg',
-            ],
-        };
-    }
+            // Define the actual image sets for each portfolio page (these are the specific images referenced in each portfolio)
+            this.assetSets = {
+                p1: [
+                    '/assets/img/p1/DSCF4775.jpg',
+                    '/assets/img/p1/DSCF8974-2.jpg',
+                    '/assets/img/p1/DSCF0361-2.jpg',
+                    '/assets/img/p1/DSCF8927-2.jpg',
+                    '/assets/img/p1/DSCF8961-2.jpg',
+                    '/assets/img/p1/DSCF7141.jpg',
+                    '/assets/img/p1/R0002885-2.jpg',
+                    '/assets/img/p1/DSCF2432-2.jpg',
+                    '/assets/img/p1/DSCF6943.jpg',
+                    '/assets/img/p1/DSCF2441-3.jpg',
+                    '/assets/img/p1/DSCF1157.jpg',
+                    '/assets/img/p1/DSCF5423-5.jpg',
+                    '/assets/img/p1/DSCF1093.jpg',
+                    '/assets/img/p1/286FC1B3-5576-440B-8718-2E872C98E713.JPG',
+                    '/assets/img/p1/DSCF5891-9.JPG',
+                    '/assets/img/p1/DSCF5903-2.JPG',
+                    '/assets/img/p1/DSCF4402-8.jpg',
+                    '/assets/img/p1/DSCF5916-4.JPG',
+                ],
+                p2: [
+                    '/assets/img/p2/DSCF4295-2.JPG',
+                    '/assets/img/p2/R0002358.JPG',
+                    '/assets/img/p2/DSCF5163-8.JPG',
+                    '/assets/img/p2/DSCF8593-3.jpg',
+                    '/assets/img/p2/DSCF8402-3.jpg',
+                    '/assets/img/p2/DSCF8444-3.jpg',
+                    '/assets/img/p2/DSCF3433.jpg',
+                    '/assets/img/p2/A20E2E39-AF83-4FD0-A6F7-3D2243A753DC.JPG',
+                    '/assets/img/p2/DSCF7203-9.jpg',
+                    '/assets/img/p2/DSCF8772.jpg',
+                    '/assets/img/p2/DSCF3495-2.jpg',
+                    '/assets/img/p2/DSCF8739.jpg',
+                    '/assets/img/p2/DSCF3487-3.jpg',
+                    '/assets/img/p2/DSCF3445-2.jpg',
+                    '/assets/img/p2/R0004664.JPG',
+                    '/assets/img/p2/DSCF2862-3.jpg',
+                ],
+                p3: [
+                    '/assets/img/p3/DSCF7765.jpg',
+                    '/assets/img/p3/DSCF7728.jpg',
+                    '/assets/img/p3/DSCF7753-3.jpg',
+                    '/assets/img/p3/DSCF7186-2.jpg',
+                    '/assets/img/p3/DSCF6946.jpg',
+                    '/assets/img/p3/8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG',
+                    '/assets/img/p3/DSCF5338.JPG',
+                    '/assets/img/p3/DSCF0490.JPG',
+                    '/assets/img/p3/DSCF4237-2.jpg',
+                    '/assets/img/p3/B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG',
+                    '/assets/img/p3/DSCF1137.jpg',
+                    '/assets/img/p3/DSCF3579.JPG',
+                    '/assets/img/p3/DSCF7318-3.jpg',
+                    '/assets/img/p3/DSCF5759-5.jpg',
+                    '/assets/img/p3/DSCF5719-3.jpg',
+                ],
+            };
+        }
 
-    /**
-     * Preload assets for specific pages
-     * @param {Array} pageKeys - Array of page keys to preload assets for (e.g., ['p2', 'p3'])
-     */
-    preloadAssets(pageKeys) {
         /**
-         * Bolt Optimization:
-         * - What: Create a DocumentFragment to batch DOM inserts.
-         * - Why: Appending nodes one by one to `document.head` inside a loop triggers multiple DOM mutations and potential layout thrashing/recalculations on the main thread.
-         * - Impact: Measurably reduces main-thread blocking time by appending all preloader <link> elements to the actual DOM in a single operation.
+         * Preload assets for specific pages
+         * @param {Array} pageKeys - Array of page keys to preload assets for (e.g., ['p2', 'p3'])
          */
-        const fragment = document.createDocumentFragment();
+        preloadAssets(pageKeys) {
+            /**
+             * Bolt Optimization:
+             * - What: Create a DocumentFragment to batch DOM inserts.
+             * - Why: Appending nodes one by one to `document.head` inside a loop triggers multiple DOM mutations and potential layout thrashing/recalculations on the main thread.
+             * - Impact: Measurably reduces main-thread blocking time by appending all preloader <link> elements to the actual DOM in a single operation.
+             */
+            const fragment = document.createDocumentFragment();
 
-        pageKeys.forEach((pageKey) => {
-            if (this.assetSets[pageKey]) {
-                this.assetSets[pageKey].forEach((imgSrc) => {
-                    const link = this.createPreloadLink(imgSrc);
-                    fragment.appendChild(link);
-                });
-            }
-        });
-
-        // Append all links to head in a single operation
-        document.head.appendChild(fragment);
-    }
-
-    /**
-     * Helper to create a preload link element without appending it
-     * @param {string} imgSrc - Image source URL
-     * @returns {HTMLElement} - The created link element
-     */
-    createPreloadLink(imgSrc) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = imgSrc;
-        return link;
-    }
-
-    /**
-     * Preload a single image (Maintains original public API)
-     * @param {string} imgSrc - Image source URL
-     */
-    preloadImage(imgSrc) {
-        const link = this.createPreloadLink(imgSrc);
-        document.head.appendChild(link);
-    }
-
-    /**
-     * Get current page key based on URL
-     * @returns {string} - Current page key (p1, p2, p3, or 'main' for index)
-     */
-    getCurrentPageKey() {
-        const path = window.location.pathname;
-        if (path.includes('/p1/')) {
-            return 'p1';
-        }
-        if (path.includes('/p2/')) {
-            return 'p2';
-        }
-        if (path.includes('/p3/')) {
-            return 'p3';
-        }
-        if (path === '/' || path.includes('/index.html')) {
-            return 'main';
-        }
-        return 'main';
-    }
-
-    /**
-     * Preload assets for other pages based on current page
-     */
-    preloadForCurrentPage() {
-        const currentPage = this.getCurrentPageKey();
-
-        switch (currentPage) {
-            case 'p1':
-                // Preload assets for p2 and p3
-                this.preloadAssets(['p2', 'p3']);
-                break;
-            case 'p2':
-                // Preload assets for p1 and p3
-                this.preloadAssets(['p1', 'p3']);
-                break;
-            case 'p3':
-                // Preload assets for p1 and p2
-                this.preloadAssets(['p1', 'p2']);
-                break;
-            case 'main':
-            default:
-                // On main page, preload assets for all portfolio pages
-                this.preloadAssets(['p1', 'p2', 'p3']);
-                break;
-        }
-    }
-
-    /**
-     * Initialize the preloader
-     */
-    init() {
-        if ('serviceWorker' in navigator) {
-            // Wait for content to load, then preload other page assets
-            window.addEventListener('load', () => {
-                /**
-                 * Bolt Optimization:
-                 * - What: Defer `preloadForCurrentPage` using `requestIdleCallback` (with a setTimeout fallback).
-                 * - Why: Preloading non-critical assets (images for other pages) immediately on `load` can block the main thread and delay Time to Interactive (TTI), especially on low-end devices.
-                 * - Impact: Measurably improves TTI and reduces main-thread contention by scheduling the background preloading work during idle browser time.
-                 */
-                const preloadWork = () => this.preloadForCurrentPage();
-                if (typeof window.requestIdleCallback === 'function') {
-                    window.requestIdleCallback(preloadWork);
-                } else {
-                    window.setTimeout(preloadWork, 1000);
+            pageKeys.forEach((pageKey) => {
+                if (this.assetSets[pageKey]) {
+                    this.assetSets[pageKey].forEach((imgSrc) => {
+                        const link = this.createPreloadLink(imgSrc);
+                        fragment.appendChild(link);
+                    });
                 }
             });
+
+            // Append all links to head in a single operation
+            document.head.appendChild(fragment);
+        }
+
+        /**
+         * Helper to create a preload link element without appending it
+         * @param {string} imgSrc - Image source URL
+         * @returns {HTMLElement} - The created link element
+         */
+        createPreloadLink(imgSrc) {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = imgSrc;
+            return link;
+        }
+
+        /**
+         * Preload a single image (Maintains original public API)
+         * @param {string} imgSrc - Image source URL
+         */
+        preloadImage(imgSrc) {
+            const link = this.createPreloadLink(imgSrc);
+            document.head.appendChild(link);
+        }
+
+        /**
+         * Get current page key based on URL
+         * @returns {string} - Current page key (p1, p2, p3, or 'main' for index)
+         */
+        getCurrentPageKey() {
+            const path = window.location.pathname;
+            if (path.includes('/p1/')) {
+                return 'p1';
+            }
+            if (path.includes('/p2/')) {
+                return 'p2';
+            }
+            if (path.includes('/p3/')) {
+                return 'p3';
+            }
+            if (path === '/' || path.includes('/index.html')) {
+                return 'main';
+            }
+            return 'main';
+        }
+
+        /**
+         * Preload assets for other pages based on current page
+         */
+        preloadForCurrentPage() {
+            const currentPage = this.getCurrentPageKey();
+
+            switch (currentPage) {
+                case 'p1':
+                    // Preload assets for p2 and p3
+                    this.preloadAssets(['p2', 'p3']);
+                    break;
+                case 'p2':
+                    // Preload assets for p1 and p3
+                    this.preloadAssets(['p1', 'p3']);
+                    break;
+                case 'p3':
+                    // Preload assets for p1 and p2
+                    this.preloadAssets(['p1', 'p2']);
+                    break;
+                case 'main':
+                default:
+                    // On main page, preload assets for all portfolio pages
+                    this.preloadAssets(['p1', 'p2', 'p3']);
+                    break;
+            }
+        }
+
+        /**
+         * Initialize the preloader
+         */
+        init() {
+            if ('serviceWorker' in navigator) {
+                // Wait for content to load, then preload other page assets
+                window.addEventListener('load', () => {
+                    /**
+                     * Bolt Optimization:
+                     * - What: Defer `preloadForCurrentPage` using `requestIdleCallback` (with a setTimeout fallback).
+                     * - Why: Preloading non-critical assets (images for other pages) immediately on `load` can block the main thread and delay Time to Interactive (TTI), especially on low-end devices.
+                     * - Impact: Measurably improves TTI and reduces main-thread contention by scheduling the background preloading work during idle browser time.
+                     */
+                    const preloadWork = () => this.preloadForCurrentPage();
+                    if (typeof window.requestIdleCallback === 'function') {
+                        window.requestIdleCallback(preloadWork);
+                    } else {
+                        window.setTimeout(preloadWork, 1000);
+                    }
+                });
+            }
         }
     }
-}
 
-// Initialize the preloader when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    const preloader = new AssetPreloader();
-    preloader.init();
-});
+    // Initialize the preloader when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const preloader = new AssetPreloader();
+        preloader.init();
+    });
 
-// eslint-disable-next-line no-undef
-if (typeof module !== 'undefined' && module.exports) {
-    // eslint-disable-next-line no-undef
-    module.exports = {
-        AssetPreloader,
-    };
-}
+    const testing = { AssetPreloader };
+    if (typeof window !== 'undefined') {
+        window.__AssetPreloaderForTesting = testing;
+    }
+
+    /* eslint-disable no-undef */
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = testing;
+    }
+    /* eslint-enable no-undef */
+})();

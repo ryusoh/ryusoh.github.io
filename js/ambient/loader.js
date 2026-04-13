@@ -23,8 +23,26 @@
         }
 
         if (shouldSkipLoader()) {
+            // Expose for testing before early exit
+            if (typeof window !== 'undefined') {
+                window.__AmbientLoaderForTesting = {
+                    shouldSkipLoader,
+                    loadLegacyAmbient:
+                        typeof loadLegacyAmbient !== 'undefined' ? loadLegacyAmbient : null,
+                };
+            }
+            /* eslint-disable no-undef */
+            if (typeof module !== 'undefined' && module.exports) {
+                module.exports = {
+                    shouldSkipLoader,
+                    loadLegacyAmbient:
+                        typeof loadLegacyAmbient !== 'undefined' ? loadLegacyAmbient : null,
+                };
+            }
+            /* eslint-enable no-undef */
             return;
         }
+
         const body = document.body;
         const pageType = body ? body.getAttribute('data-page-type') : null;
         const useQuantum = pageType === 'home' || pageType === 'project';
@@ -69,6 +87,21 @@
                     window.console.warn('Ambient async loader failed:', e);
                 }
             });
+
+        if (typeof window !== 'undefined') {
+            window.__AmbientLoaderForTesting = {
+                shouldSkipLoader,
+                loadLegacyAmbient,
+            };
+        }
+        /* eslint-disable no-undef */
+        if (typeof module !== 'undefined' && module.exports) {
+            module.exports = {
+                shouldSkipLoader,
+                loadLegacyAmbient,
+            };
+        }
+        /* eslint-enable no-undef */
     } catch (e) {
         // Silently ignore synchronous errors during loader initialization
         if (
