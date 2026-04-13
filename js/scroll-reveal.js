@@ -49,11 +49,18 @@
     void document.body.offsetHeight;
 
     function revealElement(el) {
-        el.classList.add('scroll-reveal--visible');
+        // Use requestAnimationFrame to ensure the browser paints the hidden
+        // state before adding the visible class. If we don't, cached images
+        // that trigger instantly will batch the styles and skip the animation.
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                el.classList.add('scroll-reveal--visible');
+            });
+        });
     }
 
     function revealImage(img) {
-        if (img.complete && img.naturalHeight > 0) {
+        if (img.complete) {
             revealElement(img);
             return;
         }
