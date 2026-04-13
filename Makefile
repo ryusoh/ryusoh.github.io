@@ -37,6 +37,8 @@ precommit-fix: hooks
 	@if [ -f .pre-commit-config.yaml ]; then \
 		echo "Running pre-commit auto-fixes..."; \
 		PRE_COMMIT_NO_CONCURRENCY=1 python3 -m pre_commit run --all-files --hook-stage manual || true; \
+		echo "Staging auto-fixed files..."; \
+		git add -u; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
 	fi
