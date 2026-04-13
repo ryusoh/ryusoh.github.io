@@ -37,7 +37,8 @@
             // Expose for testing before early exit
             exportTesting({
                 shouldSkipLoader,
-                loadLegacyAmbient: typeof loadLegacyAmbient !== 'undefined' ? loadLegacyAmbient : null,
+                loadLegacyAmbient:
+                    typeof loadLegacyAmbient !== 'undefined' ? loadLegacyAmbient : null,
             });
             return;
         }
@@ -93,7 +94,11 @@
         if (typeof window !== 'undefined') {
             if (window.AppLogger && typeof window.AppLogger.error === 'function') {
                 window.AppLogger.error('Ambient initialization failed:', e);
-            } else if (window !== null && window.console && typeof window.console.warn === 'function') {
+            } else if (
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
                 window.console.warn('Ambient initialization failed:', e);
             }
         }
