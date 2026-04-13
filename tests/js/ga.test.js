@@ -61,4 +61,47 @@ describe('ga.js bootstrap', () => {
         expect(hasCreate).toBe(true);
         expect(hasSend).toBe(true);
     });
+
+    test('should safely catch errors during ga initialization and log warning', () => {
+        // Instead of mocking a throwing getter on window.ga (which Jest's cleanup
+        // might trigger and crash on), we mock window.ga as a function that throws
+        // when called, since the code does: if (typeof window.ga === 'function') { window.ga(...) }
+        window.ga = jest.fn(() => {
+            throw new Error('Test Error');
+        });
+
+        // Mock console.warn
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        // Re-require to trigger try-catch logic
+        jest.resetModules();
+        require('../../js/ga.js');
+
+        expect(console.warn).toHaveBeenCalledWith(
+            'Google Analytics initialization failed:',
+            expect.any(Error)
+        );
+
+        // Clean up
+        delete window.ga;
+    });
+
+    test('should not crash if console.warn is missing during error', () => {
+        window.ga = jest.fn(() => {
+            throw new Error('Test Error');
+        });
+
+        // Remove console.warn
+        const originalWarn = console.warn;
+        delete console.warn;
+
+        jest.resetModules();
+        expect(() => {
+            require('../../js/ga.js');
+        }).not.toThrow();
+
+        // Restore
+        console.warn = originalWarn;
+        delete window.ga;
+    });
 });
