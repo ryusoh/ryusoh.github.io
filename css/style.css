@@ -1189,9 +1189,10 @@ td {
 }
 
 html.page-transition--exiting body {
-    transition: transform 250ms ease-out,
-                opacity 250ms ease-out,
-                filter 250ms ease-out;
+    transition:
+        transform 250ms ease-out,
+        opacity 250ms ease-out,
+        filter 250ms ease-out;
     transform: scale(0.96);
     opacity: 0;
     filter: blur(4px);

@@ -153,9 +153,7 @@ describe('DOM XSS Security Tests', () => {
 // --- CSP Compliance: Page transition styles in external CSS ---
 
 describe('CSP Compliance: page transition styles in external CSS', () => {
-    const requiredSelectors = [
-        '.page-transition-overlay',
-    ];
+    const requiredSelectors = ['.page-transition-overlay'];
 
     const cssFiles = [
         path.resolve(__dirname, '../../css/main_style.css'),

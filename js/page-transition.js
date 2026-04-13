@@ -164,10 +164,7 @@
     // Two groups: the header, then the body. One beat.
 
     function applyStaggeredEntrance() {
-        const groups = [
-            ['.intro-header', '.post-heading h1'],
-            ['.post-content']
-        ];
+        const groups = [['.intro-header', '.post-heading h1'], ['.post-content']];
 
         let delay = 0;
         const allElements = [];
@@ -180,8 +177,16 @@
                     el.style.opacity = '0';
                     el.style.transform = 'scale(1.02) translateY(6px)';
                     el.style.transition =
-                        'opacity ' + ENTRANCE_DURATION + 'ms ease-out ' + groupDelay + 'ms, ' +
-                        'transform ' + ENTRANCE_DURATION + 'ms ease-out ' + groupDelay + 'ms';
+                        'opacity ' +
+                        ENTRANCE_DURATION +
+                        'ms ease-out ' +
+                        groupDelay +
+                        'ms, ' +
+                        'transform ' +
+                        ENTRANCE_DURATION +
+                        'ms ease-out ' +
+                        groupDelay +
+                        'ms';
                     allElements.push(el);
                 }
             }
