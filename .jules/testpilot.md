@@ -36,8 +36,8 @@
 
 ## 2025-03-24 - Defensive Testing for Global Fallbacks
 
-**Learning:** When testing defensive fallback structures (e.g.  fallbacks when an API throws), always include tests that verify the code gracefully handles the scenario where the fallback itself (like ) is missing from the environment, to ensure defensive code doesn't inadvertently introduce new crashing bugs.
+**Learning:** When testing defensive fallback structures (e.g. fallbacks when an API throws), always include tests that verify the code gracefully handles the scenario where the fallback itself (like ) is missing from the environment, to ensure defensive code doesn't inadvertently introduce new crashing bugs.
 
 ## 2025-03-24 - Defensive Testing for Global Fallbacks
 
-**Learning:** When testing defensive fallback structures (e.g.  fallbacks when an API throws), always include tests that verify the code gracefully handles the scenario where the fallback itself (like ) is missing from the environment, to ensure defensive code doesn't inadvertently introduce new crashing bugs.
+**Learning:** When testing defensive fallback structures (e.g. fallbacks when an API throws), always include tests that verify the code gracefully handles the scenario where the fallback itself (like ) is missing from the environment, to ensure defensive code doesn't inadvertently introduce new crashing bugs.
