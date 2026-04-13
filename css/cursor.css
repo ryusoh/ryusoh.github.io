@@ -39,7 +39,7 @@ html.force-hide-cursor .custom-cursor {
 .custom-cursor__core {
     width: 20px;
     height: 20px;
-    border: 2px solid #fff;
+    border: 2px solid #d2ff00;
     border-radius: 50%;
     transition: transform 0.15s ease;
     transform: scale(1);

@@ -1128,9 +1128,9 @@ td {
 
 /* Global focus-visible for accessibility */
 :focus-visible {
-    outline: 2px solid rgba(206, 35, 35, 0.8) !important;
+    outline: 2px solid #d2ff00 !important;
     outline-offset: 4px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(210, 255, 0, 0.3);
     border-radius: 2px;
 }
 
