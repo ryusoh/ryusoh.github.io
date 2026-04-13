@@ -68,3 +68,9 @@
 **Learning:** Found that `imageFallback.js` was iterating over all images with `data-fallbacks` and attaching individual `load` and `error` event listeners. On image-heavy pages with hundreds of fallback images, this consumes unnecessary memory (O(N) listeners) and increases initialization overhead.
 
 **Action:** To optimize tracking of numerous image loading states and minimize memory allocations on image-heavy pages, utilize event delegation via a single document-level capturing listener for `load` and `error` events (using `useCapture: true`) rather than attaching individual listeners to iterating DOM node collections.
+
+## 2026-04-03 - Event Delegation for Scroll Reveal Images
+
+**Learning:** Found that `revealImage(img)` in `js/scroll-reveal.js` was attaching individual `load` and `error` event listeners to every uncompleted image that entered the viewport. On image-heavy pages, this resulted in O(N) listener allocations when multiple images enter the viewport or during rapid scrolling.
+
+**Action:** Replace O(N) individual image `load`/`error` listeners with a single O(1) document-level event delegation listener (using `useCapture: true`). Add an `is-revealing` class to images awaiting load to filter events cleanly without extra memory overhead.
