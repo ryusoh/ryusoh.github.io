@@ -286,14 +286,14 @@ footer a:focus {
     padding: 1px 4px 2px 4px;
     background: rgba(0, 0, 0, 0.3);
     font-family: 'P22UndergroundProThin';
-    color: lightcyan;
+    color: #fff;
     font-weight: 150;
     letter-spacing: 1px;
 }
 
 #nav dd a:hover {
-    background: #00bcd4;
-    color: #333;
+    background: #d2ff00;
+    color: #000;
 }
 
 #nav dd > span {
@@ -394,6 +394,7 @@ footer {
     letter-spacing: 1.5px;
     width: 30%; /* Encourage this column to be as narrow as possible */
     opacity: 0.8; /* Makes the text slightly transparent */
+    text-transform: uppercase;
 }
 
 #nav .portfolio-link {
@@ -459,7 +460,7 @@ footer {
 
 .social-icons-container a:hover,
 .social-icons-container a:focus {
-    color: #fff;
+    color: #d2ff00;
 }
 
 .social-icons-container .social-icon {
@@ -499,7 +500,7 @@ footer {
 
 /* Global focus-visible for accessibility */
 :focus-visible {
-    outline: 2px solid rgba(206, 35, 35, 0.8) !important;
+    outline: 2px solid rgba(210, 255, 0, 0.8) !important;
     outline-offset: 4px;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
     border-radius: 2px;
