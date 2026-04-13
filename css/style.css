@@ -4,8 +4,7 @@
     transition: all 0.5s;
 }
 :root {
-    --page-transition-primary: rgba(206, 35, 35, 0.55);
-    --page-transition-secondary: rgba(206, 35, 35, 0.3);
+    --page-transition-color: rgba(0, 0, 0, 0.88);
 }
 .background-cover,
 .intro-header {
@@ -1182,24 +1181,18 @@ td {
     outline: none !important;
 }
 
-/* Page transition overlay */
+/* Page transition — content moves, nothing else.
+   No overlay. No shape. No wipe. The content itself
+   is the transition, like iOS/macOS. */
 .page-transition-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    pointer-events: none;
+    display: none;
+}
+
+html.page-transition--exiting body {
+    transition: transform 250ms ease-out,
+                opacity 250ms ease-out,
+                filter 250ms ease-out;
+    transform: scale(0.96);
     opacity: 0;
-    transition: opacity 0.4s ease;
-    background: rgba(0, 0, 0, 0.25);
-}
-
-.page-transition-overlay canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-html.page-transition--dimming body {
-    transition: opacity 0.45s ease;
-    opacity: 0.35;
+    filter: blur(4px);
 }

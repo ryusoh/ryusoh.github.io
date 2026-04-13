@@ -7,11 +7,8 @@ const vm = require('vm');
 const sourcePath = path.resolve(__dirname, '../../js/page-transition.js');
 const sourceCode = fs.readFileSync(sourcePath, 'utf8');
 
-// Strip out the ES module import statement for VM execution
-const codeToEvaluate = sourceCode.replace(
-    /import\s+\*\s+as\s+THREE\s+from\s+['"][^'"]+['"];/,
-    'const THREE = { Vector2: class {}, Vector3: class { set() {} }, Scene: class { add() {} }, OrthographicCamera: class {}, WebGLRenderer: class { setPixelRatio() {}; setSize() {}; setClearColor() {}; render() {} }, Clock: class { start() {}; getDelta() { return 0.016 } }, ShaderMaterial: class {}, Mesh: class {}, PlaneGeometry: class {}, CanvasTexture: class {}, Texture: class { constructor() { this.needsUpdate = false; this.minFilter = 0; this.magFilter = 0; } }, LinearFilter: 0, ClampToEdgeWrapping: 0 };'
-);
+// The source is a plain IIFE with no ES module imports, so it runs directly in vm.
+const codeToEvaluate = sourceCode;
 
 describe('DOM XSS Security Tests', () => {
     let context;
@@ -30,20 +27,18 @@ describe('DOM XSS Security Tests', () => {
                 getAttribute: jest.fn(),
                 appendChild: jest.fn(),
                 removeChild: jest.fn(),
+                offsetHeight: 0,
+                querySelector: jest.fn().mockReturnValue(null),
             },
             querySelectorAll: jest.fn().mockReturnValue([]),
+            querySelector: jest.fn().mockReturnValue(null),
             addEventListener: jest.fn(),
             createElement: jest.fn().mockReturnValue({
                 appendChild: jest.fn(),
                 style: {},
                 setAttribute: jest.fn(),
-                getContext: jest.fn().mockReturnValue({
-                    createLinearGradient: jest.fn().mockReturnValue({
-                        addColorStop: jest.fn(),
-                    }),
-                    fillRect: jest.fn(),
-                }),
-                toDataURL: jest.fn().mockReturnValue('data:image/png;base64,fake'),
+                className: '',
+                offsetHeight: 0,
             }),
             getElementById: jest.fn().mockReturnValue(null),
             head: { appendChild: jest.fn() },
@@ -67,11 +62,6 @@ describe('DOM XSS Security Tests', () => {
             getComputedStyle: jest.fn().mockReturnValue({
                 getPropertyValue: jest.fn().mockReturnValue(''),
             }),
-            sessionStorage: {
-                getItem: jest.fn(),
-                setItem: jest.fn(),
-                removeItem: jest.fn(),
-            },
             innerWidth: 1024,
             innerHeight: 768,
             devicePixelRatio: 1,
@@ -79,10 +69,6 @@ describe('DOM XSS Security Tests', () => {
             cancelAnimationFrame: jest.fn((id) => clearTimeout(id)),
             setTimeout: jest.fn((cb, ms) => setTimeout(cb, ms)),
             clearTimeout: jest.fn((id) => clearTimeout(id)),
-            WebGLRenderingContext: true,
-            html2canvas: jest.fn().mockResolvedValue({
-                toDataURL: jest.fn().mockReturnValue('data:image/png;base64,fake'),
-            }),
         };
 
         context = {
@@ -93,15 +79,6 @@ describe('DOM XSS Security Tests', () => {
             clearTimeout: mockWindow.clearTimeout,
             requestAnimationFrame: mockWindow.requestAnimationFrame,
             cancelAnimationFrame: mockWindow.cancelAnimationFrame,
-            Image: class {
-                constructor() {
-                    setTimeout(() => {
-                        if (this.onload) {
-                            this.onload();
-                        }
-                    }, 0);
-                }
-            },
         };
 
         vm.createContext(context);
@@ -111,87 +88,58 @@ describe('DOM XSS Security Tests', () => {
     afterEach(() => {
         jest.clearAllMocks();
         jest.restoreAllMocks();
-        // Clear all timers
         jest.clearAllTimers();
     });
 
-    test('PageTransition.navigate should block malicious URL schemes', () => {
-        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
-        const pt = new PageTransition();
+    test('getValidatedUrl should block malicious URL schemes', () => {
+        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
 
-        pt.navigate('javascript:alert(1)');
-        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(getValidatedUrl('javascript:alert(1)')).toBeNull();
         expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
 
-        pt.navigate('data:text/html,<script>alert(1)</script>');
-        expect(context.window.location.assign).not.toHaveBeenCalled();
-
-        pt.navigate('vbscript:msgbox(1)');
-        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(getValidatedUrl('data:text/html,<script>alert(1)</script>')).toBeNull();
+        expect(getValidatedUrl('vbscript:msgbox(1)')).toBeNull();
     });
 
-    test('PageTransition.navigate should allow valid same-origin URLs', () => {
-        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
-        const pt = new PageTransition();
+    test('getValidatedUrl should allow valid same-origin URLs', () => {
+        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
 
-        // When enabled, navigate returns true (will handle navigation via animation)
-        const result = pt.navigate('/about.html');
-        expect(result).toBe(true);
+        const result = getValidatedUrl('/about.html');
+        expect(result).toBe('/about.html');
     });
 
-    test('PageTransition.navigate should return false when disabled', () => {
-        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
-        const pt = new PageTransition();
+    test('getValidatedUrl should block cross-origin URLs', () => {
+        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
 
-        // When disabled, navigate returns false (browser handles navigation normally)
-        pt.enabled = false;
-        const result = pt.navigate('/about.html');
-        expect(result).toBe(false);
-    });
-
-    test('PageTransition.navigate should block cross-origin URLs', () => {
-        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
-        const pt = new PageTransition();
-
-        pt.navigate('http://example.com/login.html');
-        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(getValidatedUrl('http://example.com/login.html')).toBeNull();
         expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked cross-origin navigation')
         );
 
-        pt.navigate('https://malicious-site.com/exploit');
-        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(getValidatedUrl('https://malicious-site.com/exploit')).toBeNull();
     });
 
-    test('PageTransition should block javascript: URLs even with leading whitespace or different case', () => {
-        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
-        const pt = new PageTransition();
+    test('getValidatedUrl should block javascript: URLs even with leading whitespace or different case', () => {
+        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
 
-        pt.navigate('  JAVASCRIPT:alert(1)');
-
-        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(getValidatedUrl('  JAVASCRIPT:alert(1)')).toBeNull();
         expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
     });
 
-    test('PageTransition should block javascript: URLs even with leading control characters', () => {
-        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
-        const pt = new PageTransition();
+    test('getValidatedUrl should block javascript: URLs even with leading control characters', () => {
+        const getValidatedUrl = context.window.__PageTransitionForTesting.getValidatedUrl;
 
-        pt.navigate('\x01\x02\x09\x1fjavascript:alert(1)');
-
-        expect(context.window.location.assign).not.toHaveBeenCalled();
+        expect(getValidatedUrl('\x01\x02\x09\x1fjavascript:alert(1)')).toBeNull();
         expect(context.window.console.error).toHaveBeenCalledWith(
             expect.stringContaining('Blocked potentially malicious URL scheme')
         );
     });
+
     test('PageTransition should not inject inline style elements (CSP compliance)', () => {
-        const PageTransition = context.window.__PageTransitionForTesting._Constructor;
-        new PageTransition();
-
         // Verify no <style> element was created and appended to <head>
         const createCalls = context.document.createElement.mock.calls;
         const styleCreations = createCalls.filter((call) => call[0] === 'style');
@@ -207,8 +155,6 @@ describe('DOM XSS Security Tests', () => {
 describe('CSP Compliance: page transition styles in external CSS', () => {
     const requiredSelectors = [
         '.page-transition-overlay',
-        '.page-transition-overlay canvas',
-        'html.page-transition--dimming body',
     ];
 
     const cssFiles = [
