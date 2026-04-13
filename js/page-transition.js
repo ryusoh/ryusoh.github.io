@@ -114,6 +114,27 @@
         return Math.min(1, Math.max(0, value));
     }
 
+    // Store cursor position for the destination page.
+    // Uses the same sessionStorage key that cursor.js reads on init,
+    // so the custom cursor picks up exactly where the user clicked.
+    const CURSOR_STORAGE_KEY = 'customCursorPosition';
+
+    function storeCursorPositionForTransition(x, y) {
+        try {
+            if (typeof window.sessionStorage === 'undefined') {
+                return;
+            }
+            const payload = JSON.stringify({
+                x: Math.round(x),
+                y: Math.round(y),
+            });
+            window.sessionStorage.setItem(CURSOR_STORAGE_KEY, payload);
+        } catch (e) {
+            // sessionStorage may be unavailable (private browsing, quota)
+            logWarning('[page-transition] cursor position store failed:', e);
+        }
+    }
+
     // --- Exit: content steps back ---
     //
     // No overlay. No circle. No wipe. The content itself
@@ -334,6 +355,11 @@
                 return;
             }
             isAnimating = true;
+
+            // Store click coordinates so the custom cursor on the
+            // destination page initializes at the right position
+            // instead of snapping to (0,0).
+            storeCursorPositionForTransition(event.clientX, event.clientY);
 
             if (navigate(anchor.href)) {
                 event.preventDefault();

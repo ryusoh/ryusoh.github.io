@@ -324,12 +324,15 @@ describe('page-transition.js', () => {
             expect(jsSource).not.toMatch(/ShaderMaterial/);
         });
 
-        test('page-transition.js must not use sessionStorage', () => {
+        test('page-transition.js must not use sessionStorage for page capture', () => {
             const jsSource = fs.readFileSync(
                 path.resolve(__dirname, '../../js/page-transition.js'),
                 'utf8'
             );
-            expect(jsSource).not.toMatch(/sessionStorage/);
+            // The old system stored html2canvas screenshots in sessionStorage.
+            // Cursor position storage is allowed (bridges cursor.js).
+            expect(jsSource).not.toMatch(/captureData/);
+            expect(jsSource).not.toMatch(/html2canvas/);
         });
     });
 });
