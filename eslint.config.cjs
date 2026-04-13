@@ -40,6 +40,7 @@ module.exports = [
                 TouchEvent: 'readonly',
                 URL: 'readonly',
                 URLSearchParams: 'readonly',
+                IntersectionObserver: 'readonly',
                 process: 'readonly',
 
                 // App-provided globals from CDN

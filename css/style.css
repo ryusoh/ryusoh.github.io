@@ -634,6 +634,7 @@ article .container .row img {
     max-width: 100% !important;
     height: auto;
     display: inline-block;
+    vertical-align: bottom;
 }
 @media only screen and (max-width: 768px) {
     article .container .row img {
@@ -1196,4 +1197,35 @@ html.page-transition--exiting body {
     transform: scale(0.96);
     opacity: 0;
     filter: blur(4px);
+}
+
+/* Scroll-driven reveal — images and text fade/slide into view
+   as they enter the viewport. The JS adds .scroll-reveal on init
+   and .scroll-reveal--visible when observed. */
+.scroll-reveal {
+    opacity: 0 !important;
+    transform: translateY(30px) !important;
+}
+
+/* The transition is ONLY on the visible state.
+   Adding .scroll-reveal snaps to hidden instantly.
+   Adding .scroll-reveal--visible animates into view. */
+.scroll-reveal--visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition:
+        opacity 0.6s ease-out,
+        transform 0.6s ease-out !important;
+}
+
+/* Respect reduced motion: show everything immediately */
+@media (prefers-reduced-motion: reduce) {
+    .scroll-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .scroll-reveal--visible {
+        transition: none !important;
+    }
 }
