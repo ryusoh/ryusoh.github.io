@@ -6,14 +6,18 @@ describe('js/cursor-init.js', () => {
     let context;
     let code;
     let mockInitCursor;
+    let mockInitMagneticNav;
 
     beforeEach(() => {
         // We replace the import statement to make it executable in the VM context
         const sourcePath = path.resolve(__dirname, '../../js/cursor-init.js');
         const originalCode = fs.readFileSync(sourcePath, 'utf8');
-        code = originalCode.replace("import { initCursor } from './vendor/cursor.js';", '');
+        code = originalCode
+            .replace("import { initCursor } from './vendor/cursor.js';", '')
+            .replace("import { initMagneticNav } from './magnetic-nav.js';", '');
 
         mockInitCursor = jest.fn().mockReturnValue({ cursor: { id: 'mocked-cursor' } });
+        mockInitMagneticNav = jest.fn();
 
         context = {
             window: {
@@ -30,6 +34,7 @@ describe('js/cursor-init.js', () => {
                 }),
             },
             initCursor: mockInitCursor,
+            initMagneticNav: mockInitMagneticNav,
             console: {
                 warn: jest.fn(),
             },
@@ -74,6 +79,8 @@ describe('js/cursor-init.js', () => {
                 hoverScale: 3,
             },
         });
+
+        expect(mockInitMagneticNav).toHaveBeenCalled();
 
         expect(context.window.cursorInstances).toBeDefined();
         expect(context.window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
