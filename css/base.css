@@ -172,6 +172,8 @@ a.nav-next:hover,
 a.nav-back:focus,
 a.nav-next:focus {
     color: #ce2323;
+    outline: none !important;
+    box-shadow: none !important;
 }
 nav {
     position: fixed;
