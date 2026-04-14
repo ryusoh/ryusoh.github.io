@@ -144,11 +144,14 @@
     // gently moves away.
 
     function exitPage(done) {
+        // Save current custom cursor position immediately so it persists on the next page
+        if (window.cursorInstances?.cursor?.flushStoredPosition) {
+            window.cursorInstances.cursor.flushStoredPosition();
+        }
+
         document.documentElement.classList.add('page-transition--exiting');
 
         // Navigate while the exit is still running.
-        // The browser starts fetching the next page
-        // during the visual fadeout.
         if (typeof done === 'function') {
             window.setTimeout(done, NAVIGATE_DELAY);
         }
@@ -349,27 +352,26 @@
         let isAnimating = false;
 
         document.addEventListener('click', function (event) {
-            const anchor = event.target.closest('a[' + LINK_ATTR + ']');
-            if (!anchor) {
+            const anchor = event.target.closest('a');
+            if (!anchor || !isEligibleAnchor(anchor)) {
                 return;
             }
-            if (!isValidTransitionClick(event, anchor)) {
-                return;
-            }
-            if (isAnimating) {
-                return;
-            }
-            isAnimating = true;
 
-            // Store click coordinates so the custom cursor on the
-            // destination page initializes at the right position
-            // instead of snapping to (0,0).
+            // Global persistence: Store click coordinates for ALL same-origin links
             storeCursorPositionForTransition(event.clientX, event.clientY);
 
-            if (navigate(anchor.href)) {
-                event.preventDefault();
-            } else {
-                isAnimating = false;
+            // If it's a link with the custom transition attribute, handle with delay
+            if (anchor.hasAttribute(LINK_ATTR) && isValidTransitionClick(event, anchor)) {
+                if (isAnimating) {
+                    return;
+                }
+                isAnimating = true;
+
+                if (navigate(anchor.href)) {
+                    event.preventDefault();
+                } else {
+                    isAnimating = false;
+                }
             }
         });
 

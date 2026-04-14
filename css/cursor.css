@@ -36,6 +36,7 @@ html.force-hide-cursor .custom-cursor {
     transform: translate(-50%, -50%);
     z-index: 99999 !important; /* Very high z-index to ensure visibility above all other elements */
     mix-blend-mode: difference;
+    view-transition-name: custom-cursor;
 }
 
 .custom-cursor__core {
