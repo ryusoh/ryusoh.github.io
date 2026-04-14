@@ -192,4 +192,73 @@ describe('quantum_particles.js', () => {
             expect(qp.shouldSkipParticles(null, false)).toBe(false);
         });
     });
+
+    describe('updatePointerTarget', () => {
+        it('should update target vector correctly', () => {
+            const qp = getQuantumParticles();
+            const target = { set: jest.fn() };
+            window.innerWidth = 1000;
+            window.innerHeight = 1000;
+            qp.updatePointerTarget({ clientX: 500, clientY: 250 }, target);
+            expect(target.set).toHaveBeenCalledWith(0.5, 0.75); // 1 - 250/1000 = 0.75
+        });
+    });
+
+    describe('createParticleSystem', () => {
+        it('should create geometry and material properly', () => {
+            const qp = getQuantumParticles();
+            const mockTHREE = {
+                BufferGeometry: jest.fn().mockImplementation(() => ({
+                    setAttribute: jest.fn(),
+                    computeBoundingSphere: jest.fn(),
+                })),
+                BufferAttribute: jest.fn(),
+                ShaderMaterial: jest.fn(),
+                Points: jest.fn().mockImplementation((geo, mat) => ({ geo, mat })),
+                Vector2: jest.fn(),
+                AdditiveBlending: 'additive',
+            };
+
+            const system = qp.createParticleSystem(mockTHREE, 100);
+            expect(system.particles).toBeDefined();
+            expect(mockTHREE.BufferGeometry).toHaveBeenCalled();
+            expect(mockTHREE.ShaderMaterial).toHaveBeenCalled();
+            expect(mockTHREE.Points).toHaveBeenCalled();
+        });
+    });
+
+    describe('getForceMode Error Handling', () => {
+        it('should gracefully return null and warn on search lengths > 1000', () => {
+            Object.defineProperty(window, 'location', {
+                value: { search: '?ambient=' + 'a'.repeat(1001) },
+                configurable: true,
+            });
+            const qp = getQuantumParticles();
+            expect(qp.getForceMode()).toBeNull();
+        });
+
+        it('should gracefully handle URLSearchParams exceptions', () => {
+            Object.defineProperty(window, 'location', {
+                value: { search: '?ambient=on' },
+                configurable: true,
+            });
+            const originalParams = window.URLSearchParams;
+            window.URLSearchParams = jest.fn().mockImplementation(() => {
+                throw new Error('parse error');
+            });
+
+            const qp = getQuantumParticles();
+            expect(qp.getForceMode()).toBeNull();
+
+            window.URLSearchParams = originalParams;
+        });
+    });
+
+    describe('initParticles', () => {
+        it('should execute initParticles and catch dynamic import rejections in JSDOM', async () => {
+            const qp = getQuantumParticles();
+            const p = qp.initParticles('lite');
+            await expect(p).rejects.toThrow();
+        });
+    });
 });
