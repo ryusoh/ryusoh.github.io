@@ -204,6 +204,34 @@ describe('CDNLoader', () => {
             const promise = loader.loadCssWithFallback([]);
             await expect(promise).resolves.toBeUndefined();
         });
+
+        it('should abort fetch if it takes longer than timeout', async () => {
+            jest.useFakeTimers();
+
+            const mockAbort = jest.fn();
+            global.AbortController = jest.fn(() => ({
+                signal: 'mock-signal',
+                abort: mockAbort
+            }));
+
+            // Make fetch return a promise that never resolves
+            window.fetch.mockReturnValueOnce(new Promise(() => {}));
+
+            const urls = ['style.css'];
+            loader.loadCssWithFallback(urls);
+
+            const linkEl = createdElements.find((el) => el.tagName === 'LINK');
+            linkEl.onerror();
+
+            // At this point, fetch is called. Let's advance timers to trigger timeout
+            jest.advanceTimersByTime(5000);
+
+            expect(mockAbort).toHaveBeenCalled();
+
+            // Clean up
+            delete global.AbortController;
+            jest.useRealTimers();
+        });
     });
 
     describe('fallback edge cases', () => {

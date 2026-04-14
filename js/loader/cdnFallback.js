@@ -52,10 +52,11 @@
                     if (!last) {
                         return resolve();
                     }
-                    let controller;
-                    let timeoutId;
+                    let controller = null;
+                    let timeoutId = null;
                     const options = { mode: 'cors' };
-                    if (typeof window !== 'undefined' && window.AbortController) {
+
+                    if (typeof window !== 'undefined' && typeof window.AbortController !== 'undefined') {
                         controller = new window.AbortController();
                         options.signal = controller.signal;
                         timeoutId = setTimeout(function () {
@@ -85,7 +86,7 @@
                             resolve();
                         })
                         .finally(function () {
-                            if (timeoutId) {
+                            if (timeoutId !== null) {
                                 clearTimeout(timeoutId);
                             }
                         });

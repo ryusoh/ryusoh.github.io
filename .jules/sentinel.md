@@ -40,6 +40,7 @@
 **Learning:** Just as with `localStorage` parsing, any input derived from the environment—including URL parameters—should be length-validated before being handed off to native parsers, serving as a defense-in-depth measure.
 **Prevention:** Apply a reasonable bounds check (e.g., 1000 characters) to `window.location.search` before invoking `URLSearchParams`.
 
+
 ## 2024-04-16 - [DoS via Hanging Fetch Requests]
 
 **Vulnerability:** External `fetch` requests in `cdnFallback.js` lacked explicit timeouts. This could lead to client-side Denial of Service (DoS) and resource exhaustion if the remote server hung indefinitely, blocking the completion of the fallback CSS loading promise.
@@ -69,3 +70,4 @@
 **Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis. High cyclomatic complexity (> 8) increases cognitive load and maintenance overhead.
 **Learning:** During the codebase health pass, multiple critical `catch {}` blocks were identified in `js/page-transition.js`, `js/loader/imageFallback.js`, `js/scroll-reveal.js`, `js/service-worker-register.js`, and `js/ambient/config/default.js` that masked runtime exceptions. Additionally, core functions had overgrown into tightly coupled blocks.
 **Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 8 for maintainability and readability.
+
