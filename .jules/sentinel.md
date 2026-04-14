@@ -39,3 +39,9 @@
 **Vulnerability:** `URLSearchParams` was parsing `window.location.search` without any length limitations. An attacker could craft a massive query string, potentially causing performance degradation or memory exhaustion on the client-side.
 **Learning:** Just as with `localStorage` parsing, any input derived from the environment—including URL parameters—should be length-validated before being handed off to native parsers, serving as a defense-in-depth measure.
 **Prevention:** Apply a reasonable bounds check (e.g., 1000 characters) to `window.location.search` before invoking `URLSearchParams`.
+
+## 2026-04-14 - [DoS via Hanging External fetch Requests]
+
+**Vulnerability:** External network requests made via `window.fetch` without an explicit timeout mechanism can hang indefinitely if the remote server (or CDN) is unresponsive but fails to close the connection. This can lead to client-side Denial of Service (DoS) by exhausting browser resources, memory leaks, and blocking fallback logic from executing.
+**Learning:** `fetch` does not have a built-in timeout setting. It is crucial to manually implement timeouts for external requests, especially for progressive enhancements or CDNs, to ensure graceful degradation.
+**Prevention:** To mitigate client-side resource exhaustion scenarios from hanging connections, wrap external `window.fetch` requests with an explicit timeout mechanism using `AbortController` and `setTimeout` (e.g., 5000ms), and properly clean up the timeout in a `.finally()` block.
