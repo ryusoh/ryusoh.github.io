@@ -68,3 +68,8 @@
 **Learning:** Found that `imageFallback.js` was iterating over all images with `data-fallbacks` and attaching individual `load` and `error` event listeners. On image-heavy pages with hundreds of fallback images, this consumes unnecessary memory (O(N) listeners) and increases initialization overhead.
 
 **Action:** To optimize tracking of numerous image loading states and minimize memory allocations on image-heavy pages, utilize event delegation via a single document-level capturing listener for `load` and `error` events (using `useCapture: true`) rather than attaching individual listeners to iterating DOM node collections.
+
+## 2026-04-14 - requestAnimationFrame for resize handlers
+
+**Learning:** The resize event listener in `js/page-transition.js` called `handleResize` which caused layout thrashing and high main-thread CPU usage because it performed expensive operations (reading `window.innerWidth/Height` and resizing a WebGL context) synchronously and potentially multiple times per frame.
+**Action:** Throttle the `resize` event handler using `window.requestAnimationFrame` and a boolean ticking flag (`this._resizeTicking`) to guarantee that the layout recalculation and context resizing executes at most once per frame. Also, mark the resize listener as `{ passive: true }`.

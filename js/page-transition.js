@@ -628,14 +628,24 @@ import * as THREE from './vendor/three.module.min.js';
         this.uniforms.uColorSecondaryStrength.value = colors.secondary.alpha;
     };
 
+    /**
+     * Bolt Optimization:
+     * - What: Throttle `handleResize` using `requestAnimationFrame`.
+     * - Why: The previous implementation fired synchronously on every `resize` event, running expensive layout recalculations (`window.innerWidth`, `window.innerHeight`, and WebGL context resizing) multiple times per frame, causing layout thrashing and main-thread blocking time.
+     * - Impact: Measurably reduces CPU usage and eliminates layout thrashing during window resize by synchronizing operations with the browser's paint cycle, capping execution to at most once per frame.
+     */
     PageTransition.prototype.handleResize = function () {
-        if (!this.renderer) {
+        if (!this.renderer || this._resizeTicking) {
             return;
         }
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        if (this.uniforms && this.uniforms.uResolution) {
-            this.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
-        }
+        this._resizeTicking = true;
+        window.requestAnimationFrame(() => {
+            this._resizeTicking = false;
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            if (this.uniforms && this.uniforms.uResolution) {
+                this.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+            }
+        });
     };
 
     PageTransition.prototype.renderLoop = function () {
