@@ -1166,9 +1166,34 @@ td {
 
 .project-footer {
     text-align: center;
-    padding-top: 0;
-    padding-bottom: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.next-project-link {
+    display: inline-block;
+    padding: 15px 30px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.next-project-link:hover,
+.next-project-link:focus {
+    background-color: #fff;
+    border-color: #fff;
+    color: #000;
+    text-decoration: none;
 }
 
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
