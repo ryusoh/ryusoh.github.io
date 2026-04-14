@@ -156,15 +156,19 @@ hr.small {
 a.nav-back,
 a.nav-next {
     position: fixed;
-    top: 20px;
+    top: 10px; /* 20px original position - 10px padding */
     color: #fff;
     z-index: 99;
+    padding: 10px; /* Increase hit area for mobile */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 a.nav-back {
-    left: 15px;
+    left: 10px; /* 20px original - 10px padding */
 }
 a.nav-next {
-    right: 15px;
+    right: 10px; /* 20px original - 10px padding */
 }
 
 a.nav-back:hover,

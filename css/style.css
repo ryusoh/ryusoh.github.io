@@ -196,19 +196,23 @@ hr.small {
 a.nav-back,
 a.nav-next {
     position: fixed;
-    top: 20px;
+    top: 10px; /* 20px original position - 10px padding */
     color: #fff;
     opacity: 0.5;
     z-index: 1000;
+    padding: 10px; /* Increase hit area */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition:
         opacity 0.5s ease,
         color 0.5s ease;
 }
 a.nav-back {
-    left: 20px;
+    left: 10px; /* 20px original - 10px padding */
 }
 a.nav-next {
-    right: 20px;
+    right: 10px; /* 20px original - 10px padding */
 }
 a.nav-back:hover,
 a.nav-next:hover,
