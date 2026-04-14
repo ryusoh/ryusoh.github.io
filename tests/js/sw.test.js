@@ -40,7 +40,10 @@ describe('Service Worker', () => {
 
         window.self = mockSelf;
         window.caches = mockCaches;
+        window.console = mockSelf.console;
         window.fetch = mockFetch;
+        window.skipWaiting = mockSelf.skipWaiting;
+        window.clients = mockSelf.clients;
 
         require('../../sw.js');
         sw = window.__swForTesting;
