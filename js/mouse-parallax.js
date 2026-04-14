@@ -12,7 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const title = document.querySelector('#main h1');
-    if (!title) {return;}
+    if (!title) {
+        return;
+    }
 
     // We'll calculate movement relative to the center of the window
     let centerX = window.innerWidth / 2;

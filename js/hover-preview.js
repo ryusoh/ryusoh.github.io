@@ -12,7 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const portfolioLinks = document.querySelectorAll('#nav .portfolio-link a');
-    if (portfolioLinks.length === 0) {return;}
+    if (portfolioLinks.length === 0) {
+        return;
+    }
 
     // Map directories to specific thumbnail previews
     // Ideally we fetch a random one, but for reliability we define a static map

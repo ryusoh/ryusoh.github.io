@@ -28,8 +28,12 @@ describe('hover-preview.js', () => {
         const mockGsap = {
             to: mockTo,
             quickSetter: jest.fn().mockImplementation((target, prop) => {
-                if (prop === 'x') {return mockSetX;}
-                if (prop === 'y') {return mockSetY;}
+                if (prop === 'x') {
+                    return mockSetX;
+                }
+                if (prop === 'y') {
+                    return mockSetY;
+                }
                 return jest.fn();
             }),
         };
