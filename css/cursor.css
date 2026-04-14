@@ -18,7 +18,9 @@ html.force-hide-cursor [role='button'],
 html.force-hide-cursor [class*='nav'],
 html.force-hide-cursor [class*='back'],
 html.force-hide-cursor .nav-back,
+html.force-hide-cursor .nav-next,
 html.force-hide-cursor .nav-back *,
+html.force-hide-cursor .nav-next *,
 html.force-hide-cursor .nav-container *,
 html.force-hide-cursor .nav-container a {
     cursor: var(--hidden-cursor-value, none) !important;

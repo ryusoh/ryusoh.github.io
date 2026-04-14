@@ -193,10 +193,10 @@ hr.small {
     border-width: 4px;
     border-color: #fff;
 }
-a.nav-back {
+a.nav-back,
+a.nav-next {
     position: fixed;
     top: 20px;
-    left: 20px;
     color: #fff;
     opacity: 0.5;
     z-index: 1000;
@@ -204,8 +204,16 @@ a.nav-back {
         opacity 0.5s ease,
         color 0.5s ease;
 }
+a.nav-back {
+    left: 20px;
+}
+a.nav-next {
+    right: 20px;
+}
 a.nav-back:hover,
-a.nav-back:focus {
+a.nav-next:hover,
+a.nav-back:focus,
+a.nav-next:focus {
     color: #ce2323;
     opacity: 1;
 }
@@ -984,14 +992,17 @@ td {
         --line-color: #161d27;
     }
     a .fa-home,
-    a .fa-chevron-left {
+    a .fa-chevron-left,
+    a .fa-chevron-right {
         color: var(--font-color);
         font-size: large;
     }
     a:focus .fa-home,
     a:hover .fa-home,
     a:focus .fa-chevron-left,
-    a:hover .fa-chevron-left {
+    a:hover .fa-chevron-left,
+    a:focus .fa-chevron-right,
+    a:hover .fa-chevron-right {
         color: var(--link-color);
     }
     a .fa-search {
@@ -1175,27 +1186,6 @@ td {
     gap: 30px;
 }
 
-.next-project-link {
-    display: inline-block;
-    padding: 15px 30px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    text-transform: uppercase;
-    font-weight: bold;
-    letter-spacing: 2px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 1.2rem;
-}
-
-.next-project-link:hover,
-.next-project-link:focus {
-    background-color: #fff;
-    border-color: #fff;
-    color: #000;
-    text-decoration: none;
-}
-
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .project-footer {
         padding-bottom: calc(10px + env(safe-area-inset-bottom));
@@ -1216,10 +1206,8 @@ td {
 
 html.page-transition--exiting body {
     transition:
-        transform 250ms ease-out,
         opacity 250ms ease-out,
         filter 250ms ease-out;
-    transform: scale(0.96);
     opacity: 0;
     filter: blur(4px);
 }
