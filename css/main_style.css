@@ -581,7 +581,7 @@ footer {
     display: none;
 }
 
-html.page-transition--exiting body {
+html.page-transition--exiting #main {
     transition:
         opacity 250ms ease-out,
         filter 250ms ease-out;

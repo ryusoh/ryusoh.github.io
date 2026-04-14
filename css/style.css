@@ -208,6 +208,14 @@ a.nav-next {
         opacity 0.5s ease,
         color 0.5s ease;
 }
+
+a.nav-back {
+    view-transition-name: nav-back;
+}
+
+a.nav-next {
+    view-transition-name: nav-next;
+}
 a.nav-back {
     left: 10px; /* 20px original - 10px padding */
 }
@@ -1210,7 +1218,7 @@ td {
     display: none;
 }
 
-html.page-transition--exiting body {
+html.page-transition--exiting #main {
     transition:
         opacity 250ms ease-out,
         filter 250ms ease-out;
