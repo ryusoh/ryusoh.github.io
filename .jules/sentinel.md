@@ -46,6 +46,12 @@
 **Learning:** By default, the native `fetch` API does not implement a timeout. In environments where network reliability is uncertain, failing to bound the duration of network requests leaves the application vulnerable to stalled execution paths.
 **Prevention:** Always wrap external `window.fetch` requests with an explicit timeout mechanism using `AbortController` and `setTimeout` (e.g., 5000ms), and ensure the timeout is cleaned up to prevent memory leaks.
 
+## 2026-04-15 - Empty catch block audit
+
+**Vulnerability:** Empty catch blocks hide failures and errors, making debugging difficult and obscuring silent crashes.
+**Learning:** We need to explicitly log exceptions when catching them, even during progressive enhancements.
+**Prevention:** Ensured all explicit catch blocks in source scripts handle the exceptions by logging warnings via a safe console check or AppLogger.
+
 ## 2026-05-13 - [DoS via Unbounded URL Parsing]
 
 **Vulnerability:** The native `new window.URL()` constructor was repeatedly called with `window.location.href` to parse query parameters (e.g., `hasTransitionParam()`) without any length limitations. An attacker could craft an excessively long URL that forces the client to allocate significant memory and CPU time to parse it, causing a Denial of Service (DoS) and hanging the user's browser.
