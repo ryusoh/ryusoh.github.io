@@ -626,3 +626,38 @@ html.js-enabled #nav {
     transform-style: preserve-3d;
     perspective: 1000px;
 }
+
+.footer-marquee-container {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.footer-marquee {
+    display: inline-block;
+    animation: marquee 20s linear infinite;
+    font-family: 'P22UndergroundProThin', 'PingFang SC Light', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+}
+
+.footer-marquee span {
+    padding-right: 20px;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
