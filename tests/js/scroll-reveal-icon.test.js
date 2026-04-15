@@ -66,4 +66,24 @@ describe('scroll-reveal-icon.js', () => {
 
         expect(iconElement.classList.contains('is-visible')).toBe(false);
     });
+
+    test('should exit early if icon is not present', () => {
+        // We need to clear the event listeners attached from the first execution in beforeEach.
+        // We'll replace window entirely or use a spy on addEventListener, but a simpler way
+        // is to check if addEventListener was called *during* this second require.
+
+        // Let's reset the DOM and setup a fresh mock for addEventListener to ensure it doesn't get called
+        document.documentElement.innerHTML = '<html><body></body></html>';
+
+        const originalAddEventListener = window.addEventListener;
+        window.addEventListener = jest.fn();
+
+        jest.resetModules();
+        require('../../js/scroll-reveal-icon.js');
+
+        expect(window.addEventListener).not.toHaveBeenCalled();
+
+        // Clean up
+        window.addEventListener = originalAddEventListener;
+    });
 });

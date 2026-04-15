@@ -45,3 +45,9 @@
 ## 2025-03-24 - Mocking performance.now with Fake Timers
 
 **Learning:** When unit testing modules that rely on `performance.now()` in JSDOM with Jest fake timers, explicitly mock `window.performance.now` _before_ the module is required. This ensures any internal closure bindings (e.g., `perfNow = window.performance.now.bind(...)`) properly capture the mocked timer mechanism.
+## 2026-04-15 - Node VM Environment Mocking for Frontend Utility Scripts
+
+**Learning:** When using `vm.runInContext` to test vanilla JS utilities, synchronous side effects on load, such as `DOMContentLoaded` event listeners, must be stripped from the source string using regex before evaluation to prevent test runner crashes.
+## 2026-04-15 - Testing window fallback structures
+
+**Learning:** When testing scripts that attach themselves globally (e.g., `window.AMBIENT_CONFIG = Object.assign(...)`) via `vm.runInContext`, ensure the VM context provides a valid `Object` constructor and an initial `window` object to prevent ReferenceErrors.
