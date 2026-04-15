@@ -5,3 +5,8 @@
 
 - Reduced complexity in js/ambient/loader.js by extracting test exports to exportTesting function.
 - Handled synchronous errors gracefully in js/ambient/loader.js by adding window.AppLogger.error fallback.
+
+## 2026-04-15 - Refactored loader complexity
+
+**Learning:** When addressing cyclomatic complexity (>10) in large IIFEs, extracting repetitive error handling into dedicated helper functions like `handleAsyncError` and `handleSyncError` effectively reduces complexity and improves readability without breaking the module's core logic.
+**Action:** Refactored `js/ambient/loader.js` by breaking down the main function into smaller, single-responsibility functions, successfully bringing the cyclomatic complexity down below the threshold.

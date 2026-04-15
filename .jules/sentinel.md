@@ -39,3 +39,9 @@
 **Vulnerability:** `URLSearchParams` was parsing `window.location.search` without any length limitations. An attacker could craft a massive query string, potentially causing performance degradation or memory exhaustion on the client-side.
 **Learning:** Just as with `localStorage` parsing, any input derived from the environment—including URL parameters—should be length-validated before being handed off to native parsers, serving as a defense-in-depth measure.
 **Prevention:** Apply a reasonable bounds check (e.g., 1000 characters) to `window.location.search` before invoking `URLSearchParams`.
+
+## 2026-04-15 - Empty catch block audit
+
+**Vulnerability:** Empty catch blocks hide failures and errors, making debugging difficult and obscuring silent crashes.
+**Learning:** We need to explicitly log exceptions when catching them, even during progressive enhancements.
+**Prevention:** Ensured all explicit catch blocks in source scripts handle the exceptions by logging warnings via a safe console check or AppLogger.
