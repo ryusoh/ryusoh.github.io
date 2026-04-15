@@ -29,8 +29,10 @@ describe('mouse-parallax.js', () => {
                 innerWidth: 1024,
                 innerHeight: 768,
                 addEventListener: jest.fn(),
+                PortfolioConfig: { enableMouseParallax: true },
             },
             gsap: mockGsap,
+            PortfolioConfig: { enableMouseParallax: true },
         });
     });
 
@@ -39,7 +41,7 @@ describe('mouse-parallax.js', () => {
         jest.restoreAllMocks();
     });
 
-    test('initializes without throwing', () => {
+    test('initializes without throwing when enabled', () => {
         const code = fs.readFileSync(path.join(__dirname, '../../js/mouse-parallax.js'), 'utf8');
 
         expect(() => {
@@ -49,10 +51,29 @@ describe('mouse-parallax.js', () => {
         }).not.toThrow();
     });
 
+    test('gracefully handles being disabled', () => {
+        context.window.PortfolioConfig.enableMouseParallax = false;
+        context.PortfolioConfig.enableMouseParallax = false;
+        const code = fs.readFileSync(path.join(__dirname, '../../js/mouse-parallax.js'), 'utf8');
+
+        expect(() => {
+            vm.runInContext(code, context);
+            const event = new window.Event('DOMContentLoaded');
+            document.dispatchEvent(event);
+        }).not.toThrow();
+
+        // In this case, no GSAP should be called as it returns early
+        expect(mockTo).not.toHaveBeenCalled();
+    });
+
     test('gracefully handles missing GSAP', () => {
         const contextWithoutGsap = vm.createContext({
             document,
-            window: { console: { warn: jest.fn() } },
+            window: {
+                console: { warn: jest.fn() },
+                PortfolioConfig: { enableMouseParallax: true },
+            },
+            PortfolioConfig: { enableMouseParallax: true },
         });
         const code = fs.readFileSync(path.join(__dirname, '../../js/mouse-parallax.js'), 'utf8');
 

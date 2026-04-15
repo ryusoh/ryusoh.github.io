@@ -6,6 +6,10 @@
 /* global gsap */
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.PortfolioConfig && window.PortfolioConfig.enableMouseParallax === false) {
+        return;
+    }
+
     if (typeof gsap === 'undefined') {
         window.console && window.console.warn('GSAP is not loaded. Skipping mouse parallax.');
         return;

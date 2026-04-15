@@ -43,9 +43,11 @@ describe('hover-preview.js', () => {
             window: {
                 console: { warn: jest.fn() },
                 requestAnimationFrame: jest.fn(),
+                PortfolioConfig: { enableHoverPreview: true },
             },
             gsap: mockGsap,
             requestAnimationFrame: jest.fn(),
+            PortfolioConfig: { enableHoverPreview: true },
         });
     });
 
@@ -54,7 +56,7 @@ describe('hover-preview.js', () => {
         jest.restoreAllMocks();
     });
 
-    test('initializes without throwing', () => {
+    test('initializes without throwing when enabled', () => {
         const code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
 
         expect(() => {
@@ -64,10 +66,29 @@ describe('hover-preview.js', () => {
         }).not.toThrow();
     });
 
+    test('gracefully handles being disabled', () => {
+        context.window.PortfolioConfig.enableHoverPreview = false;
+        context.PortfolioConfig.enableHoverPreview = false;
+        const code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
+
+        expect(() => {
+            vm.runInContext(code, context);
+            const event = new window.Event('DOMContentLoaded');
+            document.dispatchEvent(event);
+        }).not.toThrow();
+
+        // In this case, no GSAP setters should be called as it returns early
+        expect(mockSetX).not.toHaveBeenCalled();
+    });
+
     test('gracefully handles missing GSAP', () => {
         const contextWithoutGsap = vm.createContext({
             document,
-            window: { console: { warn: jest.fn() } },
+            window: {
+                console: { warn: jest.fn() },
+                PortfolioConfig: { enableHoverPreview: true },
+            },
+            PortfolioConfig: { enableHoverPreview: true },
         });
         const code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
 

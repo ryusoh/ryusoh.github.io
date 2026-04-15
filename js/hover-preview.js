@@ -6,6 +6,10 @@
 /* global gsap */
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.PortfolioConfig && window.PortfolioConfig.enableHoverPreview === false) {
+        return;
+    }
+
     if (typeof gsap === 'undefined') {
         window.console && window.console.warn('GSAP is not loaded. Skipping hover preview.');
         return;
