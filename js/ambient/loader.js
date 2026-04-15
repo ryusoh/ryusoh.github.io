@@ -50,20 +50,17 @@
     }
 
     function handleSyncError(e) {
-        if (typeof window !== 'undefined') {
-            if (window.AppLogger && typeof window.AppLogger.error === 'function') {
-                window.AppLogger.error('Ambient initialization failed:', e);
-            } else if (
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('Ambient initialization failed:', e);
-            }
+        if (typeof window === 'undefined') {
+            return;
+        }
+        if (window.AppLogger && typeof window.AppLogger.error === 'function') {
+            window.AppLogger.error('Ambient initialization failed:', e);
+        } else if (window !== null && window.console && typeof window.console.warn === 'function') {
+            window.console.warn('Ambient initialization failed:', e);
         }
     }
 
-    function initLoader() {
+    function init() {
         if (shouldSkipLoader()) {
             exportTesting({
                 shouldSkipLoader,
@@ -94,7 +91,7 @@
     }
 
     try {
-        initLoader();
+        init();
     } catch (e) {
         handleSyncError(e);
     }
