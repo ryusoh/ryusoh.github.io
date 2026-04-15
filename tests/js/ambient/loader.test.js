@@ -14,18 +14,33 @@ describe('ambient/loader.js', () => {
         };
 
         window.CDNLoader = mockCDNLoader;
-        window.innerWidth = 1200;
-        window.matchMedia = jest.fn().mockReturnValue({ matches: false });
+
+        // Use Object.defineProperty to safely mock matchMedia since jsdom sets it
+        Object.defineProperty(window, 'matchMedia', {
+            configurable: true,
+            value: jest.fn().mockReturnValue({ matches: false })
+        });
+
+        Object.defineProperty(window, 'innerWidth', {
+            configurable: true,
+            value: 1200
+        });
 
         // Mock console.warn
         jest.spyOn(console, 'warn').mockImplementation(() => {});
 
         document.body.setAttribute('data-page-type', 'home');
+
+        window.AppLogger = { error: jest.fn() };
     });
 
     afterEach(() => {
-        window.innerWidth = originalInnerWidth;
+        Object.defineProperty(window, 'innerWidth', {
+            configurable: true,
+            value: originalInnerWidth
+        });
         delete window.CDNLoader;
+        delete window.AppLogger;
         document.body.removeAttribute('data-page-type');
         jest.restoreAllMocks();
     });
@@ -39,20 +54,23 @@ describe('ambient/loader.js', () => {
     });
 
     test('handles missing window.matchMedia gracefully', () => {
-        const originalMatchMedia = window.matchMedia;
-        delete window.matchMedia;
+        Object.defineProperty(window, 'matchMedia', {
+            configurable: true,
+            value: undefined
+        });
 
         require('../../../js/ambient/loader.js');
 
         expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
             '/css/ambient/ambient.css',
         ]);
-
-        window.matchMedia = originalMatchMedia;
     });
 
     test('exits early if window innerWidth is less than 1024', () => {
-        window.innerWidth = 800;
+        Object.defineProperty(window, 'innerWidth', {
+            configurable: true,
+            value: 800
+        });
 
         require('../../../js/ambient/loader.js');
 
@@ -113,7 +131,6 @@ describe('ambient/loader.js', () => {
     });
 
     test('ignores synchronous errors during initialization gracefully', () => {
-        const originalMatchMedia = window.matchMedia;
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
             get: () => {
@@ -124,11 +141,6 @@ describe('ambient/loader.js', () => {
         expect(() => {
             require('../../../js/ambient/loader.js');
         }).not.toThrow();
-
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
-            value: originalMatchMedia,
-        });
     });
 
     test('ignores promise rejections from CDNLoader gracefully', async () => {
@@ -160,8 +172,7 @@ describe('ambient/loader.js', () => {
         console.warn = originalWarn;
     });
 
-    test('ignores synchronous errors during initialization gracefully and logs warning', () => {
-        const originalMatchMedia = window.matchMedia;
+    test('ignores synchronous errors during initialization gracefully and logs warning to AppLogger', () => {
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
             get: () => {
@@ -171,15 +182,27 @@ describe('ambient/loader.js', () => {
 
         require('../../../js/ambient/loader.js');
 
-        expect(console.warn).toHaveBeenCalledWith(
+        expect(window.AppLogger.error).toHaveBeenCalledWith(
             'Ambient initialization failed:',
             expect.any(Error)
         );
+    });
 
+    test('ignores synchronous errors during initialization gracefully and logs warning to console if no AppLogger', () => {
+        delete window.AppLogger;
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
-            value: originalMatchMedia,
+            get: () => {
+                throw new Error('Simulated synchronous error');
+            },
         });
+
+        require('../../../js/ambient/loader.js');
+
+        expect(window.console.warn).toHaveBeenCalledWith(
+            'Ambient initialization failed:',
+            expect.any(Error)
+        );
     });
 
     test('gracefully handles missing window.console.warn during async rejection', async () => {
@@ -199,7 +222,6 @@ describe('ambient/loader.js', () => {
 
     test('gracefully handles missing window.console during sync error', () => {
         const originalConsole = window.console;
-        const originalMatchMedia = window.matchMedia;
 
         Object.defineProperty(window, 'console', {
             configurable: true,
@@ -220,10 +242,6 @@ describe('ambient/loader.js', () => {
         Object.defineProperty(window, 'console', {
             configurable: true,
             value: originalConsole,
-        });
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
-            value: originalMatchMedia,
         });
     });
 });

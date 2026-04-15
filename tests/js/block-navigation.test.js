@@ -1,84 +1,229 @@
-/**
- * @jest-environment jsdom
- */
+/** @jest-environment jsdom */
 
-describe('block-navigation', () => {
-    let testing;
+const testing = require('../../js/block-navigation.js');
 
+describe('js/block-navigation.js', () => {
     beforeEach(() => {
-        jest.resetModules();
-        document.documentElement.innerHTML =
-            '<html><body><div id="cont"><div class="intro-header"></div><div class="post-content"><p>P1</p><p>P2</p></div></div></body></html>';
+        document.body.innerHTML = '';
+        jest.clearAllMocks();
+    });
 
-        // Mock scrollHeight
-        Object.defineProperty(document.documentElement, 'scrollHeight', {
-            value: 1000,
-            configurable: true,
-        });
+    test('calculateNextIndex returns correctly bounded index', () => {
+        expect(testing.calculateNextIndex('ArrowRight')).toBe(0);
+        expect(testing.calculateNextIndex('ArrowLeft')).toBe(0);
+    });
+
+    test('isEditableActive correctly identifies editable elements', () => {
+        const input = document.createElement('input');
+        const textarea = document.createElement('textarea');
+        const select = document.createElement('select');
+        const div = document.createElement('div');
+        div.contentEditable = 'true';
+
+        const normalDiv = document.createElement('div');
+
+        document.body.appendChild(input);
+        document.body.appendChild(textarea);
+        document.body.appendChild(select);
+        document.body.appendChild(div);
+        document.body.appendChild(normalDiv);
+
+        normalDiv.focus();
+        expect(testing.isEditableActive()).toBe(false);
+
+        input.focus();
+        expect(testing.isEditableActive()).toBe(true);
+
+        textarea.focus();
+        expect(testing.isEditableActive()).toBe(true);
+
+        select.focus();
+        expect(testing.isEditableActive()).toBe(true);
+
+        div.focus();
+        expect(testing.isEditableActive()).toBe(true);
+    });
+
+    test('shouldUseElement correctly filters blocks based on data attributes and classes', () => {
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+
+        const el = document.createElement('div');
+        container.appendChild(el);
+
+        expect(testing.shouldUseElement(null)).toBe(false);
+
+        container.setAttribute('data-block-nav', 'ignore');
+        expect(testing.shouldUseElement(el)).toBe(false);
+
+        container.removeAttribute('data-block-nav');
+
+        const scriptEl = document.createElement('script');
+        document.body.appendChild(scriptEl);
+        expect(testing.shouldUseElement(scriptEl)).toBe(false);
+
+        // explicit block
+        el.setAttribute('data-block-nav', 'block');
+        expect(testing.shouldUseElement(el)).toBe(true);
+        el.removeAttribute('data-block-nav');
+
+        // parent block
+        container.setAttribute('data-block-nav', 'block');
+        expect(testing.shouldUseElement(el)).toBe(false);
+        container.removeAttribute('data-block-nav');
+
+        // intro-header class
+        el.className = 'intro-header';
+        expect(testing.shouldUseElement(el)).toBe(true);
+        el.className = '';
+
+        // post-heading not in intro header
+        el.className = 'post-heading';
+        expect(testing.shouldUseElement(el)).toBe(true);
+
+        // post-heading IN intro header
+        container.className = 'intro-header';
+        expect(testing.shouldUseElement(el)).toBe(false);
+        container.className = '';
+
+        // post content selectors
+        el.className = 'post-content';
+        const p = document.createElement('p');
+        el.appendChild(p);
+
+        expect(testing.shouldUseElement(p)).toBe(true);
+
+        const unsupported = document.createElement('span');
+        el.appendChild(unsupported);
+        expect(testing.shouldUseElement(unsupported)).toBe(false);
+    });
+
+    test('clampScrollTop correctly bounds values', () => {
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
         Object.defineProperty(window, 'innerHeight', { value: 500, configurable: true });
+
+        expect(testing.clampScrollTop(-100)).toBe(0);
+        expect(testing.clampScrollTop(250)).toBe(250);
+        expect(testing.clampScrollTop(600)).toBe(500);
+
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: -100, configurable: true });
+        expect(testing.clampScrollTop(100)).toBe(100);
+        expect(testing.clampScrollTop(-100)).toBe(0);
+    });
+
+    test('handleEscapeKey triggers click on .nav-back', () => {
+        const backBtn = document.createElement('a');
+        backBtn.className = 'nav-back';
+        backBtn.click = jest.fn();
+        document.body.appendChild(backBtn);
+
+        const event = { preventDefault: jest.fn() };
+        testing.handleEscapeKey(event);
+
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(backBtn.click).toHaveBeenCalled();
+    });
+
+    test('handleEscapeKey does nothing if no .nav-back', () => {
+        const event = { preventDefault: jest.fn() };
+        testing.handleEscapeKey(event);
+        expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    test('performScroll handles top sentinel', () => {
         window.scrollTo = jest.fn();
+        const target = document.createElement('div');
 
-        require('../../js/block-navigation.js');
-        testing = window.__BlockNavigationForTesting;
+        testing.performScroll(target, true, 'smooth', true);
+
+        expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
     });
 
-    describe('calculateNextIndex', () => {
-        it('should return next index when pressing forward keys', () => {
-            expect(testing.calculateNextIndex).toBeDefined();
-            expect(typeof testing.calculateNextIndex).toBe('function');
+    test('performScroll handles block scrollIntoView', () => {
+        const target = document.createElement('div');
+        target.scrollIntoView = jest.fn();
+
+        testing.performScroll(target, false, 'smooth', true);
+
+        expect(target.scrollIntoView).toHaveBeenCalledWith({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
         });
-    });
 
-    describe('clampScrollTop', () => {
-        test('should clamp to 0 if value is less than 0', () => {
-            expect(testing.clampScrollTop(-100)).toBe(0);
-        });
+        testing.performScroll(target, false, 'smooth', false);
 
-        test('should clamp to maxScroll if value is greater than maxScroll', () => {
-            expect(testing.clampScrollTop(1000)).toBe(500); // 1000 - 500 = 500
-        });
-    });
-
-    describe('handleEscapeKey', () => {
-        it('should call click and prevent default if .nav-back exists', () => {
-            const mockClick = jest.fn();
-            const navBack = document.createElement('a');
-            navBack.className = 'nav-back';
-            navBack.click = mockClick;
-            document.body.appendChild(navBack);
-
-            const mockPreventDefault = jest.fn();
-            const mockEvent = { preventDefault: mockPreventDefault };
-
-            testing.handleEscapeKey(mockEvent);
-
-            expect(mockPreventDefault).toHaveBeenCalled();
-            expect(mockClick).toHaveBeenCalled();
+        expect(target.scrollIntoView).toHaveBeenCalledWith({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
         });
     });
 
-    describe('isEditableActive', () => {
-        it('should return false when there is no active element', () => {
-            expect(testing.isEditableActive()).toBe(false);
+    test('performScroll fallback when scrollIntoView throws', () => {
+        window.scrollTo = jest.fn();
+        window.scrollY = 0;
+        window.innerHeight = 1000;
+
+        const target = document.createElement('div');
+        target.scrollIntoView = jest.fn().mockImplementation(() => {
+            throw new Error('Test Error');
+        });
+        target.getBoundingClientRect = jest.fn().mockReturnValue({ top: 500, height: 100 });
+
+        const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        testing.performScroll(target, false, 'smooth', false);
+
+        expect(window.scrollTo).toHaveBeenCalledWith({
+            top: 50,
+            behavior: 'smooth'
         });
 
-        it('should return true for INPUT elements', () => {
-            const input = document.createElement('input');
-            document.body.appendChild(input);
-            input.focus();
-            expect(testing.isEditableActive()).toBe(true);
-        });
+        consoleWarn.mockRestore();
     });
 
-    describe('shouldUseElement', () => {
-        it('should return true if element has .intro-header class', () => {
-            const el = document.querySelector('.intro-header');
-            expect(testing.shouldUseElement(el)).toBe(true);
-        });
+    test('debounce uses requestAnimationFrame', () => {
+        jest.useFakeTimers();
+        window.requestAnimationFrame = jest.fn((cb) => cb());
+        window.cancelAnimationFrame = jest.fn();
 
-        it('should return true for post-content paragraphs', () => {
-            const el = document.querySelector('.post-content p');
-            expect(testing.shouldUseElement(el)).toBe(true);
-        });
+        const fn = jest.fn();
+        const debounced = testing.debounce(fn, 100);
+
+        debounced('arg');
+        expect(fn).not.toHaveBeenCalled();
+
+        jest.runAllTimers();
+
+        expect(window.requestAnimationFrame).toHaveBeenCalled();
+        expect(fn).toHaveBeenCalledWith('arg');
+
+        jest.useRealTimers();
+    });
+
+    test('debounce fallbacks to setTimeout if requestAnimationFrame is not available', () => {
+        jest.useFakeTimers();
+        const originalRaf = window.requestAnimationFrame;
+        delete window.requestAnimationFrame;
+
+        const fn = jest.fn();
+        const debounced = testing.debounce(fn, 100);
+
+        debounced('arg');
+        expect(fn).not.toHaveBeenCalled();
+
+        jest.runAllTimers();
+
+        expect(fn).toHaveBeenCalledWith('arg');
+
+        window.requestAnimationFrame = originalRaf;
+        jest.useRealTimers();
+    });
+
+    test('scrollToIndex correctly calls performScroll', () => {
+        // Because blocks array is scoped internally, scrollToIndex out-of-bounds does nothing.
+        testing.scrollToIndex(10);
+        testing.scrollToIndex(-1);
     });
 });

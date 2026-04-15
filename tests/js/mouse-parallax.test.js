@@ -2,12 +2,7 @@
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-
 describe('mouse-parallax.js', () => {
-    let context;
     let mockTo;
 
     beforeEach(() => {
@@ -22,69 +17,124 @@ describe('mouse-parallax.js', () => {
             to: mockTo,
         };
 
-        context = vm.createContext({
-            document,
-            window: {
-                console: { warn: jest.fn() },
-                innerWidth: 1024,
-                innerHeight: 768,
-                addEventListener: jest.fn(),
-                PortfolioConfig: { enableMouseParallax: true },
-            },
-            gsap: mockGsap,
-            PortfolioConfig: { enableMouseParallax: true },
-        });
+        window.gsap = mockGsap;
+        window.console.warn = jest.fn();
+        window.PortfolioConfig = { enableMouseParallax: true };
+
+        // Mock innerWidth/innerHeight
+        Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 });
+        Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 768 });
+
+        jest.resetModules();
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
+        delete window.gsap;
+        delete window.PortfolioConfig;
         jest.restoreAllMocks();
     });
 
     test('initializes without throwing when enabled', () => {
-        const code = fs.readFileSync(path.join(__dirname, '../../js/mouse-parallax.js'), 'utf8');
+        require('../../js/mouse-parallax.js');
 
         expect(() => {
-            vm.runInContext(code, context);
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
     });
 
     test('gracefully handles being disabled', () => {
-        context.window.PortfolioConfig.enableMouseParallax = false;
-        context.PortfolioConfig.enableMouseParallax = false;
-        const code = fs.readFileSync(path.join(__dirname, '../../js/mouse-parallax.js'), 'utf8');
+        window.PortfolioConfig.enableMouseParallax = false;
+
+        require('../../js/mouse-parallax.js');
 
         expect(() => {
-            vm.runInContext(code, context);
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
 
-        // In this case, no GSAP should be called as it returns early
         expect(mockTo).not.toHaveBeenCalled();
     });
 
     test('gracefully handles missing GSAP', () => {
-        const contextWithoutGsap = vm.createContext({
-            document,
-            window: {
-                console: { warn: jest.fn() },
-                PortfolioConfig: { enableMouseParallax: true },
-            },
-            PortfolioConfig: { enableMouseParallax: true },
-        });
-        const code = fs.readFileSync(path.join(__dirname, '../../js/mouse-parallax.js'), 'utf8');
+        delete window.gsap;
+
+        require('../../js/mouse-parallax.js');
 
         expect(() => {
-            vm.runInContext(code, contextWithoutGsap);
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
 
-        expect(contextWithoutGsap.window.console.warn).toHaveBeenCalledWith(
-            'GSAP is not loaded. Skipping mouse parallax.'
+        expect(window.console.warn).toHaveBeenCalledWith('GSAP is not loaded. Skipping mouse parallax.');
+    });
+
+    test('returns early if title element not found', () => {
+        document.body.innerHTML = '';
+
+        require('../../js/mouse-parallax.js');
+
+        expect(() => {
+            const event = new window.Event('DOMContentLoaded');
+            document.dispatchEvent(event);
+        }).not.toThrow();
+
+        // We can't directly check the internal state, but we know it should exit early
+    });
+
+    test('updates center coordinates on window resize', () => {
+        require('../../js/mouse-parallax.js');
+        const event = new window.Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        window.innerWidth = 800;
+        window.innerHeight = 600;
+
+        const resizeEvent = new window.Event('resize');
+        window.dispatchEvent(resizeEvent);
+
+        // We'll test the effect via the mousemove event calculation
+        const mouseMoveEvent = new window.MouseEvent('mousemove', {
+            clientX: 0, // Should be -1 diffX
+            clientY: 0 // Should be -1 diffY
+        });
+        document.dispatchEvent(mouseMoveEvent);
+
+        expect(mockTo).toHaveBeenCalledWith(
+            expect.any(Element),
+            expect.objectContaining({
+                x: 15, // -(-1) * 15
+                y: 15, // -(-1) * 15
+            })
+        );
+    });
+
+    test('applies parallax translation on mousemove', () => {
+        require('../../js/mouse-parallax.js');
+        const event = new window.Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        const titleElement = document.querySelector('#main h1');
+
+        // Center is 512, 384
+        // Mouse at 1024, 768 (bottom right) -> diffX = 1, diffY = 1
+        const mouseMoveEvent = new window.MouseEvent('mousemove', {
+            clientX: 1024,
+            clientY: 768
+        });
+        document.dispatchEvent(mouseMoveEvent);
+
+        expect(mockTo).toHaveBeenCalledWith(
+            titleElement,
+            expect.objectContaining({
+                x: -15,
+                y: -15,
+                rotationY: 5,
+                rotationX: -5,
+                ease: 'power2.out',
+                duration: 0.8,
+            })
         );
     });
 });

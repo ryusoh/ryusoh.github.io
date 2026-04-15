@@ -2,12 +2,7 @@
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-
 describe('load-animations.js', () => {
-    let context;
     let mockTimeline;
 
     beforeEach(() => {
@@ -28,45 +23,67 @@ describe('load-animations.js', () => {
             set: jest.fn(),
         };
 
-        // Initialize VM context to safely evaluate script
-        context = vm.createContext({
-            document,
-            window: { console: { warn: jest.fn() } },
-            gsap: mockGsap,
-        });
+        window.gsap = mockGsap;
+        window.console.warn = jest.fn();
+
+        jest.resetModules();
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
+        delete window.gsap;
         jest.restoreAllMocks();
     });
 
     test('initializes without throwing', () => {
-        const code = fs.readFileSync(path.join(__dirname, '../../js/load-animations.js'), 'utf8');
+        require('../../js/load-animations.js');
 
         expect(() => {
-            vm.runInContext(code, context);
-            // Manually dispatch DOMContentLoaded since we run in VM
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
+
+        expect(window.gsap.timeline).toHaveBeenCalledWith({ defaults: { ease: 'power3.out', duration: 1.2 } });
+        expect(window.gsap.set).toHaveBeenCalled();
+        expect(mockTimeline.to).toHaveBeenCalled();
     });
 
     test('gracefully handles missing GSAP', () => {
-        const contextWithoutGsap = vm.createContext({
-            document,
-            window: { console: { warn: jest.fn() } },
-        });
-        const code = fs.readFileSync(path.join(__dirname, '../../js/load-animations.js'), 'utf8');
+        delete window.gsap;
+
+        require('../../js/load-animations.js');
 
         expect(() => {
-            vm.runInContext(code, contextWithoutGsap);
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
 
-        expect(contextWithoutGsap.window.console.warn).toHaveBeenCalledWith(
-            'GSAP is not loaded. Skipping load animations.'
-        );
+        expect(window.console.warn).toHaveBeenCalledWith('GSAP is not loaded. Skipping load animations.');
+    });
+
+    test('handles missing background element gracefully', () => {
+        document.getElementById('mimida').remove();
+
+        require('../../js/load-animations.js');
+
+        expect(() => {
+            const event = new window.Event('DOMContentLoaded');
+            document.dispatchEvent(event);
+        }).not.toThrow();
+
+        // timeline.to might be called for other elements, but not for background
+    });
+
+    test('handles missing main content elements gracefully', () => {
+        document.querySelector('#main').remove();
+        document.getElementById('headline').remove();
+        document.getElementById('nav').remove();
+
+        require('../../js/load-animations.js');
+
+        expect(() => {
+            const event = new window.Event('DOMContentLoaded');
+            document.dispatchEvent(event);
+        }).not.toThrow();
     });
 });
