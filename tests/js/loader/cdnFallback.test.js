@@ -169,7 +169,7 @@ describe('CDNLoader', () => {
             linkEl.onerror();
 
             await promise;
-            expect(window.fetch).toHaveBeenCalledWith('style.css', { mode: 'cors' });
+            expect(window.fetch).toHaveBeenCalledWith('style.css', expect.objectContaining({ mode: 'cors' }));
             const styleTag = createdElements.find((el) => el.tagName === 'STYLE');
             expect(styleTag.textContent).toBe('body { color: red; }');
         });

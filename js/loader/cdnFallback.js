@@ -52,7 +52,18 @@
                     if (!last) {
                         return resolve();
                     }
-                    fetch(last, { mode: 'cors' })
+                    let controller;
+                    let timeoutId;
+                    const options = { mode: 'cors' };
+                    if (typeof window !== 'undefined' && window.AbortController) {
+                        controller = new window.AbortController();
+                        options.signal = controller.signal;
+                        timeoutId = setTimeout(function () {
+                            controller.abort();
+                        }, 5000);
+                    }
+
+                    fetch(last, options)
                         .then(function (r) {
                             return r.ok ? r.text() : Promise.reject();
                         })
@@ -72,6 +83,11 @@
                                 window.console.warn('CDN fallback CSS load failed:', e);
                             }
                             resolve();
+                        })
+                        .finally(function () {
+                            if (timeoutId) {
+                                clearTimeout(timeoutId);
+                            }
                         });
                     return;
                 }
