@@ -96,7 +96,7 @@ describe('mouse-parallax.js', () => {
         // Dispatch a mousemove event
         const mouseEvent = new window.Event('mousemove');
         mouseEvent.clientX = 512 + 100; // Offset from center X
-        mouseEvent.clientY = 384 + 50;  // Offset from center Y
+        mouseEvent.clientY = 384 + 50; // Offset from center Y
         document.dispatchEvent(mouseEvent);
 
         // diffX = 100 / 512 = 0.1953125
