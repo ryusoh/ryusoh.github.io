@@ -74,3 +74,9 @@
 **Learning:** Found that `revealImage(img)` in `js/scroll-reveal.js` was attaching individual `load` and `error` event listeners to every uncompleted image that entered the viewport. On image-heavy pages, this resulted in O(N) listener allocations when multiple images enter the viewport or during rapid scrolling.
 
 **Action:** Replace O(N) individual image `load`/`error` listeners with a single O(1) document-level event delegation listener (using `useCapture: true`). Add an `is-revealing` class to images awaiting load to filter events cleanly without extra memory overhead.
+
+## 2026-04-05 - Avoid gsap.to() in High-Frequency Event Listeners
+
+**Learning:** Using `gsap.to()` directly inside high-frequency event listeners like `mousemove` instantiates a new tween object on every frame/event. This results in significant memory churn, garbage collection overhead, and main-thread jank, especially for continuous interactions like mouse parallax.
+
+**Action:** When tracking high-frequency events (like mouse position) with GSAP, pre-initialize a `gsap.quickTo()` function outside the event listener and call the resulting setter function inside the listener. This updates the target values without allocating new tween instances every time, drastically improving performance.
