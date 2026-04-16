@@ -27,11 +27,19 @@ describe('mouse-parallax.js', () => {
         mockSetterRotX = jest.fn();
         mockSetterRotY = jest.fn();
 
-        mockQuickTo = jest.fn((target, prop, config) => {
-            if (prop === 'x') return mockSetterX;
-            if (prop === 'y') return mockSetterY;
-            if (prop === 'rotationX') return mockSetterRotX;
-            if (prop === 'rotationY') return mockSetterRotY;
+        mockQuickTo = jest.fn((target, prop) => {
+            if (prop === 'x') {
+                return mockSetterX;
+            }
+            if (prop === 'y') {
+                return mockSetterY;
+            }
+            if (prop === 'rotationX') {
+                return mockSetterRotX;
+            }
+            if (prop === 'rotationY') {
+                return mockSetterRotY;
+            }
             return jest.fn();
         });
 
