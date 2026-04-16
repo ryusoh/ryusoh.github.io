@@ -626,3 +626,42 @@ html.js-enabled #nav {
     transform-style: preserve-3d;
     perspective: 1000px;
 }
+
+/* Footer Marquee Styles */
+.footer-marquee {
+    position: absolute;
+    bottom: 30px; /* Above the Github icon */
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.marquee-content {
+    display: inline-flex;
+    animation: scroll-left 30s linear infinite;
+    gap: 2rem;
+    padding-right: 2rem;
+}
+
+.marquee-item {
+    display: inline-block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
