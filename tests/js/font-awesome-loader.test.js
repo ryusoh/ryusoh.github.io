@@ -66,4 +66,73 @@ describe('FontAwesomeLoader', () => {
         expect(showSpy).toHaveBeenCalled();
         expect(loader.fontAwesomeLoaded).toBe(true);
     });
+
+    describe('waitForFontLoad', () => {
+        beforeEach(() => {
+            jest.useFakeTimers();
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+        });
+
+        test('should assign onload handler to font-awesome link', () => {
+            const loader = new FontAwesomeLoader();
+            jest.spyOn(loader, 'showIcons').mockImplementation(() => {});
+            jest.spyOn(loader, 'stopChecking').mockImplementation(() => {});
+
+            // Create fake links
+            const wrongLink = document.createElement('link');
+            wrongLink.rel = 'stylesheet';
+            wrongLink.href = 'https://example.com/other.css';
+
+            const faLink = document.createElement('link');
+            faLink.rel = 'stylesheet';
+            faLink.href = 'https://example.com/font-awesome.min.css';
+
+            document.head.appendChild(wrongLink);
+            document.head.appendChild(faLink);
+
+            loader.waitForFontLoad();
+
+            // Run setTimeout
+            jest.advanceTimersByTime(50);
+
+            expect(typeof faLink.onload).toBe('function');
+
+            // Trigger onload
+            faLink.onload();
+
+            expect(loader.fontAwesomeLoaded).toBe(true);
+            expect(loader.showIcons).toHaveBeenCalled();
+            expect(loader.stopChecking).toHaveBeenCalled();
+
+            // Clean up
+            document.head.removeChild(wrongLink);
+            document.head.removeChild(faLink);
+        });
+
+        test('should not do anything if already loaded', () => {
+            const loader = new FontAwesomeLoader();
+            loader.fontAwesomeLoaded = true;
+            jest.spyOn(loader, 'showIcons').mockImplementation(() => {});
+            jest.spyOn(loader, 'stopChecking').mockImplementation(() => {});
+
+            const faLink = document.createElement('link');
+            faLink.rel = 'stylesheet';
+            faLink.href = 'https://example.com/font-awesome.min.css';
+            document.head.appendChild(faLink);
+
+            loader.waitForFontLoad();
+            jest.advanceTimersByTime(50);
+
+            // Trigger onload
+            faLink.onload();
+
+            expect(loader.showIcons).not.toHaveBeenCalled();
+            expect(loader.stopChecking).not.toHaveBeenCalled();
+
+            document.head.removeChild(faLink);
+        });
+    });
 });

@@ -59,4 +59,76 @@ describe('AssetPreloader', () => {
         preloader.init();
         expect(addEventSpy).toHaveBeenCalledWith('load', expect.any(Function));
     });
+
+    describe('preloadForCurrentPage', () => {
+        test('should preload assets for all portfolio pages on main', () => {
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('main');
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3']);
+        });
+
+        test('should preload assets for remaining portfolio pages on p1', () => {
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p1');
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3']);
+        });
+    });
+
+    describe('init', () => {
+        let originalRequestIdleCallback;
+
+        beforeEach(() => {
+            jest.useFakeTimers();
+            originalRequestIdleCallback = window.requestIdleCallback;
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+            window.requestIdleCallback = originalRequestIdleCallback;
+            jest.restoreAllMocks();
+        });
+
+        test('should use requestIdleCallback when available', () => {
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'preloadForCurrentPage').mockImplementation(() => {});
+
+            // Mock requestIdleCallback
+            window.requestIdleCallback = jest.fn((cb) => cb());
+
+            preloader.init();
+
+            // Trigger load event
+            window.dispatchEvent(new Event('load'));
+
+            expect(window.requestIdleCallback).toHaveBeenCalled();
+            expect(preloader.preloadForCurrentPage).toHaveBeenCalled();
+        });
+
+        test('should fall back to setTimeout when requestIdleCallback is unavailable', () => {
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'preloadForCurrentPage').mockImplementation(() => {});
+
+            // Ensure requestIdleCallback is unavailable
+            delete window.requestIdleCallback;
+            jest.spyOn(window, 'setTimeout');
+
+            preloader.init();
+
+            // Trigger load event
+            window.dispatchEvent(new Event('load'));
+
+            expect(window.setTimeout).toHaveBeenCalledWith(expect.any(Function), 1000);
+
+            jest.advanceTimersByTime(1000);
+            expect(preloader.preloadForCurrentPage).toHaveBeenCalled();
+        });
+    });
 });
