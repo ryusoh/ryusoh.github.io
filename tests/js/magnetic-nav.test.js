@@ -23,6 +23,7 @@ describe('js/magnetic-nav.js', () => {
 
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn().mockImplementation(() => jest.fn()),
         };
 
         context = {
@@ -103,6 +104,21 @@ describe('js/magnetic-nav.js', () => {
         };
         context.document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
 
+        const mockSetX = jest.fn();
+        const mockSetY = jest.fn();
+        const mockSetChildX = jest.fn();
+        const mockSetChildY = jest.fn();
+
+        mockGSAP.quickTo = jest.fn().mockImplementation((target, prop) => {
+            if (target === mockElement) {
+                return prop === 'x' ? mockSetX : mockSetY;
+            }
+            if (target === mockChild) {
+                return prop === 'x' ? mockSetChildX : mockSetChildY;
+            }
+            return jest.fn();
+        });
+
         vm.createContext(context);
         vm.runInContext(code, context);
 
@@ -122,27 +138,13 @@ describe('js/magnetic-nav.js', () => {
         // distX = 10, distY = 10
         // strength = 0.4
         // x = 4, y = 4
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockElement,
-            expect.objectContaining({
-                x: 4,
-                y: 4,
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(mockSetX).toHaveBeenCalledWith(4);
+        expect(mockSetY).toHaveBeenCalledWith(4);
 
         // child parallax: strength * 1.5 = 0.6
         // x = 6, y = 6
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockChild,
-            expect.objectContaining({
-                x: expect.closeTo(6, 5),
-                y: expect.closeTo(6, 5),
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(mockSetChildX).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(mockSetChildY).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
