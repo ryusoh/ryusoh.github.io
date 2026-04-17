@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: -diffY * 15,
                 rotationY: diffX * 5, // subtle 3D rotation
                 rotationX: -diffY * 5,
-                ease: 'power2.out',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
                 duration: 0.8,
             });
         },

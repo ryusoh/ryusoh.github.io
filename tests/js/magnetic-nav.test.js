@@ -128,7 +128,7 @@ describe('js/magnetic-nav.js', () => {
                 x: 4,
                 y: 4,
                 duration: 0.3,
-                ease: 'power2.out',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
 
@@ -140,7 +140,7 @@ describe('js/magnetic-nav.js', () => {
                 x: expect.closeTo(6, 5),
                 y: expect.closeTo(6, 5),
                 duration: 0.3,
-                ease: 'power2.out',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
     });
@@ -171,7 +171,7 @@ describe('js/magnetic-nav.js', () => {
                 x: 0,
                 y: 0,
                 duration: 0.7,
-                ease: 'elastic.out(1, 0.3)',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
 
@@ -181,7 +181,7 @@ describe('js/magnetic-nav.js', () => {
                 x: 0,
                 y: 0,
                 duration: 0.7,
-                ease: 'elastic.out(1, 0.3)',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
     });

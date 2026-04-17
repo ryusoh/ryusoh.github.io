@@ -40,7 +40,7 @@ export function initMagneticNav() {
                 x: distX * strength,
                 y: distY * strength,
                 duration: 0.3,
-                ease: 'power2.out',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             });
 
             // Pull the child element (e.g. <i>) slightly more for a parallax effect
@@ -50,7 +50,7 @@ export function initMagneticNav() {
                     x: distX * (strength * 1.5),
                     y: distY * (strength * 1.5),
                     duration: 0.3,
-                    ease: 'power2.out',
+                    ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
                 });
             }
         });
@@ -61,7 +61,7 @@ export function initMagneticNav() {
                 x: 0,
                 y: 0,
                 duration: 0.7,
-                ease: 'elastic.out(1, 0.3)',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             });
 
             const child = el.querySelector('i, span, img');
@@ -70,7 +70,7 @@ export function initMagneticNav() {
                     x: 0,
                     y: 0,
                     duration: 0.7,
-                    ease: 'elastic.out(1, 0.3)',
+                    ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
                 });
             }
         });
