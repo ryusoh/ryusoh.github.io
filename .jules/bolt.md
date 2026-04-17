@@ -80,3 +80,9 @@
 **Learning:** Using `gsap.to()` directly inside high-frequency event listeners like `mousemove` instantiates a new tween object on every frame/event. This results in significant memory churn, garbage collection overhead, and main-thread jank, especially for continuous interactions like mouse parallax.
 
 **Action:** When tracking high-frequency events (like mouse position) with GSAP, pre-initialize a `gsap.quickTo()` function outside the event listener and call the resulting setter function inside the listener. This updates the target values without allocating new tween instances every time, drastically improving performance.
+
+## 2026-04-06 - Avoid gsap.to() in Magnetic Navigation Listeners
+
+**Learning:** Similar to the mouse parallax issue, using `gsap.to()` directly inside the `mousemove` event listener for magnetic navigation in `js/magnetic-nav.js` continuously instantiates new tween objects for every frame or event. This leads to main-thread jank and overhead for high-frequency interactive features like the magnetic social icons.
+
+**Action:** Replace `gsap.to()` inside the `mousemove` event listener with `gsap.quickTo()` pre-initialized outside the listener, reducing memory churn and improving performance by reusing pre-initialized setter functions for high-frequency updates. Keep the regular `gsap.to()` for `mouseleave` since it happens less frequently and relies on different easing/duration values.
