@@ -38,18 +38,18 @@ export function initMagneticNav() {
             ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
         });
 
-        const setChildX = child
-            ? window.gsap.quickTo(child, 'x', {
-                  duration: 0.3,
-                  ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-              })
-            : null;
-        const setChildY = child
-            ? window.gsap.quickTo(child, 'y', {
-                  duration: 0.3,
-                  ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-              })
-            : null;
+        let setChildX = null;
+        let setChildY = null;
+        if (child) {
+            setChildX = window.gsap.quickTo(child, 'x', {
+                duration: 0.3,
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
+            });
+            setChildY = window.gsap.quickTo(child, 'y', {
+                duration: 0.3,
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
+            });
+        }
 
         el.addEventListener('mousemove', (e) => {
             const rect = el.getBoundingClientRect();
