@@ -40,15 +40,15 @@ export function initMagneticNav() {
 
         const setChildX = child
             ? window.gsap.quickTo(child, 'x', {
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
+                  duration: 0.3,
+                  ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
+              })
             : null;
         const setChildY = child
             ? window.gsap.quickTo(child, 'y', {
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
+                  duration: 0.3,
+                  ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
+              })
             : null;
 
         el.addEventListener('mousemove', (e) => {
