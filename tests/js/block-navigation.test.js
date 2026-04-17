@@ -81,4 +81,83 @@ describe('block-navigation', () => {
             expect(testing.shouldUseElement(el)).toBe(true);
         });
     });
+
+    describe('debounce', () => {
+        let originalRequestAnimationFrame;
+        let originalCancelAnimationFrame;
+
+        beforeEach(() => {
+            jest.useFakeTimers();
+            originalRequestAnimationFrame = window.requestAnimationFrame;
+            originalCancelAnimationFrame = window.cancelAnimationFrame;
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+            window.requestAnimationFrame = originalRequestAnimationFrame;
+            window.cancelAnimationFrame = originalCancelAnimationFrame;
+            jest.restoreAllMocks();
+        });
+
+        test('should delay execution', () => {
+            const mockFn = jest.fn();
+            const debouncedFn = testing.debounce(mockFn, 100);
+
+            // Delete requestAnimationFrame so we rely entirely on setTimeout for this test
+            delete window.requestAnimationFrame;
+
+            debouncedFn();
+            expect(mockFn).not.toHaveBeenCalled();
+
+            jest.advanceTimersByTime(50);
+            expect(mockFn).not.toHaveBeenCalled();
+
+            jest.advanceTimersByTime(50);
+            expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+
+        test('should clear previous timeout', () => {
+            const mockFn = jest.fn();
+            const debouncedFn = testing.debounce(mockFn, 100);
+
+            // Delete requestAnimationFrame so we rely entirely on setTimeout for this test
+            delete window.requestAnimationFrame;
+
+            debouncedFn();
+            jest.advanceTimersByTime(50);
+            debouncedFn();
+            jest.advanceTimersByTime(50);
+
+            expect(mockFn).not.toHaveBeenCalled();
+
+            jest.advanceTimersByTime(50);
+            expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+
+        test('should utilize requestAnimationFrame if available', () => {
+            const mockFn = jest.fn();
+            const debouncedFn = testing.debounce(mockFn, 100);
+
+            window.requestAnimationFrame = jest.fn((cb) => cb());
+            window.cancelAnimationFrame = jest.fn();
+
+            debouncedFn();
+            jest.advanceTimersByTime(100);
+
+            expect(window.requestAnimationFrame).toHaveBeenCalled();
+            expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+
+        test('should fall back to synchronous execution within timeout if requestAnimationFrame is unavailable', () => {
+            const mockFn = jest.fn();
+            const debouncedFn = testing.debounce(mockFn, 100);
+
+            delete window.requestAnimationFrame;
+
+            debouncedFn();
+            jest.advanceTimersByTime(100);
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+    });
 });
