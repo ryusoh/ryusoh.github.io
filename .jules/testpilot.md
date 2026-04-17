@@ -45,3 +45,7 @@
 ## 2025-03-24 - Mocking performance.now with Fake Timers
 
 **Learning:** When unit testing modules that rely on `performance.now()` in JSDOM with Jest fake timers, explicitly mock `window.performance.now` _before_ the module is required. This ensures any internal closure bindings (e.g., `perfNow = window.performance.now.bind(...)`) properly capture the mocked timer mechanism.
+
+## 2026-04-16 - Extracting Unexported Functions with Nested Blocks for VM Testing
+
+**Learning:** When using regex to extract unexported functions from source files for `vm.runInContext` testing, avoid simple non-greedy matchers (e.g., `[\s\S]*?}`) that prematurely terminate at the first nested block (like an `if` or `try`). Tailor the regex to match the exact closing signature of the function to prevent incomplete extraction and SyntaxErrors.
