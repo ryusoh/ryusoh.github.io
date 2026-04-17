@@ -4,6 +4,7 @@
     transition: all 0.5s;
 }
 :root {
+    --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
     --page-transition-color: rgba(0, 0, 0, 0.88);
 }
 .background-cover,
@@ -1169,8 +1170,8 @@ td {
     opacity: 0;
     visibility: hidden;
     transition:
-        opacity 0.5s ease,
-        color 0.5s ease,
+        opacity 0.5s var(--brand-ease),
+        color 0.5s var(--brand-ease),
         visibility 0s linear 0.5s;
     font-size: 12px;
     color: #aaa !important;
@@ -1231,7 +1232,7 @@ html.page-transition--exiting #main {
    and .scroll-reveal--visible when observed. */
 .scroll-reveal {
     opacity: 0 !important;
-    transform: translateY(30px) !important;
+    clip-path: inset(10% 10% 10% 10% round 10px) !important;
 }
 
 /* The transition is ONLY on the visible state.
@@ -1239,20 +1240,31 @@ html.page-transition--exiting #main {
    Adding .scroll-reveal--visible animates into view. */
 .scroll-reveal--visible {
     opacity: 1 !important;
-    transform: translateY(0) !important;
+    clip-path: inset(0% 0% 0% 0% round 0px) !important;
     transition:
-        opacity 0.6s ease-out,
-        transform 0.6s ease-out !important;
+        opacity 0.6s var(--brand-ease),
+        clip-path 0.6s var(--brand-ease) !important;
 }
 
 /* Respect reduced motion: show everything immediately */
 @media (prefers-reduced-motion: reduce) {
     .scroll-reveal {
         opacity: 1 !important;
-        transform: none !important;
+        clip-path: none !important;
     }
 
     .scroll-reveal--visible {
         transition: none !important;
     }
+}
+
+/* Principle 7: Hide the scaffolding. No scrollbars, native selection styling */
+html,
+body {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
