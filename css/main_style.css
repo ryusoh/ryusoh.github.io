@@ -472,11 +472,13 @@ footer {
 }
 
 /* Principle 7: Hide the scaffolding. No scrollbars, native selection styling */
-html, body {
+html,
+body {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
 }
-html::-webkit-scrollbar, body::-webkit-scrollbar {
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
 }
 ::selection {
