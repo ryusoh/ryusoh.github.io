@@ -70,14 +70,14 @@ describe('ga.js bootstrap', () => {
             throw new Error('Test Error');
         });
 
-        // Mock console.warn
-        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        // Mock window.console.warn
+        jest.spyOn(window.console, 'warn').mockImplementation(() => {});
 
         // Re-require to trigger try-catch logic
         jest.resetModules();
         require('../../js/ga.js');
 
-        expect(console.warn).toHaveBeenCalledWith(
+        expect(window.console.warn).toHaveBeenCalledWith(
             'Google Analytics initialization failed:',
             expect.any(Error)
         );
@@ -91,9 +91,15 @@ describe('ga.js bootstrap', () => {
             throw new Error('Test Error');
         });
 
-        // Remove console.warn
-        const originalWarn = console.warn;
-        delete console.warn;
+        // Remove window.console.warn
+        const originalWarn = window.console.warn;
+
+        // Use Object.defineProperty to ensure it's set even if it's normally read-only
+        Object.defineProperty(window.console, 'warn', {
+            value: undefined,
+            writable: true,
+            configurable: true,
+        });
 
         jest.resetModules();
         expect(() => {
@@ -101,7 +107,11 @@ describe('ga.js bootstrap', () => {
         }).not.toThrow();
 
         // Restore
-        console.warn = originalWarn;
+        Object.defineProperty(window.console, 'warn', {
+            value: originalWarn,
+            writable: true,
+            configurable: true,
+        });
         delete window.ga;
     });
 });
