@@ -23,6 +23,14 @@ describe('js/magnetic-nav.js', () => {
 
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn((target, prop) => {
+                const setter = jest.fn();
+                if (!target.__setters) {
+                    target.__setters = {};
+                }
+                target.__setters[prop] = setter;
+                return setter;
+            }),
         };
 
         context = {
@@ -120,26 +128,12 @@ describe('js/magnetic-nav.js', () => {
         });
 
         // distX = 10, distY = 10, strength = 0.4 → x = 4, y = 4
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockElement,
-            expect.objectContaining({
-                x: 4,
-                y: 4,
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(mockElement.__setters.x).toHaveBeenCalledWith(4);
+        expect(mockElement.__setters.y).toHaveBeenCalledWith(4);
 
         // child parallax: strength * 1.5 = 0.6 → x = 6, y = 6
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockChild,
-            expect.objectContaining({
-                x: expect.closeTo(6, 5),
-                y: expect.closeTo(6, 5),
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(mockChild.__setters.x.mock.calls[0][0]).toBeCloseTo(6, 5);
+        expect(mockChild.__setters.y.mock.calls[0][0]).toBeCloseTo(6, 5);
     });
 
     test('snaps back on mouseleave', () => {
