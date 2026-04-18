@@ -1232,7 +1232,7 @@ html.page-transition--exiting #main {
    and .scroll-reveal--visible when observed. */
 .scroll-reveal {
     opacity: 0 !important;
-    clip-path: inset(10% 10% 10% 10% round 10px) !important;
+    transform: translateY(30px) !important;
 }
 
 /* The transition is ONLY on the visible state.
@@ -1240,17 +1240,17 @@ html.page-transition--exiting #main {
    Adding .scroll-reveal--visible animates into view. */
 .scroll-reveal--visible {
     opacity: 1 !important;
-    clip-path: inset(0% 0% 0% 0% round 0px) !important;
+    transform: translateY(0) !important;
     transition:
-        opacity 0.6s var(--brand-ease),
-        clip-path 0.6s var(--brand-ease) !important;
+        opacity 0.6s ease-out,
+        transform 0.6s ease-out !important;
 }
 
 /* Respect reduced motion: show everything immediately */
 @media (prefers-reduced-motion: reduce) {
     .scroll-reveal {
         opacity: 1 !important;
-        clip-path: none !important;
+        transform: none !important;
     }
 
     .scroll-reveal--visible {
