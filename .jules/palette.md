@@ -42,6 +42,8 @@
 
 **Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
 **Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
+
 ## 2026-04-18 - JSON-LD Tag Protection
+
 **Learning:** Using overly broad regex to inject HTML classes into text (e.g., `<span class="serif-emphasis">`) can corrupt structured JSON-LD data and `meta` tags if they share the same targeted strings.
 **Action:** When adding typography classes to text, restrict the scope strictly to visible HTML elements (e.g., `<h1>` tags) to preserve metadata integrity.
