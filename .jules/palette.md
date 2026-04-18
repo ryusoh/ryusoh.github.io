@@ -42,3 +42,8 @@
 
 **Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
 **Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
+
+## 2026-04-18 - Visual hints for hidden keyboard shortcuts
+
+**Learning:** The portfolio UI uses hidden keyboard shortcuts (e.g., `Escape` for back, `ArrowRight` for next) in its project navigation. While these are implemented technically via `aria-keyshortcuts` which screen readers can announce, sighted visual users or users not relying on screen readers have no way of discovering these shortcuts.
+**Action:** Added visual tooltips (using the standard native `title` attribute) to interactive elements that support non-obvious keyboard shortcuts, acting as a small touch of delight and improved discoverability for power users without cluttering the minimalist aesthetic.
