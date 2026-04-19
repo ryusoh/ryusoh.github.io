@@ -23,6 +23,15 @@ describe('js/magnetic-nav.js', () => {
 
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn(() => {
+                // Return a setter function that updates the target and can be spied on
+                const setter = jest.fn((val) => {
+                    // We don't actually need to update target[prop] for these tests,
+                    // but we need the setter to be trackable.
+                    return val;
+                });
+                return setter;
+            }),
         };
 
         context = {
@@ -108,6 +117,27 @@ describe('js/magnetic-nav.js', () => {
 
         context.initMagneticNav();
 
+        // Grab the setX and setY spy functions that quickTo returned
+        const elSetters = mockGSAP.quickTo.mock.results
+            .filter(
+                (r) =>
+                    mockGSAP.quickTo.mock.calls[mockGSAP.quickTo.mock.results.indexOf(r)][0] ===
+                    mockElement
+            )
+            .map((r) => r.value);
+        const childSetters = mockGSAP.quickTo.mock.results
+            .filter(
+                (r) =>
+                    mockGSAP.quickTo.mock.calls[mockGSAP.quickTo.mock.results.indexOf(r)][0] ===
+                    mockChild
+            )
+            .map((r) => r.value);
+
+        const setElX = elSetters[0];
+        const setElY = elSetters[1];
+        const setChildX = childSetters[0];
+        const setChildY = childSetters[1];
+
         // Get the mousemove listener
         const mouseMoveHandler = mockElement.addEventListener.mock.calls.find(
             (call) => call[0] === 'mousemove'
@@ -120,26 +150,12 @@ describe('js/magnetic-nav.js', () => {
         });
 
         // distX = 10, distY = 10, strength = 0.4 → x = 4, y = 4
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockElement,
-            expect.objectContaining({
-                x: 4,
-                y: 4,
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(setElX).toHaveBeenCalledWith(4);
+        expect(setElY).toHaveBeenCalledWith(4);
 
         // child parallax: strength * 1.5 = 0.6 → x = 6, y = 6
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockChild,
-            expect.objectContaining({
-                x: expect.closeTo(6, 5),
-                y: expect.closeTo(6, 5),
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(setChildX).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(setChildY).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {

@@ -86,3 +86,9 @@
 **Learning:** Similar to the mouse parallax issue, using `gsap.to()` directly inside the `mousemove` event listener for magnetic navigation in `js/magnetic-nav.js` continuously instantiates new tween objects for every frame or event. This leads to main-thread jank and overhead for high-frequency interactive features like the magnetic social icons.
 
 **Action:** Replace `gsap.to()` inside the `mousemove` event listener with `gsap.quickTo()` pre-initialized outside the listener, reducing memory churn and improving performance by reusing pre-initialized setter functions for high-frequency updates. Keep the regular `gsap.to()` for `mouseleave` since it happens less frequently and relies on different easing/duration values.
+
+## 2026-04-19 - Avoid gsap.to() in Magnetic Navigation Listeners
+
+**Learning:** Using `gsap.to()` directly inside the `mousemove` event listener for magnetic navigation in `js/magnetic-nav.js` continuously instantiates new tween objects for every frame or event. This leads to main-thread jank and overhead for high-frequency interactive features like the magnetic social icons. Additionally, querying for the child element on every `mousemove` forces redundant DOM evaluations.
+
+**Action:** Replace `gsap.to()` inside the `mousemove` event listener with `gsap.quickTo()` pre-initialized outside the listener, reducing memory churn and improving performance by reusing pre-initialized setter functions for high-frequency updates. Cache DOM queries (`querySelector`) outside the event listener to avoid repetitive evaluations. Keep the regular `gsap.to()` for `mouseleave` since it happens less frequently and relies on different easing/duration values. When testing `gsap.quickTo()` using Jest and `vm.runInContext()`, mock `quickTo` by returning a `jest.fn()` setter function so interactions can be accurately tracked.
