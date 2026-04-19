@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 requestAnimationFrame(updatePosition);
 
+                previewContainer.classList.add('is-active');
                 gsap.to(previewContainer, {
                     scale: 1,
                     opacity: 1,
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         link.addEventListener('mouseleave', () => {
             isHovering = false;
+            previewContainer.classList.remove('is-active');
             gsap.to(previewContainer, {
                 scale: 0.8,
                 opacity: 0,
