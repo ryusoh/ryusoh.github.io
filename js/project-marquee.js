@@ -7,7 +7,8 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof gsap === 'undefined' || typeof gsap.ScrollTrigger === 'undefined') {
-        window.console && window.console.warn('GSAP or ScrollTrigger is not loaded. Skipping project marquee.');
+        window.console &&
+            window.console.warn('GSAP or ScrollTrigger is not loaded. Skipping project marquee.');
         return;
     }
 
@@ -25,6 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
             scrub: true,
         },
         x: -150, // subtle horizontal shift
-        ease: 'none'
+        ease: 'none',
     });
 });
