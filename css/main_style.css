@@ -623,7 +623,13 @@ html.page-transition--exiting #main {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    will-change: transform, opacity;
+    will-change: transform, opacity, clip-path;
+    clip-path: inset(30% 30% 30% 30% round 50%);
+    transition: clip-path 0.4s var(--brand-ease);
+}
+
+.hover-preview-container.is-active {
+    clip-path: inset(0% 0% 0% 0% round 8px);
 }
 
 .hover-preview-img {
@@ -644,4 +650,12 @@ html.js-enabled #nav {
 #main h1 {
     transform-style: preserve-3d;
     perspective: 1000px;
+}
+
+/* Typography Contrast (Lando Norris Test) */
+.serif-italic {
+    font-family: 'Noto Serif', 'Times New Roman', serif;
+    text-transform: lowercase;
+    font-style: italic;
+    font-weight: normal;
 }

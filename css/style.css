@@ -1268,3 +1268,11 @@ html::-webkit-scrollbar,
 body::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
 }
+
+/* Typography Contrast (Lando Norris Test) */
+.serif-italic {
+    font-family: 'Noto Serif', 'Times New Roman', serif;
+    text-transform: lowercase;
+    font-style: italic;
+    font-weight: normal;
+}
