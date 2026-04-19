@@ -23,7 +23,7 @@ describe('js/magnetic-nav.js', () => {
 
         mockGSAP = {
             to: jest.fn(),
-            quickTo: jest.fn((target, prop, config) => {
+            quickTo: jest.fn(() => {
                 // Return a setter function that updates the target and can be spied on
                 const setter = jest.fn((val) => {
                     // We don't actually need to update target[prop] for these tests,
@@ -118,8 +118,20 @@ describe('js/magnetic-nav.js', () => {
         context.initMagneticNav();
 
         // Grab the setX and setY spy functions that quickTo returned
-        const elSetters = mockGSAP.quickTo.mock.results.filter(r => mockGSAP.quickTo.mock.calls[mockGSAP.quickTo.mock.results.indexOf(r)][0] === mockElement).map(r => r.value);
-        const childSetters = mockGSAP.quickTo.mock.results.filter(r => mockGSAP.quickTo.mock.calls[mockGSAP.quickTo.mock.results.indexOf(r)][0] === mockChild).map(r => r.value);
+        const elSetters = mockGSAP.quickTo.mock.results
+            .filter(
+                (r) =>
+                    mockGSAP.quickTo.mock.calls[mockGSAP.quickTo.mock.results.indexOf(r)][0] ===
+                    mockElement
+            )
+            .map((r) => r.value);
+        const childSetters = mockGSAP.quickTo.mock.results
+            .filter(
+                (r) =>
+                    mockGSAP.quickTo.mock.calls[mockGSAP.quickTo.mock.results.indexOf(r)][0] ===
+                    mockChild
+            )
+            .map((r) => r.value);
 
         const setElX = elSetters[0];
         const setElY = elSetters[1];
