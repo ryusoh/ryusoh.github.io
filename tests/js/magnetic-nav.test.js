@@ -23,6 +23,9 @@ describe('js/magnetic-nav.js', () => {
 
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn(() => {
+                return jest.fn();
+            }),
         };
 
         context = {
@@ -101,12 +104,23 @@ describe('js/magnetic-nav.js', () => {
                 height: 50,
             }),
         };
+
+        const mockSetters = [];
+        mockGSAP.quickTo = jest.fn(() => {
+            const setter = jest.fn();
+            mockSetters.push(setter);
+            return setter;
+        });
+
         context.document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
 
         vm.createContext(context);
         vm.runInContext(code, context);
 
         context.initMagneticNav();
+
+        // Check if quickTo was called 4 times (x and y for el, x and y for child)
+        expect(mockGSAP.quickTo).toHaveBeenCalledTimes(4);
 
         // Get the mousemove listener
         const mouseMoveHandler = mockElement.addEventListener.mock.calls.find(
@@ -119,27 +133,16 @@ describe('js/magnetic-nav.js', () => {
             clientY: 135,
         });
 
+        // The setters should have been called with the calculated values.
         // distX = 10, distY = 10, strength = 0.4 → x = 4, y = 4
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockElement,
-            expect.objectContaining({
-                x: 4,
-                y: 4,
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        // mockSetters[0] is setX, mockSetters[1] is setY
+        expect(mockSetters[0]).toHaveBeenCalledWith(4);
+        expect(mockSetters[1]).toHaveBeenCalledWith(4);
 
         // child parallax: strength * 1.5 = 0.6 → x = 6, y = 6
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockChild,
-            expect.objectContaining({
-                x: expect.closeTo(6, 5),
-                y: expect.closeTo(6, 5),
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        // mockSetters[2] is setChildX, mockSetters[3] is setChildY
+        expect(mockSetters[2]).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(mockSetters[3]).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
