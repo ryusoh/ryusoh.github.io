@@ -131,4 +131,64 @@ describe('AssetPreloader', () => {
             expect(preloader.preloadForCurrentPage).toHaveBeenCalled();
         });
     });
+
+    describe('preloadAssets with DocumentFragment', () => {
+        test('should use a DocumentFragment for batch appending', () => {
+            const preloader = new AssetPreloader();
+            const originalCreateDocumentFragment = document.createDocumentFragment;
+            const mockFragment = {
+                appendChild: jest.fn(),
+            };
+            document.createDocumentFragment = jest.fn(() => mockFragment);
+
+            // Mock head.appendChild
+            const headSpy = jest.spyOn(document.head, 'appendChild').mockImplementation(() => {});
+
+            // We only need a small mocked set
+            preloader.assetSets = {
+                mockPage: ['/test1.jpg', '/test2.jpg'],
+            };
+
+            preloader.preloadAssets(['mockPage']);
+
+            // Verify createDocumentFragment was used
+            expect(document.createDocumentFragment).toHaveBeenCalled();
+
+            // Verify elements were appended to fragment first
+            expect(mockFragment.appendChild).toHaveBeenCalledTimes(2);
+
+            // Verify fragment was appended to head
+            expect(headSpy).toHaveBeenCalledWith(mockFragment);
+
+            // Cleanup
+            document.createDocumentFragment = originalCreateDocumentFragment;
+            headSpy.mockRestore();
+        });
+    });
+
+    test('should identify index.html as main page', () => {
+        const preloader = new AssetPreloader();
+        delete window.location;
+        window.location = new URL('https://example.com/index.html');
+        expect(preloader.getCurrentPageKey()).toBe('main');
+    });
+
+    test('should identify p3 from pathname', () => {
+        const preloader = new AssetPreloader();
+        delete window.location;
+        window.location = new URL('https://example.com/p3/');
+        expect(preloader.getCurrentPageKey()).toBe('p3');
+    });
+
+    test('preloadForCurrentPage should preload assets for p1 and p2 when on p3', () => {
+        const preloader = new AssetPreloader();
+        jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p3');
+        const preloadAssetsSpy = jest
+            .spyOn(preloader, 'preloadAssets')
+            .mockImplementation(() => {});
+
+        preloader.preloadForCurrentPage();
+
+        expect(preloadAssetsSpy).toHaveBeenCalledWith(['p1', 'p2']);
+    });
 });

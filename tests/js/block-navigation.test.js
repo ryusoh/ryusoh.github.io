@@ -160,4 +160,61 @@ describe('block-navigation', () => {
             expect(mockFn).toHaveBeenCalledTimes(1);
         });
     });
+
+    describe('performScroll', () => {
+        let mockTarget;
+
+        beforeEach(() => {
+            window.scrollTo = jest.fn();
+            window.console = { warn: jest.fn() };
+
+            mockTarget = {
+                scrollIntoView: jest.fn(),
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 200 }),
+                offsetHeight: 200,
+            };
+        });
+
+        test('should call window.scrollTo when isTopSentinel is true', () => {
+            testing.performScroll(mockTarget, true, 'smooth', true);
+
+            expect(window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
+            expect(mockTarget.scrollIntoView).not.toHaveBeenCalled();
+        });
+
+        test('should call target.scrollIntoView correctly', () => {
+            testing.performScroll(mockTarget, false, 'smooth', false);
+
+            expect(mockTarget.scrollIntoView).toHaveBeenCalledWith({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest',
+            });
+            expect(window.scrollTo).not.toHaveBeenCalled();
+        });
+
+        test('should use fallback window.scrollTo if scrollIntoView throws', () => {
+            mockTarget.scrollIntoView.mockImplementation(() => {
+                throw new Error('scrollIntoView error');
+            });
+
+            testing.performScroll(mockTarget, false, 'smooth', false);
+
+            expect(window.console.warn).toHaveBeenCalledWith(
+                '[block-navigation] scrollIntoView failed, using fallback:',
+                expect.any(Error)
+            );
+
+            // Expected fallback logic using clampScrollTop
+            // Offset = (500 - 200) / 2 = 150
+            // Top = clampScrollTop(100 + 0 - 150) = clampScrollTop(-50) = 0
+            expect(window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
+        });
+    });
 });

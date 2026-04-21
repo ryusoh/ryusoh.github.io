@@ -135,4 +135,106 @@ describe('FontAwesomeLoader', () => {
             document.head.removeChild(faLink);
         });
     });
+
+    describe('startChecking and stopChecking', () => {
+        beforeEach(() => {
+            jest.useFakeTimers();
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+            jest.restoreAllMocks();
+        });
+
+        test('should clear interval and call showIcons when loaded', () => {
+            const loader = new FontAwesomeLoader();
+            loader.checkInterval = null;
+            loader.testElement = document.createElement('i');
+
+            jest.spyOn(loader, 'isFontAwesomeLoaded').mockReturnValue(true);
+            const showIconsSpy = jest.spyOn(loader, 'showIcons').mockImplementation(() => {});
+            const stopSpy = jest.spyOn(loader, 'stopChecking');
+
+            loader.startChecking();
+
+            // Fast-forward 100ms
+            jest.advanceTimersByTime(100);
+
+            expect(loader.fontAwesomeLoaded).toBe(true);
+            expect(showIconsSpy).toHaveBeenCalled();
+            expect(stopSpy).toHaveBeenCalled();
+        });
+
+        test('should increment retryCount and handleLoadFailure when maxRetries is reached', () => {
+            const loader = new FontAwesomeLoader();
+            loader.maxRetries = 2;
+            loader.retryCount = 0;
+            loader.testElement = document.createElement('i');
+
+            jest.spyOn(loader, 'isFontAwesomeLoaded').mockReturnValue(false);
+            const handleLoadFailureSpy = jest
+                .spyOn(loader, 'handleLoadFailure')
+                .mockImplementation(() => {});
+            const stopSpy = jest.spyOn(loader, 'stopChecking');
+
+            loader.startChecking();
+
+            // Advance by first 100ms
+            jest.advanceTimersByTime(100);
+            expect(loader.retryCount).toBe(1);
+            expect(handleLoadFailureSpy).not.toHaveBeenCalled();
+            expect(stopSpy).not.toHaveBeenCalled();
+
+            // Advance by second 100ms
+            jest.advanceTimersByTime(100);
+            expect(loader.retryCount).toBe(2);
+            expect(handleLoadFailureSpy).toHaveBeenCalled();
+            expect(stopSpy).toHaveBeenCalled();
+        });
+
+        test('stopChecking clears checkInterval and cleans up testElement', () => {
+            const loader = new FontAwesomeLoader();
+
+            // Setup an interval to clear
+            const mockInterval = setInterval(() => {}, 1000);
+            loader.checkInterval = mockInterval;
+
+            // Setup a testElement attached to DOM
+            const testEl = document.createElement('i');
+            document.body.appendChild(testEl);
+            loader.testElement = testEl;
+
+            loader.stopChecking();
+
+            // checkInterval should be null
+            expect(loader.checkInterval).toBeNull();
+
+            // The test element should be removed from DOM
+            expect(testEl.parentNode).toBeNull();
+            expect(loader.testElement).toBeNull();
+        });
+
+        test('cleanupTestElement safely does nothing if element is missing', () => {
+            const loader = new FontAwesomeLoader();
+            loader.testElement = null;
+
+            expect(() => {
+                loader.cleanupTestElement();
+            }).not.toThrow();
+        });
+
+        test('handleLoadFailure sets display:none for non-chevron icons', () => {
+            const loader = new FontAwesomeLoader();
+
+            const normalIcon = document.createElement('i');
+            normalIcon.className = 'fa fa-heart';
+            normalIcon.dataset.fahidden = 'true';
+
+            loader.faIcons = [normalIcon];
+
+            loader.handleLoadFailure();
+
+            expect(normalIcon.style.display).toBe('none');
+        });
+    });
 });
