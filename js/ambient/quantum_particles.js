@@ -104,11 +104,23 @@
         }
     }
 
+    /**
+     * Bolt Optimization:
+     * - What: Cache `window.innerWidth` and `window.innerHeight` in module-scoped variables during `resize`, and read those cached values in `updatePointerTarget`.
+     * - Why: Reading layout properties (`innerWidth`, `innerHeight`) in a high-frequency event listener like `pointermove` causes main-thread blocking, unnecessary overhead and potential layout thrashing.
+     * - Impact: Measurably reduces main-thread blocking time during `pointermove` events by guaranteeing DOM reads happen at most once per `resize` event.
+     */
+    let cachedWidth = typeof window !== 'undefined' ? Math.max(1, window.innerWidth || 1) : 1;
+    let cachedHeight = typeof window !== 'undefined' ? Math.max(1, window.innerHeight || 1) : 1;
+
+    function updateCachedDimensions() {
+        cachedWidth = typeof window !== 'undefined' ? Math.max(1, window.innerWidth || 1) : 1;
+        cachedHeight = typeof window !== 'undefined' ? Math.max(1, window.innerHeight || 1) : 1;
+    }
+
     function updatePointerTarget(event, target) {
-        const width = Math.max(1, window.innerWidth || 1);
-        const height = Math.max(1, window.innerHeight || 1);
-        const px = clamp(event.clientX / width, 0, 1);
-        const py = clamp(1 - event.clientY / height, 0, 1);
+        const px = clamp(event.clientX / cachedWidth, 0, 1);
+        const py = clamp(1 - event.clientY / cachedHeight, 0, 1);
         target.set(px, py);
     }
 
@@ -221,10 +233,9 @@
         window.addEventListener('blur', resetPointer);
 
         const resize = () => {
-            const width = Math.max(1, window.innerWidth || 1);
-            const height = Math.max(1, window.innerHeight || 1);
-            renderer.setSize(width, height, false);
-            camera.aspect = width / height;
+            updateCachedDimensions();
+            renderer.setSize(cachedWidth, cachedHeight, false);
+            camera.aspect = cachedWidth / cachedHeight;
             camera.updateProjectionMatrix();
         };
         resize();
@@ -327,6 +338,7 @@
             hasWebGLSupport,
             isSearchParamAvailable,
             getForceMode,
+            updateCachedDimensions,
             updatePointerTarget,
             createParticleSystem,
             initParticles,
@@ -342,6 +354,7 @@
             hasWebGLSupport,
             isSearchParamAvailable,
             getForceMode,
+            updateCachedDimensions,
             updatePointerTarget,
             createParticleSystem,
             initParticles,

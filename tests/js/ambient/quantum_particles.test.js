@@ -199,6 +199,9 @@ describe('quantum_particles.js', () => {
             const target = { set: jest.fn() };
             window.innerWidth = 1000;
             window.innerHeight = 1000;
+            if (typeof qp.updateCachedDimensions === 'function') {
+                qp.updateCachedDimensions();
+            }
             qp.updatePointerTarget({ clientX: 500, clientY: 250 }, target);
             expect(target.set).toHaveBeenCalledWith(0.5, 0.75); // 1 - 250/1000 = 0.75
         });
