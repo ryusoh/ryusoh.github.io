@@ -33,7 +33,20 @@ document.addEventListener('DOMContentLoaded', () => {
     ].filter(Boolean); // Only animate elements that exist
 
     if (elementsToReveal.length > 0) {
-        gsap.set(elementsToReveal, { y: 30, opacity: 0 });
-        timeline.to(elementsToReveal, { y: 0, opacity: 1, stagger: 0.15 }, 0.3);
+        gsap.set(elementsToReveal, {
+            y: 30,
+            opacity: 0,
+            clipPath: 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)',
+        });
+        timeline.to(
+            elementsToReveal,
+            {
+                y: 0,
+                opacity: 1,
+                clipPath: 'polygon(0% -20%, 100% -20%, 100% 120%, 0% 120%)',
+                stagger: 0.15,
+            },
+            0.3
+        );
     }
 });

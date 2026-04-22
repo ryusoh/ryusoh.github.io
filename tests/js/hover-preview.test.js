@@ -28,6 +28,7 @@ describe('js/hover-preview.js', () => {
 
         window.gsap = {
             to: mockTo,
+            set: jest.fn(),
             quickSetter: jest.fn().mockImplementation((target, prop) => {
                 if (prop === 'x') {
                     return mockSetX;
