@@ -42,3 +42,13 @@
 
 **Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
 **Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
+
+## 2026-04-22 - [UX/Accessibility: Keyboard Navigation Discoverability]
+
+**Learning:** Purely visually hidden keyboard shortcuts (e.g., using `aria-keyshortcuts`) on navigation elements are accessible to screen readers, but sighted keyboard users (like those navigating via Tab) have no way to discover them since minimalist designs often omit visible tooltips.
+**Action:** When adding `aria-keyshortcuts` to interactive elements like navigation buttons, pair them with native `title` attributes (e.g., `title="Back to home (Escape)"`). This satisfies the minimalist design constraint (as native tooltips only appear on explicit hover or focus) while ensuring sighted keyboard users can discover the shortcuts.
+
+## 2026-04-22 - [UX/Accessibility: Mobile Viewport Zooming]
+
+**Learning:** Using `maximum-scale=1.0`, `minimum-scale=1`, or `user-scalable=no` in the viewport `<meta>` tag prevents mobile users, specifically those with low vision, from using native pinch-to-zoom capabilities. This violates WCAG guidelines for accessibility.
+**Action:** Always avoid restricting scaling in the viewport `<meta>` tag. A robust and accessible configuration is `content="width=device-width, initial-scale=1.0"`, which allows native browser zoom functionality to remain intact.
