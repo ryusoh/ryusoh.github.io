@@ -23,6 +23,18 @@ describe('js/magnetic-nav.js', () => {
 
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn((target, prop) => {
+                if (prop === 'x') {
+                    return jest.fn((val) => {
+                        target._quickX = val;
+                    });
+                }
+                if (prop === 'y') {
+                    return jest.fn((val) => {
+                        target._quickY = val;
+                    });
+                }
+            }),
         };
 
         context = {
@@ -120,26 +132,16 @@ describe('js/magnetic-nav.js', () => {
         });
 
         // distX = 10, distY = 10, strength = 0.4 → x = 4, y = 4
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockElement,
-            expect.objectContaining({
-                x: 4,
-                y: 4,
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockElement, 'x', expect.any(Object));
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockElement, 'y', expect.any(Object));
+        expect(mockElement._quickX).toBe(4);
+        expect(mockElement._quickY).toBe(4);
 
         // child parallax: strength * 1.5 = 0.6 → x = 6, y = 6
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockChild,
-            expect.objectContaining({
-                x: expect.closeTo(6, 5),
-                y: expect.closeTo(6, 5),
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockChild, 'x', expect.any(Object));
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockChild, 'y', expect.any(Object));
+        expect(mockChild._quickX).toBeCloseTo(6, 5);
+        expect(mockChild._quickY).toBeCloseTo(6, 5);
     });
 
     test('snaps back on mouseleave', () => {
