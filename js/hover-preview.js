@@ -84,9 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 requestAnimationFrame(updatePosition);
 
-                gsap.to(previewContainer, {
-                    scale: 1,
+                gsap.set(previewContainer, {
+                    clipPath: 'ellipse(0% 0% at 50% 50%)',
                     opacity: 1,
+                    scale: 1,
+                });
+                gsap.to(previewContainer, {
+                    clipPath: 'ellipse(70% 70% at 50% 50%)',
                     duration: 0.4,
                     ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
                 });
@@ -96,8 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('mouseleave', () => {
             isHovering = false;
             gsap.to(previewContainer, {
-                scale: 0.8,
-                opacity: 0,
+                clipPath: 'ellipse(0% 0% at 50% 50%)',
                 duration: 0.3,
                 ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             });
