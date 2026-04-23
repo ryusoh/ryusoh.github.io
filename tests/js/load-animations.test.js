@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-
 describe('js/load-animations.js', () => {
     let mockTo;
     let mockSet;
     let mockTimeline;
-    let context;
-    let code;
 
     beforeEach(() => {
         jest.resetModules();
@@ -34,29 +28,16 @@ describe('js/load-animations.js', () => {
         };
 
         window.console = { warn: jest.fn() };
-
-        code = fs.readFileSync(path.join(__dirname, '../../js/load-animations.js'), 'utf8');
-
-        context = {
-            document: window.document,
-            window: window,
-            gsap: window.gsap,
-            console: window.console,
-        };
-        // Need to attach events explicitly
-        context.document.addEventListener = document.addEventListener.bind(document);
-        context.document.querySelector = document.querySelector.bind(document);
-        context.document.getElementById = document.getElementById.bind(document);
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
         delete window.gsap;
+        jest.restoreAllMocks();
     });
 
     test('initializes and reveals elements correctly', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        require('../../js/load-animations.js');
 
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);
@@ -66,16 +47,14 @@ describe('js/load-animations.js', () => {
     });
 
     test('gracefully handles missing GSAP', () => {
-        delete context.window.gsap;
-        delete context.gsap;
+        delete window.gsap;
 
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        require('../../js/load-animations.js');
 
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);
 
-        expect(context.window.console.warn).toHaveBeenCalledWith(
+        expect(window.console.warn).toHaveBeenCalledWith(
             'GSAP is not loaded. Skipping load animations.'
         );
     });
@@ -83,8 +62,7 @@ describe('js/load-animations.js', () => {
     test('handles missing elements gracefully', () => {
         document.body.innerHTML = ''; // Empty DOM
 
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        require('../../js/load-animations.js');
 
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);

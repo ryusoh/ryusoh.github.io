@@ -1,79 +1,49 @@
 /**
- * @jest-environment jsdom
+ * @jest-environment node
  */
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-
 describe('js/cursor-init.js', () => {
-    let context;
-    let code;
     let mockInitCursor;
     let mockInitMagneticNav;
 
     beforeEach(() => {
-        // We replace the import statement to make it executable in the VM context
-        const sourcePath = path.resolve(__dirname, '../../js/cursor-init.js');
-        const originalCode = fs.readFileSync(sourcePath, 'utf8');
-        code = originalCode
-            .replace("import { initCursor } from './vendor/cursor.js';", '')
-            .replace("import { initMagneticNav } from './magnetic-nav.js';", '');
-
+        jest.resetModules();
         mockInitCursor = jest.fn().mockReturnValue({ cursor: { id: 'mocked-cursor' } });
         mockInitMagneticNav = jest.fn();
 
-        context = {
-            window: {
-                console: {
-                    warn: jest.fn(),
-                },
-            },
-            document: {
-                addEventListener: jest.fn((event, cb) => {
-                    if (event === 'DOMContentLoaded') {
-                        // We store the callback to call it manually
-                        context.__domContentLoadedCb = cb;
-                    }
-                }),
-            },
+        jest.mock('../../js/vendor/cursor.js', () => ({
             initCursor: mockInitCursor,
+        }));
+        jest.mock('../../js/magnetic-nav.js', () => ({
             initMagneticNav: mockInitMagneticNav,
-            console: {
-                warn: jest.fn(),
-            },
-        };
+        }));
+
+        global.window = { gsap: {} };
+        global.document = { addEventListener: jest.fn() };
     });
 
-    test('adds a DOMContentLoaded event listener', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        expect(context.document.addEventListener).toHaveBeenCalledWith(
-            'DOMContentLoaded',
-            expect.any(Function)
-        );
+    afterEach(() => {
+        delete global.window;
+        delete global.document;
+        jest.restoreAllMocks();
     });
 
     test('exits early if window.gsap is not defined', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        delete global.window.gsap;
+        require('../../js/cursor-init.js');
 
-        // Trigger DOMContentLoaded
-        context.__domContentLoadedCb();
+        const cb = global.document.addEventListener.mock.calls[0][1];
+        cb();
 
         expect(mockInitCursor).not.toHaveBeenCalled();
-        expect(context.window.cursorInstances).toBeUndefined();
+        expect(global.window.cursorInstances).toBeUndefined();
     });
 
     test('initializes cursor if window.gsap is available', () => {
-        context.window.gsap = {}; // Mock GSAP
+        require('../../js/cursor-init.js');
 
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        // Trigger DOMContentLoaded
-        context.__domContentLoadedCb();
+        const cb = global.document.addEventListener.mock.calls[0][1];
+        cb();
 
         expect(mockInitCursor).toHaveBeenCalledWith({
             cursor: {
@@ -86,73 +56,31 @@ describe('js/cursor-init.js', () => {
 
         expect(mockInitMagneticNav).toHaveBeenCalled();
 
-        expect(context.window.cursorInstances).toBeDefined();
-        expect(context.window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
-    });
-
-    test('does not throw when document is not defined', () => {
-        const customCode = `
-            let document; // shadow the document
-            ${code}
-        `;
-
-        vm.createContext(context);
-        expect(() => {
-            vm.runInContext(customCode, context);
-        }).not.toThrow();
-    });
-
-    test('does not execute if window.gsap is missing and document exists', () => {
-        delete context.window.gsap;
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        // Trigger DOMContentLoaded
-        context.__domContentLoadedCb();
-
-        expect(mockInitCursor).not.toHaveBeenCalled();
+        expect(global.window.cursorInstances).toBeDefined();
+        expect(global.window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
     });
 
     test('does not throw when initCursor throws but allows bubbling', () => {
-        context.window.gsap = {}; // Mock GSAP
+        require('../../js/cursor-init.js');
 
-        // Let's modify the custom context to throw
-        const customContext = {
-            ...context,
-            initCursor: jest.fn().mockImplementation(() => {
-                throw new Error('initCursor error');
-            }),
-            document: {
-                addEventListener: jest.fn((event, cb) => {
-                    if (event === 'DOMContentLoaded') {
-                        customContext.__domContentLoadedCb = cb;
-                    }
-                }),
-            },
-        };
+        mockInitCursor.mockImplementation(() => {
+            throw new Error('initCursor error');
+        });
 
-        vm.createContext(customContext);
-        vm.runInContext(code, customContext);
+        const cb = global.document.addEventListener.mock.calls[0][1];
 
-        // Trigger DOMContentLoaded which calls initCursor
-        // The script doesn't wrap it in a try-catch, so we assert it throws.
         expect(() => {
-            customContext.__domContentLoadedCb();
+            cb();
         }).toThrow('initCursor error');
 
-        expect(customContext.window.cursorInstances).toBeUndefined();
+        expect(global.window.cursorInstances).toBeUndefined();
     });
 
     test('does not execute if document is not defined', () => {
-        const customCode = `
-            let document; // shadow the document
-            ${code}
-        `;
+        delete global.document;
 
-        vm.createContext(context);
-        vm.runInContext(customCode, context);
-
-        expect(context.document.addEventListener).not.toHaveBeenCalled();
+        expect(() => {
+            require('../../js/cursor-init.js');
+        }).not.toThrow();
     });
 });

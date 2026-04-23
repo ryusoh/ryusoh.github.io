@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-
 describe('js/hover-preview.js', () => {
     let mockTo;
     let mockSetX;
     let mockSetY;
-    let context;
-    let code;
 
     beforeEach(() => {
         jest.resetModules();
@@ -40,39 +34,21 @@ describe('js/hover-preview.js', () => {
         };
 
         window.PortfolioConfig = { enableHoverPreview: true };
-
-        // requestAnimationFrame will just be a mock, not call callback directly
-        // to avoid infinite loop callstack exceeded
-        window.requestAnimationFrame = jest.fn();
-
+        window.requestAnimationFrame = jest.fn((cb) => {
+            setTimeout(() => cb(), 0);
+        });
         window.console = { warn: jest.fn() };
-
-        code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
-
-        context = {
-            document: window.document,
-            window: window,
-            gsap: window.gsap,
-            requestAnimationFrame: window.requestAnimationFrame,
-            PortfolioConfig: window.PortfolioConfig,
-            console: window.console,
-        };
-        // Need to attach events explicitly
-        context.document.addEventListener = document.addEventListener.bind(document);
-        context.document.createElement = document.createElement.bind(document);
-        context.document.querySelectorAll = document.querySelectorAll.bind(document);
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
         delete window.gsap;
         delete window.PortfolioConfig;
+        jest.restoreAllMocks();
     });
 
     test('initializes and runs animations correctly', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
+        require('../../js/hover-preview.js');
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);
 
@@ -87,33 +63,60 @@ describe('js/hover-preview.js', () => {
         const mouseleaveEvent = new MouseEvent('mouseleave');
         link.dispatchEvent(mouseleaveEvent);
 
-        expect(mockTo).toHaveBeenCalledTimes(2); // once for enter, once for leave
+        expect(mockTo).toHaveBeenCalledTimes(2);
 
-        // Simulate mousemove
         const mousemoveEvent = new MouseEvent('mousemove', { clientX: 200, clientY: 200 });
         document.dispatchEvent(mousemoveEvent);
     });
 
-    test('gracefully handles missing GSAP', () => {
-        delete context.window.gsap;
-        delete context.gsap;
+    test('handles mouseenter for unmapped links', () => {
+        require('../../js/hover-preview.js');
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
 
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        mockSetX.mockClear();
+
+        const link = document.querySelectorAll('a')[1]; // Link 2, ./p2/ is mapped! Link 3 is unmapped if we create one.
+        link.setAttribute('href', './unmapped/');
+
+        const mouseenterEvent = new MouseEvent('mouseenter', { clientX: 100, clientY: 100 });
+        link.dispatchEvent(mouseenterEvent);
+
+        expect(mockSetX).not.toHaveBeenCalled();
+    });
+
+    test('updatePosition handles isHovering correctly', (done) => {
+        require('../../js/hover-preview.js');
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        const link = document.querySelector('a');
+
+        // This will trigger requestAnimationFrame and run updatePosition
+        const mouseenterEvent = new MouseEvent('mouseenter', { clientX: 100, clientY: 100 });
+        link.dispatchEvent(mouseenterEvent);
+
+        setTimeout(() => {
+            expect(mockSetX).toHaveBeenCalledWith(120);
+            done();
+        }, 10);
+    });
+
+    test('gracefully handles missing GSAP', () => {
+        delete window.gsap;
+        require('../../js/hover-preview.js');
 
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);
 
-        expect(context.window.console.warn).toHaveBeenCalledWith(
+        expect(window.console.warn).toHaveBeenCalledWith(
             'GSAP is not loaded. Skipping hover preview.'
         );
     });
 
     test('gracefully exits when disabled via config', () => {
-        context.window.PortfolioConfig.enableHoverPreview = false;
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        window.PortfolioConfig.enableHoverPreview = false;
+        require('../../js/hover-preview.js');
 
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);
@@ -122,10 +125,8 @@ describe('js/hover-preview.js', () => {
     });
 
     test('exits gracefully if no links found', () => {
-        document.body.innerHTML = ''; // No links
-
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        document.body.innerHTML = '';
+        require('../../js/hover-preview.js');
 
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);

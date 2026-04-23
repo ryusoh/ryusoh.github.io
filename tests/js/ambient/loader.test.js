@@ -15,7 +15,11 @@ describe('ambient/loader.js', () => {
 
         window.CDNLoader = mockCDNLoader;
         window.innerWidth = 1200;
-        window.matchMedia = jest.fn().mockReturnValue({ matches: false });
+        Object.defineProperty(window, 'matchMedia', {
+            configurable: true,
+            writable: true,
+            value: jest.fn().mockReturnValue({ matches: false }),
+        });
 
         // Mock console.warn
         jest.spyOn(console, 'warn').mockImplementation(() => {});
