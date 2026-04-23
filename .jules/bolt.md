@@ -91,3 +91,8 @@
 
 **Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
 **Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
+
+## 2026-04-23 - Avoid Synchronous Layout Reads in High-Frequency Pointer Loops (Magnetic Nav)
+
+**Learning:** Found that `getBoundingClientRect()` was being called synchronously inside the high-frequency `mousemove` listener for the magnetic navigation (`js/magnetic-nav.js`), while also triggering new `gsap.to()` tween allocations. This causes significant main-thread overhead, layout recalculations, and memory churn.
+**Action:** When creating interactive UI components tracked by mouse movement, initialize GSAP optimizations (like `gsap.quickTo()`) outside of the event listener, and cache necessary geometry layout readings (like `getBoundingClientRect()`) on initial interaction boundaries like `mouseenter` to preserve 60FPS main-thread performance.

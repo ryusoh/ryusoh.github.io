@@ -23,6 +23,9 @@ describe('js/magnetic-nav.js', () => {
 
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn(() => {
+                return jest.fn();
+            }),
         };
 
         context = {
@@ -69,7 +72,12 @@ describe('js/magnetic-nav.js', () => {
         const mockElement = {
             addEventListener: jest.fn(),
             querySelector: jest.fn(),
-            getBoundingClientRect: jest.fn(),
+            getBoundingClientRect: jest.fn().mockReturnValue({
+                left: 0,
+                top: 0,
+                width: 0,
+                height: 0,
+            }),
         };
         context.document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
 
@@ -79,6 +87,10 @@ describe('js/magnetic-nav.js', () => {
         context.initMagneticNav();
 
         expect(context.document.querySelectorAll).toHaveBeenCalledWith('.social-icons-container a');
+        expect(mockElement.addEventListener).toHaveBeenCalledWith(
+            'mouseenter',
+            expect.any(Function)
+        );
         expect(mockElement.addEventListener).toHaveBeenCalledWith(
             'mousemove',
             expect.any(Function)
@@ -108,10 +120,29 @@ describe('js/magnetic-nav.js', () => {
 
         context.initMagneticNav();
 
-        // Get the mousemove listener
+        // Get the listeners
+        const mouseEnterHandler = mockElement.addEventListener.mock.calls.find(
+            (call) => call[0] === 'mouseenter'
+        )[1];
+
         const mouseMoveHandler = mockElement.addEventListener.mock.calls.find(
             (call) => call[0] === 'mousemove'
         )[1];
+
+        // Trigger mouseenter to cache dimensions
+        mouseEnterHandler();
+
+        // Check if quickTo was called correctly during initialization
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockElement, 'x', expect.any(Object));
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockElement, 'y', expect.any(Object));
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockChild, 'x', expect.any(Object));
+        expect(mockGSAP.quickTo).toHaveBeenCalledWith(mockChild, 'y', expect.any(Object));
+
+        // Get the generated setter functions
+        const setX = mockGSAP.quickTo.mock.results[0].value;
+        const setY = mockGSAP.quickTo.mock.results[1].value;
+        const setChildX = mockGSAP.quickTo.mock.results[2].value;
+        const setChildY = mockGSAP.quickTo.mock.results[3].value;
 
         // Trigger mousemove with 10px offset from center (center is 125, 125)
         mouseMoveHandler({
@@ -120,26 +151,12 @@ describe('js/magnetic-nav.js', () => {
         });
 
         // distX = 10, distY = 10, strength = 0.4 → x = 4, y = 4
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockElement,
-            expect.objectContaining({
-                x: 4,
-                y: 4,
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(setX).toHaveBeenCalledWith(4);
+        expect(setY).toHaveBeenCalledWith(4);
 
         // child parallax: strength * 1.5 = 0.6 → x = 6, y = 6
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            mockChild,
-            expect.objectContaining({
-                x: expect.closeTo(6, 5),
-                y: expect.closeTo(6, 5),
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-        );
+        expect(setChildX).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(setChildY).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
