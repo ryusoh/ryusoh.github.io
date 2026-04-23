@@ -1,3 +1,4 @@
+cat << 'INNER_EOF' > tests/js/sw.test.js
 /**
  * @jest-environment jsdom
  */
@@ -221,3 +222,4 @@ describe('Service Worker', () => {
         });
     });
 });
+INNER_EOF

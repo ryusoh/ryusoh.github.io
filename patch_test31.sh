@@ -1,3 +1,4 @@
+cat << 'INNER_EOF' > tests/js/block-navigation.test.js
 /**
  * @jest-environment jsdom
  */
@@ -50,12 +51,15 @@ describe('js/block-navigation.js', () => {
             },
             console: {
                 warn: jest.fn(),
-                error: jest.fn(),
-            },
+                error: jest.fn()
+            }
         };
 
         // Expose extra functions for testing
-        code = code.replace(/const testing = {/, 'const testing = {\n        isNavigationKey,');
+        code = code.replace(
+            /const testing = {/,
+            'const testing = {\n        isNavigationKey,'
+        );
 
         vm.createContext(context);
         vm.runInContext(code, context);
@@ -252,3 +256,4 @@ describe('js/block-navigation.js', () => {
         });
     });
 });
+INNER_EOF

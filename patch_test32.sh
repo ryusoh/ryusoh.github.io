@@ -1,3 +1,4 @@
+cat << 'INNER_EOF' > tests/js/font-awesome-loader.test.js
 /**
  * @jest-environment jsdom
  */
@@ -24,16 +25,14 @@ describe('FontAwesomeLoader', () => {
             setInterval: window.setInterval,
             clearInterval: window.clearInterval,
             console: window.console,
-            Event: window.Event,
+            Event: window.Event
         };
 
         context.document.documentElement.innerHTML =
             '<html><body><i class="fa fa-test" data-fahidden="true"></i></body></html>';
 
         context.document.addEventListener = jest.fn((evt, cb) => {
-            if (evt === 'DOMContentLoaded') {
-                context.__domContentLoadedCb = cb;
-            }
+            if (evt === 'DOMContentLoaded') context.__domContentLoadedCb = cb;
         });
 
         vm.createContext(context);
@@ -176,9 +175,7 @@ describe('FontAwesomeLoader', () => {
             // It assigns onload. But if triggered, it checks \`!this.fontAwesomeLoaded\` before calling stop/show
 
             // Assuming onload is a function because we advanced timer
-            if (faLink.onload) {
-                faLink.onload();
-            }
+            if (faLink.onload) faLink.onload();
 
             expect(loader.showIcons).not.toHaveBeenCalled();
             expect(loader.stopChecking).not.toHaveBeenCalled();
@@ -293,3 +290,4 @@ describe('FontAwesomeLoader', () => {
         });
     });
 });
+INNER_EOF
