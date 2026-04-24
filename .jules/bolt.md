@@ -91,3 +91,8 @@
 
 **Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
 **Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
+
+## 2026-04-22 - Cache DOM Layout Reads in MouseEnter
+
+**Learning:** Found that the magnetic navigation in `js/magnetic-nav.js` was synchronously reading `el.getBoundingClientRect()` inside the high-frequency `mousemove` event listener. This forced the browser to continually recalculate the layout on the main thread during interactions, causing layout thrashing and overhead.
+**Action:** Always cache bounding boxes or element dimensions on initial interaction boundaries like `mouseenter` instead of calculating them continuously inside `mousemove` or pointer event listeners. This eliminates redundant layout calculations during the actual interaction.
