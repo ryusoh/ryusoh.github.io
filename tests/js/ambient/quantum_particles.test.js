@@ -199,8 +199,26 @@ describe('quantum_particles.js', () => {
             const target = { set: jest.fn() };
             window.innerWidth = 1000;
             window.innerHeight = 1000;
+            if (typeof qp.updateCachedDimensions === 'function') {
+                qp.updateCachedDimensions();
+            }
             qp.updatePointerTarget({ clientX: 500, clientY: 250 }, target);
             expect(target.set).toHaveBeenCalledWith(0.5, 0.75); // 1 - 250/1000 = 0.75
+        });
+
+        it('should clamp the target vector correctly based on coordinates outside bounds', () => {
+            const qp = getQuantumParticles();
+            const target = { set: jest.fn() };
+            window.innerWidth = 1000;
+            window.innerHeight = 1000;
+
+            // Negative bounds
+            qp.updatePointerTarget({ clientX: -100, clientY: 1500 }, target);
+            expect(target.set).toHaveBeenCalledWith(0, 0); // 1 - 1500/1000 = -0.5 -> 0
+
+            // Over bounds
+            qp.updatePointerTarget({ clientX: 1500, clientY: -100 }, target);
+            expect(target.set).toHaveBeenCalledWith(1, 1); // 1 - (-100)/1000 = 1.1 -> 1
         });
     });
 

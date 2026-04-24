@@ -45,3 +45,11 @@
 ## 2025-03-24 - Mocking performance.now with Fake Timers
 
 **Learning:** When unit testing modules that rely on `performance.now()` in JSDOM with Jest fake timers, explicitly mock `window.performance.now` _before_ the module is required. This ensures any internal closure bindings (e.g., `perfNow = window.performance.now.bind(...)`) properly capture the mocked timer mechanism.
+
+## 2025-03-24 - Handling Fake Timers and DOM Events inside Node VM context
+
+**Learning:** Test methods using fake timers that evaluate JavaScript source string files containing `setTimeout` or `setInterval` should ensure `jest.useFakeTimers()` applies to global execution properly, especially when evaluating string logic via `vm.runInContext`. If issues arise where fake timers fail inside `vm` context evaluation, avoid string evaluation in favor of importing modules directly or ensuring timer mocks are explicitly mapped to the VM context during creation. In this codebase, Jest handles `jest.useFakeTimers()` natively well when testing files imported directly instead of `vm.runInContext`.
+
+## 2025-03-24 - Testing DOM elements evaluated by Node VM
+
+**Learning:** When testing DOM interactions like `document.createElement('link')` alongside `setTimeout` or `setInterval` execution inside Node VM contexts, you must construct the objects globally before evaluation or ensure that the `window` context passed into `vm.createContext()` is well-formed to correctly execute logic like `setTimeout`. This allows testing DOM modifications explicitly added by scripts using `.appendChild()` during asynchronous events.

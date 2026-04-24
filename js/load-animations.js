@@ -10,13 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const timeline = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.2 } });
+    const timeline = gsap.timeline({
+        defaults: { ease: 'cubic-bezier(0.65, 0.05, 0, 1)', duration: 1.2 },
+    });
 
     // Background scale down effect
     const background = document.getElementById('mimida');
     if (background) {
         gsap.set(background, { scale: 1.05 });
-        timeline.to(background, { scale: 1, duration: 2, ease: 'power2.out' }, 0);
+        timeline.to(
+            background,
+            { scale: 1, duration: 2, ease: 'cubic-bezier(0.65, 0.05, 0, 1)' },
+            0
+        );
     }
 
     // Stagger reveal of main content

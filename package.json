@@ -13,6 +13,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.29.0",
+        "@babel/plugin-transform-modules-commonjs": "^7.28.6",
         "@babel/preset-env": "^7.29.2",
         "@stylistic/stylelint-plugin": "^4.0.0",
         "babel-jest": "^30.3.0",

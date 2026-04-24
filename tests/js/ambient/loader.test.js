@@ -18,12 +18,14 @@ describe('ambient/loader.js', () => {
         // Use Object.defineProperty to safely mock matchMedia since jsdom sets it
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
-            value: jest.fn().mockReturnValue({ matches: false })
+            writable: true,
+            value: jest.fn().mockReturnValue({ matches: false }),
         });
 
         Object.defineProperty(window, 'innerWidth', {
             configurable: true,
-            value: 1200
+            writable: true,
+            value: 1200,
         });
 
         // Mock console.warn
@@ -37,7 +39,7 @@ describe('ambient/loader.js', () => {
     afterEach(() => {
         Object.defineProperty(window, 'innerWidth', {
             configurable: true,
-            value: originalInnerWidth
+            value: originalInnerWidth,
         });
         delete window.CDNLoader;
         delete window.AppLogger;
@@ -56,7 +58,7 @@ describe('ambient/loader.js', () => {
     test('handles missing window.matchMedia gracefully', () => {
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
-            value: undefined
+            value: undefined,
         });
 
         require('../../../js/ambient/loader.js');
@@ -69,7 +71,7 @@ describe('ambient/loader.js', () => {
     test('exits early if window innerWidth is less than 1024', () => {
         Object.defineProperty(window, 'innerWidth', {
             configurable: true,
-            value: 800
+            value: 800,
         });
 
         require('../../../js/ambient/loader.js');

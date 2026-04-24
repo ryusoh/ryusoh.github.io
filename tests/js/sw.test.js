@@ -140,6 +140,52 @@ describe('Service Worker', () => {
                 expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
                 expect(res).toBe(mockFetchResponse);
             });
+
+            test('should fallback to fetch if not cached, and NOT put in cache if INVALID', async () => {
+                mockCaches.match.mockResolvedValue(null);
+
+                const mockFetchResponse = {
+                    ok: false,
+                    status: 404,
+                    type: 'basic',
+                    headers: { get: () => null },
+                };
+                mockFetch.mockResolvedValue(mockFetchResponse);
+
+                sw.fetchLogic(event);
+
+                const respondWithPromise = event.respondWith.mock.calls[0][0];
+                const res = await respondWithPromise;
+
+                expect(mockFetch).toHaveBeenCalledWith(event.request);
+                expect(mockCaches.open).not.toHaveBeenCalled();
+                expect(mockCache.put).not.toHaveBeenCalled();
+                expect(res).toBe(mockFetchResponse);
+            });
+
+            test('should handle font fallback correctly', async () => {
+                event.request.destination = 'font';
+                event.request.url = 'http://localhost/test.woff2';
+
+                mockCaches.match.mockResolvedValue(null);
+
+                const mockFetchResponse = {
+                    ok: true,
+                    status: 200,
+                    type: 'basic',
+                    headers: { get: () => null },
+                    clone: jest.fn().mockReturnValue('cloned-response'),
+                };
+                mockFetch.mockResolvedValue(mockFetchResponse);
+
+                sw.fetchLogic(event);
+
+                const respondWithPromise = event.respondWith.mock.calls[0][0];
+                await respondWithPromise;
+
+                expect(mockFetch).toHaveBeenCalledWith(event.request);
+                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
+            });
         });
 
         describe('Network First Strategy (Mutable Assets)', () => {
@@ -165,6 +211,26 @@ describe('Service Worker', () => {
 
                 expect(mockFetch).toHaveBeenCalledWith(event.request);
                 expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
+                expect(res).toBe(mockFetchResponse);
+            });
+
+            test('should fetch from network and NOT put in cache if INVALID', async () => {
+                const mockFetchResponse = {
+                    ok: false,
+                    status: 500,
+                    type: 'basic',
+                    headers: { get: () => null },
+                };
+                mockFetch.mockResolvedValue(mockFetchResponse);
+
+                sw.fetchLogic(event);
+
+                const respondWithPromise = event.respondWith.mock.calls[0][0];
+                const res = await respondWithPromise;
+
+                expect(mockFetch).toHaveBeenCalledWith(event.request);
+                expect(mockCaches.open).not.toHaveBeenCalled();
+                expect(mockCache.put).not.toHaveBeenCalled();
                 expect(res).toBe(mockFetchResponse);
             });
 

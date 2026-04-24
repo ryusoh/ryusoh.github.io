@@ -2,16 +2,14 @@
  * @jest-environment jsdom
  */
 
-describe('config.js', () => {
+describe('js/config.js', () => {
     beforeEach(() => {
-        // Reset window.PortfolioConfig to ensure a clean state
-        delete window.PortfolioConfig;
         jest.resetModules();
+        delete window.PortfolioConfig;
     });
 
-    test('initializes window.PortfolioConfig with default values', () => {
+    test('should define PortfolioConfig with defaults', () => {
         require('../../js/config.js');
-
         expect(window.PortfolioConfig).toBeDefined();
         expect(window.PortfolioConfig.enableHoverPreview).toBe(false);
         expect(window.PortfolioConfig.enableMouseParallax).toBe(false);

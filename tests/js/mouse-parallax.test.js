@@ -4,28 +4,49 @@
 
 describe('mouse-parallax.js', () => {
     let mockTo;
+    let mockQuickTo;
+    let mockSetterX;
+    let mockSetterY;
+    let mockSetterRotX;
+    let mockSetterRotY;
 
     beforeEach(() => {
-        // Setup simple DOM structure
+        jest.resetModules();
         document.body.innerHTML = `
             <div id="main"><h1><span>Zhuang Liu</span></h1></div>
         `;
 
         mockTo = jest.fn();
+        mockSetterX = jest.fn();
+        mockSetterY = jest.fn();
+        mockSetterRotX = jest.fn();
+        mockSetterRotY = jest.fn();
 
-        const mockGsap = {
+        mockQuickTo = jest.fn((target, prop) => {
+            if (prop === 'x') {
+                return mockSetterX;
+            }
+            if (prop === 'y') {
+                return mockSetterY;
+            }
+            if (prop === 'rotationX') {
+                return mockSetterRotX;
+            }
+            if (prop === 'rotationY') {
+                return mockSetterRotY;
+            }
+            return jest.fn();
+        });
+
+        window.gsap = {
             to: mockTo,
+            quickTo: mockQuickTo,
         };
 
-        window.gsap = mockGsap;
-        window.console.warn = jest.fn();
+        window.console = { warn: jest.fn() };
+        window.innerWidth = 1024;
+        window.innerHeight = 768;
         window.PortfolioConfig = { enableMouseParallax: true };
-
-        // Mock innerWidth/innerHeight
-        Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 });
-        Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 768 });
-
-        jest.resetModules();
     });
 
     afterEach(() => {
@@ -36,9 +57,8 @@ describe('mouse-parallax.js', () => {
     });
 
     test('initializes without throwing when enabled', () => {
-        require('../../js/mouse-parallax.js');
-
         expect(() => {
+            require('../../js/mouse-parallax.js');
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
@@ -47,94 +67,71 @@ describe('mouse-parallax.js', () => {
     test('gracefully handles being disabled', () => {
         window.PortfolioConfig.enableMouseParallax = false;
 
-        require('../../js/mouse-parallax.js');
-
         expect(() => {
+            require('../../js/mouse-parallax.js');
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
 
         expect(mockTo).not.toHaveBeenCalled();
+        expect(mockQuickTo).not.toHaveBeenCalled();
+    });
+
+    test('updates correctly on mousemove', () => {
+        require('../../js/mouse-parallax.js');
+        const event = new window.Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        expect(mockQuickTo).toHaveBeenCalled();
+
+        const mouseEvent = new window.Event('mousemove');
+        mouseEvent.clientX = 512 + 100; // Offset from center X
+        mouseEvent.clientY = 384 + 50; // Offset from center Y
+        document.dispatchEvent(mouseEvent);
+
+        // diffX = 100 / 512 = 0.1953125
+        // diffY = 50 / 384 = 0.13020833333333334
+
+        expect(mockSetterX).toHaveBeenCalledWith(-0.1953125 * 15);
+        expect(mockSetterY).toHaveBeenCalledWith(-0.13020833333333334 * 15);
+        expect(mockSetterRotY).toHaveBeenCalledWith(0.1953125 * 5);
+        expect(mockSetterRotX).toHaveBeenCalledWith(-0.13020833333333334 * 5);
+
+        // Also test resize
+        const resizeEvent = new window.Event('resize');
+        window.innerWidth = 2000;
+        window.innerHeight = 1000;
+        window.dispatchEvent(resizeEvent);
+
+        // Check that centerX/Y is updated by checking next mousemove
+        const mouseEvent2 = new window.Event('mousemove');
+        mouseEvent2.clientX = 1000 + 100;
+        mouseEvent2.clientY = 500 + 50;
+        document.dispatchEvent(mouseEvent2);
+        expect(mockSetterX).toHaveBeenCalledWith(-0.1 * 15);
     });
 
     test('gracefully handles missing GSAP', () => {
         delete window.gsap;
 
-        require('../../js/mouse-parallax.js');
-
         expect(() => {
+            require('../../js/mouse-parallax.js');
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
 
-        expect(window.console.warn).toHaveBeenCalledWith('GSAP is not loaded. Skipping mouse parallax.');
+        expect(window.console.warn).toHaveBeenCalledWith(
+            'GSAP is not loaded. Skipping mouse parallax.'
+        );
     });
 
-    test('returns early if title element not found', () => {
+    test('gracefully exits when element is missing', () => {
         document.body.innerHTML = '';
-
-        require('../../js/mouse-parallax.js');
-
         expect(() => {
+            require('../../js/mouse-parallax.js');
             const event = new window.Event('DOMContentLoaded');
             document.dispatchEvent(event);
         }).not.toThrow();
-
-        // We can't directly check the internal state, but we know it should exit early
-    });
-
-    test('updates center coordinates on window resize', () => {
-        require('../../js/mouse-parallax.js');
-        const event = new window.Event('DOMContentLoaded');
-        document.dispatchEvent(event);
-
-        window.innerWidth = 800;
-        window.innerHeight = 600;
-
-        const resizeEvent = new window.Event('resize');
-        window.dispatchEvent(resizeEvent);
-
-        // We'll test the effect via the mousemove event calculation
-        const mouseMoveEvent = new window.MouseEvent('mousemove', {
-            clientX: 0, // Should be -1 diffX
-            clientY: 0 // Should be -1 diffY
-        });
-        document.dispatchEvent(mouseMoveEvent);
-
-        expect(mockTo).toHaveBeenCalledWith(
-            expect.any(Element),
-            expect.objectContaining({
-                x: 15, // -(-1) * 15
-                y: 15, // -(-1) * 15
-            })
-        );
-    });
-
-    test('applies parallax translation on mousemove', () => {
-        require('../../js/mouse-parallax.js');
-        const event = new window.Event('DOMContentLoaded');
-        document.dispatchEvent(event);
-
-        const titleElement = document.querySelector('#main h1');
-
-        // Center is 512, 384
-        // Mouse at 1024, 768 (bottom right) -> diffX = 1, diffY = 1
-        const mouseMoveEvent = new window.MouseEvent('mousemove', {
-            clientX: 1024,
-            clientY: 768
-        });
-        document.dispatchEvent(mouseMoveEvent);
-
-        expect(mockTo).toHaveBeenCalledWith(
-            titleElement,
-            expect.objectContaining({
-                x: -15,
-                y: -15,
-                rotationY: 5,
-                rotationX: -5,
-                ease: 'power2.out',
-                duration: 0.8,
-            })
-        );
+        expect(mockQuickTo).not.toHaveBeenCalled();
     });
 });

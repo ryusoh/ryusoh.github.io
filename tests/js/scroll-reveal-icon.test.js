@@ -29,10 +29,6 @@ describe('scroll-reveal-icon.js', () => {
         window.requestAnimationFrame = jest.fn((cb) => {
             return setTimeout(cb, 0);
         });
-
-        require('../../js/scroll-reveal-icon.js');
-        // Initial execution of IIFE triggers some logic, but wait for the 1000ms timeout
-        jest.runAllTimers();
     });
 
     afterEach(() => {
@@ -40,6 +36,9 @@ describe('scroll-reveal-icon.js', () => {
     });
 
     test('should add "is-visible" class when scrolled near bottom', () => {
+        require('../../js/scroll-reveal-icon.js');
+        jest.runAllTimers();
+
         // Mock scroll state: near the bottom
         window.scrollY = 450;
 
@@ -53,6 +52,9 @@ describe('scroll-reveal-icon.js', () => {
     });
 
     test('should remove "is-visible" class when scrolled away from bottom', () => {
+        require('../../js/scroll-reveal-icon.js');
+        jest.runAllTimers();
+
         // First make it visible
         window.scrollY = 450;
         window.dispatchEvent(new Event('scroll'));
@@ -65,5 +67,31 @@ describe('scroll-reveal-icon.js', () => {
         jest.runAllTimers();
 
         expect(iconElement.classList.contains('is-visible')).toBe(false);
+    });
+
+    test('should execute gracefully on resize event', () => {
+        require('../../js/scroll-reveal-icon.js');
+        jest.runAllTimers();
+
+        // Trigger resize event
+        window.dispatchEvent(new Event('resize'));
+        jest.runAllTimers();
+
+        // No particular expectation since it just runs updateVisibility
+        expect(window.requestAnimationFrame).toHaveBeenCalled();
+    });
+
+    test('exits early if icon not found', () => {
+        document.documentElement.innerHTML = '';
+
+        const originalAddEventListener = window.addEventListener;
+        window.addEventListener = jest.fn();
+
+        require('../../js/scroll-reveal-icon.js');
+
+        expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+        expect(window.addEventListener).not.toHaveBeenCalled();
+
+        window.addEventListener = originalAddEventListener;
     });
 });
