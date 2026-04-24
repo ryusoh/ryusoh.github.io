@@ -63,9 +63,18 @@ describe('js/block-navigation.js', () => {
     });
 
     describe('calculateNextIndex', () => {
-        it('should return next index when pressing forward keys', () => {
-            expect(testing.calculateNextIndex).toBeDefined();
-            expect(typeof testing.calculateNextIndex).toBe('function');
+        it('should return correct index based on bounds for empty state', () => {
+            // blocks.length is 3 due to beforeEach document setup
+            expect(testing.calculateNextIndex('ArrowRight')).toBe(1);
+            expect(testing.calculateNextIndex('ArrowLeft')).toBe(0);
+        });
+    });
+
+    describe('getIndexFromFallback', () => {
+        it('should return correct fallback index', () => {
+            window.scrollY = 0;
+            window.innerHeight = 500;
+            expect(testing.getIndexFromFallback()).toBe(2);
         });
     });
 

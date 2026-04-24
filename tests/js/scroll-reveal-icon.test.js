@@ -83,8 +83,15 @@ describe('scroll-reveal-icon.js', () => {
 
     test('exits early if icon not found', () => {
         document.documentElement.innerHTML = '';
+
+        const originalAddEventListener = window.addEventListener;
+        window.addEventListener = jest.fn();
+
         require('../../js/scroll-reveal-icon.js');
 
         expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+        expect(window.addEventListener).not.toHaveBeenCalled();
+
+        window.addEventListener = originalAddEventListener;
     });
 });
