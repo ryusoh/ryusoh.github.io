@@ -85,9 +85,12 @@ describe('mouse-parallax.js', () => {
         expect(mockQuickTo).toHaveBeenCalled();
 
         const mouseEvent = new window.Event('mousemove');
-        mouseEvent.clientX = 512 + 100;
-        mouseEvent.clientY = 384 + 50;
+        mouseEvent.clientX = 512 + 100; // Offset from center X
+        mouseEvent.clientY = 384 + 50; // Offset from center Y
         document.dispatchEvent(mouseEvent);
+
+        // diffX = 100 / 512 = 0.1953125
+        // diffY = 50 / 384 = 0.13020833333333334
 
         expect(mockSetterX).toHaveBeenCalledWith(-0.1953125 * 15);
         expect(mockSetterY).toHaveBeenCalledWith(-0.13020833333333334 * 15);
@@ -99,6 +102,7 @@ describe('mouse-parallax.js', () => {
         window.innerWidth = 2000;
         window.innerHeight = 1000;
         window.dispatchEvent(resizeEvent);
+
         // Check that centerX/Y is updated by checking next mousemove
         const mouseEvent2 = new window.Event('mousemove');
         mouseEvent2.clientX = 1000 + 100;

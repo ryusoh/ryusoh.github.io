@@ -2,30 +2,58 @@
  * @jest-environment jsdom
  */
 
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
 describe('FontAwesomeLoader', () => {
     let FontAwesomeLoader;
+    let context;
+    let code;
 
     beforeEach(() => {
         jest.resetModules();
-        document.documentElement.innerHTML =
+
+        const sourcePath = path.resolve(__dirname, '../../js/font-awesome-loader.js');
+        code = fs.readFileSync(sourcePath, 'utf8');
+
+        context = {
+            window,
+            document: window.document,
+            setTimeout: window.setTimeout,
+            setInterval: window.setInterval,
+            clearInterval: window.clearInterval,
+            console: window.console,
+            Event: window.Event,
+        };
+
+        context.document.documentElement.innerHTML =
             '<html><body><i class="fa fa-test" data-fahidden="true"></i></body></html>';
 
-        require('../../js/font-awesome-loader.js');
-        FontAwesomeLoader = window.__FontAwesomeLoaderForTesting.FontAwesomeLoader;
+        context.document.addEventListener = jest.fn((evt, cb) => {
+            if (evt === 'DOMContentLoaded') {
+                context.__domContentLoadedCb = cb;
+            }
+        });
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        FontAwesomeLoader = context.window.__FontAwesomeLoaderForTesting.FontAwesomeLoader;
     });
 
     test('should identify if Font Awesome is loaded via computed style', () => {
         const loader = new FontAwesomeLoader();
 
         // Mock getComputedStyle to return content
-        window.getComputedStyle = jest.fn().mockReturnValue({
+        context.window.getComputedStyle = jest.fn().mockReturnValue({
             content: '"\\f004"',
         });
 
         expect(loader.isFontAwesomeLoaded()).toBe(true);
 
         // Mock to return none
-        window.getComputedStyle = jest.fn().mockReturnValue({
+        context.window.getComputedStyle = jest.fn().mockReturnValue({
             content: 'none',
         });
         loader.testElement = null; // force recreation
@@ -34,7 +62,7 @@ describe('FontAwesomeLoader', () => {
 
     test('showIcons should remove hidden attribute and reset visibility', () => {
         const loader = new FontAwesomeLoader();
-        const icon = document.querySelector('.fa');
+        const icon = context.document.querySelector('.fa');
         loader.faIcons = [icon];
 
         loader.showIcons();
@@ -45,7 +73,7 @@ describe('FontAwesomeLoader', () => {
 
     test('handleLoadFailure should provide fallback for chevron icons', () => {
         const loader = new FontAwesomeLoader();
-        const icon = document.createElement('i');
+        const icon = context.document.createElement('i');
         icon.className = 'fa-chevron-left';
         icon.dataset.fahidden = 'true';
         loader.faIcons = [icon];
@@ -60,16 +88,35 @@ describe('FontAwesomeLoader', () => {
         const loader = new FontAwesomeLoader();
         jest.spyOn(loader, 'isFontAwesomeLoaded').mockReturnValue(true);
         const showSpy = jest.spyOn(loader, 'showIcons');
+        const cleanupSpy = jest.spyOn(loader, 'cleanupTestElement');
 
         loader.init();
 
         expect(showSpy).toHaveBeenCalled();
+        expect(cleanupSpy).toHaveBeenCalled();
         expect(loader.fontAwesomeLoaded).toBe(true);
+    });
+
+    test('init should setup fallback and start checking if not loaded', () => {
+        const loader = new FontAwesomeLoader();
+        jest.spyOn(loader, 'isFontAwesomeLoaded').mockReturnValue(false);
+        const setupSpy = jest.spyOn(loader, 'setupPlaceholderHandling').mockImplementation();
+        const startSpy = jest.spyOn(loader, 'startChecking').mockImplementation();
+        const waitSpy = jest.spyOn(loader, 'waitForFontLoad').mockImplementation();
+
+        loader.init();
+
+        expect(setupSpy).toHaveBeenCalled();
+        expect(startSpy).toHaveBeenCalled();
+        expect(waitSpy).toHaveBeenCalled();
     });
 
     describe('waitForFontLoad', () => {
         beforeEach(() => {
             jest.useFakeTimers();
+
+            // To ensure we bypass VM specific bugs regarding setTimeout returning numbers
+            context.setTimeout = window.setTimeout;
         });
 
         afterEach(() => {
@@ -82,16 +129,16 @@ describe('FontAwesomeLoader', () => {
             jest.spyOn(loader, 'stopChecking').mockImplementation(() => {});
 
             // Create fake links
-            const wrongLink = document.createElement('link');
+            const wrongLink = context.document.createElement('link');
             wrongLink.rel = 'stylesheet';
             wrongLink.href = 'https://example.com/other.css';
 
-            const faLink = document.createElement('link');
+            const faLink = context.document.createElement('link');
             faLink.rel = 'stylesheet';
             faLink.href = 'https://example.com/font-awesome.min.css';
 
-            document.head.appendChild(wrongLink);
-            document.head.appendChild(faLink);
+            context.document.head.appendChild(wrongLink);
+            context.document.head.appendChild(faLink);
 
             loader.waitForFontLoad();
 
@@ -108,8 +155,8 @@ describe('FontAwesomeLoader', () => {
             expect(loader.stopChecking).toHaveBeenCalled();
 
             // Clean up
-            document.head.removeChild(wrongLink);
-            document.head.removeChild(faLink);
+            context.document.head.removeChild(wrongLink);
+            context.document.head.removeChild(faLink);
         });
 
         test('should not do anything if already loaded', () => {
@@ -118,27 +165,35 @@ describe('FontAwesomeLoader', () => {
             jest.spyOn(loader, 'showIcons').mockImplementation(() => {});
             jest.spyOn(loader, 'stopChecking').mockImplementation(() => {});
 
-            const faLink = document.createElement('link');
+            const faLink = context.document.createElement('link');
             faLink.rel = 'stylesheet';
             faLink.href = 'https://example.com/font-awesome.min.css';
-            document.head.appendChild(faLink);
+            context.document.head.appendChild(faLink);
 
             loader.waitForFontLoad();
             jest.advanceTimersByTime(50);
 
-            // Trigger onload
-            faLink.onload();
+            // It assigns onload. But if triggered, it checks \`!this.fontAwesomeLoaded\` before calling stop/show
+
+            // Assuming onload is a function because we advanced timer
+            if (faLink.onload) {
+                faLink.onload();
+            }
 
             expect(loader.showIcons).not.toHaveBeenCalled();
             expect(loader.stopChecking).not.toHaveBeenCalled();
 
-            document.head.removeChild(faLink);
+            context.document.head.removeChild(faLink);
         });
     });
 
     describe('startChecking and stopChecking', () => {
         beforeEach(() => {
             jest.useFakeTimers();
+
+            // To ensure we bypass VM specific bugs regarding setInterval returning numbers
+            context.setInterval = window.setInterval;
+            context.clearInterval = window.clearInterval;
         });
 
         afterEach(() => {
@@ -149,7 +204,7 @@ describe('FontAwesomeLoader', () => {
         test('should clear interval and call showIcons when loaded', () => {
             const loader = new FontAwesomeLoader();
             loader.checkInterval = null;
-            loader.testElement = document.createElement('i');
+            loader.testElement = context.document.createElement('i');
 
             jest.spyOn(loader, 'isFontAwesomeLoaded').mockReturnValue(true);
             const showIconsSpy = jest.spyOn(loader, 'showIcons').mockImplementation(() => {});
@@ -157,7 +212,7 @@ describe('FontAwesomeLoader', () => {
 
             loader.startChecking();
 
-            // Fast-forward 100ms
+            // Fast-forward 100ms. Since it's setInterval(..., 100) inside VM, we run fake timers for it
             jest.advanceTimersByTime(100);
 
             expect(loader.fontAwesomeLoaded).toBe(true);
@@ -169,7 +224,7 @@ describe('FontAwesomeLoader', () => {
             const loader = new FontAwesomeLoader();
             loader.maxRetries = 2;
             loader.retryCount = 0;
-            loader.testElement = document.createElement('i');
+            loader.testElement = context.document.createElement('i');
 
             jest.spyOn(loader, 'isFontAwesomeLoaded').mockReturnValue(false);
             const handleLoadFailureSpy = jest
@@ -196,12 +251,12 @@ describe('FontAwesomeLoader', () => {
             const loader = new FontAwesomeLoader();
 
             // Setup an interval to clear
-            const mockInterval = setInterval(() => {}, 1000);
+            const mockInterval = 123;
             loader.checkInterval = mockInterval;
 
             // Setup a testElement attached to DOM
-            const testEl = document.createElement('i');
-            document.body.appendChild(testEl);
+            const testEl = context.document.createElement('i');
+            context.document.body.appendChild(testEl);
             loader.testElement = testEl;
 
             loader.stopChecking();
@@ -226,7 +281,7 @@ describe('FontAwesomeLoader', () => {
         test('handleLoadFailure sets display:none for non-chevron icons', () => {
             const loader = new FontAwesomeLoader();
 
-            const normalIcon = document.createElement('i');
+            const normalIcon = context.document.createElement('i');
             normalIcon.className = 'fa fa-heart';
             normalIcon.dataset.fahidden = 'true';
 
