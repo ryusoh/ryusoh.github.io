@@ -27,7 +27,6 @@ describe('js/block-navigation.js', () => {
             configurable: true,
         });
         Object.defineProperty(window, 'innerHeight', { value: 500, configurable: true });
-        window.scrollTo = jest.fn();
 
         // Ensure requestAnimationFrame acts like setTimeout 0
         window.requestAnimationFrame = jest.fn((cb) => setTimeout(cb, 0));
@@ -221,7 +220,8 @@ describe('js/block-navigation.js', () => {
         let mockTarget;
 
         beforeEach(() => {
-            window.scrollTo = jest.fn();
+            context.window.scrollTo = jest.fn();
+            context.window.console = { warn: jest.fn() };
 
             mockTarget = {
                 scrollIntoView: jest.fn(),
@@ -233,7 +233,7 @@ describe('js/block-navigation.js', () => {
         test('should call window.scrollTo when isTopSentinel is true', () => {
             testing.performScroll(mockTarget, true, 'smooth', true);
 
-            expect(window.scrollTo).toHaveBeenCalledWith({
+            expect(context.window.scrollTo).toHaveBeenCalledWith({
                 top: 0,
                 behavior: 'smooth',
             });
@@ -248,7 +248,28 @@ describe('js/block-navigation.js', () => {
                 block: 'center',
                 inline: 'nearest',
             });
-            expect(window.scrollTo).not.toHaveBeenCalled();
+            expect(context.window.scrollTo).not.toHaveBeenCalled();
+        });
+
+        test('should use fallback window.scrollTo if scrollIntoView throws', () => {
+            mockTarget.scrollIntoView.mockImplementation(() => {
+                throw new Error('scrollIntoView error');
+            });
+
+            testing.performScroll(mockTarget, false, 'smooth', false);
+
+            expect(context.window.console.warn).toHaveBeenCalledWith(
+                '[block-navigation] scrollIntoView failed, using fallback:',
+                expect.any(Error)
+            );
+
+            // Expected fallback logic using clampScrollTop
+            // Offset = (500 - 200) / 2 = 150
+            // Top = clampScrollTop(100 + 0 - 150) = clampScrollTop(-50) = 0
+            expect(context.window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
         });
     });
 });
