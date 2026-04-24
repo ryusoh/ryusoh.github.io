@@ -119,28 +119,25 @@ describe('js/magnetic-nav.js', () => {
             clientY: 135,
         });
 
-        // distX = 10, distY = 10
-        // strength = 0.4
-        // x = 4, y = 4
+        // distX = 10, distY = 10, strength = 0.4 → x = 4, y = 4
         expect(mockGSAP.to).toHaveBeenCalledWith(
             mockElement,
             expect.objectContaining({
                 x: 4,
                 y: 4,
                 duration: 0.3,
-                ease: 'power2.out',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
 
-        // child parallax: strength * 1.5 = 0.6
-        // x = 6, y = 6
+        // child parallax: strength * 1.5 = 0.6 → x = 6, y = 6
         expect(mockGSAP.to).toHaveBeenCalledWith(
             mockChild,
             expect.objectContaining({
                 x: expect.closeTo(6, 5),
                 y: expect.closeTo(6, 5),
                 duration: 0.3,
-                ease: 'power2.out',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
     });
@@ -171,7 +168,7 @@ describe('js/magnetic-nav.js', () => {
                 x: 0,
                 y: 0,
                 duration: 0.7,
-                ease: 'elastic.out(1, 0.3)',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
 
@@ -181,7 +178,7 @@ describe('js/magnetic-nav.js', () => {
                 x: 0,
                 y: 0,
                 duration: 0.7,
-                ease: 'elastic.out(1, 0.3)',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             })
         );
     });

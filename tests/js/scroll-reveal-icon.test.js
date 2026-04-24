@@ -29,10 +29,6 @@ describe('scroll-reveal-icon.js', () => {
         window.requestAnimationFrame = jest.fn((cb) => {
             return setTimeout(cb, 0);
         });
-
-        require('../../js/scroll-reveal-icon.js');
-        // Initial execution of IIFE triggers some logic, but wait for the 1000ms timeout
-        jest.runAllTimers();
     });
 
     afterEach(() => {
@@ -40,6 +36,9 @@ describe('scroll-reveal-icon.js', () => {
     });
 
     test('should add "is-visible" class when scrolled near bottom', () => {
+        require('../../js/scroll-reveal-icon.js');
+        jest.runAllTimers();
+
         // Mock scroll state: near the bottom
         window.scrollY = 450;
 
@@ -53,6 +52,9 @@ describe('scroll-reveal-icon.js', () => {
     });
 
     test('should remove "is-visible" class when scrolled away from bottom', () => {
+        require('../../js/scroll-reveal-icon.js');
+        jest.runAllTimers();
+
         // First make it visible
         window.scrollY = 450;
         window.dispatchEvent(new Event('scroll'));
@@ -67,23 +69,29 @@ describe('scroll-reveal-icon.js', () => {
         expect(iconElement.classList.contains('is-visible')).toBe(false);
     });
 
-    test('should exit early if icon is not present', () => {
-        // We need to clear the event listeners attached from the first execution in beforeEach.
-        // We'll replace window entirely or use a spy on addEventListener, but a simpler way
-        // is to check if addEventListener was called *during* this second require.
+    test('should execute gracefully on resize event', () => {
+        require('../../js/scroll-reveal-icon.js');
+        jest.runAllTimers();
 
-        // Let's reset the DOM and setup a fresh mock for addEventListener to ensure it doesn't get called
-        document.documentElement.innerHTML = '<html><body></body></html>';
+        // Trigger resize event
+        window.dispatchEvent(new Event('resize'));
+        jest.runAllTimers();
+
+        // No particular expectation since it just runs updateVisibility
+        expect(window.requestAnimationFrame).toHaveBeenCalled();
+    });
+
+    test('exits early if icon not found', () => {
+        document.documentElement.innerHTML = '';
 
         const originalAddEventListener = window.addEventListener;
         window.addEventListener = jest.fn();
 
-        jest.resetModules();
         require('../../js/scroll-reveal-icon.js');
 
+        expect(window.requestAnimationFrame).not.toHaveBeenCalled();
         expect(window.addEventListener).not.toHaveBeenCalled();
 
-        // Clean up
         window.addEventListener = originalAddEventListener;
     });
 });

@@ -6,67 +6,90 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-describe('load-animations.js', () => {
-    let context;
+describe('js/load-animations.js', () => {
+    let mockTo;
+    let mockSet;
     let mockTimeline;
+    let context;
+    let code;
 
     beforeEach(() => {
-        // Setup simple DOM structure
+        jest.resetModules();
         document.body.innerHTML = `
             <div id="mimida"></div>
-            <div id="main"><h1><span>Zhuang Liu</span></h1></div>
-            <p id="headline">Street Photographer</p>
-            <nav id="nav"></nav>
+            <div id="main"><h1></h1></div>
+            <div id="headline"></div>
+            <div id="nav"></div>
         `;
 
+        mockTo = jest.fn();
+        mockSet = jest.fn();
         mockTimeline = {
-            to: jest.fn().mockReturnThis(),
+            to: mockTo,
         };
 
-        const mockGsap = {
+        window.gsap = {
             timeline: jest.fn().mockReturnValue(mockTimeline),
-            set: jest.fn(),
+            set: mockSet,
         };
 
-        // Initialize VM context to safely evaluate script
-        context = vm.createContext({
-            document,
-            window: { console: { warn: jest.fn() } },
-            gsap: mockGsap,
-        });
+        window.console = { warn: jest.fn() };
+
+        code = fs.readFileSync(path.join(__dirname, '../../js/load-animations.js'), 'utf8');
+
+        context = {
+            document: window.document,
+            window: window,
+            gsap: window.gsap,
+            console: window.console,
+        };
+        // Need to attach events explicitly
+        context.document.addEventListener = document.addEventListener.bind(document);
+        context.document.querySelector = document.querySelector.bind(document);
+        context.document.getElementById = document.getElementById.bind(document);
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
-        jest.restoreAllMocks();
+        delete window.gsap;
     });
 
-    test('initializes without throwing', () => {
-        const code = fs.readFileSync(path.join(__dirname, '../../js/load-animations.js'), 'utf8');
+    test('initializes and reveals elements correctly', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        expect(() => {
-            vm.runInContext(code, context);
-            // Manually dispatch DOMContentLoaded since we run in VM
-            const event = new window.Event('DOMContentLoaded');
-            document.dispatchEvent(event);
-        }).not.toThrow();
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        expect(mockSet).toHaveBeenCalledTimes(2); // once for mimida, once for elementsToReveal
+        expect(mockTo).toHaveBeenCalledTimes(2); // once for mimida, once for elementsToReveal
     });
 
     test('gracefully handles missing GSAP', () => {
-        const contextWithoutGsap = vm.createContext({
-            document,
-            window: { console: { warn: jest.fn() } },
-        });
-        const code = fs.readFileSync(path.join(__dirname, '../../js/load-animations.js'), 'utf8');
+        delete context.window.gsap;
+        delete context.gsap;
 
-        expect(() => {
-            vm.runInContext(code, contextWithoutGsap);
-            const event = new window.Event('DOMContentLoaded');
-            document.dispatchEvent(event);
-        }).not.toThrow();
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        expect(contextWithoutGsap.window.console.warn).toHaveBeenCalledWith(
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        expect(context.window.console.warn).toHaveBeenCalledWith(
             'GSAP is not loaded. Skipping load animations.'
         );
+    });
+
+    test('handles missing elements gracefully', () => {
+        document.body.innerHTML = ''; // Empty DOM
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        expect(mockSet).not.toHaveBeenCalled();
+        expect(mockTo).not.toHaveBeenCalled();
     });
 });

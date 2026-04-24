@@ -198,7 +198,7 @@
             transitionControl.start = perfNow();
             transitionControl.duration = 900;
             if (s.canvas) {
-                s.canvas.style.transition = 'opacity 0.4s ease';
+                s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
                 s.canvas.style.opacity = '1';
             }
             for (let i = 0; i < particles.length; i += 1) {
@@ -217,7 +217,7 @@
             transitionControl.start = perfNow();
             transitionControl.duration = 750;
             if (s.canvas) {
-                s.canvas.style.transition = 'opacity 0.4s ease';
+                s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
                 s.canvas.style.opacity = '1';
             }
             const m = metrics();

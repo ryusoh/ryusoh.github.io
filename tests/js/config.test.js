@@ -2,26 +2,16 @@
  * @jest-environment jsdom
  */
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-
-describe('config.js', () => {
-    let context;
-
+describe('js/config.js', () => {
     beforeEach(() => {
-        context = vm.createContext({
-            window: {},
-        });
+        jest.resetModules();
+        delete window.PortfolioConfig;
     });
 
-    test('should correctly define window.PortfolioConfig with specific values', () => {
-        const code = fs.readFileSync(path.join(__dirname, '../../js/config.js'), 'utf8');
-
-        vm.runInContext(code, context);
-
-        expect(context.window.PortfolioConfig).toBeDefined();
-        expect(context.window.PortfolioConfig.enableHoverPreview).toBe(false);
-        expect(context.window.PortfolioConfig.enableMouseParallax).toBe(false);
+    test('should define PortfolioConfig with defaults', () => {
+        require('../../js/config.js');
+        expect(window.PortfolioConfig).toBeDefined();
+        expect(window.PortfolioConfig.enableHoverPreview).toBe(false);
+        expect(window.PortfolioConfig.enableMouseParallax).toBe(false);
     });
 });

@@ -74,3 +74,20 @@
 **Learning:** Found that `revealImage(img)` in `js/scroll-reveal.js` was attaching individual `load` and `error` event listeners to every uncompleted image that entered the viewport. On image-heavy pages, this resulted in O(N) listener allocations when multiple images enter the viewport or during rapid scrolling.
 
 **Action:** Replace O(N) individual image `load`/`error` listeners with a single O(1) document-level event delegation listener (using `useCapture: true`). Add an `is-revealing` class to images awaiting load to filter events cleanly without extra memory overhead.
+
+## 2026-04-05 - Avoid gsap.to() in High-Frequency Event Listeners
+
+**Learning:** Using `gsap.to()` directly inside high-frequency event listeners like `mousemove` instantiates a new tween object on every frame/event. This results in significant memory churn, garbage collection overhead, and main-thread jank, especially for continuous interactions like mouse parallax.
+
+**Action:** When tracking high-frequency events (like mouse position) with GSAP, pre-initialize a `gsap.quickTo()` function outside the event listener and call the resulting setter function inside the listener. This updates the target values without allocating new tween instances every time, drastically improving performance.
+
+## 2026-04-06 - Avoid gsap.to() in Magnetic Navigation Listeners
+
+**Learning:** Similar to the mouse parallax issue, using `gsap.to()` directly inside the `mousemove` event listener for magnetic navigation in `js/magnetic-nav.js` continuously instantiates new tween objects for every frame or event. This leads to main-thread jank and overhead for high-frequency interactive features like the magnetic social icons.
+
+**Action:** Replace `gsap.to()` inside the `mousemove` event listener with `gsap.quickTo()` pre-initialized outside the listener, reducing memory churn and improving performance by reusing pre-initialized setter functions for high-frequency updates. Keep the regular `gsap.to()` for `mouseleave` since it happens less frequently and relies on different easing/duration values.
+
+## 2026-04-21 - Avoid Synchronous DOM Reads in Pointer Event Listeners
+
+**Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
+**Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.

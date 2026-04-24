@@ -6,14 +6,15 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-describe('hover-preview.js', () => {
-    let context;
+describe('js/hover-preview.js', () => {
     let mockTo;
     let mockSetX;
     let mockSetY;
+    let context;
+    let code;
 
     beforeEach(() => {
-        // Setup simple DOM structure
+        jest.resetModules();
         document.body.innerHTML = `
             <table id="nav">
                 <td class="portfolio-link"><a href="./p1/">Link 1</a></td>
@@ -25,7 +26,7 @@ describe('hover-preview.js', () => {
         mockSetX = jest.fn();
         mockSetY = jest.fn();
 
-        const mockGsap = {
+        window.gsap = {
             to: mockTo,
             quickSetter: jest.fn().mockImplementation((target, prop) => {
                 if (prop === 'x') {
@@ -38,68 +39,97 @@ describe('hover-preview.js', () => {
             }),
         };
 
-        context = vm.createContext({
-            document,
-            window: {
-                console: { warn: jest.fn() },
-                requestAnimationFrame: jest.fn(),
-                PortfolioConfig: { enableHoverPreview: true },
-            },
-            gsap: mockGsap,
-            requestAnimationFrame: jest.fn(),
-            PortfolioConfig: { enableHoverPreview: true },
-        });
+        window.PortfolioConfig = { enableHoverPreview: true };
+
+        // requestAnimationFrame will just be a mock, not call callback directly
+        // to avoid infinite loop callstack exceeded
+        window.requestAnimationFrame = jest.fn();
+
+        window.console = { warn: jest.fn() };
+
+        code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
+
+        context = {
+            document: window.document,
+            window: window,
+            gsap: window.gsap,
+            requestAnimationFrame: window.requestAnimationFrame,
+            PortfolioConfig: window.PortfolioConfig,
+            console: window.console,
+        };
+        // Need to attach events explicitly
+        context.document.addEventListener = document.addEventListener.bind(document);
+        context.document.createElement = document.createElement.bind(document);
+        context.document.querySelectorAll = document.querySelectorAll.bind(document);
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
-        jest.restoreAllMocks();
+        delete window.gsap;
+        delete window.PortfolioConfig;
     });
 
-    test('initializes without throwing when enabled', () => {
-        const code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
+    test('initializes and runs animations correctly', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        expect(() => {
-            vm.runInContext(code, context);
-            const event = new window.Event('DOMContentLoaded');
-            document.dispatchEvent(event);
-        }).not.toThrow();
-    });
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
 
-    test('gracefully handles being disabled', () => {
-        context.window.PortfolioConfig.enableHoverPreview = false;
-        context.PortfolioConfig.enableHoverPreview = false;
-        const code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
+        const link = document.querySelector('a');
 
-        expect(() => {
-            vm.runInContext(code, context);
-            const event = new window.Event('DOMContentLoaded');
-            document.dispatchEvent(event);
-        }).not.toThrow();
+        const mouseenterEvent = new MouseEvent('mouseenter', { clientX: 100, clientY: 100 });
+        link.dispatchEvent(mouseenterEvent);
 
-        // In this case, no GSAP setters should be called as it returns early
-        expect(mockSetX).not.toHaveBeenCalled();
+        expect(mockSetX).toHaveBeenCalledWith(120);
+        expect(mockSetY).toHaveBeenCalledWith(120);
+
+        const mouseleaveEvent = new MouseEvent('mouseleave');
+        link.dispatchEvent(mouseleaveEvent);
+
+        expect(mockTo).toHaveBeenCalledTimes(2); // once for enter, once for leave
+
+        // Simulate mousemove
+        const mousemoveEvent = new MouseEvent('mousemove', { clientX: 200, clientY: 200 });
+        document.dispatchEvent(mousemoveEvent);
     });
 
     test('gracefully handles missing GSAP', () => {
-        const contextWithoutGsap = vm.createContext({
-            document,
-            window: {
-                console: { warn: jest.fn() },
-                PortfolioConfig: { enableHoverPreview: true },
-            },
-            PortfolioConfig: { enableHoverPreview: true },
-        });
-        const code = fs.readFileSync(path.join(__dirname, '../../js/hover-preview.js'), 'utf8');
+        delete context.window.gsap;
+        delete context.gsap;
 
-        expect(() => {
-            vm.runInContext(code, contextWithoutGsap);
-            const event = new window.Event('DOMContentLoaded');
-            document.dispatchEvent(event);
-        }).not.toThrow();
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        expect(contextWithoutGsap.window.console.warn).toHaveBeenCalledWith(
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        expect(context.window.console.warn).toHaveBeenCalledWith(
             'GSAP is not loaded. Skipping hover preview.'
         );
+    });
+
+    test('gracefully exits when disabled via config', () => {
+        context.window.PortfolioConfig.enableHoverPreview = false;
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        expect(mockSetX).not.toHaveBeenCalled();
+    });
+
+    test('exits gracefully if no links found', () => {
+        document.body.innerHTML = ''; // No links
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        expect(mockSetX).not.toHaveBeenCalled();
     });
 });

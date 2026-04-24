@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     scale: 1,
                     opacity: 1,
                     duration: 0.4,
-                    ease: 'power3.out',
+                    ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
                 });
             }
         });
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scale: 0.8,
                 opacity: 0,
                 duration: 0.3,
-                ease: 'power2.in',
+                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             });
         });
     });

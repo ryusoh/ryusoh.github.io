@@ -269,8 +269,8 @@ footer a {
     color: #aaa;
     opacity: 0.8;
     transition:
-        opacity 0.5s ease,
-        color 0.5s ease;
+        opacity 0.5s var(--brand-ease),
+        color 0.5s var(--brand-ease);
     text-decoration: none;
 }
 
@@ -414,8 +414,8 @@ footer {
     font-weight: bold; /* Match the "Portfolio" text weight */
     padding: 0.2em 0.4em 0.6em 0.4em; /* top, right&left, bottom - adjusted for box effect */
     transition:
-        background-color 0.3s ease,
-        opacity 0.3s ease; /* Smooth transition for the background and opacity */
+        background-color 0.3s var(--brand-ease),
+        opacity 0.3s var(--brand-ease); /* Smooth transition for the background and opacity */
 }
 
 #nav .portfolio-link a:hover,
@@ -443,8 +443,8 @@ footer {
     margin-left: 3px;
     vertical-align: middle;
     transition:
-        background-color ease 0.5s,
-        color ease 0.5s;
+        background-color var(--brand-ease) 0.5s,
+        color var(--brand-ease) 0.5s;
     justify-content: space-around;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.1);
@@ -454,7 +454,7 @@ footer {
     display: inline-block;
     color: #aaa;
     text-decoration: none;
-    transition: color ease 0.5s;
+    transition: color var(--brand-ease) 0.5s;
     margin: 0 5.5px;
 }
 
@@ -468,6 +468,26 @@ footer {
 }
 :root {
     --page-transition-color: rgba(0, 0, 0, 0.88);
+    --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
+}
+
+/* Principle 7: Hide the scaffolding. No scrollbars, native selection styling */
+html,
+body {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+::selection {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+::-moz-selection {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
 }
 
 /* Accessibility: Screen reader only utility class for skip links */
@@ -524,7 +544,7 @@ footer {
         mix-blend-mode: difference;
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.3s var(--brand-ease);
     }
 
     .mobile-banner.is-fallback-ready {
@@ -546,7 +566,7 @@ footer {
         opacity: 0;
         visibility: hidden;
         transition:
-            opacity 0.3s ease,
+            opacity 0.3s var(--brand-ease),
             visibility 0s linear 0.3s;
     }
 
@@ -574,6 +594,8 @@ footer {
     text-align: right;
 }
 
+/* Native text selection styling for improved premium feel and contrast */
+
 /* Page transition — content moves, nothing else.
    No overlay. No shape. No wipe. The content itself
    is the transition, like iOS/macOS. */
@@ -582,11 +604,8 @@ footer {
 }
 
 html.page-transition--exiting #main {
-    transition:
-        opacity 250ms ease-out,
-        filter 250ms ease-out;
+    transition: opacity 100ms var(--brand-ease);
     opacity: 0;
-    filter: blur(4px);
 }
 
 /* Hover Preview Image Styles */

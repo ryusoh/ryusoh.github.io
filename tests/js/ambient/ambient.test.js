@@ -127,7 +127,7 @@ describe('js/ambient/ambient.js', () => {
 
             window.AmbientTransitionController.playExit();
 
-            expect(s.canvas.style.transition).toBe('opacity 0.4s ease');
+            expect(s.canvas.style.transition).toBe('opacity 0.4s var(--brand-ease)');
             expect(s.canvas.style.opacity).toBe('1');
 
             // Advance time and update to trigger internal idle reset
@@ -142,7 +142,7 @@ describe('js/ambient/ambient.js', () => {
 
             window.AmbientTransitionController.playIntro();
 
-            expect(s.canvas.style.transition).toBe('opacity 0.4s ease');
+            expect(s.canvas.style.transition).toBe('opacity 0.4s var(--brand-ease)');
             expect(s.canvas.style.opacity).toBe('1');
 
             // Trigger update to evaluate particle update during intro
