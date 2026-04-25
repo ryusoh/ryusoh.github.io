@@ -183,7 +183,7 @@ describe('service-worker-register', () => {
         Object.defineProperty(window, 'console', {
             value: undefined,
             writable: true,
-            configurable: true
+            configurable: true,
         });
 
         // Reset document readyState so it executes immediately
@@ -203,7 +203,7 @@ describe('service-worker-register', () => {
         Object.defineProperty(window, 'console', {
             value: origConsole,
             writable: true,
-            configurable: true
+            configurable: true,
         });
     });
 
@@ -222,7 +222,7 @@ describe('service-worker-register', () => {
         Object.defineProperty(window, 'console', {
             value: undefined,
             writable: true,
-            configurable: true
+            configurable: true,
         });
 
         // Reset document readyState so it executes immediately
@@ -251,7 +251,95 @@ describe('service-worker-register', () => {
         Object.defineProperty(window, 'console', {
             value: origConsole,
             writable: true,
-            configurable: true
+            configurable: true,
+        });
+    });
+
+    test('should early return and log warning if hostname parsing fails without console', () => {
+        // Mock error on hostname getter without warning suppression to cover early return
+        delete window.location;
+        window.location = {};
+        Object.defineProperty(window.location, 'hostname', {
+            get: () => {
+                throw new Error('location error');
+            },
+            configurable: true,
+        });
+
+        // Temporarily redefine window.console to undefined to trigger else branch
+        const origConsole = window.console;
+        Object.defineProperty(window, 'console', {
+            value: undefined,
+            writable: true,
+            configurable: true,
+        });
+
+        // Reset document readyState so it executes immediately
+        Object.defineProperty(document, 'readyState', {
+            value: 'complete',
+            configurable: true,
+            writable: true,
+        });
+
+        jest.resetModules();
+        require('../../js/service-worker-register.js');
+        // Since isLocalhost() returns false when exception is thrown, register should be called
+        expect(navigator.serviceWorker.register).toHaveBeenCalledWith('/sw.js');
+
+        // Restore window.location and console
+        window.location = new URL('https://example.com/');
+        Object.defineProperty(window, 'console', {
+            value: origConsole,
+            writable: true,
+            configurable: true,
+        });
+    });
+
+    test('should early return and log warning if serviceWorker registration fails without console and suppress register call', async () => {
+        // Redefine navigator.serviceWorker.register to reject
+        Object.defineProperty(global.navigator, 'serviceWorker', {
+            value: {
+                register: jest.fn().mockRejectedValue(new Error('failed')),
+            },
+            configurable: true,
+            writable: true,
+        });
+
+        // Temporarily redefine window.console to undefined to trigger else branch
+        const origConsole = window.console;
+        Object.defineProperty(window, 'console', {
+            value: undefined,
+            writable: true,
+            configurable: true,
+        });
+
+        // Reset document readyState so it executes immediately
+        Object.defineProperty(document, 'readyState', {
+            value: 'complete',
+            configurable: true,
+            writable: true,
+        });
+
+        // Need to clear mock calls from any previous tests requiring the file
+        window.dispatchEvent.mockClear();
+
+        // Since it's an IIFE, we need to require it fresh
+        jest.resetModules();
+        require('../../js/service-worker-register.js');
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Find the dispatch call for registration error if multiple were dispatched
+        const errorCall = window.dispatchEvent.mock.calls.find(
+            (call) => call && call[0] && call[0].type === 'serviceWorker:registrationError'
+        );
+        expect(errorCall).toBeDefined();
+
+        // Restore console
+        Object.defineProperty(window, 'console', {
+            value: origConsole,
+            writable: true,
+            configurable: true,
         });
     });
 });
