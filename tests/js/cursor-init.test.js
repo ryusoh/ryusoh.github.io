@@ -119,4 +119,10 @@ describe('js/cursor-init.js', () => {
             vm.runInContext(customCode, context);
         }).not.toThrow();
     });
+
+    test('coverage branch: document defined but no DOMContentLoaded event fired', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+        expect(mockInitCursor).not.toHaveBeenCalled();
+    });
 });

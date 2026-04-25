@@ -94,4 +94,32 @@ describe('scroll-reveal-icon.js', () => {
 
         window.addEventListener = originalAddEventListener;
     });
+
+    test('should return early and not throw if scrollHeight or innerHeight is missing', () => {
+        // Redefine to undefined
+        Object.defineProperty(document.documentElement, 'scrollHeight', {
+            value: undefined,
+            configurable: true,
+            writable: true,
+        });
+        Object.defineProperty(window, 'innerHeight', {
+            value: undefined,
+            configurable: true,
+            writable: true,
+        });
+
+        require('../../js/scroll-reveal-icon.js');
+        jest.runAllTimers();
+
+        // Ensure requestAnimationFrame is defined for this test
+        window.requestAnimationFrame = jest.fn((cb) => {
+            return setTimeout(cb, 0);
+        });
+
+        // Trigger resize event which sets ticking=true and schedules requestAnimationFrame
+        window.dispatchEvent(new Event('resize'));
+
+        // This will call the mock requestAnimationFrame which triggers setTimeout
+        jest.runAllTimers();
+    });
 });
