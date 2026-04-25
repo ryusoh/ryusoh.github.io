@@ -4,6 +4,6 @@
  */
 
 window.PortfolioConfig = {
-    enableHoverPreview: false,
-    enableMouseParallax: false,
+    enableHoverPreview: true,
+    enableMouseParallax: true,
 };
