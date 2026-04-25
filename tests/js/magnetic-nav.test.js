@@ -9,8 +9,18 @@ describe('js/magnetic-nav.js', () => {
 
     beforeEach(() => {
         jest.resetModules();
+        // Better mock for quickTo to handle multiple elements
+        const setters = new Map();
+
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn((target, prop) => {
+                const key = `${target.id || target.tagName}-${prop}`;
+                if (!setters.has(key)) {
+                    setters.set(key, jest.fn());
+                }
+                return setters.get(key);
+            }),
         };
 
         window.gsap = mockGSAP;
@@ -76,13 +86,28 @@ describe('js/magnetic-nav.js', () => {
         });
         el.dispatchEvent(mouseMoveEvent);
 
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
-
         const child = document.getElementById('child');
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            child,
-            expect.objectContaining({ x: expect.closeTo(6, 5), y: expect.closeTo(6, 5) })
-        );
+
+        // Check if the mock setter functions returned by quickTo were called
+        const elSetX = mockGSAP.quickTo.mock.results.find(
+            (r) => r.value === mockGSAP.quickTo(el, 'x')
+        ).value;
+        const elSetY = mockGSAP.quickTo.mock.results.find(
+            (r) => r.value === mockGSAP.quickTo(el, 'y')
+        ).value;
+
+        expect(elSetX).toHaveBeenCalledWith(4);
+        expect(elSetY).toHaveBeenCalledWith(4);
+
+        const childSetX = mockGSAP.quickTo.mock.results.find(
+            (r) => r.value === mockGSAP.quickTo(child, 'x')
+        ).value;
+        const childSetY = mockGSAP.quickTo.mock.results.find(
+            (r) => r.value === mockGSAP.quickTo(child, 'y')
+        ).value;
+
+        expect(childSetX).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(childSetY).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
@@ -124,7 +149,12 @@ describe('js/magnetic-nav.js', () => {
         });
 
         el.dispatchEvent(new MouseEvent('mousemove', { clientX: 135, clientY: 135 }));
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+
+        const elSetX = mockGSAP.quickTo(el, 'x');
+        const elSetY = mockGSAP.quickTo(el, 'y');
+
+        expect(elSetX).toHaveBeenCalledWith(4);
+        expect(elSetY).toHaveBeenCalledWith(4);
 
         el.dispatchEvent(new MouseEvent('mouseleave'));
         expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 0, y: 0 }));
