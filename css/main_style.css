@@ -645,3 +645,9 @@ html.js-enabled #nav {
     transform-style: preserve-3d;
     perspective: 1000px;
 }
+
+.dramatic-serif {
+    font-family: 'Playfair Display', serif !important;
+    font-style: italic;
+    font-weight: 500;
+}
