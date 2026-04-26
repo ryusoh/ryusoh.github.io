@@ -6,11 +6,39 @@
 // Actually, jest currently fails to parse export without babel. Let's add a simple babel config to fix it for all modules using export/import
 describe('js/magnetic-nav.js', () => {
     let mockGSAP;
+    let mockSetX;
+    let mockSetY;
+    let mockSetChildX;
+    let mockSetChildY;
 
     beforeEach(() => {
         jest.resetModules();
+        mockSetX = jest.fn();
+        mockSetY = jest.fn();
+        mockSetChildX = jest.fn();
+        mockSetChildY = jest.fn();
+
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn((target, prop) => {
+                if (target.tagName === 'A') {
+                    if (prop === 'x') {
+                        return mockSetX;
+                    }
+                    if (prop === 'y') {
+                        return mockSetY;
+                    }
+                }
+                if (target.tagName === 'I') {
+                    if (prop === 'x') {
+                        return mockSetChildX;
+                    }
+                    if (prop === 'y') {
+                        return mockSetChildY;
+                    }
+                }
+                return jest.fn();
+            }),
         };
 
         window.gsap = mockGSAP;
@@ -70,19 +98,20 @@ describe('js/magnetic-nav.js', () => {
             height: 50,
         });
 
+        const mouseEnterEvent = new MouseEvent('mouseenter');
+        el.dispatchEvent(mouseEnterEvent);
+
         const mouseMoveEvent = new MouseEvent('mousemove', {
             clientX: 135,
             clientY: 135,
         });
         el.dispatchEvent(mouseMoveEvent);
 
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        expect(mockSetX).toHaveBeenCalledWith(4);
+        expect(mockSetY).toHaveBeenCalledWith(4);
 
-        const child = document.getElementById('child');
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            child,
-            expect.objectContaining({ x: expect.closeTo(6, 5), y: expect.closeTo(6, 5) })
-        );
+        expect(mockSetChildX).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(mockSetChildY).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
@@ -123,8 +152,10 @@ describe('js/magnetic-nav.js', () => {
             height: 50,
         });
 
+        el.dispatchEvent(new MouseEvent('mouseenter'));
         el.dispatchEvent(new MouseEvent('mousemove', { clientX: 135, clientY: 135 }));
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        expect(mockSetX).toHaveBeenCalledWith(4);
+        expect(mockSetY).toHaveBeenCalledWith(4);
 
         el.dispatchEvent(new MouseEvent('mouseleave'));
         expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 0, y: 0 }));
