@@ -7,8 +7,9 @@
             }
             const fontAwesome = ['/assets/vendor/font-awesome/css/font-awesome.min.css'];
             const googleFonts = [
-                'https://fonts.googleapis.com/css2?family=Lobster&display=swap',
+                'https://fonts.googleapis.com/css2?family=Lobster&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap',
                 'https://fonts.bunny.net/css?family=Lobster',
+                'https://fonts.bunny.net/css?family=playfair-display:400,400i,700',
             ];
             window.CDNLoader.preconnect([
                 'https://fonts.googleapis.com',

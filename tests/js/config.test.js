@@ -11,7 +11,7 @@ describe('js/config.js', () => {
     test('should define PortfolioConfig with defaults', () => {
         require('../../js/config.js');
         expect(window.PortfolioConfig).toBeDefined();
-        expect(window.PortfolioConfig.enableHoverPreview).toBe(false);
-        expect(window.PortfolioConfig.enableMouseParallax).toBe(false);
+        expect(window.PortfolioConfig.enableHoverPreview).toBe(true);
+        expect(window.PortfolioConfig.enableMouseParallax).toBe(true);
     });
 });

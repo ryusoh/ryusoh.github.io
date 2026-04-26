@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gsap.to(previewContainer, {
                     scale: 1,
                     opacity: 1,
+                    clipPath: 'ellipse(100% 100% at 50% 50%)',
                     duration: 0.4,
                     ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
                 });
@@ -98,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.to(previewContainer, {
                 scale: 0.8,
                 opacity: 0,
+                clipPath: 'ellipse(0% 0% at 50% 50%)',
                 duration: 0.3,
                 ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             });
