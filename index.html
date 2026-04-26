@@ -89,7 +89,7 @@
             <main id="main" tabindex="-1">
                 <h1><span>Zhuang Liu</span></h1>
                 <p id="headline">
-                    Street Photographer
+                    Street <span class="serif-emphasis">Photographer</span>
                     <span class="social-icons-container">
                         <!-- prettier-ignore -->
                         <a href="https://instagram.com/lyeutsaon" target="_blank" rel="noopener noreferrer"
@@ -162,6 +162,13 @@
                 "./assets/banners/banner.png"
             ]'
         />
+        <div class="marquee-container" aria-hidden="true">
+            <div class="marquee-content">
+                DOCUMENTARY &middot; URBAN &middot; STREET &middot; SAN FRANCISCO &middot; BAY AREA
+                &middot; DOCUMENTARY &middot; URBAN &middot; STREET &middot; SAN FRANCISCO &middot;
+                BAY AREA &middot;
+            </div>
+        </div>
         <footer>
             <!-- prettier-ignore -->
             <a href="https://github.com/ryusoh" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile (opens in a new tab)"><i
@@ -212,6 +219,7 @@
         <script defer src="js/load-animations.js"></script>
         <script defer src="js/hover-preview.js"></script>
         <script defer src="js/mouse-parallax.js"></script>
+        <script defer src="js/marquee.js"></script>
         <!-- Service Worker -->
         <script defer src="js/service-worker-register.js"></script>
     </body>
