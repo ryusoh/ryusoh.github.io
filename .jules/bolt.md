@@ -91,3 +91,8 @@
 
 **Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
 **Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
+
+## 2024-04-26 - Cached layout bounds & GSAP quickTo for high-frequency pointer events
+
+**Learning:** Synchronous DOM layout reads (`getBoundingClientRect`) and repeated tween instantiation (`gsap.to`) inside high-frequency event loops like `mousemove` cause significant main-thread jank and memory churn.
+**Action:** When animating on pointer events, cache layout boundaries on `mouseenter` instead of reading them on every tick, and use `gsap.quickTo` initialized outside the listener to avoid creating new tween objects.
