@@ -1220,11 +1220,8 @@ td {
 }
 
 html.page-transition--exiting #main {
-    transition:
-        opacity 250ms ease-out,
-        filter 250ms ease-out;
+    transition: opacity 150ms var(--brand-ease);
     opacity: 0;
-    filter: blur(4px);
 }
 
 /* Scroll-driven reveal — images and text fade/slide into view
@@ -1232,7 +1229,8 @@ html.page-transition--exiting #main {
    and .scroll-reveal--visible when observed. */
 .scroll-reveal {
     opacity: 0 !important;
-    transform: translateY(30px) !important;
+    transform: scale(0.98) translateY(20px) !important;
+    clip-path: inset(10% 0 10% 0) !important;
 }
 
 /* The transition is ONLY on the visible state.
@@ -1240,10 +1238,12 @@ html.page-transition--exiting #main {
    Adding .scroll-reveal--visible animates into view. */
 .scroll-reveal--visible {
     opacity: 1 !important;
-    transform: translateY(0) !important;
+    transform: scale(1) translateY(0) !important;
+    clip-path: inset(0) !important;
     transition:
-        opacity 0.6s ease-out,
-        transform 0.6s ease-out !important;
+        opacity 0.8s var(--brand-ease),
+        transform 0.8s var(--brand-ease),
+        clip-path 0.8s var(--brand-ease) !important;
 }
 
 /* Respect reduced motion: show everything immediately */
@@ -1251,6 +1251,7 @@ html.page-transition--exiting #main {
     .scroll-reveal {
         opacity: 1 !important;
         transform: none !important;
+        clip-path: none !important;
     }
 
     .scroll-reveal--visible {
