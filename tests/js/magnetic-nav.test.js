@@ -6,11 +6,20 @@
 // Actually, jest currently fails to parse export without babel. Let's add a simple babel config to fix it for all modules using export/import
 describe('js/magnetic-nav.js', () => {
     let mockGSAP;
+    let quickToMocks;
 
     beforeEach(() => {
         jest.resetModules();
+        quickToMocks = new Map();
+
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn((target, prop) => {
+                const key = `${target.id || target.tagName || 'unknown'}-${prop}`;
+                const setter = jest.fn();
+                quickToMocks.set(key, setter);
+                return setter;
+            }),
         };
 
         window.gsap = mockGSAP;
@@ -70,19 +79,24 @@ describe('js/magnetic-nav.js', () => {
             height: 50,
         });
 
+        el.dispatchEvent(new MouseEvent('mouseenter'));
+
         const mouseMoveEvent = new MouseEvent('mousemove', {
             clientX: 135,
             clientY: 135,
         });
         el.dispatchEvent(mouseMoveEvent);
 
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        const setX = quickToMocks.get('A-x');
+        const setY = quickToMocks.get('A-y');
+        expect(setX).toHaveBeenCalledWith(4);
+        expect(setY).toHaveBeenCalledWith(4);
 
-        const child = document.getElementById('child');
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            child,
-            expect.objectContaining({ x: expect.closeTo(6, 5), y: expect.closeTo(6, 5) })
-        );
+        const setChildX = quickToMocks.get('child-x');
+        const setChildY = quickToMocks.get('child-y');
+
+        expect(setChildX).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(setChildY).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
@@ -123,8 +137,13 @@ describe('js/magnetic-nav.js', () => {
             height: 50,
         });
 
+        el.dispatchEvent(new MouseEvent('mouseenter'));
         el.dispatchEvent(new MouseEvent('mousemove', { clientX: 135, clientY: 135 }));
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+
+        const setX = quickToMocks.get('A-x');
+        const setY = quickToMocks.get('A-y');
+        expect(setX).toHaveBeenCalledWith(4);
+        expect(setY).toHaveBeenCalledWith(4);
 
         el.dispatchEvent(new MouseEvent('mouseleave'));
         expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 0, y: 0 }));
