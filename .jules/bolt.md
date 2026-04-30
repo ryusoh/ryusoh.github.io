@@ -91,3 +91,7 @@
 
 **Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
 **Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
+
+## 2024-04-30 - Caching Bounding Boxes on Hover Transitions
+**Learning:** Caching `getBoundingClientRect()` on an interaction boundary (like `mouseenter`) to avoid synchronous layout reads during high-frequency events (like `mousemove`) is generally a good optimization. However, it fails if the element actively animates its translation (like a magnetic button) or if the user scrolls, because `getBoundingClientRect` returns coordinates relative to the viewport. Comparing stale viewport coordinates to active `clientX/Y` coordinates will result in completely broken distance calculations and erratic UI behavior.
+**Action:** Do not cache `getBoundingClientRect` for elements undergoing active CSS transforms or in contexts where scrolling during the interaction is expected. Instead, rely on animation-specific optimizations like GSAP's `quickTo()`.
