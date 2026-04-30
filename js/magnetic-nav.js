@@ -38,18 +38,8 @@ export function initMagneticNav() {
 
         // The child element (e.g. <i>) might not exist, but if it does, we cache setters
         const child = el.querySelector('i, span, img');
-        const setChildX = child
-            ? window.gsap.quickTo(child, 'x', {
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-            : null;
-        const setChildY = child
-            ? window.gsap.quickTo(child, 'y', {
-                duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-            })
-            : null;
+        const setChildX = child ? window.gsap.quickTo(child, 'x', { duration: 0.3, ease: 'cubic-bezier(0.65, 0.05, 0, 1)' }) : null;
+        const setChildY = child ? window.gsap.quickTo(child, 'y', { duration: 0.3, ease: 'cubic-bezier(0.65, 0.05, 0, 1)' }) : null;
 
         el.addEventListener('mousemove', (e) => {
             const rect = el.getBoundingClientRect();

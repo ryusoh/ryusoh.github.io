@@ -49,6 +49,7 @@ module.exports = [
             },
         },
         rules: {
+            indent: 'off',
             // Possible Problems
             'no-undef': 'error',
             'no-unused-vars': ['warn', { args: 'after-used', ignoreRestSiblings: true }],
