@@ -42,3 +42,8 @@
 
 **Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
 **Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
+
+## 2024-04-30 - Implement scroll-linked infinite marquee
+
+**Learning:** When implementing scroll-linked infinite marquees, avoid calculating the translation using modulus (`%`) against layout bounds like `window.innerWidth`, as this will cause the element to violently jump back to its starting position. Also, the typography should act as the design by using the text content itself combined with organic, non-rectangular forms (or bleeding off-screen).
+**Action:** Created `js/scroll-marquee.js` and `css/scroll-marquee.css` implementing a unified scroll marquee using an explicit safe `loopWidth` to handle the transform offset smoothly without jitter, adhering to Lando Norris' principles for intent and typography.
