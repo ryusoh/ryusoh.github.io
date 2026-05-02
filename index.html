@@ -87,7 +87,9 @@
         <div id="mimida"></div>
         <div id="cont">
             <main id="main" tabindex="-1">
-                <h1><span>Zhuang Liu</span></h1>
+                <h1>
+                    <span>Zhuang <span class="serif-emphasis">Liu</span></span>
+                </h1>
                 <p id="headline">
                     Street Photographer
                     <span class="social-icons-container">
@@ -117,7 +119,9 @@
                     <table id="nav" role="presentation">
                         <tbody>
                             <tr>
-                                <td class="portfolio-category" rowspan="4">Portfolio</td>
+                                <td class="portfolio-category" rowspan="4">
+                                    Port<span class="serif-emphasis">folio</span>
+                                </td>
                                 <td class="portfolio-link">
                                     <a href="./p1/" data-page-transition data-destination="project"
                                         >I Tear Up the Bay When I Come Through</a
@@ -152,6 +156,18 @@
             </main>
         </div>
         <div id="works-wrap"></div>
+        <div class="marquee-wrapper" aria-hidden="true">
+            <div class="marquee-inner">
+                <div class="marquee-content">
+                    <span>Photography</span><span>•</span><span>Documentary</span><span>•</span
+                    ><span>Urban</span><span>•</span><span>San Francisco</span><span>•</span>
+                </div>
+                <div class="marquee-content">
+                    <span>Photography</span><span>•</span><span>Documentary</span><span>•</span
+                    ><span>Urban</span><span>•</span><span>San Francisco</span><span>•</span>
+                </div>
+            </div>
+        </div>
         <img
             class="mobile-banner"
             alt="Banner"
@@ -205,6 +221,8 @@
 
         <!-- GSAP library -->
         <script src="js/vendor/gsap.min.js"></script>
+        <!-- Scroll marquee -->
+        <script defer src="js/scroll-marquee.js"></script>
         <!-- Custom cursor initialization -->
         <script type="module" src="js/cursor-init.js"></script>
         <!-- Creative enhancements -->
