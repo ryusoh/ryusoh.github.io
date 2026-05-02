@@ -620,9 +620,7 @@ html.page-transition--exiting #main {
     opacity: 0;
     transform: scale(0.8);
     transform-origin: center center;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    clip-path: ellipse(50% 50% at 50% 50%);
     will-change: transform, opacity;
 }
 
@@ -638,6 +636,31 @@ html.js-enabled #main h1,
 html.js-enabled #headline,
 html.js-enabled #nav {
     opacity: 0;
+}
+
+/* Scroll-Linked Marquee */
+.marquee-wrapper {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.marquee-inner {
+    display: flex;
+    will-change: transform;
+}
+
+.marquee-inner span {
+    font-size: clamp(2rem, 5vw, 5rem);
+    padding: 0 2vw;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 /* Mouse Parallax Base Style */
