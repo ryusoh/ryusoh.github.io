@@ -2,15 +2,22 @@
  * @jest-environment jsdom
  */
 
-// We mock it so we don't have to deal with Babel transform issues for the export
-// Actually, jest currently fails to parse export without babel. Let's add a simple babel config to fix it for all modules using export/import
 describe('js/magnetic-nav.js', () => {
     let mockGSAP;
+    let quickToSetters;
 
     beforeEach(() => {
         jest.resetModules();
+        quickToSetters = new Map();
+
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn((target, prop) => {
+                const key = `${target.id || target.tagName}-${prop}`;
+                const setter = jest.fn();
+                quickToSetters.set(key, setter);
+                return setter;
+            }),
         };
 
         window.gsap = mockGSAP;
@@ -76,13 +83,15 @@ describe('js/magnetic-nav.js', () => {
         });
         el.dispatchEvent(mouseMoveEvent);
 
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        const elXSetter = quickToSetters.get('A-x');
+        const elYSetter = quickToSetters.get('A-y');
+        expect(elXSetter).toHaveBeenCalledWith(4);
+        expect(elYSetter).toHaveBeenCalledWith(4);
 
-        const child = document.getElementById('child');
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            child,
-            expect.objectContaining({ x: expect.closeTo(6, 5), y: expect.closeTo(6, 5) })
-        );
+        const childXSetter = quickToSetters.get('child-x');
+        const childYSetter = quickToSetters.get('child-y');
+        expect(childXSetter).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(childYSetter).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
@@ -124,7 +133,10 @@ describe('js/magnetic-nav.js', () => {
         });
 
         el.dispatchEvent(new MouseEvent('mousemove', { clientX: 135, clientY: 135 }));
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        const elXSetter = quickToSetters.get('A-x');
+        const elYSetter = quickToSetters.get('A-y');
+        expect(elXSetter).toHaveBeenCalledWith(4);
+        expect(elYSetter).toHaveBeenCalledWith(4);
 
         el.dispatchEvent(new MouseEvent('mouseleave'));
         expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 0, y: 0 }));
