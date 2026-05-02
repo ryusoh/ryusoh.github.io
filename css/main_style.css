@@ -482,11 +482,11 @@ body::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
 }
 ::selection {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(206, 35, 35, 0.5);
     color: #fff;
 }
 ::-moz-selection {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(206, 35, 35, 0.5);
     color: #fff;
 }
 
@@ -644,4 +644,10 @@ html.js-enabled #nav {
 #main h1 {
     transform-style: preserve-3d;
     perspective: 1000px;
+}
+
+.serif-emphasis {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-weight: normal;
 }
