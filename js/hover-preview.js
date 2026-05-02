@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 previewImg.src = `./assets/img/${targetDir}/${imgFile}`;
 
                 isHovering = true;
+                previewContainer.style.clipPath = 'polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%)';
                 mouseX = e.clientX;
                 mouseY = e.clientY;
 
@@ -87,8 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 gsap.to(previewContainer, {
                     scale: 1,
                     opacity: 1,
+                    clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
                     duration: 0.4,
-                    ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
+                    ease: 'power3.out',
                 });
             }
         });
@@ -98,8 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.to(previewContainer, {
                 scale: 0.8,
                 opacity: 0,
+                clipPath: 'polygon(0% 50%, 100% 50%, 100% 50%, 0% 50%)',
                 duration: 0.3,
-                ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
+                ease: 'power3.out',
             });
         });
     });

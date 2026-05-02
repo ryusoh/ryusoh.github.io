@@ -123,12 +123,12 @@
 
         <!-- Navigation Buttons (Persistent during transitions) -->
         <!-- prettier-ignore -->
-        <a class="nav-back" aria-keyshortcuts="Escape" href="../" target="_self" data-page-transition data-destination="home" aria-label="Back to home">
+        <a class="nav-back" aria-keyshortcuts="Escape" href="../" target="_self" data-page-transition data-destination="home" aria-label="Back to home" title="Back to home (Esc)">
             <i class="fa fa-chevron-left" aria-hidden="true"></i>
         </a>
 
         <!-- prettier-ignore -->
-        <a class="nav-next" aria-keyshortcuts="ArrowRight" href="../p3/" target="_self" data-page-transition data-destination="project" aria-label="Next project">
+        <a class="nav-next" aria-keyshortcuts="ArrowRight" href="../p3/" target="_self" data-page-transition data-destination="project" aria-label="Next project" title="Next project (ArrowRight)">
             <i class="fa fa-chevron-right" aria-hidden="true"></i>
         </a>
 
@@ -140,7 +140,10 @@
                     <div class="row">
                         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                             <div class="post-heading">
-                                <h1>I DO NOT CARE IF WE GO DOWN IN HISTORY AS BARBARIANS</h1>
+                                <h1>
+                                    I DO NOT CARE IF WE GO DOWN IN HISTORY AS
+                                    <span class="dramatic-serif">BARBARIANS</span>
+                                </h1>
                             </div>
                         </div>
                     </div>
@@ -307,5 +310,7 @@
         <script defer src="../js/scroll-reveal.js"></script>
         <!-- Service Worker -->
         <script defer src="../js/service-worker-register.js"></script>
+        <!-- Scroll narrative marquee -->
+        <script defer src="../js/scroll-marquee.js"></script>
     </body>
 </html>
