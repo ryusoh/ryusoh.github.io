@@ -91,6 +91,7 @@
 
 **Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
 **Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
+
 ## 2026-04-22 - Avoid gsap.to() in Magnetic Navigation Listeners
 
 **Learning:** Similar to the mouse parallax issue, using `gsap.to()` directly inside the `mousemove` event listener for magnetic navigation continuously instantiates new tween objects for every frame or event. This leads to main-thread jank and overhead for high-frequency interactive features like the magnetic social icons.
