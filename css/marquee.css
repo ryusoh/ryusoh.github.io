@@ -1,0 +1,52 @@
+/* Scroll-Linked Marquee styling */
+.scroll-marquee-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 3rem 0;
+    margin: 4rem 0;
+    pointer-events: none;
+    user-select: none;
+    z-index: 10;
+    /* Mask and clip, don't box - Lando Norris Principle 5 */
+    clip-path: polygon(0 5%, 100% 0, 100% 95%, 0 100%);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.scroll-marquee-content {
+    display: flex;
+    white-space: nowrap;
+    width: max-content;
+    will-change: transform;
+}
+
+.scroll-marquee-content > span {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Typography is the design - Two-font contrast system (Lando Norris Principle 2) */
+.marquee-sans {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 6vw, 6rem);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 1rem;
+}
+
+.marquee-serif {
+    font-family: 'Lobster', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(3rem, 6vw, 6rem);
+    color: rgba(206, 35, 35, 0.9); /* Primary accent color from memory */
+    margin-right: 1rem;
+}
+
+.marquee-separator {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: clamp(2rem, 4vw, 4rem);
+    margin-right: 1rem;
+}
