@@ -9,8 +9,17 @@ describe('js/magnetic-nav.js', () => {
 
     beforeEach(() => {
         jest.resetModules();
+        const setters = new Map();
         mockGSAP = {
             to: jest.fn(),
+            quickTo: jest.fn((target, prop) => {
+                const key = `${target.id || target.tagName}-${prop}`;
+                if (!setters.has(key)) {
+                    setters.set(key, jest.fn());
+                }
+                return setters.get(key);
+            }),
+            _setters: setters, // Expose for assertions
         };
 
         window.gsap = mockGSAP;
@@ -76,13 +85,15 @@ describe('js/magnetic-nav.js', () => {
         });
         el.dispatchEvent(mouseMoveEvent);
 
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        const xTo = mockGSAP._setters.get('A-x');
+        const yTo = mockGSAP._setters.get('A-y');
+        expect(xTo).toHaveBeenCalledWith(4);
+        expect(yTo).toHaveBeenCalledWith(4);
 
-        const child = document.getElementById('child');
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            child,
-            expect.objectContaining({ x: expect.closeTo(6, 5), y: expect.closeTo(6, 5) })
-        );
+        const childXTo = mockGSAP._setters.get('child-x');
+        const childYTo = mockGSAP._setters.get('child-y');
+        expect(childXTo).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(childYTo).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
@@ -124,7 +135,11 @@ describe('js/magnetic-nav.js', () => {
         });
 
         el.dispatchEvent(new MouseEvent('mousemove', { clientX: 135, clientY: 135 }));
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+
+        const xTo = mockGSAP._setters.get('A-x');
+        const yTo = mockGSAP._setters.get('A-y');
+        expect(xTo).toHaveBeenCalledWith(4);
+        expect(yTo).toHaveBeenCalledWith(4);
 
         el.dispatchEvent(new MouseEvent('mouseleave'));
         expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 0, y: 0 }));
