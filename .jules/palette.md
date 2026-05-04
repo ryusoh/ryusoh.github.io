@@ -44,9 +44,11 @@
 **Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
 
 ## 2024-05-21 - [Accessibility: Viewport Zoom Restrictions]
+
 **Learning:** Restricting viewport zooming via `<meta name="viewport" content="... user-scalable=no, maximum-scale=1.0, minimum-scale=1">` actively harms low-vision users who rely on native browser pinch-to-zoom capabilities, causing immediate WCAG failures.
 **Action:** Always ensure viewport meta tags use standard configurations (`content="width=device-width, initial-scale=1.0"`) and explicitly remove restrictive zooming properties when auditing accessibility.
 
 ## 2024-05-21 - [Accessibility: Hidden Shortcuts on Interactive Elements]
+
 **Learning:** Screen-reader-only hints (like `aria-keyshortcuts`) fail to aid sighted keyboard users who might benefit from the same shortcuts but lack the visual cue to discover them.
 **Action:** When adding `aria-keyshortcuts` to interactive navigation elements, always pair them with native visual tooltips via `title` attributes (e.g., `title="Back to home (Esc)"`) to guarantee discoverability for all users.
