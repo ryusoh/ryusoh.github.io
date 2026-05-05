@@ -225,6 +225,153 @@ describe('js/block-navigation.js', () => {
         });
     });
 
+    describe('rapid ArrowDown bounce bug', () => {
+        let observedElements;
+        let observerCallback;
+        let bounceContext;
+        let bounceTesting;
+
+        beforeEach(() => {
+            jest.useFakeTimers();
+
+            // Setup DOM with multiple image blocks for scrollable content
+            document.documentElement.innerHTML = `<html><body data-page-type="project">
+                <div class="intro-header" data-block-nav="block"></div>
+                <div class="post-content">
+                    <img src="img1.jpg" alt="1" />
+                    <img src="img2.jpg" alt="2" />
+                    <img src="img3.jpg" alt="3" />
+                    <img src="img4.jpg" alt="4" />
+                    <img src="img5.jpg" alt="5" />
+                </div>
+            </body></html>`;
+
+            Object.defineProperty(document.documentElement, 'scrollHeight', {
+                value: 5000,
+                configurable: true,
+            });
+            Object.defineProperty(document.body, 'scrollHeight', {
+                value: 5000,
+                configurable: true,
+            });
+
+            observedElements = new Set();
+
+            // Functional IntersectionObserver mock that tracks observed elements
+            const MockIO = class {
+                constructor(callback) {
+                    observerCallback = callback;
+                }
+                observe(el) {
+                    observedElements.add(el);
+                }
+                unobserve(el) {
+                    observedElements.delete(el);
+                }
+                disconnect() {
+                    observedElements.clear();
+                }
+            };
+
+            // Must set on window so code's `window.IntersectionObserver` check works
+            window.IntersectionObserver = MockIO;
+
+            window.scrollTo = jest.fn();
+            window.scrollY = 0;
+
+            // Mock scrollIntoView to prevent jsdom warnings
+            Element.prototype.scrollIntoView = jest.fn();
+
+            // Create a fresh context with IntersectionObserver on window
+            bounceContext = {
+                window,
+                document: window.document,
+                setTimeout: window.setTimeout,
+                clearTimeout: window.clearTimeout,
+                Number: window.Number,
+                Math: window.Math,
+                Set: window.Set,
+                Event: window.Event,
+                console: { warn: jest.fn(), error: jest.fn() },
+            };
+
+            const freshCode = code.replace(
+                /const testing = {/,
+                'const testing = {\n        isNavigationKey,'
+            );
+            vm.createContext(bounceContext);
+            vm.runInContext(freshCode, bounceContext);
+            bounceTesting = bounceContext.window.__BlockNavigationForTesting;
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+            delete window.IntersectionObserver;
+            delete Element.prototype.scrollIntoView;
+        });
+
+        it('should NOT observe topSentinel (document.body) with IntersectionObserver', () => {
+            // document.body is blocks[0] (topSentinel) — it always intersects
+            // the narrow probe zone, causing getIndexFromObserver to return 0
+            // when no content block is visible, which resets currentIndex
+            expect(observedElements.has(document.body)).toBe(false);
+        });
+
+        it('should preserve intended index when pendingTimeout fires mid-scroll', () => {
+            // Simulate pressing ArrowDown 3 times rapidly
+            for (let i = 0; i < 3; i++) {
+                const event = new Event('keydown', { bubbles: true });
+                event.key = 'ArrowDown';
+                event.preventDefault = jest.fn();
+                document.dispatchEvent(event);
+            }
+
+            // After 3 presses, calculateNextIndex should return 4 (current=3, +1)
+            expect(bounceTesting.calculateNextIndex('ArrowDown')).toBe(4);
+
+            // Simulate observer firing with ONLY topSentinel visible
+            // (this is what happens mid-scroll when between content blocks)
+            if (observerCallback) {
+                observerCallback([{ target: document.body, isIntersecting: true }]);
+            }
+
+            // Now simulate the pendingTimeout firing (600ms for smooth scroll)
+            jest.advanceTimersByTime(600);
+
+            // After timeout, calculateNextIndex should STILL return 4
+            // Bug: without fix, syncCurrentIndex() recalculates from observer
+            // which sees body (index 0) as highest visible, resetting currentIndex to 0
+            expect(bounceTesting.calculateNextIndex('ArrowDown')).toBe(4);
+        });
+
+        it('should not bounce back when no content block is in probe zone after timeout', () => {
+            // Press ArrowDown 3 times
+            for (let i = 0; i < 3; i++) {
+                const event = new Event('keydown', { bubbles: true });
+                event.key = 'ArrowDown';
+                event.preventDefault = jest.fn();
+                document.dispatchEvent(event);
+            }
+
+            // Advance past pending timeout
+            jest.advanceTimersByTime(600);
+
+            // Simulate observer firing with no blocks visible
+            // (mid-scroll, between content blocks, probe zone is empty)
+            if (observerCallback) {
+                observerCallback([]);
+            }
+
+            // Fire scroll-debounce syncCurrentIndex (150ms)
+            jest.advanceTimersByTime(200);
+
+            // After all timers settle, the next ArrowDown should continue
+            // from index 3, not bounce back to 1
+            const nextIndex = bounceTesting.calculateNextIndex('ArrowDown');
+            expect(nextIndex).toBeGreaterThanOrEqual(4);
+        });
+    });
+
     describe('performScroll', () => {
         let mockTarget;
 

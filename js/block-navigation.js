@@ -234,7 +234,11 @@
             }
         }, options);
 
-        blocks.forEach((block) => observer.observe(block));
+        blocks.forEach((block) => {
+            if (block !== topSentinel) {
+                observer.observe(block);
+            }
+        });
     }
 
     function refreshBlocks() {
@@ -336,8 +340,8 @@
         pendingIndex = index;
         clearTimeout(pendingTimeout);
         pendingTimeout = setTimeout(() => {
+            currentIndex = pendingIndex;
             pendingIndex = null;
-            syncCurrentIndex();
         }, delay);
     }
 
