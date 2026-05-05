@@ -42,3 +42,8 @@
 
 **Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
 **Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
+
+## 2025-05-05 - [Accessibility: Viewport Native Pinch-to-Zoom]
+
+**Learning:** When operating as the 'Palette' persona, ensure viewport `<meta>` tags do not restrict zooming (`user-scalable=no`, `maximum-scale=1.0`, or `minimum-scale=1`). While these are sometimes used to prevent input zoom on mobile forms, they severely limit accessibility by preventing native pinch-to-zoom capabilities, making the interface unusable for low-vision users and violating WCAG compliance.
+**Action:** Always verify that viewport meta tags are set cleanly to `width=device-width, initial-scale=1` without zoom restrictions to enable native accessibility features for all users.
