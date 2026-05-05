@@ -19,9 +19,11 @@ describe('js/hover-preview.js', () => {
         mockTo = jest.fn();
         mockSetX = jest.fn();
         mockSetY = jest.fn();
+        const mockFromTo = jest.fn();
 
         window.gsap = {
             to: mockTo,
+            fromTo: mockFromTo,
             quickSetter: jest.fn().mockImplementation((target, prop) => {
                 if (prop === 'x') {
                     return mockSetX;
@@ -63,7 +65,8 @@ describe('js/hover-preview.js', () => {
         const mouseleaveEvent = new MouseEvent('mouseleave');
         link.dispatchEvent(mouseleaveEvent);
 
-        expect(mockTo).toHaveBeenCalledTimes(2);
+        expect(mockTo).toHaveBeenCalledTimes(1);
+        expect(window.gsap.fromTo).toHaveBeenCalledTimes(1);
 
         const mousemoveEvent = new MouseEvent('mousemove', { clientX: 200, clientY: 200 });
         document.dispatchEvent(mousemoveEvent);

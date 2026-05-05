@@ -645,3 +645,36 @@ html.js-enabled #nav {
     transform-style: preserve-3d;
     perspective: 1000px;
 }
+
+.serif-emphasis {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: normal;
+    letter-spacing: 0;
+}
+
+/* Scroll Marquee Styles */
+.scroll-marquee-container {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-50%);
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    white-space: nowrap;
+}
+
+.scroll-marquee-content {
+    display: inline-block;
+    font-size: 15vw;
+    font-weight: 900;
+    line-height: 1;
+    color: #fff;
+    will-change: transform;
+    font-family: 'P22UndergroundProThin', sans-serif;
+    text-transform: uppercase;
+}
