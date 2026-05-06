@@ -9,6 +9,9 @@ describe('page-transition.js', () => {
     let clampUnit;
     let updateHistoryUrl;
     let getValidatedUrl;
+    let isStandardMouseEvent;
+    let shouldSkipNavBack;
+    let isEligibleAnchor;
 
     beforeEach(() => {
         // Clear modules and re-require the source for each test to ensure fresh state
@@ -40,10 +43,179 @@ describe('page-transition.js', () => {
         clampUnit = testing.clampUnit;
         updateHistoryUrl = testing.updateHistoryUrl;
         getValidatedUrl = testing.getValidatedUrl;
+        isStandardMouseEvent = testing.isStandardMouseEvent;
+        shouldSkipNavBack = testing.shouldSkipNavBack;
+        isEligibleAnchor = testing.isEligibleAnchor;
     });
 
     afterEach(() => {
         jest.clearAllMocks();
+    });
+
+    describe('isStandardMouseEvent', () => {
+        test('returns true for a standard left click with no modifiers', () => {
+            const event = {
+                button: 0,
+                metaKey: false,
+                ctrlKey: false,
+                shiftKey: false,
+                altKey: false,
+            };
+            expect(isStandardMouseEvent(event)).toBe(true);
+        });
+
+        test('returns false for non-primary mouse buttons', () => {
+            expect(
+                isStandardMouseEvent({
+                    button: 1,
+                    metaKey: false,
+                    ctrlKey: false,
+                    shiftKey: false,
+                    altKey: false,
+                })
+            ).toBe(false); // Middle click
+            expect(
+                isStandardMouseEvent({
+                    button: 2,
+                    metaKey: false,
+                    ctrlKey: false,
+                    shiftKey: false,
+                    altKey: false,
+                })
+            ).toBe(false); // Right click
+        });
+
+        test('returns false when modifier keys are pressed', () => {
+            expect(
+                isStandardMouseEvent({
+                    button: 0,
+                    metaKey: true,
+                    ctrlKey: false,
+                    shiftKey: false,
+                    altKey: false,
+                })
+            ).toBe(false); // Cmd/Win key
+            expect(
+                isStandardMouseEvent({
+                    button: 0,
+                    metaKey: false,
+                    ctrlKey: true,
+                    shiftKey: false,
+                    altKey: false,
+                })
+            ).toBe(false); // Ctrl key
+            expect(
+                isStandardMouseEvent({
+                    button: 0,
+                    metaKey: false,
+                    ctrlKey: false,
+                    shiftKey: true,
+                    altKey: false,
+                })
+            ).toBe(false); // Shift key
+            expect(
+                isStandardMouseEvent({
+                    button: 0,
+                    metaKey: false,
+                    ctrlKey: false,
+                    shiftKey: false,
+                    altKey: true,
+                })
+            ).toBe(false); // Alt key
+            expect(
+                isStandardMouseEvent({
+                    button: 0,
+                    metaKey: true,
+                    ctrlKey: true,
+                    shiftKey: true,
+                    altKey: true,
+                })
+            ).toBe(false); // All modifiers
+        });
+    });
+
+    describe('shouldSkipNavBack', () => {
+        test('returns false for null or undefined elements', () => {
+            expect(shouldSkipNavBack(null)).toBe(false);
+            expect(shouldSkipNavBack(undefined)).toBe(false);
+        });
+
+        test('returns false for elements without a classList', () => {
+            expect(shouldSkipNavBack({})).toBe(false); // Plain object
+            expect(shouldSkipNavBack({ className: 'nav-back' })).toBe(false); // No classList property
+        });
+
+        test('returns false for elements without the nav-back class', () => {
+            const el = document.createElement('a');
+            el.className = 'some-other-class';
+            expect(shouldSkipNavBack(el)).toBe(false);
+
+            const el2 = document.createElement('div');
+            expect(shouldSkipNavBack(el2)).toBe(false); // No classes at all
+        });
+
+        test('returns true for elements with the nav-back class', () => {
+            const el = document.createElement('a');
+            el.className = 'nav-back';
+            expect(shouldSkipNavBack(el)).toBe(true);
+
+            const el2 = document.createElement('a');
+            el2.className = 'some-other-class nav-back another-class';
+            expect(shouldSkipNavBack(el2)).toBe(true);
+        });
+    });
+
+    describe('isEligibleAnchor', () => {
+        test('returns false for anchors with target="_blank" or other targets', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/page';
+            anchor.setAttribute('target', '_blank');
+            expect(isEligibleAnchor(anchor)).toBe(false);
+
+            anchor.setAttribute('target', '_parent');
+            expect(isEligibleAnchor(anchor)).toBe(false);
+        });
+
+        test('returns true for anchors with target="_self"', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/page';
+            anchor.setAttribute('target', '_self');
+            expect(isEligibleAnchor(anchor)).toBe(true);
+        });
+
+        test('returns false for anchors with a download attribute', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/file.pdf';
+            anchor.setAttribute('download', '');
+            expect(isEligibleAnchor(anchor)).toBe(false);
+        });
+
+        test('returns false for anchors with empty or hash-only hrefs', () => {
+            const anchor = document.createElement('a');
+
+            // Empty href
+            expect(isEligibleAnchor(anchor)).toBe(false);
+
+            // Hash only
+            anchor.setAttribute('href', '#');
+            expect(isEligibleAnchor(anchor)).toBe(false);
+
+            // Hash section
+            anchor.setAttribute('href', '#section');
+            expect(isEligibleAnchor(anchor)).toBe(false);
+        });
+
+        test('returns false if the anchor url matches current window location', () => {
+            const anchor = document.createElement('a');
+            anchor.href = window.location.href;
+            expect(isEligibleAnchor(anchor)).toBe(false);
+        });
+
+        test('returns true for valid, eligible anchors', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/other-page';
+            expect(isEligibleAnchor(anchor)).toBe(true);
+        });
     });
 
     describe('getValidatedUrl', () => {

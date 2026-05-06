@@ -385,6 +385,9 @@
 
     if (typeof window !== 'undefined') {
         window.__PageTransitionForTesting = {
+            isStandardMouseEvent,
+            shouldSkipNavBack,
+            isEligibleAnchor,
             hasTransitionParam,
             clearTransitionParam,
             clampUnit,
