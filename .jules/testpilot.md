@@ -53,6 +53,7 @@
 ## 2025-03-24 - Testing DOM elements evaluated by Node VM
 
 **Learning:** When testing DOM interactions like `document.createElement('link')` alongside `setTimeout` or `setInterval` execution inside Node VM contexts, you must construct the objects globally before evaluation or ensure that the `window` context passed into `vm.createContext()` is well-formed to correctly execute logic like `setTimeout`. This allows testing DOM modifications explicitly added by scripts using `.appendChild()` during asynchronous events.
+
 ## 2025-05-06 - Test Coverage for page-transition.js
 
 **Learning:** In this repository, internal vanilla JS utility functions are exposed to the Jest test environment by adding them to a global testing object at the bottom of the source file (e.g., `window.__PageTransitionForTesting`).
