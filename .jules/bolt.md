@@ -91,3 +91,13 @@
 
 **Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
 **Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
+
+## 2024-05-06 - Optimized Magnetic Nav GSAP instantiations
+
+**Learning:** Instantiating new GSAP tweens (via `gsap.to()`) inside a high-frequency event listener like `mousemove` causes memory churn and garbage collection overhead.
+**Action:** Move `querySelector` out of the listener block, and replace `gsap.to()` with `gsap.quickTo()` which returns a highly-performant setter function that skips instantiation and directly applies changes on each tick.
+
+## 2024-05-06 - Mocking GSAP quickTo in Jest
+
+**Learning:** When unit testing GSAP's `quickTo` function, simple jest mocks (like `jest.fn()`) will lose track of the specific setter function calls for different elements. Assertions check if `quickTo` was called, but fail to verify the actual values calculated within the high-frequency event listeners.
+**Action:** Expose a Map on the mock object (e.g. `mockGSAP._setters`) and mock `quickTo` to return a cached setter function associated with a specific key (like `target.tagName-prop`). This allows for explicit test assertions against the generated setter functions to verify internal coordinate logic.

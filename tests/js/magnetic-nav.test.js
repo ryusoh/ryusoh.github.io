@@ -9,8 +9,15 @@ describe('js/magnetic-nav.js', () => {
 
     beforeEach(() => {
         jest.resetModules();
+        const setters = {};
         mockGSAP = {
             to: jest.fn(),
+            _setters: setters,
+            quickTo: jest.fn().mockImplementation((target, prop) => {
+                const key = `${target.tagName || 'unknown'}-${prop}`;
+                setters[key] = jest.fn();
+                return setters[key];
+            }),
         };
 
         window.gsap = mockGSAP;
@@ -76,13 +83,12 @@ describe('js/magnetic-nav.js', () => {
         });
         el.dispatchEvent(mouseMoveEvent);
 
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        expect(mockGSAP._setters['A-x']).toHaveBeenCalledWith(4);
+        expect(mockGSAP._setters['A-y']).toHaveBeenCalledWith(4);
 
         const child = document.getElementById('child');
-        expect(mockGSAP.to).toHaveBeenCalledWith(
-            child,
-            expect.objectContaining({ x: expect.closeTo(6, 5), y: expect.closeTo(6, 5) })
-        );
+        expect(mockGSAP._setters['I-x']).toHaveBeenCalledWith(expect.closeTo(6, 5));
+        expect(mockGSAP._setters['I-y']).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
 
     test('snaps back on mouseleave', () => {
@@ -124,7 +130,8 @@ describe('js/magnetic-nav.js', () => {
         });
 
         el.dispatchEvent(new MouseEvent('mousemove', { clientX: 135, clientY: 135 }));
-        expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 4, y: 4 }));
+        expect(mockGSAP._setters['A-x']).toHaveBeenCalledWith(4);
+        expect(mockGSAP._setters['A-y']).toHaveBeenCalledWith(4);
 
         el.dispatchEvent(new MouseEvent('mouseleave'));
         expect(mockGSAP.to).toHaveBeenCalledWith(el, expect.objectContaining({ x: 0, y: 0 }));
