@@ -86,7 +86,6 @@ describe('js/magnetic-nav.js', () => {
         expect(mockGSAP._setters['A-x']).toHaveBeenCalledWith(4);
         expect(mockGSAP._setters['A-y']).toHaveBeenCalledWith(4);
 
-        const child = document.getElementById('child');
         expect(mockGSAP._setters['I-x']).toHaveBeenCalledWith(expect.closeTo(6, 5));
         expect(mockGSAP._setters['I-y']).toHaveBeenCalledWith(expect.closeTo(6, 5));
     });
