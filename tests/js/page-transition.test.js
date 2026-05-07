@@ -420,4 +420,105 @@ describe('page-transition.js', () => {
             expect(jsSource).not.toMatch(/ShaderMaterial/);
         });
     });
+
+    describe('storeCursorPositionForTransition', () => {
+        test('stores position in sessionStorage', () => {
+            const setItemMock = jest.fn();
+            const originalSessionStorage = window.sessionStorage;
+            Object.defineProperty(window, 'sessionStorage', {
+                value: { setItem: setItemMock },
+                writable: true,
+                configurable: true,
+            });
+
+            window.__PageTransitionForTesting.storeCursorPositionForTransition(100.5, 200.1);
+            expect(setItemMock).toHaveBeenCalledWith('customCursorPosition', '{"x":101,"y":200}');
+
+            window.sessionStorage = originalSessionStorage;
+        });
+
+        test('gracefully handles unavailable sessionStorage', () => {
+            const originalSessionStorage = window.sessionStorage;
+            Object.defineProperty(window, 'sessionStorage', {
+                value: undefined,
+                writable: true,
+                configurable: true,
+            });
+
+            expect(() => {
+                window.__PageTransitionForTesting.storeCursorPositionForTransition(10, 10);
+            }).not.toThrow();
+
+            window.sessionStorage = originalSessionStorage;
+        });
+
+        test('gracefully handles sessionStorage errors', () => {
+            const setItemMock = jest.fn().mockImplementation(() => {
+                throw new Error('Quota exceeded');
+            });
+            const originalSessionStorage = window.sessionStorage;
+            Object.defineProperty(window, 'sessionStorage', {
+                value: { setItem: setItemMock },
+                writable: true,
+                configurable: true,
+            });
+
+            window.__PageTransitionForTesting.storeCursorPositionForTransition(10, 10);
+            expect(window.console.warn).toHaveBeenCalledWith(
+                '[page-transition] cursor position store failed:',
+                expect.any(Error)
+            );
+
+            window.sessionStorage = originalSessionStorage;
+        });
+    });
+
+    describe('exitPage', () => {
+        test('adds page-transition--exiting class and calls flushStoredPosition', () => {
+            document.documentElement.classList.remove('page-transition--exiting');
+            const flushMock = jest.fn();
+            window.cursorInstances = {
+                cursor: { flushStoredPosition: flushMock },
+            };
+
+            const doneMock = jest.fn();
+            jest.useFakeTimers();
+
+            window.__PageTransitionForTesting.exitPage(doneMock);
+
+            expect(flushMock).toHaveBeenCalled();
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                true
+            );
+
+            jest.advanceTimersByTime(80);
+            expect(doneMock).toHaveBeenCalled();
+
+            jest.useRealTimers();
+            delete window.cursorInstances;
+        });
+    });
+
+    describe('applyStaggeredEntrance', () => {
+        test('applies styles and transitions to matched elements', () => {
+            document.body.innerHTML =
+                '<div class="intro-header"></div><div class="post-content"></div>';
+
+            window.__PageTransitionForTesting.applyStaggeredEntrance();
+
+            const header = document.querySelector('.intro-header');
+            const content = document.querySelector('.post-content');
+
+            expect(header.style.opacity).toBe('1');
+            expect(header.style.transform).toBe('scale(1) translateY(0)');
+            expect(header.style.transition).toContain('opacity 280ms');
+
+            expect(content.style.opacity).toBe('1');
+            expect(content.style.transform).toBe('scale(1) translateY(0)');
+            expect(content.style.transition).toContain('opacity 280ms');
+            expect(content.style.transition).toContain('50ms'); // Stagger delay
+
+            document.body.innerHTML = '';
+        });
+    });
 });
