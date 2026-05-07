@@ -58,10 +58,13 @@
 
 **Learning:** In this repository, internal vanilla JS utility functions are exposed to the Jest test environment by adding them to a global testing object at the bottom of the source file (e.g., `window.__PageTransitionForTesting`).
 **Action:** When adding test coverage to unexported internal functions in vanilla JS files, safely expose them by appending them to the existing `window.__*ForTesting` object rather than fundamentally changing module structure or application logic.
+
 ## 2024-05-24 - JSDOM Mocking Learnings
+
 **Learning:** In JSDOM test environments, `window.location` and its methods (e.g., `window.location.assign`) are read-only. Attempting to directly mock them via `window.location.assign = jest.fn();` throws TypeErrors.
 **Action:** When mocking navigation, use `delete window.location` followed by reassigning a mock object, ensuring restoration of the original location object in an `afterEach` hook or at the end of the test.
 
 ## 2024-05-24 - Console Mocks and Matcher Errors
+
 **Learning:** In JSDOM tests running through Jest, asserting `expect(window.console.warn).toHaveBeenCalled(...)` without explicitly spying on or replacing `window.console.warn` with a mock function (`jest.fn()`) will cause Jest to immediately throw a `Matcher error: received value must be a mock or spy function`.
 **Action:** Always replace or spy on console methods (`jest.spyOn(console, 'warn')` or `window.console.warn = jest.fn()`) before making assertions against them.
