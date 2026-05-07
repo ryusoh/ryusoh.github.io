@@ -385,6 +385,9 @@
 
     if (typeof window !== 'undefined') {
         window.__PageTransitionForTesting = {
+            storeCursorPositionForTransition,
+            applyStaggeredEntrance,
+            exitPage,
             isStandardMouseEvent,
             shouldSkipNavBack,
             isEligibleAnchor,
