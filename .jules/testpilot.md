@@ -68,10 +68,13 @@
 
 **Learning:** In JSDOM tests running through Jest, asserting `expect(window.console.warn).toHaveBeenCalled(...)` without explicitly spying on or replacing `window.console.warn` with a mock function (`jest.fn()`) will cause Jest to immediately throw a `Matcher error: received value must be a mock or spy function`.
 **Action:** Always replace or spy on console methods (`jest.spyOn(console, 'warn')` or `window.console.warn = jest.fn()`) before making assertions against them.
+
 ## 2024-05-24 - Closure Spying Flaws in IIFEs
-**Learning:** When unit testing internal functions within an IIFE closure (e.g., \`navigate\` calling \`exitPage\` internally), you cannot use \`jest.spyOn\` on the globally exported test wrapper (e.g., \`window.__PageTransitionForTesting\`) to intercept calls between sibling functions inside the closure. The spy will fail to intercept the internal call, leading to false-positive assertions or logic breakdowns.
+
+**Learning:** When unit testing internal functions within an IIFE closure (e.g., \`navigate\` calling \`exitPage\` internally), you cannot use \`jest.spyOn\` on the globally exported test wrapper (e.g., \`window.\_\_PageTransitionForTesting\`) to intercept calls between sibling functions inside the closure. The spy will fail to intercept the internal call, leading to false-positive assertions or logic breakdowns.
 **Action:** Always test the resulting side-effects of internal closure functions (e.g., verifying DOM manipulations, class additions, or delayed \`window.location.assign\`) rather than attempting to spy on the exported references.
 
 ## 2024-05-24 - Npx Jest Arguments Handling
+
 **Learning:** Running \`pnpm test -- --coverage\` fails with 'No tests found' because Jest interprets \`--coverage\` as a test regex match due to argument interception issues.
 **Action:** Always use \`npx jest --coverage\` directly to successfully generate coverage reports.
