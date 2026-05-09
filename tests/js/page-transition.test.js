@@ -12,6 +12,9 @@ describe('page-transition.js', () => {
     let isStandardMouseEvent;
     let shouldSkipNavBack;
     let isEligibleAnchor;
+    let prefersReducedMotion;
+    let buildTransitionUrl;
+    let navigate;
 
     beforeEach(() => {
         // Clear modules and re-require the source for each test to ensure fresh state
@@ -46,6 +49,9 @@ describe('page-transition.js', () => {
         isStandardMouseEvent = testing.isStandardMouseEvent;
         shouldSkipNavBack = testing.shouldSkipNavBack;
         isEligibleAnchor = testing.isEligibleAnchor;
+        prefersReducedMotion = testing.prefersReducedMotion;
+        buildTransitionUrl = testing.buildTransitionUrl;
+        navigate = testing.navigate;
     });
 
     afterEach(() => {
@@ -519,6 +525,108 @@ describe('page-transition.js', () => {
             expect(content.style.transition).toContain('50ms'); // Stagger delay
 
             document.body.innerHTML = '';
+        });
+    });
+
+    describe('prefersReducedMotion', () => {
+        test('should return false when window.matchMedia is missing', () => {
+            const prevMatchMedia = window.matchMedia;
+            delete window.matchMedia;
+            expect(prefersReducedMotion()).toBe(false);
+            window.matchMedia = prevMatchMedia;
+        });
+
+        test('should return matches boolean when window.matchMedia is present', () => {
+            const mockMatchMedia = jest.fn().mockImplementation((query) => ({
+                matches: true,
+                media: query,
+            }));
+            window.matchMedia = mockMatchMedia;
+            expect(prefersReducedMotion()).toBe(true);
+            expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)');
+
+            // Should cache and return the same boolean on subsequent calls
+            mockMatchMedia.mockClear();
+            expect(prefersReducedMotion()).toBe(true);
+            expect(mockMatchMedia).not.toHaveBeenCalled();
+        });
+
+        test('should gracefully handle errors during matchMedia check', () => {
+            jest.resetModules();
+            const mockMatchMedia = jest.fn().mockImplementation(() => {
+                throw new Error('err');
+            });
+            window.matchMedia = mockMatchMedia;
+            require('../../js/page-transition.js');
+            const localTesting = window.__PageTransitionForTesting;
+            const warnSpy = jest.spyOn(window.console, 'warn').mockImplementation(() => {});
+
+            expect(localTesting.prefersReducedMotion()).toBe(false);
+            expect(warnSpy).toHaveBeenCalled();
+            warnSpy.mockRestore();
+        });
+    });
+
+    describe('buildTransitionUrl', () => {
+        test('should build url with transition param', () => {
+            const url = buildTransitionUrl('/test');
+            expect(url).toContain('__pt=1');
+        });
+
+        test('should gracefully handle URL parsing errors', () => {
+            const originalURL = window.URL;
+            window.URL = jest.fn().mockImplementation(() => {
+                throw new Error('err');
+            });
+            const warnSpy = jest.spyOn(window.console, 'warn').mockImplementation(() => {});
+            const url = buildTransitionUrl('bad-url');
+            expect(url).toBe('bad-url');
+            expect(warnSpy).toHaveBeenCalled();
+            warnSpy.mockRestore();
+            window.URL = originalURL;
+        });
+    });
+
+    describe('navigate', () => {
+        test('should return false for invalid url', () => {
+            expect(navigate(null)).toBe(false);
+        });
+
+        test('should assign immediately and return true when prefersReducedMotion is true', () => {
+            jest.resetModules();
+            document.documentElement.classList.remove('page-transition--exiting');
+            window.matchMedia = jest.fn().mockImplementation(() => ({ matches: true }));
+            require('../../js/page-transition.js');
+            const localTesting = window.__PageTransitionForTesting;
+
+            expect(localTesting.navigate('https://example.com/test')).toBe(true);
+
+            // Should not add the exiting class since it skips exitPage
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                false
+            );
+            expect(window.location.assign).toHaveBeenCalledWith('https://example.com/test?__pt=1');
+        });
+
+        test('should call exitPage and assign when prefersReducedMotion is false', () => {
+            jest.resetModules();
+            window.matchMedia = jest.fn().mockImplementation(() => ({ matches: false }));
+            require('../../js/page-transition.js');
+            const localTesting = window.__PageTransitionForTesting;
+
+            jest.useFakeTimers();
+            expect(localTesting.navigate('https://example.com/test')).toBe(true);
+
+            // exitPage adds this class
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                true
+            );
+
+            // The location.assign happens inside a setTimeout in exitPage
+            jest.advanceTimersByTime(80);
+            expect(window.location.assign).toHaveBeenCalledWith('https://example.com/test?__pt=1');
+
+            jest.useRealTimers();
         });
     });
 });
