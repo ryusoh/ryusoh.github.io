@@ -396,6 +396,9 @@
             clampUnit,
             updateHistoryUrl,
             getValidatedUrl,
+            prefersReducedMotion,
+            buildTransitionUrl,
+            navigate,
         };
     }
 })();
