@@ -219,6 +219,7 @@ canvas {
     font-size: 50px;
     line-height: 1;
     opacity: 0.8;
+    font-family: 'P22UndergroundProThin';
 }
 
 #main h1 img,
@@ -268,6 +269,7 @@ canvas {
 footer a {
     color: #aaa;
     opacity: 0.8;
+    font-family: 'P22UndergroundProThin';
     transition:
         opacity 0.5s var(--brand-ease),
         color 0.5s var(--brand-ease);
@@ -393,7 +395,8 @@ footer {
     font-weight: bold; /* Makes "Portfolio" bold */
     letter-spacing: 1.5px;
     width: 30%; /* Encourage this column to be as narrow as possible */
-    opacity: 0.8; /* Makes the text slightly transparent */
+    opacity: 0.8;
+    font-family: 'P22UndergroundProThin'; /* Makes the text slightly transparent */
 }
 
 #nav .portfolio-link {
@@ -409,7 +412,8 @@ footer {
     text-decoration: none; /* Removes underline from links by default */
     display: block; /* Allows padding/margin if needed, and better click area */
     color: white;
-    opacity: 0.8; /* Makes the text slightly transparent initially */
+    opacity: 0.8;
+    font-family: 'P22UndergroundProThin'; /* Makes the text slightly transparent initially */
     /* font-family: 'Lobster', cursive; */ /* Removed to inherit font from parent */
     font-weight: bold; /* Match the "Portfolio" text weight */
     padding: 0.2em 0.4em 0.6em 0.4em; /* top, right&left, bottom - adjusted for box effect */
@@ -644,4 +648,40 @@ html.js-enabled #nav {
 #main h1 {
     transform-style: preserve-3d;
     perspective: 1000px;
+}
+
+/* Scroll Marquee Styles */
+.scroll-marquee-container {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+    margin: 4em 0;
+    padding: 1rem 0;
+    white-space: nowrap;
+    opacity: 0.8;
+    font-family: 'P22UndergroundProThin';
+}
+
+.scroll-marquee-content {
+    display: inline-flex;
+    white-space: nowrap;
+    will-change: transform;
+}
+
+.scroll-marquee-text {
+    font-family: 'P22UndergroundProThin';
+    font-size: 3rem;
+    letter-spacing: 0.1em;
+    padding-right: 0.25em;
+    color: #fff;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+@media screen and (min-width: 768px) {
+    .scroll-marquee-text {
+        font-size: 5rem;
+    }
 }
