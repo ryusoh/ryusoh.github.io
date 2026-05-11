@@ -629,4 +629,195 @@ describe('page-transition.js', () => {
             jest.useRealTimers();
         });
     });
+
+    describe('Global click and pageshow event handlers', () => {
+        let originalMatchMedia;
+        let documentClickListeners = [];
+        let documentPageShowListeners = [];
+        let originalAddEventListener;
+
+        beforeEach(() => {
+            originalMatchMedia = window.matchMedia;
+            window.matchMedia = jest.fn().mockImplementation((query) => ({
+                matches: false,
+                media: query,
+                onchange: null,
+                addListener: jest.fn(),
+                removeListener: jest.fn(),
+                addEventListener: jest.fn(),
+                removeEventListener: jest.fn(),
+                dispatchEvent: jest.fn(),
+            }));
+
+            documentClickListeners = [];
+            documentPageShowListeners = [];
+            originalAddEventListener = document.addEventListener;
+
+            document.addEventListener = jest.fn((event, cb, options) => {
+                if (event === 'click') {
+                    documentClickListeners.push(cb);
+                }
+                if (event === 'pageshow') {
+                    documentPageShowListeners.push(cb);
+                }
+                originalAddEventListener.call(document, event, cb, options);
+            });
+
+            const originalWindowAddEventListener = window.addEventListener;
+            window.addEventListener = jest.fn((event, cb, options) => {
+                if (event === 'pageshow') {
+                    documentPageShowListeners.push(cb);
+                }
+                originalWindowAddEventListener.call(window, event, cb, options);
+            });
+
+            jest.resetModules();
+            document.documentElement.innerHTML = '<body></body>';
+            document.documentElement.className = '';
+            document.body = document.createElement('body');
+            document.documentElement.appendChild(document.body);
+            require('../../js/page-transition.js');
+        });
+
+        afterEach(() => {
+            window.matchMedia = originalMatchMedia;
+            document.addEventListener = originalAddEventListener;
+        });
+
+        test('should navigate and prevent default when clicking an eligible anchor with data-page-transition', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/test';
+            anchor.setAttribute('data-page-transition', 'true');
+            document.body.appendChild(anchor);
+
+            const event = {
+                target: { closest: () => anchor },
+                preventDefault: function () {
+                    this.defaultPrevented = true;
+                },
+                defaultPrevented: false,
+                button: 0,
+            };
+            documentClickListeners[documentClickListeners.length - 1](event);
+
+            expect(event.defaultPrevented).toBe(true);
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                true
+            );
+        });
+
+        test('should not prevent default if anchor does not have data-page-transition attribute', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/test';
+            document.body.appendChild(anchor);
+
+            const event = {
+                target: { closest: () => anchor },
+                preventDefault: function () {
+                    this.defaultPrevented = true;
+                },
+                defaultPrevented: false,
+                button: 0,
+            };
+            documentClickListeners[documentClickListeners.length - 1](event);
+
+            expect(event.defaultPrevented).toBe(false);
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                false
+            );
+        });
+
+        test('should not navigate if anchor is not eligible (e.g., target="_blank")', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/test';
+            anchor.setAttribute('data-page-transition', 'true');
+            anchor.setAttribute('target', '_blank');
+            document.body.appendChild(anchor);
+
+            const event = {
+                target: { closest: () => anchor },
+                preventDefault: function () {
+                    this.defaultPrevented = true;
+                },
+                defaultPrevented: false,
+                button: 0,
+            };
+            documentClickListeners[documentClickListeners.length - 1](event);
+
+            expect(event.defaultPrevented).toBe(false);
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                false
+            );
+        });
+
+        test('should not navigate if there is a pending animation', () => {
+            const anchor1 = document.createElement('a');
+            anchor1.href = 'https://example.com/test1';
+            anchor1.setAttribute('data-page-transition', 'true');
+
+            const event1 = {
+                target: { closest: () => anchor1 },
+                preventDefault: function () {
+                    this.defaultPrevented = true;
+                },
+                defaultPrevented: false,
+                button: 0,
+            };
+
+            const activeClickListener = documentClickListeners[documentClickListeners.length - 1];
+
+            activeClickListener(event1);
+            expect(event1.defaultPrevented).toBe(true);
+
+            const anchor2 = document.createElement('a');
+            anchor2.href = 'https://example.com/test2';
+            anchor2.setAttribute('data-page-transition', 'true');
+
+            const event2 = {
+                target: { closest: () => anchor2 },
+                preventDefault: function () {
+                    this.defaultPrevented = true;
+                },
+                defaultPrevented: false,
+                button: 0,
+            };
+
+            activeClickListener(event2);
+            expect(event2.defaultPrevented).toBe(false);
+        });
+
+        test('pageshow event should reset exiting class and isAnimating', () => {
+            document.documentElement.classList.add('page-transition--exiting');
+
+            const pageshowEvent = {
+                persisted: true,
+            };
+
+            const activePageShowListener =
+                documentPageShowListeners[documentPageShowListeners.length - 1];
+            activePageShowListener(pageshowEvent);
+
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                false
+            );
+
+            const anchor = document.createElement('a');
+            anchor.href = 'https://example.com/test-after-pageshow';
+            anchor.setAttribute('data-page-transition', 'true');
+
+            const clickEvent = {
+                target: { closest: () => anchor },
+                preventDefault: function () {
+                    this.defaultPrevented = true;
+                },
+                defaultPrevented: false,
+                button: 0,
+            };
+
+            const activeClickListener = documentClickListeners[documentClickListeners.length - 1];
+            activeClickListener(clickEvent);
+
+            expect(clickEvent.defaultPrevented).toBe(true);
+        });
+    });
 });

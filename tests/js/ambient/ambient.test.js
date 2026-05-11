@@ -226,4 +226,101 @@ describe('js/ambient/ambient.js', () => {
         expect(mockSketch.create).toHaveBeenCalled();
         expect(window.AmbientTransitionController).toBeDefined();
     });
+
+    describe('shouldSkip', () => {
+        let originalInnerWidth;
+        let originalMatchMedia;
+
+        beforeEach(() => {
+            originalInnerWidth = window.innerWidth;
+            originalMatchMedia = window.matchMedia;
+
+            Object.defineProperty(window, 'innerWidth', {
+                writable: true,
+                configurable: true,
+                value: 1200,
+            });
+
+            window.matchMedia = jest.fn().mockImplementation((query) => ({
+                matches: false,
+                media: query,
+            }));
+        });
+
+        afterEach(() => {
+            Object.defineProperty(window, 'innerWidth', {
+                writable: true,
+                configurable: true,
+                value: originalInnerWidth,
+            });
+            window.matchMedia = originalMatchMedia;
+        });
+
+        test('returns true if window.Sketch is not available', () => {
+            const originalSketch = window.Sketch;
+            delete window.Sketch;
+            expect(window.__AmbientForTesting.shouldSkip({ minWidth: 1024 }, false)).toBe(true);
+            window.Sketch = originalSketch;
+        });
+
+        test('returns false if force is true, bypassing other checks', () => {
+            window.innerWidth = 500;
+            expect(window.__AmbientForTesting.shouldSkip({ minWidth: 1024 }, true)).toBe(false);
+        });
+
+        test('returns true if disabled in config', () => {
+            expect(
+                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: false }, false)
+            ).toBe(true);
+        });
+
+        test('returns true if prefers reduced motion is true and not explicitly bypassed', () => {
+            window.matchMedia = jest.fn().mockImplementation((query) => ({
+                matches: true,
+                media: query,
+            }));
+            jest.resetModules();
+            require('../../../js/ambient/ambient.js');
+            expect(
+                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
+            ).toBe(true);
+        });
+
+        test('returns false if prefers reduced motion is true but config respects reduced motion is false', () => {
+            window.matchMedia = jest.fn().mockImplementation((query) => ({
+                matches: true,
+                media: query,
+            }));
+            jest.resetModules();
+            require('../../../js/ambient/ambient.js');
+            expect(
+                window.__AmbientForTesting.shouldSkip(
+                    { minWidth: 1024, enabled: true, respectReducedMotion: false },
+                    false
+                )
+            ).toBe(false);
+        });
+
+        test('returns true if window.innerWidth is less than config minWidth', () => {
+            window.innerWidth = 800;
+            expect(
+                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
+            ).toBe(true);
+        });
+
+        test('returns false when all conditions are met', () => {
+            expect(
+                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
+            ).toBe(false);
+        });
+
+        test('gracefully handles missing matchMedia', () => {
+            delete window.matchMedia;
+            jest.resetModules();
+            require('../../../js/ambient/ambient.js');
+            expect(
+                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
+            ).toBe(false);
+        });
+    });
 });
