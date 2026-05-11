@@ -78,3 +78,8 @@
 
 **Learning:** Running \`pnpm test -- --coverage\` fails with 'No tests found' because Jest interprets \`--coverage\` as a test regex match due to argument interception issues.
 **Action:** Always use \`npx jest --coverage\` directly to successfully generate coverage reports.
+
+## 2025-02-24 - Testing Module-Level Event Listeners in JSDOM
+
+**Learning:** When testing global event handlers attached within an IIFE upon file require (`require('module.js')`), `jest.resetModules()` prevents caching issues, but JSDOM does not clear `document` or `window` event listeners between test blocks since the global `document` instance is shared. This causes event listener leaks where multiple versions of closures are triggered during `dispatchEvent`, leading to falsely preventing defaults.
+**Action:** Replace `document.addEventListener` with a mock function during `beforeEach` to intercept and locally capture the active listener array, then explicitly invoke `activeListener(event)` rather than relying on natural `dispatchEvent` bubbling to prevent cross-test contamination.
