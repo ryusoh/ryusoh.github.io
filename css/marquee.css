@@ -1,0 +1,54 @@
+/* Marquee Component
+   A GPU-accelerated infinite scrolling text marquee.
+   Designed with Lando Norris Test principles:
+   - Uses the brand easing curve
+   - GPU-backed purposeful motion
+   - No decoration for decoration's sake
+*/
+
+.marquee-container {
+    width: 100vw;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    padding: 30px 0;
+    margin-left: calc(-50vw + 50%); /* Full viewport width breakout */
+    margin-right: calc(-50vw + 50%);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    /* Hide scrollbars completely (scaffolding) */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.marquee-container::-webkit-scrollbar {
+    display: none;
+}
+
+.marquee-content {
+    display: inline-flex;
+    white-space: nowrap;
+    will-change: transform;
+    /* TranslateZ to force GPU backing */
+    transform: translate3d(0, 0, 0);
+}
+
+.marquee-content span {
+    display: inline-block;
+    padding-right: 20px; /* Space between repeating segments */
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 4rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.15);
+    /* Transition for subtle hover/theme changes if applied */
+    transition:
+        color 0.3s cubic-bezier(0.65, 0.05, 0, 1),
+        -webkit-text-stroke 0.3s cubic-bezier(0.65, 0.05, 0, 1);
+}
+
+html.js-enabled .marquee-container {
+    opacity: 0; /* Wait for load animation */
+}
