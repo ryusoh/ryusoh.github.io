@@ -1,4 +1,5 @@
 :root {
+    --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
     --hidden-cursor-value:
         url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==') 0 0, none;
 }
@@ -44,7 +45,7 @@ html.force-hide-cursor .custom-cursor {
     height: 20px;
     border: 2px solid #fff;
     border-radius: 50%;
-    transition: transform 0.15s ease;
+    transition: transform 0.15s var(--brand-ease);
     transform: scale(1);
     will-change: transform;
     background: transparent;

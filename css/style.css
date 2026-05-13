@@ -206,8 +206,8 @@ a.nav-next {
     align-items: center;
     justify-content: center;
     transition:
-        opacity 0.5s ease,
-        color 0.5s ease;
+        opacity 0.5s var(--brand-ease),
+        color 0.5s var(--brand-ease);
 }
 
 a.nav-back {
@@ -459,17 +459,17 @@ footer {
     line-height: 1.764705882em;
     opacity: 0;
     -webkit-transition:
-        top 0.3s ease,
-        opacity 0.3s ease;
+        top 0.3s var(--brand-ease),
+        opacity 0.3s var(--brand-ease);
     -moz-transition:
-        top 0.3s ease,
-        opacity 0.3s ease;
+        top 0.3s var(--brand-ease),
+        opacity 0.3s var(--brand-ease);
     -ms-transition:
-        top 0.3s ease,
-        opacity 0.3s ease;
+        top 0.3s var(--brand-ease),
+        opacity 0.3s var(--brand-ease);
     transition:
-        top 0.3s ease,
-        opacity 0.3s ease;
+        top 0.3s var(--brand-ease),
+        opacity 0.3s var(--brand-ease);
 }
 .floating-label-form-group::not(:first-child) {
     padding-left: 14px;
@@ -1117,7 +1117,7 @@ td {
     }
     article .container .row img {
         opacity: 1;
-        transition: opacity 0.5s ease-in-out;
+        transition: opacity 0.5s var(--brand-ease);
     }
     article .container .row img:hover {
         opacity: 1;
@@ -1221,8 +1221,8 @@ td {
 
 html.page-transition--exiting #main {
     transition:
-        opacity 250ms ease-out,
-        filter 250ms ease-out;
+        opacity 250ms var(--brand-ease),
+        filter 250ms var(--brand-ease);
     opacity: 0;
     filter: blur(4px);
 }
@@ -1242,8 +1242,8 @@ html.page-transition--exiting #main {
     opacity: 1 !important;
     transform: translateY(0) !important;
     transition:
-        opacity 0.6s ease-out,
-        transform 0.6s ease-out !important;
+        opacity 0.6s var(--brand-ease),
+        transform 0.6s var(--brand-ease) !important;
 }
 
 /* Respect reduced motion: show everything immediately */
