@@ -645,3 +645,41 @@ html.js-enabled #nav {
     transform-style: preserve-3d;
     perspective: 1000px;
 }
+
+/* --- Scroll Marquee --- */
+.scroll-marquee {
+    position: relative;
+    width: 100vw;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 20px 0;
+    margin-top: 40px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.scroll-marquee__inner {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+}
+
+.scroll-marquee__text {
+    font-size: 8vw;
+    font-weight: 900;
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding-right: 1.5vw;
+}
+
+@media (max-width: 768px) {
+    .scroll-marquee__text {
+        font-size: 12vw;
+    }
+}
