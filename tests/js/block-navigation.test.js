@@ -130,11 +130,13 @@ describe('js/block-navigation.js', () => {
         it('should use fallback window.scrollTo if scrollIntoView throws', () => {
             const target = document.createElement('div');
             Object.defineProperty(target, 'offsetTop', { value: 200 });
+            const warnSpy = jest.spyOn(window.console, 'warn').mockImplementation(() => {});
             target.scrollIntoView = () => {
                 throw new Error('Not supported');
             };
             testing.performScroll(target, false);
             expect(window.scrollTo).toHaveBeenCalled();
+            warnSpy.mockRestore();
         });
     });
 });
