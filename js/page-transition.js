@@ -79,6 +79,9 @@
             return false;
         }
         try {
+            if (window.location.href.length > 2000) {
+                return false;
+            }
             const url = new window.URL(window.location.href);
             return url.searchParams.has(TRANSITION_PARAM);
         } catch (e) {
@@ -99,6 +102,9 @@
             return;
         }
         try {
+            if (window.location.href.length > 2000) {
+                return;
+            }
             const url = new window.URL(window.location.href);
             if (!url.searchParams.has(TRANSITION_PARAM)) {
                 return;
