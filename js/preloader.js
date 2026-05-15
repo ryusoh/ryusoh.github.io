@@ -193,10 +193,12 @@
     }
 
     // Initialize the preloader when the page loads
-    document.addEventListener('DOMContentLoaded', () => {
-        const preloader = new AssetPreloader();
-        preloader.init();
-    });
+    if (typeof document !== 'undefined') {
+        document.addEventListener('DOMContentLoaded', () => {
+            const preloader = new AssetPreloader();
+            preloader.init();
+        });
+    }
 
     const testing = { AssetPreloader };
     if (typeof window !== 'undefined') {

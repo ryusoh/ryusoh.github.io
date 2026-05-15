@@ -83,3 +83,8 @@
 
 **Learning:** When testing global event handlers attached within an IIFE upon file require (`require('module.js')`), `jest.resetModules()` prevents caching issues, but JSDOM does not clear `document` or `window` event listeners between test blocks since the global `document` instance is shared. This causes event listener leaks where multiple versions of closures are triggered during `dispatchEvent`, leading to falsely preventing defaults.
 **Action:** Replace `document.addEventListener` with a mock function during `beforeEach` to intercept and locally capture the active listener array, then explicitly invoke `activeListener(event)` rather than relying on natural `dispatchEvent` bubbling to prevent cross-test contamination.
+
+## $(date +%Y-%m-%d) - Avoiding vm.runInContext for Test Coverage
+
+**Learning:** In this repository, several existing test files used Node's `vm.runInContext` to evaluate vanilla JS files by reading them as strings. This approach prevents Jest from properly instrumenting the code, resulting in 0% reported coverage even when tests pass.
+**Action:** Refactored tests to directly `require()` the source files. Internal IIFE methods were exposed by adding them to `window.__*ForTesting` within the source, allowing tests to assert against internal logic while maintaining accurate coverage metrics.
