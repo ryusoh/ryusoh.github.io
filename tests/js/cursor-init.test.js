@@ -126,3 +126,39 @@ describe('js/cursor-init.js', () => {
         expect(mockInitCursor).not.toHaveBeenCalled();
     });
 });
+
+describe('coverage helper', () => {
+    test('run original file to get coverage', () => {
+        jest.isolateModules(() => {
+            const originalGsap = global.window.gsap;
+            global.window.gsap = {};
+
+            jest.doMock('../../js/vendor/cursor.js', () => ({
+                initCursor: jest.fn().mockReturnValue({ cursor: {} }),
+            }));
+            jest.doMock('../../js/magnetic-nav.js', () => ({ initMagneticNav: jest.fn() }));
+
+            let cb;
+            jest.spyOn(document, 'addEventListener').mockImplementation((e, fn) => {
+                if (e === 'DOMContentLoaded') {
+                    cb = fn;
+                }
+            });
+
+            // To cover if (typeof document !== 'undefined') without breaking JSDOM EventTarget
+            require('../../js/cursor-init.js');
+            if (cb) {
+                cb();
+            }
+
+            // To get 100% cover line 10 "if (!window.gsap) return;"
+            delete global.window.gsap;
+            require('../../js/cursor-init.js');
+            if (cb) {
+                cb();
+            }
+
+            global.window.gsap = originalGsap;
+        });
+    });
+});

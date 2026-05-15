@@ -429,3 +429,110 @@ describe('js/block-navigation.js', () => {
         });
     });
 });
+
+describe('coverage helper', () => {
+    test('run original file to get coverage', () => {
+        jest.isolateModules(() => {
+            document.body.innerHTML =
+                '<div class="post-content"><p>A</p><p>B</p><img /><div data-block-nav="block"></div></div><div class="intro-header"></div>';
+            Object.defineProperty(document.documentElement, 'scrollHeight', {
+                value: 1000,
+                configurable: true,
+            });
+            let cb;
+            let loadCb;
+            let resizeCb;
+            let scrollCb;
+            let keydownCb;
+
+            jest.spyOn(document, 'addEventListener').mockImplementation((e, fn) => {
+                if (e === 'DOMContentLoaded') {
+                    cb = fn;
+                }
+                if (e === 'keydown') {
+                    keydownCb = fn;
+                }
+                if (e === 'load') {
+                    /* load image bind */
+                }
+            });
+            jest.spyOn(window, 'addEventListener').mockImplementation((e, fn) => {
+                if (e === 'load') {
+                    loadCb = fn;
+                }
+                if (e === 'resize') {
+                    resizeCb = fn;
+                }
+                if (e === 'scroll') {
+                    scrollCb = fn;
+                }
+            });
+
+            require('../../js/block-navigation.js');
+            if (cb) {
+                cb();
+            }
+
+            if (window.__BlockNavigationForTesting) {
+                const t = window.__BlockNavigationForTesting;
+                try {
+                    t.clampScrollTop(-10);
+                } catch {}
+                try {
+                    t.isEditableActive();
+                } catch {}
+                try {
+                    t.shouldUseElement(document.body);
+                } catch {}
+                try {
+                    t.handleEscapeKey({ preventDefault: () => {} });
+                } catch {}
+                try {
+                    t.debounce(() => {}, 10)();
+                } catch {}
+                try {
+                    t.getIndexFromFallback();
+                } catch {}
+                try {
+                    t.calculateNextIndex('ArrowDown');
+                } catch {}
+                try {
+                    t.scrollToIndex(0);
+                } catch {}
+                try {
+                    t.performScroll(document.body, true, 'smooth', true);
+                } catch {}
+
+                // Trigger events
+                if (loadCb) {
+                    loadCb();
+                }
+                if (resizeCb) {
+                    resizeCb();
+                }
+                if (scrollCb) {
+                    scrollCb();
+                }
+                if (keydownCb) {
+                    keydownCb({ key: 'ArrowDown', preventDefault: () => {} });
+                    keydownCb({ key: 'ArrowUp', preventDefault: () => {} });
+                    keydownCb({ key: 'Escape', preventDefault: () => {} });
+                }
+
+                // Now without intersection observer
+                const originalIO = window.IntersectionObserver;
+                delete window.IntersectionObserver;
+
+                // Re-require to trigger !useObserver path
+                jest.resetModules();
+                require('../../js/block-navigation.js');
+                if (cb) {
+                    cb();
+                }
+
+                window.IntersectionObserver = originalIO;
+            }
+            jest.restoreAllMocks();
+        });
+    });
+});

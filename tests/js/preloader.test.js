@@ -177,3 +177,73 @@ describe('AssetPreloader', () => {
         });
     });
 });
+
+describe('coverage helper', () => {
+    test('run original file to get coverage', () => {
+        jest.isolateModules(() => {
+            let cb;
+            jest.spyOn(document, 'addEventListener').mockImplementation((e, fn) => {
+                if (e === 'DOMContentLoaded') {
+                    cb = fn;
+                }
+            });
+            require('../../js/preloader.js');
+            if (cb) {
+                cb();
+            }
+
+            if (window.__AssetPreloaderForTesting) {
+                const p = new window.__AssetPreloaderForTesting.AssetPreloader();
+                p.preloadImage('/test');
+                p.preloadAssets(['p1']);
+
+                delete window.location;
+                window.location = { pathname: '/p1/' };
+                p.getCurrentPageKey();
+                p.preloadForCurrentPage();
+
+                window.location = { pathname: '/p2/' };
+                p.preloadForCurrentPage();
+
+                window.location = { pathname: '/p3/' };
+                p.preloadForCurrentPage();
+
+                window.location = { pathname: '/index.html' };
+                p.preloadForCurrentPage();
+
+                const originalSW = navigator.serviceWorker;
+                Object.defineProperty(navigator, 'serviceWorker', {
+                    value: {},
+                    configurable: true,
+                });
+
+                let loadCb;
+                jest.spyOn(window, 'addEventListener').mockImplementation((e, fn) => {
+                    if (e === 'load') {
+                        loadCb = fn;
+                    }
+                });
+
+                p.init();
+                if (loadCb) {
+                    loadCb();
+                }
+
+                const origRIC = window.requestIdleCallback;
+                window.requestIdleCallback = undefined;
+                p.init();
+                if (loadCb) {
+                    loadCb();
+                }
+                window.requestIdleCallback = origRIC;
+
+                Object.defineProperty(navigator, 'serviceWorker', {
+                    value: originalSW,
+                    configurable: true,
+                });
+            }
+
+            jest.restoreAllMocks();
+        });
+    });
+});

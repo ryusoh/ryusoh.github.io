@@ -4,8 +4,8 @@
 
 describe('Service Worker', () => {
     let sw;
-    let mockSelf;
     let mockCaches;
+    let mockSelf;
     let mockFetch;
     let mockCache;
 
@@ -45,8 +45,11 @@ describe('Service Worker', () => {
         window.skipWaiting = mockSelf.skipWaiting;
         window.clients = mockSelf.clients;
 
-        require('../../sw.js');
-        sw = window.__swForTesting;
+        sw = require('../../sw.js');
+    });
+
+    test('module exposes functions', () => {
+        expect(sw.isValidResponse).toBeDefined();
     });
 
     test('isValidResponse should validate correctly', () => {
