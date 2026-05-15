@@ -153,14 +153,14 @@ describe('AssetPreloader', () => {
             const spy = jest.spyOn(preloader, 'preloadForCurrentPage').mockImplementation(() => {});
 
             delete window.requestIdleCallback;
-            window.setTimeout = jest.fn((cb) => cb());
 
             preloader.init();
 
             const event = new Event('load');
             window.dispatchEvent(event);
 
-            expect(window.setTimeout).toHaveBeenCalled();
+            // Advance timers to trigger the setTimeout callback inside init
+            jest.advanceTimersByTime(1000);
             expect(spy).toHaveBeenCalled();
 
             spy.mockRestore();
