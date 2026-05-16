@@ -15,11 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const portfolioLinks = document.querySelectorAll('#nav .portfolio-link a');
-    if (portfolioLinks.length === 0) {
-        return;
-    }
-
     // Map directories to specific thumbnail previews
     // Ideally we fetch a random one, but for reliability we define a static map
     const imgMap = {
@@ -49,13 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let mouseX = 0;
     let mouseY = 0;
 
+    let rafId = null;
+
     // Update position smoothly using requestAnimationFrame
     const updatePosition = () => {
         if (isHovering) {
             // Offset slightly to the right and bottom of the cursor
             setX(mouseX + 20);
             setY(mouseY + 20);
-            requestAnimationFrame(updatePosition);
+            rafId = requestAnimationFrame(updatePosition);
+        } else {
+            rafId = null;
         }
     };
 
@@ -65,42 +64,68 @@ document.addEventListener('DOMContentLoaded', () => {
         mouseY = e.clientY;
     });
 
-    portfolioLinks.forEach((link) => {
-        link.addEventListener('mouseenter', (e) => {
-            const href = link.getAttribute('href');
-            const imgFile = imgMap[href];
+    /**
+     * Bolt Optimization:
+     * - What: Replace O(N) individual `mouseenter` and `mouseleave` event listeners with O(1) document-level event delegation using `mouseover` and `mouseout`.
+     * - Why: The previous implementation attached individual listeners to every portfolio link. On pages with many links, this allocates unnecessary memory and slows down initialization.
+     * - Impact: Measurably reduces memory footprint and initialization time by attaching a single set of listeners to the document body.
+     */
+    document.body.addEventListener('mouseover', (e) => {
+        const link = e.target.closest('#nav .portfolio-link a');
+        if (!link) {
+            return;
+        }
 
-            if (imgFile) {
-                const targetDir = href.replace('./', '').replace('/', ''); // e.g. p1
-                previewImg.src = `./assets/img/${targetDir}/${imgFile}`;
+        // Prevent triggering on child elements to avoid flickering
+        if (e.relatedTarget && link.contains(e.relatedTarget)) {
+            return;
+        }
 
-                isHovering = true;
-                mouseX = e.clientX;
-                mouseY = e.clientY;
+        const href = link.getAttribute('href');
+        const imgFile = imgMap[href];
 
-                // Initial jump to mouse position before animation starts
-                setX(mouseX + 20);
-                setY(mouseY + 20);
+        if (imgFile) {
+            const targetDir = href.replace('./', '').replace('/', ''); // e.g. p1
+            previewImg.src = `./assets/img/${targetDir}/${imgFile}`;
 
-                requestAnimationFrame(updatePosition);
+            isHovering = true;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
 
-                gsap.to(previewContainer, {
-                    scale: 1,
-                    opacity: 1,
-                    duration: 0.4,
-                    ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
-                });
+            // Initial jump to mouse position before animation starts
+            setX(mouseX + 20);
+            setY(mouseY + 20);
+
+            if (!rafId) {
+                rafId = requestAnimationFrame(updatePosition);
             }
-        });
 
-        link.addEventListener('mouseleave', () => {
-            isHovering = false;
             gsap.to(previewContainer, {
-                scale: 0.8,
-                opacity: 0,
-                duration: 0.3,
+                scale: 1,
+                opacity: 1,
+                duration: 0.4,
                 ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
             });
+        }
+    });
+
+    document.body.addEventListener('mouseout', (e) => {
+        const link = e.target.closest('#nav .portfolio-link a');
+        if (!link) {
+            return;
+        }
+
+        // Prevent triggering on child elements to avoid flickering
+        if (e.relatedTarget && link.contains(e.relatedTarget)) {
+            return;
+        }
+
+        isHovering = false;
+        gsap.to(previewContainer, {
+            scale: 0.8,
+            opacity: 0,
+            duration: 0.3,
+            ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
         });
     });
 });

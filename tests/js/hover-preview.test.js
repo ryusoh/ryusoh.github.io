@@ -54,14 +54,18 @@ describe('js/hover-preview.js', () => {
 
         const link = document.querySelector('a');
 
-        const mouseenterEvent = new MouseEvent('mouseenter', { clientX: 100, clientY: 100 });
-        link.dispatchEvent(mouseenterEvent);
+        const mouseoverEvent = new MouseEvent('mouseover', {
+            bubbles: true,
+            clientX: 100,
+            clientY: 100,
+        });
+        link.dispatchEvent(mouseoverEvent);
 
         expect(mockSetX).toHaveBeenCalledWith(120);
         expect(mockSetY).toHaveBeenCalledWith(120);
 
-        const mouseleaveEvent = new MouseEvent('mouseleave');
-        link.dispatchEvent(mouseleaveEvent);
+        const mouseoutEvent = new MouseEvent('mouseout', { bubbles: true });
+        link.dispatchEvent(mouseoutEvent);
 
         expect(mockTo).toHaveBeenCalledTimes(2);
 
@@ -69,7 +73,43 @@ describe('js/hover-preview.js', () => {
         document.dispatchEvent(mousemoveEvent);
     });
 
-    test('handles mouseenter for unmapped links', () => {
+    test('ignores mouseover/mouseout events transitioning between child elements', () => {
+        require('../../js/hover-preview.js');
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        mockSetX.mockClear();
+        mockTo.mockClear();
+
+        const link = document.querySelector('a');
+        const span = document.createElement('span');
+        link.appendChild(span);
+
+        // Simulate moving from the link itself to the span inside it
+        const mouseoverEvent = new MouseEvent('mouseover', {
+            bubbles: true,
+            clientX: 100,
+            clientY: 100,
+            relatedTarget: link,
+        });
+
+        // Setup JSDOM link.contains to actually work for this test
+        link.contains = jest.fn((el) => el === link || el === span);
+
+        span.dispatchEvent(mouseoverEvent);
+
+        expect(mockSetX).not.toHaveBeenCalled();
+
+        const mouseoutEvent = new MouseEvent('mouseout', {
+            bubbles: true,
+            relatedTarget: span,
+        });
+
+        link.dispatchEvent(mouseoutEvent);
+        expect(mockTo).not.toHaveBeenCalled();
+    });
+
+    test('handles mouseover for unmapped links', () => {
         require('../../js/hover-preview.js');
         const event = new Event('DOMContentLoaded');
         document.dispatchEvent(event);
@@ -79,8 +119,12 @@ describe('js/hover-preview.js', () => {
         const link = document.querySelectorAll('a')[1]; // Link 2, ./p2/ is mapped! Link 3 is unmapped if we create one.
         link.setAttribute('href', './unmapped/');
 
-        const mouseenterEvent = new MouseEvent('mouseenter', { clientX: 100, clientY: 100 });
-        link.dispatchEvent(mouseenterEvent);
+        const mouseoverEvent = new MouseEvent('mouseover', {
+            bubbles: true,
+            clientX: 100,
+            clientY: 100,
+        });
+        link.dispatchEvent(mouseoverEvent);
 
         expect(mockSetX).not.toHaveBeenCalled();
     });
@@ -93,12 +137,25 @@ describe('js/hover-preview.js', () => {
         const link = document.querySelector('a');
 
         // This will trigger requestAnimationFrame and run updatePosition
-        const mouseenterEvent = new MouseEvent('mouseenter', { clientX: 100, clientY: 100 });
-        link.dispatchEvent(mouseenterEvent);
+        const mouseoverEvent = new MouseEvent('mouseover', {
+            bubbles: true,
+            clientX: 100,
+            clientY: 100,
+        });
+        link.dispatchEvent(mouseoverEvent);
 
         setTimeout(() => {
             expect(mockSetX).toHaveBeenCalledWith(120);
-            done();
+
+            // test stopping raf on mouseout
+            const mouseoutEvent = new MouseEvent('mouseout', { bubbles: true });
+            link.dispatchEvent(mouseoutEvent);
+
+            setTimeout(() => {
+                // raf should be null and not called anymore, but we can't easily assert local rafId variable,
+                // but checking logic execution flow via lack of further setX increment if we mocked mouse movement
+                done();
+            }, 10);
         }, 10);
     });
 
