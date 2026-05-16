@@ -111,6 +111,66 @@ describe('FontAwesomeLoader', () => {
         expect(waitSpy).toHaveBeenCalled();
     });
 
+    describe('cleanupTestElement', () => {
+        it('should remove testElement from its parentNode and set it to null', () => {
+            const loader = new FontAwesomeLoader();
+            const parent = context.document.createElement('div');
+            const el = context.document.createElement('div');
+            parent.appendChild(el);
+            loader.testElement = el;
+
+            loader.cleanupTestElement();
+            expect(parent.contains(el)).toBe(false);
+            expect(loader.testElement).toBeNull();
+        });
+
+        it('should not throw if testElement is null', () => {
+            const loader = new FontAwesomeLoader();
+            loader.testElement = null;
+            expect(() => loader.cleanupTestElement()).not.toThrow();
+        });
+
+        it('should not throw if testElement has no parentNode', () => {
+            const loader = new FontAwesomeLoader();
+            const el = context.document.createElement('div');
+            loader.testElement = el;
+            expect(() => loader.cleanupTestElement()).not.toThrow();
+        });
+    });
+
+    describe('waitForFontLoad Error Handling', () => {
+        it('should not throw or error if no font-awesome link is found', () => {
+            const loader = new FontAwesomeLoader();
+
+            // clear links
+            context.document.documentElement.innerHTML = '<html><head></head><body></body></html>';
+
+            expect(() => loader.waitForFontLoad()).not.toThrow();
+        });
+
+        it('should handle font link load gracefully even if already loaded', () => {
+            const loader = new FontAwesomeLoader();
+            loader.fontAwesomeLoaded = true;
+
+            const link = context.document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'font-awesome.css';
+            context.document.head.appendChild(link);
+
+            const showSpy = jest.spyOn(loader, 'showIcons');
+            const stopSpy = jest.spyOn(loader, 'stopChecking');
+
+            loader.waitForFontLoad();
+
+            // Call onload
+            if (link.onload) { link.onload(); }
+
+            // Should not show icons again if already loaded
+            expect(showSpy).not.toHaveBeenCalled();
+            expect(stopSpy).not.toHaveBeenCalled();
+        });
+    });
+
     describe('waitForFontLoad', () => {
         beforeEach(() => {
             jest.useFakeTimers();
