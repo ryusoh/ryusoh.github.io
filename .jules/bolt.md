@@ -91,3 +91,8 @@
 
 **Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
 **Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
+
+## 2026-05-16 - Event Delegation for hover-preview.js
+
+**Learning:** Found that `hover-preview.js` was attaching individual `mouseenter` and `mouseleave` event listeners to every portfolio link. When converting to O(1) event delegation using `mouseover` and `mouseout`, these events bubble, which causes severe UI flickering and concurrent `requestAnimationFrame` leaks when moving the mouse across child elements within the target.
+**Action:** Replace O(N) individual `mouseenter` and `mouseleave` event listeners with O(1) document-level event delegation. However, always include a boundary check (`if (e.relatedTarget && link.contains(e.relatedTarget)) return;`) to ensure the event didn't just bubble up from a child element, properly simulating the non-bubbling behavior of `mouseenter`/`mouseleave`.
