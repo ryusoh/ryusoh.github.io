@@ -163,7 +163,9 @@ describe('FontAwesomeLoader', () => {
             loader.waitForFontLoad();
 
             // Call onload
-            if (link.onload) { link.onload(); }
+            if (link.onload) {
+                link.onload();
+            }
 
             // Should not show icons again if already loaded
             expect(showSpy).not.toHaveBeenCalled();
