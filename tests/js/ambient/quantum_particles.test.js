@@ -44,6 +44,45 @@ describe('quantum_particles.js', () => {
         return require('../../../js/ambient/quantum_particles.js');
     }
 
+    describe('ready', () => {
+        it('should execute function immediately if document.readyState is complete', () => {
+            const qp = getQuantumParticles();
+            const fn = jest.fn();
+            Object.defineProperty(document, 'readyState', {
+                get: () => 'complete',
+                configurable: true,
+            });
+            qp.ready(fn);
+            expect(fn).toHaveBeenCalled();
+        });
+
+        it('should execute function immediately if document.readyState is interactive', () => {
+            const qp = getQuantumParticles();
+            const fn = jest.fn();
+            Object.defineProperty(document, 'readyState', {
+                get: () => 'interactive',
+                configurable: true,
+            });
+            qp.ready(fn);
+            expect(fn).toHaveBeenCalled();
+        });
+
+        it('should add DOMContentLoaded listener if document.readyState is loading', () => {
+            const qp = getQuantumParticles();
+            const fn = jest.fn();
+            const addSpy = jest.spyOn(document, 'addEventListener');
+            Object.defineProperty(document, 'readyState', {
+                get: () => 'loading',
+                configurable: true,
+            });
+
+            qp.ready(fn);
+
+            expect(fn).not.toHaveBeenCalled();
+            expect(addSpy).toHaveBeenCalledWith('DOMContentLoaded', fn, { once: true });
+        });
+    });
+
     describe('clamp', () => {
         it('should return the value when it is within the bounds', () => {
             const qp = getQuantumParticles();

@@ -140,6 +140,68 @@ describe('js/block-navigation.js', () => {
             const el = document.querySelector('.post-content p');
             expect(testing.shouldUseElement(el)).toBe(true);
         });
+        it('should return false if element is null', () => {
+            expect(testing.shouldUseElement(null)).toBe(false);
+        });
+
+        it('should return false for script, style, noscript tags', () => {
+            const script = document.createElement('script');
+            const style = document.createElement('style');
+            const noscript = document.createElement('noscript');
+            document.body.appendChild(script);
+            document.body.appendChild(style);
+            document.body.appendChild(noscript);
+
+            expect(testing.shouldUseElement(script)).toBe(false);
+            expect(testing.shouldUseElement(style)).toBe(false);
+            expect(testing.shouldUseElement(noscript)).toBe(false);
+        });
+
+        it('should return false if closest parent has data-block-nav="ignore"', () => {
+            const parent = document.createElement('div');
+            parent.setAttribute('data-block-nav', 'ignore');
+            const child = document.createElement('div');
+            parent.appendChild(child);
+            document.body.appendChild(parent);
+            expect(testing.shouldUseElement(child)).toBe(false);
+        });
+
+        it('should return true if element has data-block-nav="block"', () => {
+            const el = document.createElement('div');
+            el.setAttribute('data-block-nav', 'block');
+            document.body.appendChild(el);
+            expect(testing.shouldUseElement(el)).toBe(true);
+        });
+
+        it('should return false if closest parent has data-block-nav="block" but element itself does not', () => {
+            const parent = document.createElement('div');
+            parent.setAttribute('data-block-nav', 'block');
+            const child = document.createElement('div');
+            parent.appendChild(child);
+            document.body.appendChild(parent);
+            expect(testing.shouldUseElement(child)).toBe(false);
+        });
+
+        it('should return true for .post-heading only if it is not inside .intro-header', () => {
+            const div = document.createElement('div');
+            div.className = 'post-heading';
+            document.body.appendChild(div);
+            expect(testing.shouldUseElement(div)).toBe(true);
+
+            const introHeader = document.createElement('div');
+            introHeader.className = 'intro-header';
+            const childHeading = document.createElement('div');
+            childHeading.className = 'post-heading';
+            introHeader.appendChild(childHeading);
+            document.body.appendChild(introHeader);
+            expect(testing.shouldUseElement(childHeading)).toBe(false);
+        });
+
+        it('should return false for element not matching anything', () => {
+            const el = document.createElement('div');
+            document.body.appendChild(el);
+            expect(testing.shouldUseElement(el)).toBe(false);
+        });
     });
 
     describe('debounce', () => {
