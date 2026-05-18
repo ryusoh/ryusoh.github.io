@@ -42,3 +42,8 @@
 
 **Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
 **Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.
+
+## 2026-11-23 - [Accessibility: Discoverability of aria-keyshortcuts]
+
+**Learning:** Using `aria-keyshortcuts` perfectly provides programmatic keyboard shortcut bindings for screen readers. However, sighted keyboard users and mouse users have zero visual indication that these shortcuts exist without reading the DOM or relying on extensive trial-and-error, severely diminishing their utility and the intended UX delight.
+**Action:** Always pair hidden `aria-keyshortcuts` with native visual tooltips via the `title` attribute (e.g., `title="Back to home (Escape)"`). This satisfies the "discoverability" requirement for all users without polluting the visual canvas or requiring custom tooltip components.
