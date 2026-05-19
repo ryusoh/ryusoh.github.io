@@ -51,3 +51,9 @@
 **Vulnerability:** The native `new window.URL()` constructor was repeatedly called with `window.location.href` to parse query parameters (e.g., `hasTransitionParam()`) without any length limitations. An attacker could craft an excessively long URL that forces the client to allocate significant memory and CPU time to parse it, causing a Denial of Service (DoS) and hanging the user's browser.
 **Learning:** Even built-in browser functions like `new window.URL()` can be computationally expensive when forced to parse arbitrarily massive strings. Protecting against DoS requires validating the size of the input _before_ passing it to the parsing engine, just as we did for `URLSearchParams`.
 **Prevention:** Apply bounds checking (e.g., `window.location.href.length > 2000`) before passing dynamic, attacker-controlled strings like URLs into native parsing constructors.
+
+## 2026-06-25 - [Incomplete DoS Prevention on URL Parsing]
+
+**Vulnerability:** While `window.location.search` was previously secured against massive lengths before parsing to prevent Denial of Service (DoS), the `window.location.href` and passed `url` string were passed to `new window.URL()` without length limits in `getValidatedUrl` and `buildTransitionUrl`. An attacker could exploit this by crafting a massive URL.
+**Learning:** Security fixes must be comprehensive across all similar patterns. Fixing a DoS vulnerability for `URLSearchParams` but leaving `new window.URL` exposed reveals a gap in identifying all vector surfaces for a single class of vulnerability (Unbounded Input to Native Parsers).
+**Prevention:** Apply rigorous pattern searching (`grep -rn 'new window.URL'`) when addressing DoS vulnerabilities to ensure all similar usages (e.g., `new window.URL`, `URLSearchParams`) enforce strict length boundaries (e.g., `> 2000` characters) on inputs derived from the environment.

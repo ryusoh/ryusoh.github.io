@@ -230,7 +230,14 @@
     }
 
     function getValidatedUrl(url) {
-        if (typeof url !== 'string') {
+        if (typeof url !== 'string' || url.length > 2000) {
+            return null;
+        }
+        if (
+            typeof window !== 'undefined' &&
+            window.location &&
+            window.location.href.length > 2000
+        ) {
             return null;
         }
         const cleanUrl = url.replace(/^[\s\u0000-\u001F]+/g, '');
@@ -250,6 +257,16 @@
     }
 
     function buildTransitionUrl(url) {
+        if (typeof url !== 'string' || url.length > 2000) {
+            return url;
+        }
+        if (
+            typeof window !== 'undefined' &&
+            window.location &&
+            window.location.href.length > 2000
+        ) {
+            return url;
+        }
         try {
             const nextUrl = new window.URL(url, window.location.href);
             nextUrl.searchParams.set(TRANSITION_PARAM, '1');
