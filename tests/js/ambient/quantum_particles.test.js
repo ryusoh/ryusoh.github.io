@@ -177,6 +177,18 @@ describe('quantum_particles.js', () => {
         });
     });
 
+    it('should log warning and return false if createElement fails', () => {
+        const spy = jest.spyOn(document, 'createElement').mockImplementation(() => {
+            throw new Error('createElement failed');
+        });
+        try {
+            const qp = getQuantumParticles();
+            expect(qp.hasWebGLSupport()).toBe(false);
+        } finally {
+            spy.mockRestore();
+        }
+    });
+
     describe('shouldSkipParticles', () => {
         beforeEach(() => {
             const mockCanvas = { getContext: jest.fn().mockReturnValue({}) };

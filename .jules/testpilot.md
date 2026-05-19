@@ -83,3 +83,11 @@
 
 **Learning:** When testing global event handlers attached within an IIFE upon file require (`require('module.js')`), `jest.resetModules()` prevents caching issues, but JSDOM does not clear `document` or `window` event listeners between test blocks since the global `document` instance is shared. This causes event listener leaks where multiple versions of closures are triggered during `dispatchEvent`, leading to falsely preventing defaults.
 **Action:** Replace `document.addEventListener` with a mock function during `beforeEach` to intercept and locally capture the active listener array, then explicitly invoke `activeListener(event)` rather than relying on natural `dispatchEvent` bubbling to prevent cross-test contamination.
+
+## 2024-05-27 - Meaningful Assertions for Coverage Gaps
+
+**Learning:** When identifying and fixing coverage gaps, do not merely inject function executions into existing test blocks (like "coverage helpers") just to hit the lines. You must include meaningful assertions (`expect()`) that validate the state changes or expected behavior; otherwise, the tests are superficial and violate strict quality standards.
+
+## 2024-05-27 - Accurate Test Scope Injection
+
+**Learning:** When dynamically appending or injecting tests via scripts, ensure the new `describe` or `it` blocks are placed inside the correct parent `describe` scope. Placing tests outside the main suite can lead to `ReferenceError`s due to missing mocked classes or shared test `context` variables that are defined within the main block.
