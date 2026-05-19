@@ -231,6 +231,22 @@ describe('page-transition.js', () => {
             expect(getValidatedUrl(123)).toBeNull();
         });
 
+        test('returns null if url is longer than 2000 characters', () => {
+            const longUrl = '/page?' + 'a'.repeat(2000);
+            expect(getValidatedUrl(longUrl)).toBeNull();
+        });
+
+        test('returns null if window.location.href is longer than 2000 characters', () => {
+            const originalHref = window.location.href;
+            Object.defineProperty(window.location, 'href', {
+                value: 'http://localhost/?' + 'a'.repeat(2000),
+                configurable: true,
+                writable: true,
+            });
+            expect(getValidatedUrl('/page')).toBeNull();
+            window.location.href = originalHref;
+        });
+
         test('validates and returns clean same-origin URL', () => {
             expect(getValidatedUrl('/page')).toBe('/page');
             expect(getValidatedUrl('https://example.com/page')).toBe('https://example.com/page');
@@ -571,6 +587,22 @@ describe('page-transition.js', () => {
         test('should build url with transition param', () => {
             const url = buildTransitionUrl('/test');
             expect(url).toContain('__pt=1');
+        });
+
+        test('returns url untouched if it is longer than 2000 characters', () => {
+            const longUrl = '/test?' + 'a'.repeat(2000);
+            expect(buildTransitionUrl(longUrl)).toBe(longUrl);
+        });
+
+        test('returns url untouched if window.location.href is longer than 2000 characters', () => {
+            const originalHref = window.location.href;
+            Object.defineProperty(window.location, 'href', {
+                value: 'http://localhost/?' + 'a'.repeat(2000),
+                configurable: true,
+                writable: true,
+            });
+            expect(buildTransitionUrl('/test')).toBe('/test');
+            window.location.href = originalHref;
         });
 
         test('should gracefully handle URL parsing errors', () => {
