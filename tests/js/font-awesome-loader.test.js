@@ -138,6 +138,75 @@ describe('FontAwesomeLoader', () => {
         });
     });
 
+    describe('Robust Coverage Additions', () => {
+        test('cleanupTestElement should execute cleanly when testElement has a parentNode', () => {
+            // Arrange
+            const loader = new FontAwesomeLoader();
+            const parent = context.document.createElement('div');
+            const el = context.document.createElement('div');
+            parent.appendChild(el);
+            loader.testElement = el;
+
+            // Act
+            loader.cleanupTestElement();
+
+            // Assert
+            expect(parent.contains(el)).toBe(false);
+            expect(loader.testElement).toBeNull();
+        });
+
+        test('showIcons should not modify visibility if fahidden is not true', () => {
+            // Arrange
+            const loader = new FontAwesomeLoader();
+            const mockIcon = {
+                dataset: { fahidden: 'false' },
+                style: { visibility: 'hidden' },
+            };
+            loader.faIcons = [mockIcon];
+
+            // Act
+            loader.showIcons();
+
+            // Assert
+            expect(mockIcon.style.visibility).toBe('hidden'); // should not be reset to ''
+            expect(mockIcon.dataset.fahidden).toBe('false');
+        });
+
+        test('waitForFontLoad skips showing icons if fontAwesomeLoaded is true upon link load', () => {
+            // Arrange
+            jest.useFakeTimers();
+            // To ensure we bypass VM specific bugs regarding setTimeout returning numbers
+            context.setTimeout = window.setTimeout;
+
+            const loader = new FontAwesomeLoader();
+            loader.fontAwesomeLoaded = true;
+            jest.spyOn(loader, 'showIcons').mockImplementation(() => {});
+            jest.spyOn(loader, 'stopChecking').mockImplementation(() => {});
+
+            const faLink = context.document.createElement('link');
+            faLink.rel = 'stylesheet';
+            faLink.href = 'font-awesome.css';
+            context.document.head.appendChild(faLink);
+
+            // Act
+            loader.waitForFontLoad();
+            jest.advanceTimersByTime(100);
+
+            // Simulate the delayed onload
+            if (faLink.onload) {
+                faLink.onload();
+            }
+
+            // Assert
+            expect(loader.showIcons).not.toHaveBeenCalled();
+            expect(loader.stopChecking).not.toHaveBeenCalled();
+
+            // Cleanup
+            context.document.head.removeChild(faLink);
+            jest.useRealTimers();
+        });
+    });
+
     describe('waitForFontLoad Error Handling', () => {
         it('should not throw or error if no font-awesome link is found', () => {
             const loader = new FontAwesomeLoader();
@@ -418,6 +487,47 @@ describe('coverage helper', () => {
                 l6.isFontAwesomeLoaded = () => true;
                 l6.startChecking();
                 jest.advanceTimersByTime(200);
+                jest.useRealTimers();
+
+                // Robust Test: cleanupTestElement when testElement has a parentNode
+                const loaderCleanup = new window.__FontAwesomeLoaderForTesting.FontAwesomeLoader();
+                const parentNode = document.createElement('div');
+                const childNode = document.createElement('div');
+                parentNode.appendChild(childNode);
+                loaderCleanup.testElement = childNode;
+                loaderCleanup.cleanupTestElement();
+                expect(parentNode.contains(childNode)).toBe(false);
+                expect(loaderCleanup.testElement).toBeNull();
+
+                // Robust Test: showIcons when fahidden is not true
+                const loaderShow = new window.__FontAwesomeLoaderForTesting.FontAwesomeLoader();
+                const iconMock = {
+                    dataset: { fahidden: 'false' },
+                    style: { visibility: 'hidden' },
+                };
+                loaderShow.faIcons = [iconMock];
+                loaderShow.showIcons();
+                expect(iconMock.style.visibility).toBe('hidden');
+                expect(iconMock.dataset.fahidden).toBe('false');
+
+                // Robust Test: waitForFontLoad skips showing icons if fontAwesomeLoaded is true upon link load
+                jest.useFakeTimers();
+                const loaderWait = new window.__FontAwesomeLoaderForTesting.FontAwesomeLoader();
+                loaderWait.fontAwesomeLoaded = true;
+                jest.spyOn(loaderWait, 'showIcons').mockImplementation(() => {});
+                jest.spyOn(loaderWait, 'stopChecking').mockImplementation(() => {});
+
+                document.body.innerHTML = '<link rel="stylesheet" href="font-awesome.css">';
+                loaderWait.waitForFontLoad();
+                jest.advanceTimersByTime(100);
+
+                const linkElement = document.querySelector('link');
+                if (linkElement && linkElement.onload) {
+                    linkElement.onload();
+                }
+
+                expect(loaderWait.showIcons).not.toHaveBeenCalled();
+                expect(loaderWait.stopChecking).not.toHaveBeenCalled();
                 jest.useRealTimers();
 
                 // trigger load event on link
