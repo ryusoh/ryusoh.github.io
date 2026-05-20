@@ -54,7 +54,10 @@ describe('js/block-navigation.js', () => {
         };
 
         // Expose extra functions for testing
-        code = code.replace(/const testing = {/, 'const testing = {\n        isNavigationKey,');
+        code = code.replace(
+            /const testing = \{/,
+            'const testing = {\n        isNavigationKey,\n        prefersReducedMotion,\n        logWarning,\n        collectBlocks,\n        isParagraphElement,\n        BLOCK_ELEMENT_SELECTOR,'
+        );
 
         vm.createContext(context);
         vm.runInContext(code, context);
@@ -431,6 +434,118 @@ describe('js/block-navigation.js', () => {
             // from index 3, not bounce back to 1
             const nextIndex = bounceTesting.calculateNextIndex('ArrowDown');
             expect(nextIndex).toBeGreaterThanOrEqual(4);
+        });
+    });
+
+    describe('logWarning', () => {
+        let originalConsole;
+        beforeEach(() => {
+            originalConsole = context.window.console;
+            context.window.console = {
+                warn: jest.fn(),
+            };
+        });
+
+        afterEach(() => {
+            context.window.console = originalConsole;
+        });
+
+        test('should log warning to console if window.console.warn is available', () => {
+            const error = new Error('Test Error');
+            testing.logWarning('Test message', error);
+            expect(context.window.console.warn).toHaveBeenCalledWith('Test message', error);
+        });
+
+        test('should handle gracefully if window.console is missing', () => {
+            delete context.window.console;
+            expect(() => {
+                testing.logWarning('Test message', new Error());
+            }).not.toThrow();
+        });
+
+        test('should handle gracefully if window.console.warn is missing', () => {
+            delete context.window.console.warn;
+            expect(() => {
+                testing.logWarning('Test message', new Error());
+            }).not.toThrow();
+        });
+    });
+
+    describe('prefersReducedMotion', () => {
+        beforeEach(() => {
+            // Because prefersReducedMotion uses a cached value, we need to bypass caching
+            // by resetting the module or manually evaluating the source again.
+            // But since caching is internal, we can test it with the bounceContext method used later,
+            // or just test the happy path if it wasn't cached yet.
+        });
+
+        test('should return false if matchMedia is missing or throws', () => {
+            const originalMatchMedia = context.window.matchMedia;
+            delete context.window.matchMedia;
+
+            // Create a fresh context to ensure no caching affects the result
+            const freshContext = {
+                window: { ...context.window },
+                document: context.document,
+                console: { warn: jest.fn() },
+            };
+            delete freshContext.window.matchMedia;
+            vm.createContext(freshContext);
+            vm.runInContext(code, freshContext);
+
+            const freshTesting = freshContext.window.__BlockNavigationForTesting;
+            expect(freshTesting.prefersReducedMotion()).toBe(false);
+
+            context.window.matchMedia = originalMatchMedia;
+        });
+
+        test('should return true if matchMedia matches', () => {
+            const freshContext = {
+                window: { ...context.window },
+                document: context.document,
+                console: { warn: jest.fn() },
+            };
+            freshContext.window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+
+            vm.createContext(freshContext);
+            vm.runInContext(code, freshContext);
+
+            const freshTesting = freshContext.window.__BlockNavigationForTesting;
+            expect(freshTesting.prefersReducedMotion()).toBe(true);
+            expect(freshContext.window.matchMedia).toHaveBeenCalledWith(
+                '(prefers-reduced-motion: reduce)'
+            );
+
+            // Test caching behavior
+            expect(freshTesting.prefersReducedMotion()).toBe(true);
+            expect(freshContext.window.matchMedia).toHaveBeenCalledTimes(1); // Cached, shouldn't call again
+        });
+    });
+
+    describe('collectBlocks', () => {
+        beforeEach(() => {
+            // Setup DOM
+            context.document.body.innerHTML = `
+                <div class="intro-header"></div>
+                <div data-block-nav="ignore">
+                    <div class="post-content"><p>Ignored P1</p></div>
+                </div>
+                <div class="post-content">
+                    <p id="p1">P1</p>
+                    <p id="p2">P2</p>
+                </div>
+                <div data-block-nav="block" id="block1"></div>
+            `;
+        });
+
+        test('should collect blocks using native DOM selection', () => {
+            const blocks = testing.collectBlocks();
+
+            // Should collect intro-header, p1, and block1. p2 should be grouped with p1.
+            expect(blocks.length).toBe(3);
+            expect(blocks[0].className).toBe('intro-header');
+            expect(blocks[1].id).toBe('p1');
+            expect(blocks[2].id).toBe('block1');
         });
     });
 

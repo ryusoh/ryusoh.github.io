@@ -91,3 +91,11 @@
 ## 2024-05-27 - Accurate Test Scope Injection
 
 **Learning:** When dynamically appending or injecting tests via scripts, ensure the new `describe` or `it` blocks are placed inside the correct parent `describe` scope. Placing tests outside the main suite can lead to `ReferenceError`s due to missing mocked classes or shared test `context` variables that are defined within the main block.
+
+## 2025-05-24 - Test State Leakage Prevention in VM Contexts
+
+**Learning:** When testing in JSDOM or \`vm\` contexts and modifying shared context objects (e.g., \`context.window.console\`) within a \`beforeEach\` block, always cache the original object and restore it in an \`afterEach\` block. Failure to do so causes test state leakage and cross-suite contamination, which breaks other tests that depend on the original object reference.
+
+## 2025-05-24 - Strictly Limiting Testing Exposure Scope
+
+**Learning:** When writing unit tests and adding functions to the global testing export object (e.g., \`window.\_\_\*ForTesting\`), strictly avoid exposing unnecessary internal constants or unrelated helper variables. Doing so clutters the export and violates the boundary against modifying feature code unnecessarily. Tests should be evaluated against the public/intended interfaces.
