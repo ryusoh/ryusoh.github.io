@@ -57,3 +57,9 @@
 **Vulnerability:** While `window.location.search` was previously secured against massive lengths before parsing to prevent Denial of Service (DoS), the `window.location.href` and passed `url` string were passed to `new window.URL()` without length limits in `getValidatedUrl` and `buildTransitionUrl`. An attacker could exploit this by crafting a massive URL.
 **Learning:** Security fixes must be comprehensive across all similar patterns. Fixing a DoS vulnerability for `URLSearchParams` but leaving `new window.URL` exposed reveals a gap in identifying all vector surfaces for a single class of vulnerability (Unbounded Input to Native Parsers).
 **Prevention:** Apply rigorous pattern searching (`grep -rn 'new window.URL'`) when addressing DoS vulnerabilities to ensure all similar usages (e.g., `new window.URL`, `URLSearchParams`) enforce strict length boundaries (e.g., `> 2000` characters) on inputs derived from the environment.
+
+## 2026-06-25 - [DoS via Unbounded URL Parsing in Service Worker]
+
+**Vulnerability:** Similar to previous URL parsing vulnerabilities, `sw.js` instantiated `new URL(req.url)` inside `fetchLogic` without restricting the length of `req.url`. An attacker could exploit this by crafting an excessively long request URL, consuming vast CPU and memory resources to parse it within the Service Worker, potentially leading to a Denial of Service.
+**Learning:** Native `URL` parsing is computationally expensive and poses a DoS vector if inputs are unrestricted. Service Workers, operating as a proxy layer, are equally susceptible to these vectors and must enforce length boundaries on incoming request URLs before processing them.
+**Prevention:** Always implement strict string length limits (e.g., `if (req.url.length > 2000)`) on request URLs before passing them to native parsers like `new URL()` in both standard client scripts and Service Workers.
