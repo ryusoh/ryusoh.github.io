@@ -49,6 +49,9 @@ const isValidResponse = (res, req) => {
 
 const fetchLogic = (event) => {
     const req = event.request;
+    if (req.url.length > 2000) {
+        return;
+    }
     const url = new URL(req.url);
 
     // Only handle same-origin requests

@@ -96,6 +96,12 @@ describe('Service Worker', () => {
             };
         });
 
+        test('should return early if URL is too long', () => {
+            event.request.url = 'http://localhost/test.js?' + 'a'.repeat(2001);
+            sw.fetchLogic(event);
+            expect(event.respondWith).not.toHaveBeenCalled();
+        });
+
         test('should ignore cross-origin requests', () => {
             event.request.url = 'https://other-domain.com/test.js';
             sw.fetchLogic(event);
