@@ -7,48 +7,6 @@ const isTouchDevice =
 
 const lerp = (start, end, alpha) => start + (end - start) * alpha;
 
-const throttle = (fn, wait = 0) => {
-    let lastExecution = 0;
-    let timeoutId = null;
-    let queuedArgs = null;
-
-    const execute = () => {
-        if (!queuedArgs) return;
-        lastExecution = Date.now();
-        const args = queuedArgs;
-        queuedArgs = null;
-        timeoutId = null;
-        fn(...args);
-    };
-
-    const throttled = (...args) => {
-        queuedArgs = args;
-        const now = Date.now();
-        const remaining = wait - (now - lastExecution);
-        if (remaining <= 0 || remaining > wait) {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-                timeoutId = null;
-            }
-            execute();
-        } else if (!timeoutId) {
-            timeoutId = setTimeout(execute, remaining);
-        }
-    };
-
-    throttled.flush = () => {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        }
-        if (queuedArgs) {
-            execute();
-        }
-    };
-
-    return throttled;
-};
-
 const htmlElement = typeof document !== 'undefined' ? document.documentElement : null;
 const getBody = () => (typeof document !== 'undefined' ? document.body : null);
 let forceHideRefCount = 0;
@@ -59,7 +17,6 @@ const overriddenElements = new Set();
 let pointerListenersBound = false;
 
 const CURSOR_STORAGE_KEY = 'customCursorPosition';
-const CURSOR_STORAGE_THROTTLE_MS = 100;
 let sessionStorageAvailable;
 
 const canUseSessionStorage = () => {
@@ -265,10 +222,6 @@ export class CustomCursor {
             scale: { current: 1, value: 1 },
         };
 
-        this.persistPosition = throttle((x, y) => {
-            storeCursorPosition({ x, y });
-        }, CURSOR_STORAGE_THROTTLE_MS);
-
         root.appendChild(this.element);
         applyForceHideCursor();
 
@@ -306,7 +259,6 @@ export class CustomCursor {
         this.coords.x.current = event.clientX;
         this.coords.y.current = event.clientY;
         this.coords.opacity.current = 1;
-        this.persistPosition?.(this.coords.x.current, this.coords.y.current);
     }
 
     onMouseOut(event) {
@@ -376,9 +328,6 @@ export class CustomCursor {
 
     flushStoredPosition() {
         if (this.disabled || !this.coords) return;
-        if (typeof this.persistPosition?.flush === 'function') {
-            this.persistPosition.flush();
-        }
         storeCursorPosition({
             x: this.coords.x.current,
             y: this.coords.y.current,

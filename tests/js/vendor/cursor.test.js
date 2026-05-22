@@ -123,20 +123,6 @@ describe('js/vendor/cursor.js', () => {
         expect(result.cursor).toBeNull();
     });
 
-    test('throttle implementation works', () => {
-        vm.createContext(context);
-        vm.runInContext(code, context);
-
-        const throttle = vm.runInContext('throttle', context);
-        const mockFn = jest.fn();
-        const throttledFn = throttle(mockFn, 100);
-
-        throttledFn('arg1');
-
-        expect(mockFn).toHaveBeenCalledTimes(1);
-        expect(mockFn).toHaveBeenCalledWith('arg1');
-    });
-
     test('CustomCursor binds and unbinds events', () => {
         vm.createContext(context);
         vm.runInContext(code, context);

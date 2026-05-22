@@ -96,3 +96,8 @@
 
 **Learning:** Found that `hover-preview.js` was attaching individual `mouseenter` and `mouseleave` event listeners to every portfolio link. When converting to O(1) event delegation using `mouseover` and `mouseout`, these events bubble, which causes severe UI flickering and concurrent `requestAnimationFrame` leaks when moving the mouse across child elements within the target.
 **Action:** Replace O(N) individual `mouseenter` and `mouseleave` event listeners with O(1) document-level event delegation. However, always include a boundary check (`if (e.relatedTarget && link.contains(e.relatedTarget)) return;`) to ensure the event didn't just bubble up from a child element, properly simulating the non-bubbling behavior of `mouseenter`/`mouseleave`.
+
+## 2026-05-17 - Avoid Synchronous Storage I/O in High-Frequency Event Listeners
+
+**Learning:** Found that `js/vendor/cursor.js` was writing to `sessionStorage` on every `mousemove` event (even when throttled to 100ms). Writing to synchronous web storage APIs inside high-frequency event listeners causes disk I/O on the main thread, resulting in measurable CPU overhead, layout stuttering, and unnecessary battery consumption during continuous interactions.
+**Action:** Remove intermittent synchronous storage writes from high-frequency event loops like `mousemove` entirely. Instead, rely on memory caching for the active state and flush the data to `sessionStorage` or `localStorage` only during critical lifecycle boundaries (e.g., `beforeunload`, `pagehide`, or navigation click events).
