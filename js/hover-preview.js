@@ -46,12 +46,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let rafId = null;
 
+    let lastRenderX = -1;
+    let lastRenderY = -1;
+
     // Update position smoothly using requestAnimationFrame
     const updatePosition = () => {
         if (isHovering) {
-            // Offset slightly to the right and bottom of the cursor
-            setX(mouseX + 20);
-            setY(mouseY + 20);
+            /**
+             * Bolt Optimization:
+             * - What: Skip GSAP DOM writes if the cursor coordinates have not changed since the last frame.
+             * - Why: The continuous `requestAnimationFrame` loop updates inline styles on every frame while hovering, even if the cursor is completely stationary. This forces unnecessary style recalculations and layout thrashing.
+             * - Impact: Measurably reduces main thread CPU usage and battery consumption during stationary hovers.
+             */
+            if (mouseX !== lastRenderX || mouseY !== lastRenderY) {
+                // Offset slightly to the right and bottom of the cursor
+                setX(mouseX + 20);
+                setY(mouseY + 20);
+                lastRenderX = mouseX;
+                lastRenderY = mouseY;
+            }
             rafId = requestAnimationFrame(updatePosition);
         } else {
             rafId = null;

@@ -96,3 +96,8 @@
 
 **Learning:** Found that `hover-preview.js` was attaching individual `mouseenter` and `mouseleave` event listeners to every portfolio link. When converting to O(1) event delegation using `mouseover` and `mouseout`, these events bubble, which causes severe UI flickering and concurrent `requestAnimationFrame` leaks when moving the mouse across child elements within the target.
 **Action:** Replace O(N) individual `mouseenter` and `mouseleave` event listeners with O(1) document-level event delegation. However, always include a boundary check (`if (e.relatedTarget && link.contains(e.relatedTarget)) return;`) to ensure the event didn't just bubble up from a child element, properly simulating the non-bubbling behavior of `mouseenter`/`mouseleave`.
+
+## 2026-05-23 - Avoid DOM Updates on Stationary Cursors in rAF
+
+**Learning:** Found that `js/hover-preview.js` was continually calling GSAP setters inside a `requestAnimationFrame` loop, even when the cursor's coordinates (`mouseX` and `mouseY`) had not changed since the last frame. This forces the browser to needlessly re-evaluate and write inline styles when the cursor is completely stationary over a target.
+**Action:** When continuously tracking cursor position in a `requestAnimationFrame` loop, always cache the previously rendered coordinates (`lastRenderX`, `lastRenderY`) and conditionally skip all DOM writes if the current input coordinates have not changed. This effectively eliminates redundant style recalculations, saving CPU cycles and battery during idle hover states.
