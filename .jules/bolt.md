@@ -101,3 +101,8 @@
 
 **Learning:** Found that `js/hover-preview.js` was continually calling GSAP setters inside a `requestAnimationFrame` loop, even when the cursor's coordinates (`mouseX` and `mouseY`) had not changed since the last frame. This forces the browser to needlessly re-evaluate and write inline styles when the cursor is completely stationary over a target.
 **Action:** When continuously tracking cursor position in a `requestAnimationFrame` loop, always cache the previously rendered coordinates (`lastRenderX`, `lastRenderY`) and conditionally skip all DOM writes if the current input coordinates have not changed. This effectively eliminates redundant style recalculations, saving CPU cycles and battery during idle hover states.
+
+## 2026-06-03 - Cache DOM Geometry Reads in Mouseenter
+
+**Learning:** Found that `magnetic-nav.js` was calling `el.getBoundingClientRect()` synchronously on every `mousemove` event to calculate the element's center coordinates. Executing DOM layout reads in high-frequency continuous event listeners forces the browser into redundant layout recalculations on the main thread, resulting in layout thrashing.
+**Action:** When tracking relative mouse movement over an element, always calculate and cache the element's layout geometry (`getBoundingClientRect`) once inside the initial `mouseenter` or `mouseover` event, and reuse those cached coordinates inside the continuous `mousemove` handler to prevent layout thrashing.

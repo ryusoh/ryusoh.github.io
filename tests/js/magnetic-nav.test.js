@@ -78,6 +78,8 @@ describe('js/magnetic-nav.js', () => {
             height: 50,
         });
 
+        el.dispatchEvent(new MouseEvent('mouseenter'));
+
         const mouseMoveEvent = new MouseEvent('mousemove', {
             clientX: 135,
             clientY: 135,
@@ -133,6 +135,7 @@ describe('js/magnetic-nav.js', () => {
             height: 50,
         });
 
+        el.dispatchEvent(new MouseEvent('mouseenter'));
         el.dispatchEvent(new MouseEvent('mousemove', { clientX: 135, clientY: 135 }));
         const elXSetter = mockGSAP._setters.get('A-x');
         const elYSetter = mockGSAP._setters.get('A-y');
