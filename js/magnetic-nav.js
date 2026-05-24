@@ -49,13 +49,22 @@ export function initMagneticNav() {
             });
         }
 
-        el.addEventListener('mousemove', (e) => {
+        /**
+         * Bolt Optimization:
+         * - What: Cache `getBoundingClientRect()` calculations during `mouseenter`.
+         * - Why: The previous implementation read `el.getBoundingClientRect()` synchronously on every single `mousemove` event. Reading layout properties in a high-frequency event listener forces the browser to evaluate the DOM repeatedly, causing layout thrashing and main-thread CPU overhead.
+         * - Impact: Measurably reduces main thread blocking time during continuous mouse movement by caching the target coordinates once upon hover entry.
+         */
+        let centerX = 0;
+        let centerY = 0;
+
+        el.addEventListener('mouseenter', () => {
             const rect = el.getBoundingClientRect();
+            centerX = rect.left + rect.width / 2;
+            centerY = rect.top + rect.height / 2;
+        });
 
-            // Calculate center of element
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-
+        el.addEventListener('mousemove', (e) => {
             // Calculate distance from center to cursor
             const distX = e.clientX - centerX;
             const distY = e.clientY - centerY;
