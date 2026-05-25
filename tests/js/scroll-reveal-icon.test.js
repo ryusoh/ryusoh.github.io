@@ -122,4 +122,31 @@ describe('scroll-reveal-icon.js', () => {
         // This will call the mock requestAnimationFrame which triggers setTimeout
         jest.runAllTimers();
     });
+
+    test('should prevent multiple requestAnimationFrame calls when ticking is true', () => {
+        jest.isolateModules(() => {
+            const originalAddEventListener = window.addEventListener;
+            let onScrollCb;
+            window.addEventListener = jest.fn((event, cb) => {
+                if (event === 'scroll') {
+                    onScrollCb = cb;
+                }
+            });
+
+            window.requestAnimationFrame = jest.fn(() => {});
+
+            require('../../js/scroll-reveal-icon.js');
+
+            if (onScrollCb) {
+                // Call it once to set ticking to true
+                onScrollCb();
+                // Call it again to hit the if (!ticking) branch
+                onScrollCb();
+            }
+
+            expect(window.requestAnimationFrame).toHaveBeenCalledTimes(1);
+
+            window.addEventListener = originalAddEventListener;
+        });
+    });
 });
