@@ -99,3 +99,9 @@
 ## 2025-05-24 - Strictly Limiting Testing Exposure Scope
 
 **Learning:** When writing unit tests and adding functions to the global testing export object (e.g., \`window.\_\_\*ForTesting\`), strictly avoid exposing unnecessary internal constants or unrelated helper variables. Doing so clutters the export and violates the boundary against modifying feature code unnecessarily. Tests should be evaluated against the public/intended interfaces.
+
+## 2024-05-25 - Mocking matchMedia and URLSearchParams in global context
+
+**Learning:** When mocking `window.matchMedia` or `window.URLSearchParams` to test error fallback paths (especially inside utilities like `ambient/quantum_particles.js` or `block-navigation.js`), it's essential to safely mock `window.console.warn` at the same time to prevent the expected warnings from spilling into the terminal. Use `Object.defineProperty` or `try...finally` blocks to restore all original global functions (`console.warn`, `matchMedia`, `URLSearchParams`) immediately after execution.
+
+**Learning:** In JSDOM test environments, dynamically setting an element's `contenteditable` attribute (e.g., `element.setAttribute('contenteditable', 'true')`) may not immediately update its native `isContentEditable` property. To reliably evaluate `isContentEditable` logic in tests (e.g., `block-navigation.js`), explicitly mock the property directly (e.g., `Object.defineProperty(element, 'isContentEditable', { value: true })`).

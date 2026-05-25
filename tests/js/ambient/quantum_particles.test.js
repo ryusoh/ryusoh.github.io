@@ -102,6 +102,27 @@ describe('quantum_particles.js', () => {
     });
 
     describe('prefersReducedMotion', () => {
+        it('falls back and returns false if matchMedia throws an error', () => {
+            window.matchMedia.mockImplementation(() => {
+                throw new Error('Simulated matchMedia error');
+            });
+            const originalWarn = window.console.warn;
+            window.console.warn = jest.fn();
+
+            try {
+                const qp = getQuantumParticles();
+                const result = qp.prefersReducedMotion();
+
+                expect(result).toBe(false);
+                expect(window.console.warn).toHaveBeenCalledWith(
+                    'matchMedia failed in prefersReducedMotion:',
+                    expect.any(Error)
+                );
+            } finally {
+                window.console.warn = originalWarn;
+            }
+        });
+
         it('returns false if window.matchMedia is not a function', () => {
             delete window.matchMedia;
             const qp = getQuantumParticles();
@@ -306,20 +327,29 @@ describe('quantum_particles.js', () => {
             expect(qp.getForceMode()).toBeNull();
         });
 
-        it('should gracefully handle URLSearchParams exceptions', () => {
+        it('should fallback and return null if URLSearchParams throws an error, and log warning', () => {
             Object.defineProperty(window, 'location', {
                 value: { search: '?ambient=on' },
                 configurable: true,
             });
             const originalParams = window.URLSearchParams;
             window.URLSearchParams = jest.fn().mockImplementation(() => {
-                throw new Error('parse error');
+                throw new Error('Simulated URLSearchParams error');
             });
+            const originalWarn = window.console.warn;
+            window.console.warn = jest.fn();
 
-            const qp = getQuantumParticles();
-            expect(qp.getForceMode()).toBeNull();
-
-            window.URLSearchParams = originalParams;
+            try {
+                const qp = getQuantumParticles();
+                expect(qp.getForceMode()).toBeNull();
+                expect(window.console.warn).toHaveBeenCalledWith(
+                    'URLSearchParams parsing failed:',
+                    expect.any(Error)
+                );
+            } finally {
+                window.URLSearchParams = originalParams;
+                window.console.warn = originalWarn;
+            }
         });
     });
 
