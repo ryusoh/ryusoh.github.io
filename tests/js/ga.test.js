@@ -114,4 +114,30 @@ describe('ga.js bootstrap', () => {
         });
         delete window.ga;
     });
+
+    test('should do nothing if window.ga is not a function', () => {
+        jest.isolateModules(() => {
+            const fs = require('fs');
+            const path = require('path');
+            const vm = require('vm');
+            const sourcePath = path.resolve(__dirname, '../../js/ga.js');
+            const code = fs.readFileSync(sourcePath, 'utf8');
+
+            const context = {
+                window: { ga: null },
+                document: {
+                    createElement: () => ({}),
+                    getElementsByTagName: () => [{ parentNode: { insertBefore: () => {} } }],
+                },
+                Date: Date,
+            };
+
+            const customCode = code.replace('try {', 'window.ga = null; try {');
+
+            vm.createContext(context);
+            vm.runInContext(customCode, context);
+
+            expect(context.window.ga).toBeNull();
+        });
+    });
 });

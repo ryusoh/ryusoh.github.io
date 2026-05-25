@@ -2,7 +2,7 @@
 import { initCursor } from './vendor/cursor.js';
 import { initMagneticNav } from './magnetic-nav.js';
 
-if (typeof document !== 'undefined') {
+if (typeof document !== 'undefined' && document !== null) {
     document.addEventListener('DOMContentLoaded', () => {
         // Check if GSAP is available
         if (!window.gsap) {
