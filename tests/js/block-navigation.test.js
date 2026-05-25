@@ -121,15 +121,95 @@ describe('js/block-navigation.js', () => {
     });
 
     describe('isEditableActive', () => {
+        it('should return true for TEXTAREA elements', () => {
+            const textarea = document.createElement('textarea');
+            const originalActiveElement = document.activeElement;
+            Object.defineProperty(document, 'activeElement', {
+                get: () => textarea,
+                configurable: true,
+            });
+            try {
+                expect(testing.isEditableActive()).toBe(true);
+            } finally {
+                Object.defineProperty(document, 'activeElement', {
+                    get: () => originalActiveElement,
+                    configurable: true,
+                });
+            }
+        });
+
+        it('should return true if element has contenteditable attribute set to true', () => {
+            const div = document.createElement('div');
+            Object.defineProperty(div, 'isContentEditable', { value: true });
+            const originalActiveElement = document.activeElement;
+            Object.defineProperty(document, 'activeElement', {
+                get: () => div,
+                configurable: true,
+            });
+            try {
+                expect(testing.isEditableActive()).toBe(true);
+            } finally {
+                Object.defineProperty(document, 'activeElement', {
+                    get: () => originalActiveElement,
+                    configurable: true,
+                });
+            }
+        });
+
+        it('should return false if activeElement is the body element', () => {
+            const { isEditableActive } = testing;
+            const originalActiveElement = document.activeElement;
+            Object.defineProperty(document, 'activeElement', {
+                get: () => document.body,
+                configurable: true,
+            });
+            try {
+                expect(isEditableActive()).toBe(false);
+            } finally {
+                Object.defineProperty(document, 'activeElement', {
+                    get: () => originalActiveElement,
+                    configurable: true,
+                });
+            }
+        });
+
+        it('should return false if activeElement exists but its tag name is not editable', () => {
+            const { isEditableActive } = testing;
+            const div = document.createElement('div');
+            const originalActiveElement = document.activeElement;
+            Object.defineProperty(document, 'activeElement', {
+                get: () => div,
+                configurable: true,
+            });
+            try {
+                expect(isEditableActive()).toBe(false);
+            } finally {
+                Object.defineProperty(document, 'activeElement', {
+                    get: () => originalActiveElement,
+                    configurable: true,
+                });
+            }
+        });
+
         it('should return false when there is no active element', () => {
             expect(testing.isEditableActive()).toBe(false);
         });
 
         it('should return true for INPUT elements', () => {
             const input = document.createElement('input');
-            document.body.appendChild(input);
-            input.focus();
-            expect(testing.isEditableActive()).toBe(true);
+            const originalActiveElement = document.activeElement;
+            Object.defineProperty(document, 'activeElement', {
+                get: () => input,
+                configurable: true,
+            });
+            try {
+                expect(testing.isEditableActive()).toBe(true);
+            } finally {
+                Object.defineProperty(document, 'activeElement', {
+                    get: () => originalActiveElement,
+                    configurable: true,
+                });
+            }
         });
     });
 
@@ -472,6 +552,27 @@ describe('js/block-navigation.js', () => {
     });
 
     describe('prefersReducedMotion', () => {
+        test('should fallback correctly if matchMedia throws an error', () => {
+            const originalMatchMedia = window.matchMedia;
+            const originalWarn = window.console.warn;
+            window.matchMedia = jest.fn(() => {
+                throw new Error('Simulated matchMedia error');
+            });
+            window.console.warn = jest.fn();
+
+            try {
+                const { prefersReducedMotion } = testing;
+                expect(prefersReducedMotion()).toBe(false);
+                expect(window.console.warn).toHaveBeenCalledWith(
+                    '[block-navigation] prefersReducedMotion error:',
+                    expect.any(Error)
+                );
+            } finally {
+                window.matchMedia = originalMatchMedia;
+                window.console.warn = originalWarn;
+            }
+        });
+
         beforeEach(() => {
             // Because prefersReducedMotion uses a cached value, we need to bypass caching
             // by resetting the module or manually evaluating the source again.

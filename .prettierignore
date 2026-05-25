@@ -12,3 +12,4 @@ js/viewer.min.js
 .idea/
 .vscode/
 .git/
+pnpm-lock.yaml
