@@ -18,7 +18,9 @@ export function initMagneticNav() {
 
     // Target social icons
     // .social-icons-container a: main page headline icons
-    const magneticElements = document.querySelectorAll('.social-icons-container a');
+    const magneticElements = document.querySelectorAll(
+        '.social-icons-container a, .nav-back, .nav-next'
+    );
 
     magneticElements.forEach((el) => {
         /**

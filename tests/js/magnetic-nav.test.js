@@ -63,7 +63,7 @@ describe('js/magnetic-nav.js', () => {
         const spy = jest.spyOn(document, 'querySelectorAll');
         const { initMagneticNav } = require('../../js/magnetic-nav.js');
         initMagneticNav();
-        expect(spy).toHaveBeenCalledWith('.social-icons-container a');
+        expect(spy).toHaveBeenCalledWith('.social-icons-container a, .nav-back, .nav-next');
     });
 
     test('applies magnetic pull on mousemove', () => {

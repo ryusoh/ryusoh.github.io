@@ -1,0 +1,34 @@
+/*
+ * scroll-marquee.css
+ * Styling for the scroll-linked background marquee.
+ */
+
+.scroll-marquee-wrapper {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-50%);
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: -1; /* Place behind the main content */
+    pointer-events: none;
+
+    /* Typography is the design */
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, sans-serif;
+    font-size: 15vw;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.03); /* Extremely subtle so it doesn't distract from photos */
+
+    /* Mask and clip, don't box */
+    /* Use a subtle mask to fade out edges if needed, or just let it bleed */
+    /* mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); */
+    /* -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); */
+}
+
+.scroll-marquee-content {
+    display: inline-block;
+    will-change: transform;
+}
