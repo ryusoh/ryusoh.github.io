@@ -523,6 +523,9 @@ describe('page-transition.js', () => {
 
     describe('applyStaggeredEntrance', () => {
         test('applies styles and transitions to matched elements', () => {
+            const originalRaf = window.requestAnimationFrame;
+            window.requestAnimationFrame = jest.fn((cb) => cb());
+
             document.body.innerHTML =
                 '<div class="intro-header"></div><div class="post-content"></div>';
 
@@ -541,6 +544,7 @@ describe('page-transition.js', () => {
             expect(content.style.transition).toContain('50ms'); // Stagger delay
 
             document.body.innerHTML = '';
+            window.requestAnimationFrame = originalRaf;
         });
     });
 

@@ -106,3 +106,8 @@
 
 **Learning:** Found that `magnetic-nav.js` was calling `el.getBoundingClientRect()` synchronously on every `mousemove` event to calculate the element's center coordinates. Executing DOM layout reads in high-frequency continuous event listeners forces the browser into redundant layout recalculations on the main thread, resulting in layout thrashing.
 **Action:** When tracking relative mouse movement over an element, always calculate and cache the element's layout geometry (`getBoundingClientRect`) once inside the initial `mouseenter` or `mouseover` event, and reuse those cached coordinates inside the continuous `mousemove` handler to prevent layout thrashing.
+
+## 2026-06-25 - Prevent Forced Synchronous Layout in Page Transitions
+
+**Learning:** Found that `js/page-transition.js` was reading `document.body.offsetHeight` simply to force the browser to commit the starting state before applying staggered entrance styles. Calling layout properties synchronously like this forces the browser to prematurely calculate layouts, causing layout thrashing and blocking the main thread.
+**Action:** Replace synchronous layout reads (like `offsetHeight`) used purely to force style recalculation with a double `requestAnimationFrame` block. This guarantees the browser paints the initial state in the current frame and applies the new transition styles in the subsequent frame asynchronously, without forcing synchronous layout evaluations.
