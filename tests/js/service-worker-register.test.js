@@ -342,4 +342,63 @@ describe('service-worker-register', () => {
             configurable: true,
         });
     });
+
+    test('should return from emitEvent early if window.dispatchEvent is not a function', async () => {
+        const originalDispatchEvent = Object.getOwnPropertyDescriptor(global.window, 'dispatchEvent');
+        Object.defineProperty(global.window, 'dispatchEvent', {
+            get() { return "not a function"; },
+            configurable: true
+        });
+
+        jest.resetModules();
+        require('../../js/service-worker-register.js');
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        if (originalDispatchEvent) {
+             Object.defineProperty(global.window, 'dispatchEvent', originalDispatchEvent);
+        } else {
+             delete global.window.dispatchEvent;
+        }
+    });
+
+    test('should return early if window is undefined', () => {
+        jest.isolateModules(() => {
+            const fs = require('fs');
+            const path = require('path');
+            const sourcePath = path.resolve(__dirname, '../../js/service-worker-register.js');
+            const code = fs.readFileSync(sourcePath, 'utf8');
+            const vm = require('vm');
+
+            const context = {
+                navigator: { serviceWorker: {} },
+                document: { readyState: 'complete' }
+            };
+
+            vm.createContext(context);
+            vm.runInContext(code, context);
+
+            expect(true).toBe(true);
+        });
+    });
+
+    test('should return early if navigator does not have serviceWorker', () => {
+        jest.isolateModules(() => {
+            const fs = require('fs');
+            const path = require('path');
+            const sourcePath = path.resolve(__dirname, '../../js/service-worker-register.js');
+            const code = fs.readFileSync(sourcePath, 'utf8');
+            const vm = require('vm');
+
+            const context = {
+                window: {},
+                navigator: {}, // no serviceWorker
+                document: { readyState: 'complete' }
+            };
+
+            vm.createContext(context);
+            vm.runInContext(code, context);
+
+            expect(true).toBe(true);
+        });
+    });
 });

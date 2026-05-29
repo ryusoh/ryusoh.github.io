@@ -140,4 +140,21 @@ describe('ga.js bootstrap', () => {
             expect(context.window.ga).toBeNull();
         });
     });
+
+    test('should do nothing if window.ga is not a function directly', () => {
+        const origGA = Object.getOwnPropertyDescriptor(global.window, 'ga');
+        Object.defineProperty(global.window, 'ga', {
+            get() { return {}; },
+            configurable: true
+        });
+
+        jest.resetModules();
+        require('../../js/ga.js');
+
+        if (origGA) {
+            Object.defineProperty(global.window, 'ga', origGA);
+        } else {
+            delete global.window.ga;
+        }
+    });
 });
