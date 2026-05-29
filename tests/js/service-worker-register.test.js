@@ -368,7 +368,10 @@ describe('service-worker-register', () => {
     });
 
     test('should return from emitEvent early if window.dispatchEvent is not a function', function (done) {
-        const originalDispatchEvent = Object.getOwnPropertyDescriptor(global.window, 'dispatchEvent');
+        const originalDispatchEvent = Object.getOwnPropertyDescriptor(
+            global.window,
+            'dispatchEvent'
+        );
 
         Object.defineProperty(global.window, 'dispatchEvent', {
             get: function () {
