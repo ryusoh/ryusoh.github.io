@@ -1003,6 +1003,7 @@ td {
     :root {
         --bg-color: #000;
         --font-color: #fff;
+    --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
         --link-color: #a7dfe4;
         --line-color: #161d27;
     }
@@ -1221,8 +1222,8 @@ td {
 
 html.page-transition--exiting #main {
     transition:
-        opacity 250ms ease-out,
-        filter 250ms ease-out;
+        opacity 250ms var(--brand-ease),
+        filter 250ms var(--brand-ease);
     opacity: 0;
     filter: blur(4px);
 }
@@ -1233,6 +1234,7 @@ html.page-transition--exiting #main {
 .scroll-reveal {
     opacity: 0 !important;
     transform: translateY(30px) !important;
+    clip-path: inset(10% 10% 10% 10% round 8px) !important;
 }
 
 /* The transition is ONLY on the visible state.
@@ -1241,9 +1243,11 @@ html.page-transition--exiting #main {
 .scroll-reveal--visible {
     opacity: 1 !important;
     transform: translateY(0) !important;
+    clip-path: inset(0% 0% 0% 0% round 0px) !important;
     transition:
-        opacity 0.6s ease-out,
-        transform 0.6s ease-out !important;
+        opacity 0.6s var(--brand-ease),
+        transform 0.6s var(--brand-ease),
+        clip-path 1.2s var(--brand-ease) !important;
 }
 
 /* Respect reduced motion: show everything immediately */
