@@ -1003,7 +1003,7 @@ td {
     :root {
         --bg-color: #000;
         --font-color: #fff;
-    --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
+        --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
         --link-color: #a7dfe4;
         --line-color: #161d27;
     }
