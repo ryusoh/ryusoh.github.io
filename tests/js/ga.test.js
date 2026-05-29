@@ -144,8 +144,10 @@ describe('ga.js bootstrap', () => {
     test('should do nothing if window.ga is not a function directly', () => {
         const origGA = Object.getOwnPropertyDescriptor(global.window, 'ga');
         Object.defineProperty(global.window, 'ga', {
-            get() { return {}; },
-            configurable: true
+            get() {
+                return {};
+            },
+            configurable: true,
         });
 
         jest.resetModules();

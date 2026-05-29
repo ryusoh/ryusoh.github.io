@@ -94,12 +94,13 @@ describe('js/cursor-init.js', () => {
         expect(window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
     });
 
-
     test('does not execute if typeof document is undefined', () => {
         const origDoc = Object.getOwnPropertyDescriptor(global, 'document');
         Object.defineProperty(global, 'document', {
-            get() { return undefined; },
-            configurable: true
+            get() {
+                return undefined;
+            },
+            configurable: true,
         });
 
         jest.resetModules();
@@ -111,5 +112,4 @@ describe('js/cursor-init.js', () => {
             delete global.document;
         }
     });
-
 });

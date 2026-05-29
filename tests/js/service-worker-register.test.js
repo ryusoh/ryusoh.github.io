@@ -343,22 +343,51 @@ describe('service-worker-register', () => {
         });
     });
 
-    test('should return from emitEvent early if window.dispatchEvent is not a function', async () => {
+    test('emits error if registration lacks message', async () => {
+        // Redefine navigator.serviceWorker.register to reject with error that has no message
+        Object.defineProperty(global.navigator, 'serviceWorker', {
+            value: {
+                register: jest.fn().mockRejectedValue({}),
+            },
+            configurable: true,
+            writable: true,
+        });
+
+        window.dispatchEvent.mockClear();
+
+        jest.resetModules();
+        require('../../js/service-worker-register.js');
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const errorCall = window.dispatchEvent.mock.calls.find(
+            (call) => call && call[0] && call[0].type === 'serviceWorker:registrationError'
+        );
+        expect(errorCall).toBeDefined();
+        expect(errorCall[0].detail.message).toBe('');
+    });
+
+    test('should return from emitEvent early if window.dispatchEvent is not a function', function (done) {
         const originalDispatchEvent = Object.getOwnPropertyDescriptor(global.window, 'dispatchEvent');
+
         Object.defineProperty(global.window, 'dispatchEvent', {
-            get() { return "not a function"; },
-            configurable: true
+            get: function () {
+                return 'not a function';
+            },
+            configurable: true,
         });
 
         jest.resetModules();
         require('../../js/service-worker-register.js');
-        await new Promise((resolve) => setTimeout(resolve, 0));
 
-        if (originalDispatchEvent) {
-             Object.defineProperty(global.window, 'dispatchEvent', originalDispatchEvent);
-        } else {
-             delete global.window.dispatchEvent;
-        }
+        setTimeout(function () {
+            if (originalDispatchEvent) {
+                Object.defineProperty(global.window, 'dispatchEvent', originalDispatchEvent);
+            } else {
+                delete global.window.dispatchEvent;
+            }
+            done();
+        }, 0);
     });
 
     test('should return early if window is undefined', () => {
@@ -371,7 +400,7 @@ describe('service-worker-register', () => {
 
             const context = {
                 navigator: { serviceWorker: {} },
-                document: { readyState: 'complete' }
+                document: { readyState: 'complete' },
             };
 
             vm.createContext(context);
@@ -392,7 +421,7 @@ describe('service-worker-register', () => {
             const context = {
                 window: {},
                 navigator: {}, // no serviceWorker
-                document: { readyState: 'complete' }
+                document: { readyState: 'complete' },
             };
 
             vm.createContext(context);
