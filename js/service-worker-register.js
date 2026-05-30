@@ -5,20 +5,19 @@
         return;
     }
 
+    function logWarning(msg, e) {
+        if (typeof window !== 'undefined' && window?.console?.warn) {
+            window.console.warn(msg, e);
+        }
+    }
+
     function isLocalhost() {
         try {
             const host = window.location.hostname;
             return host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '';
         } catch (e) {
             // Assume not localhost if hostname parsing fails
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('Hostname parsing failed during localhost check:', e);
-            }
+            logWarning('Hostname parsing failed during localhost check:', e);
             return false;
         }
     }
@@ -53,14 +52,7 @@
                 });
             })
             .catch(function (error) {
-                if (
-                    typeof window !== 'undefined' &&
-                    window !== null &&
-                    window.console &&
-                    typeof window.console.warn === 'function'
-                ) {
-                    window.console.warn('Service worker registration failed:', error);
-                }
+                logWarning('Service worker registration failed:', error);
                 emitEvent('serviceWorker:registrationError', {
                     message: error && error.message ? error.message : '',
                 });
