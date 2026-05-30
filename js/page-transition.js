@@ -16,23 +16,13 @@
     const ENTRANCE_STAGGER = 50;
 
     function logWarning(msg, e) {
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
+        if (typeof window !== 'undefined' && window?.console?.warn) {
             window.console.warn(msg, e);
         }
     }
 
     function logError(msg, e) {
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.error === 'function'
-        ) {
+        if (typeof window !== 'undefined' && window?.console?.error) {
             if (e) {
                 window.console.error(msg, e);
             } else {
@@ -236,15 +226,22 @@
         return true;
     }
 
-    function getValidatedUrl(url) {
+    function isUrlLengthValid(url) {
         if (typeof url !== 'string' || url.length > 2000) {
-            return null;
+            return false;
         }
         if (
             typeof window !== 'undefined' &&
             window.location &&
             window.location.href.length > 2000
         ) {
+            return false;
+        }
+        return true;
+    }
+
+    function getValidatedUrl(url) {
+        if (!isUrlLengthValid(url)) {
             return null;
         }
         const cleanUrl = url.replace(/^[\s\u0000-\u001F]+/g, '');

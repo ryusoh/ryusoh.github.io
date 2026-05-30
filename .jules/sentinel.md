@@ -63,3 +63,9 @@
 **Vulnerability:** Similar to previous URL parsing vulnerabilities, `sw.js` instantiated `new URL(req.url)` inside `fetchLogic` without restricting the length of `req.url`. An attacker could exploit this by crafting an excessively long request URL, consuming vast CPU and memory resources to parse it within the Service Worker, potentially leading to a Denial of Service.
 **Learning:** Native `URL` parsing is computationally expensive and poses a DoS vector if inputs are unrestricted. Service Workers, operating as a proxy layer, are equally susceptible to these vectors and must enforce length boundaries on incoming request URLs before processing them.
 **Prevention:** Always implement strict string length limits (e.g., `if (req.url.length > 2000)`) on request URLs before passing them to native parsers like `new URL()` in both standard client scripts and Service Workers.
+
+## 2026-06-25 - [Code Hygiene: Empty Catch Blocks & Cyclomatic Complexity]
+
+**Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis. High cyclomatic complexity (> 8) increases cognitive load and maintenance overhead.
+**Learning:** During the codebase health pass, multiple critical `catch {}` blocks were identified in `js/page-transition.js`, `js/loader/imageFallback.js`, `js/scroll-reveal.js`, `js/service-worker-register.js`, and `js/ambient/config/default.js` that masked runtime exceptions. Additionally, core functions had overgrown into tightly coupled blocks.
+**Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 8 for maintainability and readability.

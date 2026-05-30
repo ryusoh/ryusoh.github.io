@@ -15,13 +15,17 @@
 (function () {
     'use strict';
 
-    // Only run on project pages
-    if (!document.body || document.body.getAttribute('data-page-type') !== 'project') {
-        return;
+    function shouldSkip() {
+        if (!document.body || document.body.getAttribute('data-page-type') !== 'project') {
+            return true;
+        }
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return true;
+        }
+        return false;
     }
 
-    // Respect reduced motion preference
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (shouldSkip()) {
         return;
     }
 

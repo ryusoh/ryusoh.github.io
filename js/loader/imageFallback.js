@@ -1,17 +1,22 @@
 /* Simple <img> fallback: looks for data-fallbacks='["url1","url2",...]' */
 (function () {
     function logWarning(msg, e) {
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
+        if (typeof window !== 'undefined' && window?.console?.warn) {
             window.console.warn(msg, e);
         }
     }
 
     try {
+        function sanitizeFallbackList(list) {
+            const sanitizedList = [];
+            for (let k = 0; k < list.length; k++) {
+                if (typeof list[k] === 'string') {
+                    sanitizedList.push(list[k]);
+                }
+            }
+            return sanitizedList.length > 0 ? sanitizedList : null;
+        }
+
         function parseFallbacks(el) {
             const listAttr = el.getAttribute('data-fallbacks');
             if (!listAttr || listAttr.length > 1024) {
@@ -23,14 +28,7 @@
                 if (!Array.isArray(list) || list.length === 0) {
                     return null;
                 }
-
-                const sanitizedList = [];
-                for (let k = 0; k < list.length; k++) {
-                    if (typeof list[k] === 'string') {
-                        sanitizedList.push(list[k]);
-                    }
-                }
-                return sanitizedList.length > 0 ? sanitizedList : null;
+                return sanitizeFallbackList(list);
             } catch (error) {
                 logWarning('Caught exception:', error);
                 return null;

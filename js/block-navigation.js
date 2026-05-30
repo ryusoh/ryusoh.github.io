@@ -97,19 +97,27 @@
         );
     }
 
+    function isIgnoredElement(element) {
+        return (
+            element.matches('script, style, noscript') ||
+            element.closest('[data-block-nav="ignore"]')
+        );
+    }
+
+    function isExplicitBlock(element) {
+        return element.matches('[data-block-nav="block"]');
+    }
+
     function shouldUseElement(element) {
         if (!element) {
             return false;
         }
 
-        if (
-            element.matches('script, style, noscript') ||
-            element.closest('[data-block-nav="ignore"]')
-        ) {
+        if (isIgnoredElement(element)) {
             return false;
         }
 
-        if (element.matches('[data-block-nav="block"]')) {
+        if (isExplicitBlock(element)) {
             return true;
         }
 

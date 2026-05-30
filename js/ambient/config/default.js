@@ -18,18 +18,16 @@
         );
     }
 
+    function logError(e) {
+        if (typeof window !== 'undefined' && window?.console?.warn) {
+            window.console.warn('Ambient config initialization failed:', e);
+        }
+    }
+
     try {
         init();
     } catch (e) {
-        // Do nothing but log
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
-            window.console.warn('Ambient config initialization failed:', e);
-        }
+        logError(e);
     }
 
     if (typeof window !== 'undefined') {
