@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             gsap.to(previewContainer, {
-                scale: 1,
+                clipPath: 'ellipse(150% 150% at 50% 50%)',
                 opacity: 1,
                 duration: 0.4,
                 ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         isHovering = false;
         gsap.to(previewContainer, {
-            scale: 0.8,
+            clipPath: 'ellipse(0% 0% at 50% 50%)',
             opacity: 0,
             duration: 0.3,
             ease: 'cubic-bezier(0.65, 0.05, 0, 1)',

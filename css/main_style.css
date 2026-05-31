@@ -618,12 +618,13 @@ html.page-transition--exiting #main {
     pointer-events: none;
     z-index: 1000;
     opacity: 0;
-    transform: scale(0.8);
+    clip-path: ellipse(0% 0% at 50% 50%);
+    transform: scale(1);
     transform-origin: center center;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    will-change: transform, opacity;
+    will-change: transform, opacity, clip-path;
 }
 
 .hover-preview-img {
