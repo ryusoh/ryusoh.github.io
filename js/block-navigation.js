@@ -226,7 +226,14 @@
 
         observer = new window.IntersectionObserver((entries) => {
             let changed = false;
-            entries.forEach((entry) => {
+            /**
+             * Bolt Optimization:
+             * - What: Replace Array.prototype.forEach with a traditional for loop.
+             * - Why: The intersection observer callback can fire frequently during scrolling. Using .forEach allocates a new callback function closure on every invocation, causing memory churn and GC overhead.
+             * - Impact: Eliminates redundant function allocations during scroll events, slightly reducing main thread GC pressure.
+             */
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
                 const target = entry.target;
                 if (entry.isIntersecting) {
                     visibleBlocks.add(target);
@@ -235,7 +242,7 @@
                     visibleBlocks.delete(target);
                     changed = true;
                 }
-            });
+            }
 
             if (changed) {
                 syncCurrentIndex();
@@ -293,12 +300,18 @@
         }
 
         let bestIndex = 0;
-        visibleBlocks.forEach((element) => {
+        /**
+         * Bolt Optimization:
+         * - What: Replace Set.prototype.forEach with a for...of loop.
+         * - Why: getIndexFromObserver is called frequently on scroll. Using .forEach allocates a new callback function on every call, increasing memory churn.
+         * - Impact: Eliminates function allocation overhead in a hot path, reducing GC pressure.
+         */
+        for (const element of visibleBlocks) {
             const index = blocks.indexOf(element);
             if (index > bestIndex) {
                 bestIndex = index;
             }
-        });
+        }
         return bestIndex;
     }
 

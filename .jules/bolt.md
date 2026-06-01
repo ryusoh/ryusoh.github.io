@@ -111,3 +111,8 @@
 
 **Learning:** Found that `js/page-transition.js` was reading `document.body.offsetHeight` simply to force the browser to commit the starting state before applying staggered entrance styles. Calling layout properties synchronously like this forces the browser to prematurely calculate layouts, causing layout thrashing and blocking the main thread.
 **Action:** Replace synchronous layout reads (like `offsetHeight`) used purely to force style recalculation with a double `requestAnimationFrame` block. This guarantees the browser paints the initial state in the current frame and applies the new transition styles in the subsequent frame asynchronously, without forcing synchronous layout evaluations.
+
+## 2026-06-26 - Avoid .forEach in High-Frequency Callbacks
+
+**Learning:** Found that `js/block-navigation.js` used `.forEach()` inside `IntersectionObserver` callbacks and `scroll` event handlers. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently (like during continuous scrolling).
+**Action:** Replace `Array.prototype.forEach` and `Set.prototype.forEach` with traditional `for` or `for...of` loops in high-frequency event handlers or hot paths to eliminate function allocation overhead and reduce GC pressure.
