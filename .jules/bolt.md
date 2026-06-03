@@ -116,3 +116,8 @@
 
 **Learning:** Found that `js/block-navigation.js` used `.forEach()` inside `IntersectionObserver` callbacks and `scroll` event handlers. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently (like during continuous scrolling).
 **Action:** Replace `Array.prototype.forEach` and `Set.prototype.forEach` with traditional `for` or `for...of` loops in high-frequency event handlers or hot paths to eliminate function allocation overhead and reduce GC pressure.
+
+## 2026-06-03 - Avoid .forEach in High-Frequency Callbacks
+
+**Learning:** Found that `js/block-navigation.js`, `js/preloader.js`, and `js/magnetic-nav.js` used `.forEach()` inside `IntersectionObserver` callbacks, scroll event handlers, and setup functions. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently.
+**Action:** Replace `Array.prototype.forEach` and `Set.prototype.forEach` with traditional `for` or `for...of` loops in high-frequency event handlers or hot paths to eliminate function allocation overhead and reduce GC pressure.

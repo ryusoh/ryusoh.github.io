@@ -249,11 +249,12 @@
             }
         }, options);
 
-        blocks.forEach((block) => {
+        for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
             if (block !== topSentinel) {
                 observer.observe(block);
             }
-        });
+        }
     }
 
     function refreshBlocks() {
