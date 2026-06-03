@@ -85,14 +85,17 @@
              */
             const fragment = document.createDocumentFragment();
 
-            pageKeys.forEach((pageKey) => {
+            for (let i = 0; i < pageKeys.length; i++) {
+                const pageKey = pageKeys[i];
                 if (this.assetSets[pageKey]) {
-                    this.assetSets[pageKey].forEach((imgSrc) => {
+                    const imgSet = this.assetSets[pageKey];
+                    for (let j = 0; j < imgSet.length; j++) {
+                        const imgSrc = imgSet[j];
                         const link = this.createPreloadLink(imgSrc);
                         fragment.appendChild(link);
-                    });
+                    }
                 }
-            });
+            }
 
             // Append all links to head in a single operation
             document.head.appendChild(fragment);

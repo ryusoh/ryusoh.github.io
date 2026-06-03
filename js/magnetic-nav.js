@@ -20,7 +20,8 @@ export function initMagneticNav() {
     // .social-icons-container a: main page headline icons
     const magneticElements = document.querySelectorAll('.social-icons-container a');
 
-    magneticElements.forEach((el) => {
+    for (let i = 0; i < magneticElements.length; i++) {
+        const el = magneticElements[i];
         /**
          * Bolt Optimization:
          * - What: Replace `gsap.to()` inside the `mousemove` listener with `gsap.quickTo()`.
@@ -102,5 +103,5 @@ export function initMagneticNav() {
                 });
             }
         });
-    });
+    }
 }
