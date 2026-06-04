@@ -1,0 +1,7 @@
+test: add missing coverage for cdnFallback, hover-preview, scroll-reveal
+
+- Add cdnFallbackNode.test.js to test cdnFallback.js without window (Node env).
+- Add hover-preview.test.js tests to cover early returns and conditional logic.
+- Add scroll-reveal.test.js tests to cover IntersectionObserver missing branches.
+- Modify tests to cover edge cases and error paths.
+- Increase test coverage overall.

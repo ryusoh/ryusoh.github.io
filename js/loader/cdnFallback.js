@@ -1,6 +1,6 @@
 /* Simple CDN fallback loader (no modules). Exposes window.CDNLoader */
 (function () {
-    if (window.CDNLoader) {
+    if (typeof window !== 'undefined' && window.CDNLoader) {
         return;
     }
     function preconnect(origins) {

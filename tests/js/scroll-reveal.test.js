@@ -48,6 +48,38 @@ describe('Scroll Reveal', () => {
         jest.restoreAllMocks();
     });
 
+    test('ignores non-IMG elements in IntersectionObserver callback', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        // We need an element that is NOT an IMG but somehow gets observed or triggered in the callback.
+        // The observer callback iterates over entries and checks `if (el.tagName === 'IMG')`
+        // If we mock the observer and manually trigger it with a DIV, it hits lines 97-99 where it skips!
+        document.body.innerHTML =
+            '<div class="post-content"><img id="testImg" src="test.jpg"/></div>';
+        require('../../js/scroll-reveal.js');
+
+        const observerInstance = intersectionObserverMock.mock.results[0].value;
+        const div = document.createElement('div');
+        observerInstance.callback([{ isIntersecting: true, target: div }]);
+
+        expect(unobserveMock).toHaveBeenCalledWith(div);
+    });
+
+    test('ignores non-intersecting entries in IntersectionObserver callback', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        document.body.innerHTML =
+            '<div class="post-content"><img id="testImg" src="test.jpg"/></div>';
+        require('../../js/scroll-reveal.js');
+
+        const observerInstance = intersectionObserverMock.mock.results[0].value;
+        const img = document.getElementById('testImg');
+
+        // Trigger with isIntersecting = false
+        observerInstance.callback([{ isIntersecting: false, target: img }]);
+
+        // It shouldn't unobserve it
+        expect(unobserveMock).not.toHaveBeenCalledWith(img);
+    });
+
     test('should not run if not a project page', () => {
         document.body.innerHTML = '<div class="post-content"><img src="test.jpg"/></div>';
         require('../../js/scroll-reveal.js');
@@ -145,6 +177,23 @@ describe('Scroll Reveal', () => {
         // Now it should be visible
         expect(img.classList.contains('scroll-reveal--visible')).toBe(true);
         expect(unobserveMock).toHaveBeenCalledWith(img);
+    });
+
+    test('ignores load/error events if target is not IMG or not revealing', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        document.body.innerHTML =
+            '<div class="post-content"><img id="testImg" src="test.jpg"/></div>';
+        require('../../js/scroll-reveal.js');
+
+        // Not an IMG
+        const div = document.createElement('div');
+        div.dispatchEvent(new Event('load'));
+
+        // IMG without is-revealing
+        const img = document.getElementById('testImg');
+        img.dispatchEvent(new Event('load'));
+
+        expect(img.classList.contains('scroll-reveal--visible')).toBe(false);
     });
 
     test('should early return if .post-content container is missing', () => {
