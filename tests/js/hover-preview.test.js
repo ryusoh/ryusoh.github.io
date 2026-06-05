@@ -316,4 +316,32 @@ describe('js/hover-preview.js', () => {
 
         expect(mockSetX).not.toHaveBeenCalled();
     });
+
+    test('ignores mouseover/mouseout events if target is not a valid link', () => {
+        require('../../js/hover-preview.js');
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        mockSetX.mockClear();
+        mockTo.mockClear();
+
+        const notALink = document.createElement('div');
+        document.body.appendChild(notALink);
+
+        const mouseoverEvent = new MouseEvent('mouseover', {
+            bubbles: true,
+            clientX: 100,
+            clientY: 100,
+        });
+        notALink.dispatchEvent(mouseoverEvent);
+
+        expect(mockSetX).not.toHaveBeenCalled();
+
+        const mouseoutEvent = new MouseEvent('mouseout', {
+            bubbles: true,
+        });
+        notALink.dispatchEvent(mouseoutEvent);
+
+        expect(mockTo).not.toHaveBeenCalled();
+    });
 });
