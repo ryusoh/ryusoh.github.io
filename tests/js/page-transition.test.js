@@ -623,6 +623,46 @@ describe('page-transition.js', () => {
         });
     });
 
+    describe('isValidTransitionClick', () => {
+        it('should return false if event default is prevented', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'http://localhost/test';
+            const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+            event.preventDefault();
+            const localTesting = window.__PageTransitionForTesting;
+            expect(localTesting.isValidTransitionClick(event, anchor)).toBe(false);
+        });
+
+        it('should return false if not standard mouse event', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'http://localhost/test';
+            const event = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                ctrlKey: true,
+            });
+            const localTesting = window.__PageTransitionForTesting;
+            expect(localTesting.isValidTransitionClick(event, anchor)).toBe(false);
+        });
+
+        it('should return false if shouldSkipNavBack returns true', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'http://localhost/test';
+            anchor.classList.add('nav-back');
+            const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+            const localTesting = window.__PageTransitionForTesting;
+            expect(localTesting.isValidTransitionClick(event, anchor)).toBe(false);
+        });
+
+        it('should return true for valid eligible anchor', () => {
+            const anchor = document.createElement('a');
+            anchor.href = 'http://localhost/test';
+            const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+            const localTesting = window.__PageTransitionForTesting;
+            expect(localTesting.isValidTransitionClick(event, anchor)).toBe(true);
+        });
+    });
+
     describe('navigate', () => {
         test('should return false for invalid url', () => {
             expect(navigate(null)).toBe(false);

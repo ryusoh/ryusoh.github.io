@@ -431,6 +431,7 @@
             prefersReducedMotion,
             buildTransitionUrl,
             navigate,
+            isValidTransitionClick,
         };
     }
 })();
