@@ -110,12 +110,15 @@
      * - Why: Reading layout properties (`innerWidth`, `innerHeight`) in a high-frequency event listener like `pointermove` causes main-thread blocking, unnecessary overhead and potential layout thrashing.
      * - Impact: Measurably reduces main-thread blocking time during `pointermove` events by guaranteeing DOM reads happen at most once per `resize` event.
      */
-    let cachedWidth = typeof window !== 'undefined' ? Math.max(1, window.innerWidth || 1) : 1;
-    let cachedHeight = typeof window !== 'undefined' ? Math.max(1, window.innerHeight || 1) : 1;
+    function getWindowDim(prop) {
+        return typeof window !== 'undefined' ? Math.max(1, window[prop] || 1) : 1;
+    }
+    let cachedWidth = getWindowDim('innerWidth');
+    let cachedHeight = getWindowDim('innerHeight');
 
     function updateCachedDimensions() {
-        cachedWidth = typeof window !== 'undefined' ? Math.max(1, window.innerWidth || 1) : 1;
-        cachedHeight = typeof window !== 'undefined' ? Math.max(1, window.innerHeight || 1) : 1;
+        cachedWidth = getWindowDim('innerWidth');
+        cachedHeight = getWindowDim('innerHeight');
     }
 
     function updatePointerTarget(event, target) {
@@ -184,9 +187,7 @@
         return { particles, material };
     }
 
-    async function initParticles(forceMode) {
-        const THREE = await import('../vendor/three.module.min.js');
-
+    function setupRenderer(THREE) {
         const renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true,
@@ -203,13 +204,29 @@
         renderer.domElement.style.pointerEvents = 'none';
         renderer.domElement.style.zIndex = '1';
         document.body.appendChild(renderer.domElement);
+        return renderer;
+    }
+
+    function getMultiplier(forceMode) {
+        if (forceMode === 'trace' || forceMode === 'debug') {
+            return 1.5;
+        }
+        if (forceMode === 'lite') {
+            return 0.6;
+        }
+        return 1;
+    }
+
+    async function initParticles(forceMode) {
+        const THREE = await import('../vendor/three.module.min.js');
+
+        const renderer = setupRenderer(THREE);
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
         camera.position.set(0, 0, 7.5);
 
-        const multiplier =
-            forceMode === 'trace' || forceMode === 'debug' ? 1.5 : forceMode === 'lite' ? 0.6 : 1;
+        const multiplier = getMultiplier(forceMode);
         const { particles, material } = createParticleSystem(
             THREE,
             Math.round(PARTICLE_COUNT * multiplier)
@@ -280,21 +297,29 @@
         window.requestAnimationFrame(render);
     }
 
+    function checkWindowConditions() {
+        if (typeof window === 'undefined') {
+            return true;
+        }
+        return (
+            prefersReducedMotion() || window.innerWidth < MIN_VIEWPORT_WIDTH || !hasWebGLSupport()
+        );
+    }
+
+    function checkSaveData() {
+        return (
+            typeof navigator !== 'undefined' &&
+            navigator.connection &&
+            navigator.connection.saveData
+        );
+    }
+
     function shouldSkipParticles(forceMode, forceEnabled) {
         if (forceEnabled) {
             return false;
         }
-        const saveData =
-            typeof navigator !== 'undefined' &&
-            navigator.connection &&
-            navigator.connection.saveData;
 
-        if (
-            prefersReducedMotion() ||
-            saveData ||
-            window.innerWidth < MIN_VIEWPORT_WIDTH ||
-            !hasWebGLSupport()
-        ) {
+        if (checkWindowConditions() || checkSaveData()) {
             return true;
         }
         return false;
@@ -330,8 +355,8 @@
         });
     });
 
-    if (typeof window !== 'undefined') {
-        window.__QuantumParticlesForTesting = {
+    function getExports() {
+        return {
             ready,
             clamp,
             prefersReducedMotion,
@@ -342,24 +367,21 @@
             updatePointerTarget,
             createParticleSystem,
             initParticles,
+            setupRenderer,
+            getMultiplier,
             shouldSkipParticles,
+            checkWindowConditions,
+            checkSaveData,
+            getWindowDim,
         };
+    }
+
+    if (typeof window !== 'undefined') {
+        window.__QuantumParticlesForTesting = getExports();
     }
     /* eslint-disable no-undef */
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = {
-            ready,
-            clamp,
-            prefersReducedMotion,
-            hasWebGLSupport,
-            isSearchParamAvailable,
-            getForceMode,
-            updateCachedDimensions,
-            updatePointerTarget,
-            createParticleSystem,
-            initParticles,
-            shouldSkipParticles,
-        };
+        module.exports = getExports();
     }
     /* eslint-enable no-undef */
 })();

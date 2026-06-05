@@ -104,16 +104,21 @@
         );
     }
 
+    function shouldGroupWithLast(element, lastElement) {
+        return (
+            isParagraphElement(element) &&
+            lastElement &&
+            isParagraphElement(lastElement) &&
+            lastElement.parentElement === element.parentElement
+        );
+    }
+
     function isExplicitBlock(element) {
         return element.matches('[data-block-nav="block"]');
     }
 
     function shouldUseElement(element) {
-        if (!element) {
-            return false;
-        }
-
-        if (isIgnoredElement(element)) {
+        if (!element || isIgnoredElement(element)) {
             return false;
         }
 
@@ -125,13 +130,15 @@
             return false;
         }
 
+        return checkElementMatches(element);
+    }
+
+    function checkElementMatches(element) {
         if (element.matches('.intro-header')) {
             return true;
         } else if (element.matches('.post-heading')) {
             return !element.closest('.intro-header');
-        }
-
-        if (element.matches(BLOCK_ELEMENT_SELECTOR)) {
+        } else if (element.matches(BLOCK_ELEMENT_SELECTOR)) {
             return true;
         }
 
@@ -163,12 +170,7 @@
                 return;
             }
             const lastElement = ordered.length ? ordered[ordered.length - 1] : null;
-            const shouldGroupParagraph =
-                isParagraphElement(element) &&
-                lastElement &&
-                isParagraphElement(lastElement) &&
-                lastElement.parentElement === element.parentElement;
-            if (!shouldGroupParagraph) {
+            if (!shouldGroupWithLast(element, lastElement)) {
                 ordered.push(element);
             }
             seen.add(element);
@@ -446,6 +448,11 @@
         return KEY_FORWARD.has(key) || KEY_BACKWARD.has(key);
     }
 
+    function getStartIndex() {
+        const startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
+        return startIndex === -1 ? 0 : startIndex;
+    }
+
     function handleKeydown(event) {
         if (isEditableActive()) {
             return;
@@ -462,8 +469,7 @@
 
         event.preventDefault();
         const nextIndex = calculateNextIndex(event.key);
-        let startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
-        startIndex = startIndex === -1 ? 0 : startIndex;
+        const startIndex = getStartIndex();
 
         if (nextIndex !== startIndex) {
             currentIndex = nextIndex;
@@ -544,6 +550,9 @@
         clampScrollTop,
         isEditableActive,
         shouldUseElement,
+        checkElementMatches,
+        shouldGroupWithLast,
+        getStartIndex,
         handleEscapeKey,
         debounce,
         getIndexFromFallback,
