@@ -98,6 +98,11 @@
 
 **Learning:** In JSDOM test environments, dynamically setting an element's `contenteditable` attribute (e.g., `element.setAttribute('contenteditable', 'true')`) may not immediately update its native `isContentEditable` property. To reliably evaluate `isContentEditable` logic in tests (e.g., `block-navigation.js`), explicitly mock the property directly (e.g., `Object.defineProperty(element, 'isContentEditable', { value: true })`).
 
+## 2024-05-18 - Module Exports Error Isolation
+
+**Learning:** `require()` cannot be used inside isolated context tests evaluating `module.exports` because it bypasses Jest's module cache. `vm.runInContext` requires constructing a safe sandbox environment to evaluate UMD wrapper branches correctly when simulating CommonJS module load contexts missing globals like `window` or `document`.
+**Action:** When validating fallback logic for script environments missing `window` or `module`, construct an isolated execution sandbox using the `vm` module and test evaluation directly.
+
 ## 2025-02-28 - JSDOM Origin and Global Event Listener Mocks
 
 **Learning:** When writing navigation or click interception unit tests in JSDOM, `window.location.href` defaults to `http://localhost/`. Tests using external URLs (e.g., `https://example.com/test`) will falsely trigger cross-origin/same-origin validation barriers. Furthermore, tests spanning across modules with multiple internal references (`isAtTopOrBottom`, `getCurrentIndex`) must carefully sync or mock DOM layouts (`scrollHeight`, `scrollTop`) to accurately evaluate internally scoped closures without forcibly modifying feature code to expose them.

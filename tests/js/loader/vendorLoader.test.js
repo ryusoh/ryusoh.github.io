@@ -74,4 +74,25 @@ describe('vendorLoader.js', () => {
             configurable: true,
         });
     });
+
+    test('should not throw if window is undefined during exports', () => {
+        jest.isolateModules(() => {
+            const fs = require('fs');
+            const path = require('path');
+            const sourcePath = path.resolve(__dirname, '../../../js/loader/vendorLoader.js');
+            const code = fs.readFileSync(sourcePath, 'utf8');
+            const vm = require('vm');
+
+            const context = {
+                module: { exports: {} },
+                console: console,
+            };
+
+            vm.createContext(context);
+
+            expect(() => {
+                vm.runInContext(code, context);
+            }).not.toThrow();
+        });
+    });
 });

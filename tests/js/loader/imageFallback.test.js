@@ -179,4 +179,26 @@ describe('imageFallback.js', () => {
         document.querySelectorAll = origQuerySelectorAll;
         window.console = origConsole;
     });
+
+    it('should not throw if module is undefined during exports', () => {
+        jest.isolateModules(() => {
+            const fs = require('fs');
+            const path = require('path');
+            const sourcePath = path.resolve(__dirname, '../../../js/loader/imageFallback.js');
+            const code = fs.readFileSync(sourcePath, 'utf8');
+            const vm = require('vm');
+
+            const context = {
+                window: {},
+                document: { querySelectorAll: () => [], addEventListener: () => {} },
+                console: console,
+            };
+
+            vm.createContext(context);
+
+            expect(() => {
+                vm.runInContext(code, context);
+            }).not.toThrow();
+        });
+    });
 });
