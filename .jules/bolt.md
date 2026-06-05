@@ -121,3 +121,8 @@
 
 **Learning:** Found that `js/block-navigation.js`, `js/preloader.js`, and `js/magnetic-nav.js` used `.forEach()` inside `IntersectionObserver` callbacks, scroll event handlers, and setup functions. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently.
 **Action:** Replace `Array.prototype.forEach` and `Set.prototype.forEach` with traditional `for` or `for...of` loops in high-frequency event handlers or hot paths to eliminate function allocation overhead and reduce GC pressure.
+
+## 2026-06-27 - Avoid .map in Update Functions
+
+**Learning:** Found that `js/block-navigation.js` used `.map()` inside `updatePositions`. Using `.map()` allocates a new callback function closure and a new intermediate array on every invocation, causing unnecessary memory churn and GC overhead when called repeatedly.
+**Action:** Replace `Array.prototype.map` with a pre-sized array and a traditional `for` loop in hot paths to eliminate function and array allocation overhead.
