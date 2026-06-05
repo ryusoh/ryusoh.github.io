@@ -246,4 +246,31 @@ describe('ambient/loader.js', () => {
             value: originalConsole,
         });
     });
+
+    it('covers missing body gracefully in init', () => {
+        jest.resetModules();
+        originalInnerWidth = window.innerWidth;
+        window.innerWidth = 1024;
+
+        mockCDNLoader = {
+            loadScriptSequential: jest.fn().mockResolvedValue(),
+            loadCssWithFallback: jest.fn().mockResolvedValue(),
+        };
+        window.CDNLoader = mockCDNLoader;
+
+        const origBody = document.body;
+        Object.defineProperty(document, 'body', {
+            get() {
+                return undefined;
+            },
+            configurable: true,
+        });
+
+        require('../../../js/ambient/loader.js');
+
+        return new Promise((resolve) => setTimeout(resolve, 50)).then(() => {
+            Object.defineProperty(document, 'body', { value: origBody, configurable: true });
+            window.innerWidth = originalInnerWidth;
+        });
+    });
 });

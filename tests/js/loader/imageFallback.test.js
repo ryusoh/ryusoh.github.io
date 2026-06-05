@@ -153,4 +153,30 @@ describe('imageFallback.js', () => {
 
         window.console.warn = originalWarn;
     });
+
+    test('covers querySelectorAll loop line 57', () => {
+        jest.resetModules();
+        document.body.innerHTML =
+            '<img data-fallbacks=\'["a.jpg"]\' /><img data-fallbacks=\'["b.jpg"]\' />';
+        require('../../../js/loader/imageFallback.js');
+        const imgs = document.querySelectorAll('img');
+        expect(imgs[0].getAttribute('data-fallbacks')).toBe('["a.jpg"]');
+    });
+
+    test('covers exception block with console undefined', () => {
+        jest.resetModules();
+        const origQuerySelectorAll = document.querySelectorAll;
+        document.querySelectorAll = () => {
+            throw new Error('Query error');
+        };
+        const origConsole = window.console;
+        window.console = undefined;
+
+        expect(() => {
+            require('../../../js/loader/imageFallback.js');
+        }).not.toThrow();
+
+        document.querySelectorAll = origQuerySelectorAll;
+        window.console = origConsole;
+    });
 });
