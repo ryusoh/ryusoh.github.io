@@ -126,3 +126,8 @@
 
 **Learning:** Found that `js/block-navigation.js` used `.map()` inside `updatePositions`. Using `.map()` allocates a new callback function closure and a new intermediate array on every invocation, causing unnecessary memory churn and GC overhead when called repeatedly.
 **Action:** Replace `Array.prototype.map` with a pre-sized array and a traditional `for` loop in hot paths to eliminate function and array allocation overhead.
+
+## 2026-06-27 - Prevent Synchronous Layout Thrashing in Scroll Reveal
+
+**Learning:** Found that \`js/scroll-reveal.js\` was reading \`document.body.offsetHeight\` simply to force the browser to commit the hidden state of images before attaching the \`IntersectionObserver\`. Reading layout properties synchronously during script initialization forces the browser into premature layout recalculations, causing main-thread overhead and blocking Time to Interactive.
+**Action:** Replace synchronous layout reads used purely to force style commits with a double \`requestAnimationFrame\` block. This ensures the browser paints the hidden state asynchronously in the next frame without forcing synchronous layouts on the main thread.
