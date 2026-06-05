@@ -331,6 +331,10 @@
         if (anchor.hasAttribute('download')) {
             return false;
         }
+        return checkAnchorHref(anchor);
+    }
+
+    function checkAnchorHref(anchor) {
         const href = anchor.getAttribute('href');
         if (!href || href.indexOf('#') === 0) {
             return false;
@@ -418,6 +422,7 @@
             isStandardMouseEvent,
             shouldSkipNavBack,
             isEligibleAnchor,
+            checkAnchorHref,
             hasTransitionParam,
             clearTransitionParam,
             clampUnit,
