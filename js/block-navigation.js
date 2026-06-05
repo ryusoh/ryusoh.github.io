@@ -189,12 +189,21 @@
         }
 
         const scrollY = window.scrollY;
-        blockPositions = blocks.map((element) => {
+        /**
+         * Bolt Optimization:
+         * - What: Replace Array.prototype.map with a traditional for loop.
+         * - Why: updatePositions can be called frequently on load/resize. Using .map allocates a new callback function closure and a new array on every invocation, causing memory churn and GC overhead.
+         * - Impact: Eliminates function and intermediate array allocation overhead in a hot path, reducing GC pressure.
+         */
+        blockPositions = new Array(blocks.length);
+        for (let i = 0; i < blocks.length; i++) {
+            const element = blocks[i];
             if (topSentinel && element === topSentinel) {
-                return 0;
+                blockPositions[i] = 0;
+            } else {
+                blockPositions[i] = element.getBoundingClientRect().top + scrollY;
             }
-            return element.getBoundingClientRect().top + scrollY;
-        });
+        }
         syncCurrentIndex();
     }
 
