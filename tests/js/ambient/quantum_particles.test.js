@@ -360,4 +360,11 @@ describe('quantum_particles.js', () => {
             await expect(p).rejects.toThrow();
         });
     });
+    describe('initParticles', () => {
+        it('should execute initParticles and catch dynamic import rejections in JSDOM', async () => {
+            const qp = getQuantumParticles();
+            const p = qp.initParticles('lite');
+            await expect(p).rejects.toThrow();
+        });
+    });
 });

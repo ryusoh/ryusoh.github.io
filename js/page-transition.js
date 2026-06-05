@@ -426,6 +426,7 @@
             prefersReducedMotion,
             buildTransitionUrl,
             navigate,
+            isValidTransitionClick,
         };
     }
 })();
