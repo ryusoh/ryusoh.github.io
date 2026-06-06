@@ -707,6 +707,14 @@ describe('page-transition.js', () => {
     });
 
     describe('Global click and pageshow event handlers', () => {
+        beforeAll(() => {
+            // Ensure location is valid for click tests to prevent cross origin block
+            try {
+                window.history.pushState({}, 'Test Title', 'http://localhost/');
+            } catch {
+                /* ignore */
+            }
+        });
         let originalMatchMedia;
         let documentClickListeners = [];
         let documentPageShowListeners = [];
@@ -894,6 +902,56 @@ describe('page-transition.js', () => {
             activeClickListener(clickEvent);
 
             expect(clickEvent.defaultPrevented).toBe(true);
+        });
+
+        it('should exit early and not navigate when click event default is prevented', () => {
+            const assignSpy = jest.fn();
+            Object.defineProperty(window, 'location', {
+                value: { assign: assignSpy, origin: 'http://localhost', href: 'http://localhost/' },
+                writable: true,
+                configurable: true,
+            });
+            document.body.innerHTML =
+                '<a href="http://localhost/dest" data-page-transition id="valid-link">Link</a>';
+            const anchor = document.getElementById('valid-link');
+
+            const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+            Object.defineProperty(event, 'defaultPrevented', { value: true });
+
+            anchor.dispatchEvent(event);
+            expect(assignSpy).not.toHaveBeenCalled();
+        });
+
+        it('should exit early and not navigate for non-primary mouse button clicks', () => {
+            const assignSpy = jest.fn();
+            Object.defineProperty(window, 'location', {
+                value: { assign: assignSpy, origin: 'http://localhost', href: 'http://localhost/' },
+                writable: true,
+                configurable: true,
+            });
+            document.body.innerHTML =
+                '<a href="http://localhost/dest" data-page-transition id="valid-link">Link</a>';
+            const anchor = document.getElementById('valid-link');
+
+            const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 1 });
+            anchor.dispatchEvent(event);
+            expect(assignSpy).not.toHaveBeenCalled();
+        });
+
+        it('should exit early and not navigate if anchor has a skip nav class', () => {
+            const assignSpy = jest.fn();
+            Object.defineProperty(window, 'location', {
+                value: { assign: assignSpy, origin: 'http://localhost', href: 'http://localhost/' },
+                writable: true,
+                configurable: true,
+            });
+            document.body.innerHTML =
+                '<a href="http://localhost/dest" data-page-transition class="nav-back" id="valid-link">Link</a>';
+            const anchor = document.getElementById('valid-link');
+
+            const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+            anchor.dispatchEvent(event);
+            expect(assignSpy).not.toHaveBeenCalled();
         });
     });
 });
