@@ -117,6 +117,11 @@
 **Learning:** Found that `js/block-navigation.js` used `.forEach()` inside `IntersectionObserver` callbacks and `scroll` event handlers. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently (like during continuous scrolling).
 **Action:** Replace `Array.prototype.forEach` and `Set.prototype.forEach` with traditional `for` or `for...of` loops in high-frequency event handlers or hot paths to eliminate function allocation overhead and reduce GC pressure.
 
+## 2026-06-01 - Prevent Layout Thrashing in High-Frequency Events
+
+**Learning:** `setTimeout` within high-frequency DOM events (like `mousemove`) forces synchronous layout recalculations out-of-step with the browser's paint cycle, causing significant main-thread blocking and layout thrashing.
+**Action:** Always wrap DOM or layout-triggering updates inside high-frequency throttle/debounce utilities with `requestAnimationFrame` to natively batch operations with the next frame render.
+
 ## 2026-06-03 - Avoid .forEach in High-Frequency Callbacks
 
 **Learning:** Found that `js/block-navigation.js`, `js/preloader.js`, and `js/magnetic-nav.js` used `.forEach()` inside `IntersectionObserver` callbacks, scroll event handlers, and setup functions. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently.
@@ -129,5 +134,5 @@
 
 ## 2026-06-27 - Prevent Synchronous Layout Thrashing in Scroll Reveal
 
-**Learning:** Found that \`js/scroll-reveal.js\` was reading \`document.body.offsetHeight\` simply to force the browser to commit the hidden state of images before attaching the \`IntersectionObserver\`. Reading layout properties synchronously during script initialization forces the browser into premature layout recalculations, causing main-thread overhead and blocking Time to Interactive.
-**Action:** Replace synchronous layout reads used purely to force style commits with a double \`requestAnimationFrame\` block. This ensures the browser paints the hidden state asynchronously in the next frame without forcing synchronous layouts on the main thread.
+**Learning:** Found that `js/scroll-reveal.js` was reading `document.body.offsetHeight` simply to force the browser to commit the hidden state of images before attaching the `IntersectionObserver`. Reading layout properties synchronously during script initialization forces the browser into premature layout recalculations, causing main-thread overhead and blocking Time to Interactive.
+**Action:** Replace synchronous layout reads used purely to force style commits with a double `requestAnimationFrame` block. This ensures the browser paints the hidden state asynchronously in the next frame without forcing synchronous layouts on the main thread.

@@ -7,8 +7,15 @@ const isTouchDevice =
 
 const lerp = (start, end, alpha) => start + (end - start) * alpha;
 
+/**
+ * Bolt Optimization:
+ * - What: Defer throttle execution using `requestAnimationFrame` instead of `setTimeout`.
+ * - Why: `setTimeout` within high-frequency events like `mousemove` triggers synchronous layout recalculations out-of-step with the browser's paint cycle, causing layout thrashing.
+ * - Impact: Measurably reduces main thread blocking time and prevents layout thrashing during mouse movements.
+ */
 const throttle = (fn, wait = 0) => {
     let lastExecution = 0;
+    let rafId = null;
     let timeoutId = null;
     let queuedArgs = null;
 
@@ -17,22 +24,29 @@ const throttle = (fn, wait = 0) => {
         lastExecution = Date.now();
         const args = queuedArgs;
         queuedArgs = null;
+        rafId = null;
         timeoutId = null;
         fn(...args);
     };
 
     const throttled = (...args) => {
         queuedArgs = args;
+        if (rafId) return;
+
         const now = Date.now();
         const remaining = wait - (now - lastExecution);
+
         if (remaining <= 0 || remaining > wait) {
             if (timeoutId) {
                 clearTimeout(timeoutId);
                 timeoutId = null;
             }
-            execute();
+            rafId = requestAnimationFrame(execute);
         } else if (!timeoutId) {
-            timeoutId = setTimeout(execute, remaining);
+            timeoutId = setTimeout(() => {
+                timeoutId = null;
+                rafId = requestAnimationFrame(execute);
+            }, remaining);
         }
     };
 
@@ -40,6 +54,10 @@ const throttle = (fn, wait = 0) => {
         if (timeoutId) {
             clearTimeout(timeoutId);
             timeoutId = null;
+        }
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
         }
         if (queuedArgs) {
             execute();
