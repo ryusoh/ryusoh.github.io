@@ -5,6 +5,32 @@
 // We mock it so we don't have to deal with Babel transform issues for the export
 // Actually, jest currently fails to parse export without babel. Let's add a simple babel config to fix it for all modules using export/import
 describe('js/magnetic-nav.js', () => {
+
+    describe('Magnetic Nav Edge Cases', () => {
+        let originalWindow;
+        let originalNavigator;
+
+        beforeEach(() => {
+            originalWindow = global.window;
+            originalNavigator = global.navigator;
+        });
+
+        afterEach(() => {
+            global.window = originalWindow;
+            global.navigator = originalNavigator;
+            jest.resetModules();
+        });
+
+        test('returns early when window or navigator is undefined', () => {
+            global.window = undefined;
+            global.navigator = undefined;
+
+            expect(() => {
+                require('../../js/magnetic-nav.js');
+            }).not.toThrow();
+        });
+    });
+
     let mockGSAP;
 
     beforeEach(() => {

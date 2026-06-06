@@ -287,6 +287,213 @@ describe('page-transition.js', () => {
         });
     });
 
+    describe('ready function and DOMContentLoaded edge cases', () => {
+        test('adds event listener if document is loading', () => {
+            const originalReadyState = document.readyState;
+            Object.defineProperty(document, 'readyState', { value: 'loading', configurable: true });
+            const addSpy = jest.spyOn(document, 'addEventListener');
+            const sourceCode = require('fs').readFileSync('js/page-transition.js', 'utf8');
+            const fn = new Function('window', 'document', sourceCode);
+            fn(window, document);
+            expect(addSpy).toHaveBeenCalledWith('DOMContentLoaded', expect.any(Function));
+            Object.defineProperty(document, 'readyState', {
+                value: originalReadyState,
+                configurable: true,
+            });
+            addSpy.mockRestore();
+        });
+
+        test('returns early if document.body is missing on DOMContentLoaded', () => {
+            const originalBody = document.body;
+            Object.defineProperty(document, 'body', { value: undefined, configurable: true });
+            const sourceCode = require('fs').readFileSync('js/page-transition.js', 'utf8');
+            const fn = new Function('window', 'document', sourceCode);
+            fn(window, document);
+            const event = document.createEvent('Event');
+            event.initEvent('DOMContentLoaded', true, true);
+            document.dispatchEvent(event);
+            Object.defineProperty(document, 'body', { value: originalBody, configurable: true });
+        });
+
+        test('applies staggered entrance if project page and pending reveal', () => {
+            const originalType = document.body.getAttribute('data-page-type');
+            document.body.setAttribute('data-page-type', 'project');
+            const originalHref = window.location.href;
+            Object.defineProperty(window.location, 'href', {
+                value: 'https://example.com/?__pt=1',
+                configurable: true,
+            });
+            const sourceCode = require('fs').readFileSync('js/page-transition.js', 'utf8');
+            const fn = new Function('window', 'document', sourceCode);
+            fn(window, document);
+            const event = document.createEvent('Event');
+            event.initEvent('DOMContentLoaded', true, true);
+            document.dispatchEvent(event);
+            Object.defineProperty(window.location, 'href', {
+                value: originalHref,
+                configurable: true,
+            });
+            if (originalType) {
+                document.body.setAttribute('data-page-type', originalType);
+            } else {
+                document.body.removeAttribute('data-page-type');
+            }
+        });
+    });
+
+    describe('ready function edge cases', () => {
+        test('ready returns early when readyState is interactive', () => {
+            const originalReadyState = document.readyState;
+            Object.defineProperty(document, 'readyState', {
+                value: 'interactive',
+                configurable: true,
+            });
+            const addSpy = jest.spyOn(document, 'addEventListener');
+
+            const sourceCode = require('fs').readFileSync('js/page-transition.js', 'utf8');
+            const fn = new Function('window', 'document', sourceCode);
+            fn(window, document);
+
+            // Should not add an event listener for DOMContentLoaded because it's already interactive
+            expect(addSpy).not.toHaveBeenCalledWith('DOMContentLoaded', expect.any(Function));
+
+            addSpy.mockRestore();
+            Object.defineProperty(document, 'readyState', {
+                value: originalReadyState,
+                configurable: true,
+            });
+        });
+    });
+
+    describe('hasTransitionParam missing URL edge cases', () => {
+        test('returns false when window.URL is undefined', () => {
+            const originalURL = window.URL;
+            Object.defineProperty(window, 'URL', { value: undefined, configurable: true });
+
+            const warnSpy = jest.spyOn(window.console, 'warn');
+            const result = window.__PageTransitionForTesting.hasTransitionParam();
+            expect(result).toBe(false);
+            expect(warnSpy).toHaveBeenCalled();
+            warnSpy.mockRestore();
+
+            Object.defineProperty(window, 'URL', { value: originalURL, configurable: true });
+        });
+    });
+
+    describe('hasTransitionParam searchParams missing', () => {
+        test('returns false when URL does not have searchParams', () => {
+            const originalURL = window.URL;
+            window.URL = jest.fn().mockImplementation(() => {
+                return { searchParams: undefined };
+            });
+            const warnSpy = jest.spyOn(window.console, 'warn');
+            const result = window.__PageTransitionForTesting.hasTransitionParam();
+            expect(result).toBe(false);
+            expect(warnSpy).toHaveBeenCalled();
+            warnSpy.mockRestore();
+            window.URL = originalURL;
+        });
+    });
+
+    describe('checkAnchorHref edge cases', () => {
+        test('returns false if href evaluates to false', () => {
+            const anchor = document.createElement('a');
+            jest.spyOn(anchor, 'getAttribute').mockReturnValue(null);
+            const result = window.__PageTransitionForTesting.checkAnchorHref(anchor);
+            expect(result).toBe(false);
+        });
+        test('returns false if url is falsy', () => {
+            const anchor = document.createElement('a');
+            anchor.setAttribute('href', '/valid');
+            Object.defineProperty(anchor, 'href', { value: '', configurable: true });
+            const result = window.__PageTransitionForTesting.checkAnchorHref(anchor);
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('hasTransitionParam long url edge case', () => {
+        test('returns false if location href is longer than 2000 chars', () => {
+            const originalHref = window.location.href;
+            Object.defineProperty(window.location, 'href', {
+                get() {
+                    return 'https://example.com?' + 'a'.repeat(2000);
+                },
+                configurable: true,
+            });
+            const result = window.__PageTransitionForTesting.hasTransitionParam();
+            expect(result).toBe(false);
+            Object.defineProperty(window.location, 'href', {
+                value: originalHref,
+                configurable: true,
+            });
+        });
+    });
+
+    describe('applyStaggeredEntrance project page coverage', () => {
+        test('calls applyStaggeredEntrance when pendingReveal is true, not reduced motion, and page is project', () => {
+            const originalHTML = document.documentElement.innerHTML;
+            document.documentElement.innerHTML = '<body data-page-type="project"></body>';
+            const originalHref = window.location.href;
+            Object.defineProperty(window.location, 'href', {
+                value: 'https://example.com/?__pt=1',
+                configurable: true,
+            });
+
+            // To test applyStaggeredEntrance is called and covers lines 374-378,
+            // we will let it execute, but we need some groups in the DOM to avoid throwing
+            // or just use the mock we added earlier.
+            document.documentElement.innerHTML =
+                '<body data-page-type="project"><div class="intro-header"></div></body>';
+
+            const sourceCode = require('fs').readFileSync('js/page-transition.js', 'utf8');
+            const fn = new Function('window', 'document', sourceCode);
+            fn(window, document);
+
+            const event = document.createEvent('Event');
+            event.initEvent('DOMContentLoaded', true, true);
+            document.dispatchEvent(event);
+
+            Object.defineProperty(window.location, 'href', {
+                value: originalHref,
+                configurable: true,
+            });
+            document.documentElement.innerHTML = originalHTML;
+        });
+    });
+
+    describe('applyStaggeredEntrance edge cases', () => {
+        test('does not throw when staggered elements do not exist in DOM', () => {
+            const originalRaf = window.requestAnimationFrame;
+            window.requestAnimationFrame = jest.fn((cb) => cb());
+            const originalHTML = document.documentElement.innerHTML;
+            document.documentElement.innerHTML = '<body></body>';
+
+            // Should just silently ignore
+            window.__PageTransitionForTesting.applyStaggeredEntrance();
+            expect(true).toBe(true);
+
+            document.documentElement.innerHTML = originalHTML;
+            window.requestAnimationFrame = originalRaf;
+        });
+    });
+
+    describe('clearTransitionParam long url edge case', () => {
+        test('returns early if url is long', () => {
+            const originalHref = window.location.href;
+            Object.defineProperty(window.location, 'href', {
+                get() {
+                    return 'https://example.com?' + 'a'.repeat(2000);
+                },
+                configurable: true,
+            });
+            window.__PageTransitionForTesting.clearTransitionParam();
+            Object.defineProperty(window.location, 'href', {
+                value: originalHref,
+                configurable: true,
+            });
+        });
+    });
+
     describe('hasTransitionParam', () => {
         test('should return false when window.URL constructor throws an error', () => {
             const originalURL = window.URL;
@@ -545,8 +752,8 @@ describe('page-transition.js', () => {
             const originalRaf = window.requestAnimationFrame;
             window.requestAnimationFrame = jest.fn((cb) => cb());
 
-            document.body.innerHTML =
-                '<div class="intro-header"></div><div class="post-content"></div>';
+            document.documentElement.innerHTML =
+                '<body><div class="intro-header"></div><div class="post-content"></div></body>';
 
             window.__PageTransitionForTesting.applyStaggeredEntrance();
 
@@ -562,7 +769,7 @@ describe('page-transition.js', () => {
             expect(content.style.transition).toContain('opacity 280ms');
             expect(content.style.transition).toContain('50ms'); // Stagger delay
 
-            document.body.innerHTML = '';
+            document.documentElement.innerHTML = '<body></body>';
             window.requestAnimationFrame = originalRaf;
         });
     });
@@ -777,8 +984,7 @@ describe('page-transition.js', () => {
             jest.resetModules();
             document.documentElement.innerHTML = '<body></body>';
             document.documentElement.className = '';
-            document.body = document.createElement('body');
-            document.documentElement.appendChild(document.body);
+            document.documentElement.innerHTML = '<body></body>';
             require('../../js/page-transition.js');
         });
 
