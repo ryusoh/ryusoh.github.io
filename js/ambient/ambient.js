@@ -114,47 +114,104 @@
         }
     }
 
-    function runAmbient(C, force, trace) {
-        function initSketchCanvas(C, trace) {
-            const sketchInstance = window.Sketch.create({
-                container: document.body,
-                retina: true,
-                interval: 2,
-                globals: false,
-                autopause: true,
-            });
-            sketchInstance.canvas.className += ' ambient-canvas';
-            sketchInstance.canvas.style.position = 'fixed';
-            sketchInstance.canvas.style.top = '0';
-            sketchInstance.canvas.style.left = '0';
-            sketchInstance.canvas.style.pointerEvents = 'none';
-            sketchInstance.canvas.style.zIndex = String(C.zIndex);
-            sketchInstance.canvas.style.width = '100vw';
-            sketchInstance.canvas.style.height = '100vh';
-            if (trace) {
-                sketchInstance.canvas.style.background = 'rgba(255,0,0,0.06)';
+    function initSketchCanvas(C, trace) {
+        const sketchInstance = window.Sketch.create({
+            container: document.body,
+            retina: true,
+            interval: 2,
+            globals: false,
+            autopause: true,
+        });
+        sketchInstance.canvas.className += ' ambient-canvas';
+        sketchInstance.canvas.style.position = 'fixed';
+        sketchInstance.canvas.style.top = '0';
+        sketchInstance.canvas.style.left = '0';
+        sketchInstance.canvas.style.pointerEvents = 'none';
+        sketchInstance.canvas.style.zIndex = String(C.zIndex);
+        sketchInstance.canvas.style.width = '100vw';
+        sketchInstance.canvas.style.height = '100vh';
+        if (trace) {
+            sketchInstance.canvas.style.background = 'rgba(255,0,0,0.06)';
+        }
+        return sketchInstance;
+    }
+
+    function getDim(c, clientProp, baseProp, winVal, ratio) {
+        const cv = c && c[clientProp] ? c[clientProp] : winVal;
+        const bv = c && c[baseProp] ? c[baseProp] : cv * ratio;
+        return { cv, bv };
+    }
+
+    function metrics(s) {
+        s = s || {};
+        const ratio = window.devicePixelRatio || 1;
+        const w = getDim(s.canvas, 'clientWidth', 'width', window.innerWidth, ratio);
+        const h = getDim(s.canvas, 'clientHeight', 'height', window.innerHeight, ratio);
+
+        const width = w.bv / ratio;
+        const height = h.bv / ratio;
+        s.width = width;
+        s.height = height;
+        return { width: width, height: height, cw: w.cv, ch: h.cv, ratio: ratio };
+    }
+
+    function resetParticle(p, s, C) {
+        /**
+         * Bolt Optimization:
+         * - What: Use cached `s.width` and `s.height` instead of calling `metrics()`.
+         * - Why: `reset()` is called inside the 60fps render loop whenever a particle goes off-screen. Calling `metrics()` forces synchronous DOM layout reads (`clientWidth`, `clientHeight`), causing main-thread overhead and layout thrashing.
+         * - Impact: Measurably reduces CPU usage and frame render time by eliminating DOM reads inside `requestAnimationFrame`.
+         */
+        const width = s && s.width ? s.width : window.innerWidth;
+        const height = s && s.height ? s.height : window.innerHeight;
+        p.x = Math.random() * width;
+        p.y = Math.random() * height;
+        p.vx = (Math.random() - 0.5) * C.speed;
+        p.vy = (Math.random() - 0.5) * C.speed;
+        p.r = C.radius.min + Math.random() * (C.radius.max - C.radius.min);
+        p.a = C.alpha.min + Math.random() * (C.alpha.max - C.alpha.min);
+        return p;
+    }
+
+    function isOutOfBounds(p, w, h) {
+        return p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10;
+    }
+
+    function updateParticle(p, exiting, intro, w, h, s, C) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (exiting) {
+            p.a = Math.max(0, p.a - 0.02);
+        } else if (intro) {
+            p.a = Math.max(0, p.a - 0.01);
+        } else if (isOutOfBounds(p, w, h)) {
+            resetParticle(p, s, C);
+        }
+    }
+
+    function getFlag(key) {
+        try {
+            const val = window.sessionStorage.getItem(key);
+            if (val && val.length > 5) {
+                return false;
             }
-            return sketchInstance;
+            return val === '1';
+        } catch (e) {
+            logWarning('[ambient] sessionStorage get error:', e);
+            return false;
         }
+    }
 
+    function clearFlag(key) {
+        try {
+            window.sessionStorage.removeItem(key);
+        } catch (e) {
+            logWarning('[ambient] sessionStorage remove error:', e);
+        }
+    }
+
+    function runAmbient(C, force, trace) {
         const s = initSketchCanvas(C, trace);
-        function getDim(c, clientProp, baseProp, winVal, ratio) {
-            const cv = c && c[clientProp] ? c[clientProp] : winVal;
-            const bv = c && c[baseProp] ? c[baseProp] : cv * ratio;
-            return { cv, bv };
-        }
-
-        function metrics() {
-            const ratio = window.devicePixelRatio || 1;
-            const w = getDim(s.canvas, 'clientWidth', 'width', window.innerWidth, ratio);
-            const h = getDim(s.canvas, 'clientHeight', 'height', window.innerHeight, ratio);
-
-            const width = w.bv / ratio;
-            const height = h.bv / ratio;
-            s.width = width;
-            s.height = height;
-            return { width: width, height: height, cw: w.cv, ch: h.cv, ratio: ratio };
-        }
 
         const MAX = C.maxParticles,
             particles = [];
@@ -176,23 +233,7 @@
                 return Date.now();
             };
         })();
-        function reset(p) {
-            /**
-             * Bolt Optimization:
-             * - What: Use cached `s.width` and `s.height` instead of calling `metrics()`.
-             * - Why: `reset()` is called inside the 60fps render loop whenever a particle goes off-screen. Calling `metrics()` forces synchronous DOM layout reads (`clientWidth`, `clientHeight`), causing main-thread overhead and layout thrashing.
-             * - Impact: Measurably reduces CPU usage and frame render time by eliminating DOM reads inside `requestAnimationFrame`.
-             */
-            const width = s && s.width ? s.width : window.innerWidth;
-            const height = s && s.height ? s.height : window.innerHeight;
-            p.x = Math.random() * width;
-            p.y = Math.random() * height;
-            p.vx = (Math.random() - 0.5) * C.speed;
-            p.vy = (Math.random() - 0.5) * C.speed;
-            p.r = C.radius.min + Math.random() * (C.radius.max - C.radius.min);
-            p.a = C.alpha.min + Math.random() * (C.alpha.max - C.alpha.min);
-            return p;
-        }
+
         function beginExitBurst() {
             transitionControl.mode = 'exit';
             transitionControl.start = perfNow();
@@ -220,7 +261,7 @@
                 s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
                 s.canvas.style.opacity = '1';
             }
-            const m = metrics();
+            const m = metrics(s);
             for (let i = 0; i < particles.length; i += 1) {
                 const p = particles[i];
                 p.x = -m.width * 0.15 + Math.random() * m.width * 0.3;
@@ -234,34 +275,20 @@
         s.setup = function () {
             particles.length = 0;
             const divisor = C.densityDivisor;
-            const m = metrics();
+            const m = metrics(s);
             const area = Math.max(1, m.width * m.height);
             let count = Math.min(MAX, Math.round(area / divisor));
             if (count < 20) {
                 count = 20;
             }
             for (let i = 0; i < count; i++) {
-                particles.push(reset({}));
+                particles.push(resetParticle({}, s, C));
             }
         };
+
         s.resize = function () {
             s.setup();
         };
-        function isOutOfBounds(p, w, h) {
-            return p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10;
-        }
-
-        function updateParticle(p, exiting, intro, w, h) {
-            p.x += p.vx;
-            p.y += p.vy;
-            if (exiting) {
-                p.a = Math.max(0, p.a - 0.02);
-            } else if (intro) {
-                p.a = Math.max(0, p.a - 0.01);
-            } else if (isOutOfBounds(p, w, h)) {
-                reset(p);
-            }
-        }
 
         s.update = function () {
             // Bolt Optimization: Replace metrics().width with cached s.width to avoid DOM reads in render loop
@@ -271,7 +298,7 @@
             const intro = transitionControl.mode === 'intro';
 
             for (let i = 0; i < particles.length; i++) {
-                updateParticle(particles[i], exiting, intro, w, h);
+                updateParticle(particles[i], exiting, intro, w, h, s, C);
             }
 
             if (exiting || intro) {
@@ -284,6 +311,7 @@
                 }
             }
         };
+
         s.draw = function () {
             const ctx = this;
             ctx.save();
@@ -311,28 +339,11 @@
             }
             ctx.restore();
         };
+
         if (trace && window.console) {
             window.__ambient = { config: C, instance: s };
         }
-        function getFlag(key) {
-            try {
-                const val = window.sessionStorage.getItem(key);
-                if (val && val.length > 5) {
-                    return false;
-                }
-                return val === '1';
-            } catch (e) {
-                logWarning('[ambient] sessionStorage get error:', e);
-                return false;
-            }
-        }
-        function clearFlag(key) {
-            try {
-                window.sessionStorage.removeItem(key);
-            } catch (e) {
-                logWarning('[ambient] sessionStorage remove error:', e);
-            }
-        }
+
         function maybePlayIntro() {
             const isProject =
                 document.body && document.body.getAttribute('data-page-type') === 'project';
