@@ -80,4 +80,10 @@
 
 **Vulnerability:** The `storeCursorPositionForTransition` function in `js/page-transition.js` derived coordinate strings via `JSON.stringify` and wrote them directly to `sessionStorage` without any payload length verification. An attacker or unexpected condition could potentially inject massive payloads into client-side storage, causing Denial of Service (DoS) through storage quota exhaustion.
 **Learning:** While `JSON.stringify` on numerical coordinates naturally produces short strings, defense-in-depth requires explicitly bounding inputs prior to storage API calls. The identical functionality in `js/vendor/cursor.js` already implemented this check (`if (payload.length > 200) return;`), highlighting a slight inconsistency across the codebase.
-**Prevention:** Always implement explicit string length limits before invoking `sessionStorage.setItem` or `localStorage.setItem`, regardless of whether the payload is generated natively or passed from external input.
+**Action:** Always implement explicit string length limits before invoking `sessionStorage.setItem` or `localStorage.setItem`, regardless of whether the payload is generated natively or passed from external input.
+
+## 2024-05-20 - Security Header Meta Tags
+
+**Vulnerability:** Ineffective security headers (`X-Frame-Options`, `X-Content-Type-Options`) implemented as HTML `<meta>` tags (Security Theater).
+**Learning:** Modern browsers explicitly ignore these directives when placed inside HTML `<meta>` tags. They are only recognized and enforced when sent as actual HTTP response headers from the server.
+**Prevention:** Never attempt to configure `X-Frame-Options` or `X-Content-Type-Options` using `<meta>` tags. Focus on server-level configuration or application-level logic for DOM security.

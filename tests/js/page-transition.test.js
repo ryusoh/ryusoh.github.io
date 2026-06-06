@@ -261,7 +261,7 @@ describe('page-transition.js', () => {
             expect(getValidatedUrl('javascript:alert(1)')).toBeNull();
             expect(getValidatedUrl('data:text/html,foo')).toBeNull();
             expect(window.console.error).toHaveBeenCalledWith(
-                expect.stringContaining('Blocked potentially malicious URL scheme')
+                expect.stringContaining('Blocked definitively malicious URL scheme')
             );
         });
 
