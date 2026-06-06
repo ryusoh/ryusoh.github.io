@@ -69,3 +69,9 @@
 **Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis. High cyclomatic complexity (> 8) increases cognitive load and maintenance overhead.
 **Learning:** During the codebase health pass, multiple critical `catch {}` blocks were identified in `js/page-transition.js`, `js/loader/imageFallback.js`, `js/scroll-reveal.js`, `js/service-worker-register.js`, and `js/ambient/config/default.js` that masked runtime exceptions. Additionally, core functions had overgrown into tightly coupled blocks.
 **Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 8 for maintainability and readability.
+
+## 2026-06-06 - [DoS via Unbounded sessionStorage Payload]
+
+**Vulnerability:** The `storeCursorPositionForTransition` function in `js/page-transition.js` derived coordinate strings via `JSON.stringify` and wrote them directly to `sessionStorage` without any payload length verification. An attacker or unexpected condition could potentially inject massive payloads into client-side storage, causing Denial of Service (DoS) through storage quota exhaustion.
+**Learning:** While `JSON.stringify` on numerical coordinates naturally produces short strings, defense-in-depth requires explicitly bounding inputs prior to storage API calls. The identical functionality in `js/vendor/cursor.js` already implemented this check (`if (payload.length > 200) return;`), highlighting a slight inconsistency across the codebase.
+**Prevention:** Always implement explicit string length limits before invoking `sessionStorage.setItem` or `localStorage.setItem`, regardless of whether the payload is generated natively or passed from external input.

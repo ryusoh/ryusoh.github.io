@@ -124,6 +124,9 @@
                 x: Math.round(x),
                 y: Math.round(y),
             });
+            if (payload.length > 200) {
+                return;
+            }
             window.sessionStorage.setItem(CURSOR_STORAGE_KEY, payload);
         } catch (e) {
             // sessionStorage may be unavailable (private browsing, quota)
