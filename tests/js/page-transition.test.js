@@ -16,7 +16,27 @@ describe('page-transition.js', () => {
     let buildTransitionUrl;
     let navigate;
 
+    let originalDocAdd;
+    let originalWinAdd;
+    let addedDocListeners = [];
+    let addedWinListeners = [];
+
     beforeEach(() => {
+        originalDocAdd = document.addEventListener;
+        originalWinAdd = window.addEventListener;
+        addedDocListeners = [];
+        addedWinListeners = [];
+
+        document.addEventListener = jest.fn((event, cb, options) => {
+            addedDocListeners.push({ event, cb, options });
+            originalDocAdd.call(document, event, cb, options);
+        });
+
+        window.addEventListener = jest.fn((event, cb, options) => {
+            addedWinListeners.push({ event, cb, options });
+            originalWinAdd.call(window, event, cb, options);
+        });
+
         // Clear modules and re-require the source for each test to ensure fresh state
         jest.resetModules();
 
@@ -55,6 +75,14 @@ describe('page-transition.js', () => {
     });
 
     afterEach(() => {
+        for (const { event, cb, options } of addedDocListeners) {
+            document.removeEventListener(event, cb, options);
+        }
+        for (const { event, cb, options } of addedWinListeners) {
+            window.removeEventListener(event, cb, options);
+        }
+        document.addEventListener = originalDocAdd;
+        window.addEventListener = originalWinAdd;
         jest.clearAllMocks();
     });
 
@@ -303,14 +331,13 @@ describe('page-transition.js', () => {
         });
 
         test('returns early if document.body is missing on DOMContentLoaded', () => {
-            const originalBody = document.body;
-            Object.defineProperty(document, 'body', { value: undefined, configurable: true });
+            const bodySpy = jest.spyOn(document, 'body', 'get').mockReturnValue(undefined);
             jest.resetModules();
             require('../../js/page-transition.js');
             const event = document.createEvent('Event');
             event.initEvent('DOMContentLoaded', true, true);
             document.dispatchEvent(event);
-            Object.defineProperty(document, 'body', { value: originalBody, configurable: true });
+            bodySpy.mockRestore();
         });
 
         test('applies staggered entrance if project page and pending reveal', () => {
@@ -1006,8 +1033,7 @@ describe('page-transition.js', () => {
         });
 
         test('returns early if document.body is missing during init', () => {
-            const originalBody = document.body;
-            Object.defineProperty(document, 'body', { value: undefined, configurable: true });
+            const bodySpy = jest.spyOn(document, 'body', 'get').mockReturnValue(undefined);
 
             require('../../js/page-transition.js');
 
@@ -1015,7 +1041,7 @@ describe('page-transition.js', () => {
             event.initEvent('DOMContentLoaded', true, true);
             document.dispatchEvent(event);
 
-            Object.defineProperty(document, 'body', { value: originalBody, configurable: true });
+            bodySpy.mockRestore();
         });
 
         test('does not apply staggered entrance if not project page', () => {
@@ -1276,11 +1302,9 @@ describe('page-transition.js', () => {
 
         it('should exit early and not navigate when click event default is prevented', () => {
             const assignSpy = jest.fn();
-            Object.defineProperty(window, 'location', {
-                value: { assign: assignSpy, origin: 'http://localhost', href: 'http://localhost/' },
-                writable: true,
-                configurable: true,
-            });
+            delete window.location;
+            window.location = new URL('http://localhost/');
+            window.location.assign = assignSpy;
             document.body.innerHTML =
                 '<a href="http://localhost/dest" data-page-transition id="valid-link">Link</a>';
             const anchor = document.getElementById('valid-link');
@@ -1294,11 +1318,9 @@ describe('page-transition.js', () => {
 
         it('should exit early and not navigate for non-primary mouse button clicks', () => {
             const assignSpy = jest.fn();
-            Object.defineProperty(window, 'location', {
-                value: { assign: assignSpy, origin: 'http://localhost', href: 'http://localhost/' },
-                writable: true,
-                configurable: true,
-            });
+            delete window.location;
+            window.location = new URL('http://localhost/');
+            window.location.assign = assignSpy;
             document.body.innerHTML =
                 '<a href="http://localhost/dest" data-page-transition id="valid-link">Link</a>';
             const anchor = document.getElementById('valid-link');
@@ -1310,11 +1332,9 @@ describe('page-transition.js', () => {
 
         it('should exit early and not navigate if anchor has a skip nav class', () => {
             const assignSpy = jest.fn();
-            Object.defineProperty(window, 'location', {
-                value: { assign: assignSpy, origin: 'http://localhost', href: 'http://localhost/' },
-                writable: true,
-                configurable: true,
-            });
+            delete window.location;
+            window.location = new URL('http://localhost/');
+            window.location.assign = assignSpy;
             document.body.innerHTML =
                 '<a href="http://localhost/dest" data-page-transition class="nav-back" id="valid-link">Link</a>';
             const anchor = document.getElementById('valid-link');
