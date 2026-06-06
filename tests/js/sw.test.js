@@ -3,6 +3,69 @@
  */
 
 describe('Service Worker', () => {
+
+    describe('sw.js module.exports edge case', () => {
+        beforeEach(() => {
+            jest.resetModules();
+        });
+
+        test('does not throw when module is not available', () => {
+            const originalModule = global.module;
+            Object.defineProperty(global, 'module', { value: undefined, configurable: true });
+
+            expect(() => {
+                require('../../sw.js');
+            }).not.toThrow();
+
+            Object.defineProperty(global, 'module', { value: originalModule, configurable: true });
+        });
+    });
+
+    describe('sw.js addEventListener edge cases', () => {
+        beforeEach(() => {
+            jest.resetModules();
+        });
+
+        test('calls handleFetch without respondingWith when fetch is not handled', () => {
+            const listeners = {};
+            self.addEventListener = jest.fn((event, callback) => {
+                listeners[event] = callback;
+            });
+
+            require('../../sw.js');
+
+            const event = {
+                request: { url: 'https://example.com/api/data' },
+                respondWith: jest.fn(),
+            };
+
+            listeners.fetch(event);
+            expect(event.respondWith).not.toHaveBeenCalled();
+        });
+
+        test('sw.js handles install and activate gracefully', () => {
+            const listeners = {};
+            self.addEventListener = jest.fn((event, callback) => {
+                listeners[event] = callback;
+            });
+
+            require('../../sw.js');
+
+            const installEvent = {
+                waitUntil: jest.fn(),
+            };
+            listeners.install(installEvent);
+
+            const activateEvent = {
+                waitUntil: jest.fn(),
+            };
+            listeners.activate(activateEvent);
+
+            expect(installEvent.waitUntil).toHaveBeenCalled();
+            expect(activateEvent.waitUntil).toHaveBeenCalled();
+        });
+    });
+
     let sw;
     let mockCaches;
     let mockSelf;
