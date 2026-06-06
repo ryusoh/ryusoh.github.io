@@ -595,6 +595,80 @@ describe('js/block-navigation.js', () => {
         });
     });
 
+    describe('debounce window and RAF checks directly', () => {
+        beforeEach(() => {
+            jest.useFakeTimers();
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+            jest.restoreAllMocks();
+        });
+
+        test('should execute fn directly via setTimeout if window is mocked to simulate undefined', () => {
+            const debounce = testing.debounce;
+
+            const originalRaf = context.window.requestAnimationFrame;
+            context.window.requestAnimationFrame = undefined;
+
+            const originalSetTimeout = context.setTimeout;
+            const originalClearTimeout = context.clearTimeout;
+
+            context.setTimeout = global.setTimeout;
+            context.clearTimeout = global.clearTimeout;
+
+            const func = jest.fn();
+            const debounced = debounce(func, 100);
+
+            debounced();
+            expect(func).not.toHaveBeenCalled();
+
+            jest.advanceTimersByTime(100);
+
+            expect(func).toHaveBeenCalledTimes(1);
+
+            context.window.requestAnimationFrame = originalRaf;
+            context.setTimeout = originalSetTimeout;
+            context.clearTimeout = originalClearTimeout;
+        });
+
+        test('should cancel pending RAF if debounce is called again', () => {
+            const debounce = testing.debounce;
+            const mockCaf = jest.fn();
+            const mockRaf = jest.fn().mockReturnValue(12345);
+
+            const originalRaf = context.window.requestAnimationFrame;
+            const originalCaf = context.window.cancelAnimationFrame;
+
+            context.window.requestAnimationFrame = mockRaf;
+            context.window.cancelAnimationFrame = mockCaf;
+
+            const originalSetTimeout = context.setTimeout;
+            const originalClearTimeout = context.clearTimeout;
+
+            context.setTimeout = global.setTimeout;
+            context.clearTimeout = global.clearTimeout;
+
+            const func = jest.fn();
+            const debounced = debounce(func, 100);
+
+            debounced();
+            jest.advanceTimersByTime(100);
+
+            expect(mockRaf).toHaveBeenCalledTimes(1);
+            expect(mockCaf).not.toHaveBeenCalled();
+
+            debounced();
+
+            expect(mockCaf).toHaveBeenCalledWith(12345);
+
+            context.window.requestAnimationFrame = originalRaf;
+            context.window.cancelAnimationFrame = originalCaf;
+            context.setTimeout = originalSetTimeout;
+            context.clearTimeout = originalClearTimeout;
+        });
+    });
+
     describe('logWarning', () => {
         let originalConsole;
         beforeEach(() => {

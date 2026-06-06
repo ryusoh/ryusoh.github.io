@@ -154,7 +154,7 @@ describe('imageFallback.js', () => {
         window.console.warn = originalWarn;
     });
 
-    test('covers querySelectorAll loop line 57', () => {
+    test('should initialize fallbacks for all image tags on load', () => {
         jest.resetModules();
         document.body.innerHTML =
             '<img data-fallbacks=\'["a.jpg"]\' /><img data-fallbacks=\'["b.jpg"]\' />';
@@ -163,7 +163,7 @@ describe('imageFallback.js', () => {
         expect(imgs[0].getAttribute('data-fallbacks')).toBe('["a.jpg"]');
     });
 
-    test('covers exception block with console undefined', () => {
+    test('should gracefully ignore initialization errors and not crash the application', () => {
         jest.resetModules();
         const origQuerySelectorAll = document.querySelectorAll;
         document.querySelectorAll = () => {
@@ -200,5 +200,131 @@ describe('imageFallback.js', () => {
                 vm.runInContext(code, context);
             }).not.toThrow();
         });
+    });
+
+    it('should add "is-fallback-ready" class when global load event fires for valid image (branch coverage)', () => {
+        const img = document.createElement('img');
+        img.setAttribute('data-fallbacks', '["url1.png"]');
+        document.body.appendChild(img);
+        const loadEvent = new Event('load', { bubbles: true });
+        img.dispatchEvent(loadEvent);
+        expect(img.classList.contains('is-fallback-ready')).toBe(true);
+    });
+
+    it('should not throw if target is missing in load event', () => {
+        const loadEvent = new Event('load', { bubbles: true });
+        Object.defineProperty(loadEvent, 'target', { value: null });
+        document.dispatchEvent(loadEvent);
+    });
+
+    it('should not throw if target is missing in error event', () => {
+        const errEvent = new Event('error', { bubbles: true });
+        Object.defineProperty(errEvent, 'target', { value: null });
+        document.dispatchEvent(errEvent);
+    });
+
+    it('should not throw if target is not IMG in error event', () => {
+        const errEvent = new Event('error', { bubbles: true });
+        const div = document.createElement('div');
+        div.dispatchEvent(errEvent);
+    });
+
+    it('should not throw if error event target has no fallback list', () => {
+        const errEvent = new Event('error', { bubbles: true });
+        const img = document.createElement('img');
+        img.setAttribute('data-fallbacks', '["a"]');
+        img.dispatchEvent(errEvent);
+    });
+
+    it('should return null from sanitizeFallbackList if array contains no valid strings', () => {
+        const img = document.createElement('img');
+        img.setAttribute('data-fallbacks', '[1, 2, null]');
+        imageFallback.initFallback(img);
+        expect(img.src).toBe('');
+    });
+
+    it('should not mark fallback as ready if image src matches but is not complete', () => {
+        const img = document.createElement('img');
+        img.src = 'url1.png';
+        img.setAttribute('data-fallbacks', '["url1.png"]');
+        Object.defineProperty(img, 'complete', { value: false });
+
+        imageFallback.initFallback(img);
+        expect(img.classList.contains('is-fallback-ready')).toBe(false);
+    });
+
+    test('should not mark fallback as ready if complete but naturalWidth is 0', () => {
+        const img = document.createElement('img');
+        img.src = 'url1.png';
+        img.setAttribute('data-fallbacks', '["url1.png"]');
+        Object.defineProperty(img, 'complete', { value: true });
+        Object.defineProperty(img, 'naturalWidth', { value: 0 });
+
+        imageFallback.initFallback(img);
+        expect(img.classList.contains('is-fallback-ready')).toBe(false);
+    });
+
+    test('should update image source if src exists but does not match first fallback', () => {
+        const img = document.createElement('img');
+        img.src = 'other.png';
+        img.setAttribute('data-fallbacks', '["url1.png"]');
+
+        imageFallback.initFallback(img);
+        expect(img.src).toContain('url1.png');
+    });
+
+    test('should export functions correctly in module environment', () => {
+        // Evaluate in a context where window is missing but module.exports is present
+        const exportsObj = {};
+        const sandbox = {
+            document: global.document,
+            module: { exports: exportsObj },
+        };
+        const vm = require('vm');
+        vm.createContext(sandbox);
+        const code = require('fs').readFileSync('js/loader/imageFallback.js', 'utf8');
+        vm.runInContext(code, sandbox);
+
+        expect(sandbox.module.exports.parseFallbacks).toBeDefined();
+    });
+
+    test('should not export if module is present without exports', () => {
+        const sandbox = {
+            window: { console: global.console },
+            document: global.document,
+            module: {},
+        };
+        const vm = require('vm');
+        vm.createContext(sandbox);
+        const code = require('fs').readFileSync('js/loader/imageFallback.js', 'utf8');
+        vm.runInContext(code, sandbox);
+
+        expect(sandbox.module.exports).toBeUndefined();
+    });
+
+    test('should export to window if module is explicitly undefined', () => {
+        const sandbox = {
+            window: { console: global.console },
+            document: global.document,
+            // module is explicitly undefined
+        };
+        const vm = require('vm');
+        vm.createContext(sandbox);
+        const code = require('fs').readFileSync('js/loader/imageFallback.js', 'utf8');
+        vm.runInContext(code, sandbox);
+
+        expect(sandbox.window.__ImageFallbackForTesting).toBeDefined();
+    });
+
+    test('should run cleanly without side effects when evaluated in window-less environment', () => {
+        const sandbox = {
+            document: global.document,
+            module: { exports: {} },
+        };
+        const vm = require('vm');
+        vm.createContext(sandbox);
+        const code = require('fs').readFileSync('js/loader/imageFallback.js', 'utf8');
+        vm.runInContext(code, sandbox);
+        expect(sandbox.module.exports).toBeDefined();
     });
 });

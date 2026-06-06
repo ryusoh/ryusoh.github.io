@@ -108,3 +108,13 @@
 **Learning:** When writing navigation or click interception unit tests in JSDOM, `window.location.href` defaults to `http://localhost/`. Tests using external URLs (e.g., `https://example.com/test`) will falsely trigger cross-origin/same-origin validation barriers. Furthermore, tests spanning across modules with multiple internal references (`isAtTopOrBottom`, `getCurrentIndex`) must carefully sync or mock DOM layouts (`scrollHeight`, `scrollTop`) to accurately evaluate internally scoped closures without forcibly modifying feature code to expose them.
 
 **Action:** Standardize same-origin test URL configurations across the suite by applying `Object.defineProperty` on `window.location` consistently, or use `http://localhost/test` paths. Prevent modifying `.js` feature files to expose properties purely for coverage purposes, and instead mock the environment to invoke internal calls via public event handlers.
+
+## 2026-06-06 - VM Sandbox Timer Mocking
+
+**Learning:** When testing code executed inside a `vm` sandbox (`runInContext`) that utilizes timers, `jest.useFakeTimers()` will not automatically affect the sandbox's native `setTimeout`.
+**Action:** You must explicitly map the sandbox's timers to the global environment (e.g., `context.setTimeout = global.setTimeout`) for Jest's timer mocks (like `jest.advanceTimersByTime`) to work correctly.
+
+## 2026-06-06 - ES2019 Optional Catch Binding for ESLint
+
+**Learning:** When writing try-catch blocks where the caught error object is unused, ESLint will fail with `no-unused-vars` if the error variable is explicitly captured.
+**Action:** Use ES2019 optional catch binding (e.g., `catch { /* ignore */ }`) instead of explicitly capturing the error variable (e.g., `catch (e)`) to prevent ESLint failures.
