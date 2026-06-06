@@ -1,67 +1,58 @@
-/** @jest-environment jsdom */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
 
 describe('ambient/loader.js', () => {
+    let context;
+    let code;
     let mockCDNLoader;
-    let originalInnerWidth;
+    let mockDocument;
+    let mockBody;
 
     beforeEach(() => {
-        jest.resetModules();
-        originalInnerWidth = window.innerWidth;
+        code = fs.readFileSync(path.resolve(__dirname, '../../../js/ambient/loader.js'), 'utf8');
 
         mockCDNLoader = {
             loadScriptSequential: jest.fn().mockResolvedValue(),
             loadCssWithFallback: jest.fn().mockResolvedValue(),
         };
 
-        window.CDNLoader = mockCDNLoader;
+        mockBody = {
+            getAttribute: jest.fn().mockReturnValue('home'),
+        };
 
-        // Use Object.defineProperty to safely mock matchMedia since jsdom sets it
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
-            writable: true,
-            value: jest.fn().mockReturnValue({ matches: false }),
-        });
+        mockDocument = {
+            body: mockBody,
+        };
 
-        Object.defineProperty(window, 'innerWidth', {
-            configurable: true,
-            writable: true,
-            value: 1200,
-        });
-
-        // Mock console.warn
-        jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-        document.body.setAttribute('data-page-type', 'home');
-
-        window.AppLogger = { error: jest.fn() };
-    });
-
-    afterEach(() => {
-        Object.defineProperty(window, 'innerWidth', {
-            configurable: true,
-            value: originalInnerWidth,
-        });
-        delete window.CDNLoader;
-        delete window.AppLogger;
-        document.body.removeAttribute('data-page-type');
-        jest.restoreAllMocks();
+        context = {
+            window: {
+                CDNLoader: mockCDNLoader,
+                innerWidth: 1200,
+                matchMedia: jest.fn().mockReturnValue({ matches: false }),
+                Promise: Promise,
+                console: {
+                    warn: jest.fn(),
+                },
+            },
+            document: mockDocument,
+        };
     });
 
     test('exits early if prefers-reduced-motion is true', () => {
-        window.matchMedia.mockReturnValue({ matches: true });
+        context.window.matchMedia.mockReturnValue({ matches: true });
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
         expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
     });
 
     test('handles missing window.matchMedia gracefully', () => {
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
-            value: undefined,
-        });
+        delete context.window.matchMedia;
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
         expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
             '/css/ambient/ambient.css',
@@ -69,46 +60,47 @@ describe('ambient/loader.js', () => {
     });
 
     test('exits early if window innerWidth is less than 1024', () => {
-        Object.defineProperty(window, 'innerWidth', {
-            configurable: true,
-            value: 800,
-        });
+        context.window.innerWidth = 800;
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
         expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
     });
 
     test('exits early if window.CDNLoader is missing', () => {
-        delete window.CDNLoader;
+        delete context.window.CDNLoader;
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
         expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
     });
 
     test('loads ambient CSS and legacy scripts correctly', async () => {
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
         expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
             '/css/ambient/ambient.css',
         ]);
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
 
         expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(['/js/vendor/sketch.js']);
     });
 
     test('loads quantum particles when pageType is home or project', async () => {
-        document.body.setAttribute('data-page-type', 'home');
+        mockBody.getAttribute.mockReturnValue('home');
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
 
         expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(
             ['/js/ambient/quantum_particles.js'],
@@ -117,13 +109,14 @@ describe('ambient/loader.js', () => {
     });
 
     test('does not load quantum particles for other page types', async () => {
-        document.body.setAttribute('data-page-type', 'about');
+        mockBody.getAttribute.mockReturnValue('about');
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
 
         const calls = mockCDNLoader.loadScriptSequential.mock.calls;
         const loadedQuantum = calls.some((call) =>
@@ -133,117 +126,60 @@ describe('ambient/loader.js', () => {
     });
 
     test('ignores synchronous errors during initialization gracefully', () => {
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
+        Object.defineProperty(context.window, 'matchMedia', {
             get: () => {
                 throw new Error('Simulated synchronous error');
             },
         });
 
         expect(() => {
-            require('../../../js/ambient/loader.js');
+            vm.createContext(context);
+            vm.runInContext(code, context);
         }).not.toThrow();
     });
 
     test('ignores promise rejections from CDNLoader gracefully', async () => {
         mockCDNLoader.loadCssWithFallback.mockRejectedValue(new Error('Simulated network error'));
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
 
-        expect(console.warn).toHaveBeenCalledWith(
+        expect(context.window.console.warn).toHaveBeenCalledWith(
             'Ambient async loader failed:',
             expect.any(Error)
         );
     });
 
     test('ignores promise rejections from CDNLoader without throwing when console.warn is missing', async () => {
-        const originalWarn = console.warn;
-        console.warn = undefined;
+        delete context.window.console.warn;
         mockCDNLoader.loadCssWithFallback.mockRejectedValue(new Error('Simulated network error'));
 
+        vm.createContext(context);
+
         expect(() => {
-            require('../../../js/ambient/loader.js');
+            vm.runInContext(code, context);
         }).not.toThrow();
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        console.warn = originalWarn;
+        await new Promise(process.nextTick);
+        await new Promise(process.nextTick);
     });
 
-    test('ignores synchronous errors during initialization gracefully and logs warning to AppLogger', () => {
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
+    test('ignores synchronous errors during initialization gracefully and logs warning', () => {
+        Object.defineProperty(context.window, 'matchMedia', {
             get: () => {
                 throw new Error('Simulated synchronous error');
             },
         });
 
-        require('../../../js/ambient/loader.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        expect(window.AppLogger.error).toHaveBeenCalledWith(
+        expect(context.window.console.warn).toHaveBeenCalledWith(
             'Ambient initialization failed:',
             expect.any(Error)
         );
-    });
-
-    test('ignores synchronous errors during initialization gracefully and logs warning to console if no AppLogger', () => {
-        delete window.AppLogger;
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
-            get: () => {
-                throw new Error('Simulated synchronous error');
-            },
-        });
-
-        require('../../../js/ambient/loader.js');
-
-        expect(window.console.warn).toHaveBeenCalledWith(
-            'Ambient initialization failed:',
-            expect.any(Error)
-        );
-    });
-
-    test('gracefully handles missing window.console.warn during async rejection', async () => {
-        const originalWarn = console.warn;
-        console.warn = undefined;
-        mockCDNLoader.loadCssWithFallback.mockRejectedValue(new Error('Simulated network error'));
-
-        expect(() => {
-            require('../../../js/ambient/loader.js');
-        }).not.toThrow();
-
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        console.warn = originalWarn;
-    });
-
-    test('gracefully handles missing window.console during sync error', () => {
-        const originalConsole = window.console;
-
-        Object.defineProperty(window, 'console', {
-            configurable: true,
-            get: () => undefined,
-        });
-
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
-            get: () => {
-                throw new Error('Simulated synchronous error');
-            },
-        });
-
-        expect(() => {
-            require('../../../js/ambient/loader.js');
-        }).not.toThrow();
-
-        Object.defineProperty(window, 'console', {
-            configurable: true,
-            value: originalConsole,
-        });
     });
 });

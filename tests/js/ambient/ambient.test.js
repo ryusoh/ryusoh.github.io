@@ -1,12 +1,15 @@
-/**
- * @jest-environment jsdom
- */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
 
 describe('js/ambient/ambient.js', () => {
+    let context;
+    let code;
     let mockSketch;
 
     beforeEach(() => {
-        jest.resetModules();
+        const sourcePath = path.resolve(__dirname, '../../../js/ambient/ambient.js');
+        code = fs.readFileSync(sourcePath, 'utf8');
 
         mockSketch = {
             create: jest.fn().mockReturnValue({
@@ -17,310 +20,256 @@ describe('js/ambient/ambient.js', () => {
                     clientHeight: 600,
                 },
                 width: 800,
-                save: jest.fn(),
-                beginPath: jest.fn(),
-                arc: jest.fn(),
-                fill: jest.fn(),
-                restore: jest.fn(),
                 height: 600,
             }),
         };
 
-        window.Sketch = mockSketch;
-
-        // Mock sessionStorage
-        const mockStorage = {
-            getItem: jest.fn(),
-            removeItem: jest.fn(),
+        context = {
+            window: {
+                matchMedia: jest.fn().mockReturnValue({ matches: false }),
+                innerWidth: 1200,
+                innerHeight: 800,
+                location: { search: '' },
+                URLSearchParams: require('url').URLSearchParams,
+                devicePixelRatio: 1,
+                performance: { now: () => 1000 },
+                Sketch: mockSketch,
+                sessionStorage: {
+                    getItem: jest.fn(),
+                    removeItem: jest.fn(),
+                },
+                console: console, // explicitly use console here for `trace && window.console` check
+            },
+            document: {
+                body: {
+                    getAttribute: jest.fn().mockReturnValue('home'),
+                },
+            },
+            Math: Math,
+            Date: Date,
+            console: console,
+            Object: Object,
+            String: String,
         };
-        Object.defineProperty(window, 'sessionStorage', { value: mockStorage, configurable: true });
 
-        document.body.innerHTML = '<body></body>';
-        document.body.getAttribute = jest.fn().mockReturnValue('home');
-
-        let mockTime = 1000;
-        window.performance.now = jest.fn(() => mockTime);
-        window.__mockTimeAdvance = (ms) => {
-            mockTime += ms;
-        };
-        require('../../../js/ambient/ambient.js');
-    });
-
-    describe('getAmbientParam Edge Cases', () => {
-        test('returns null if URLSearchParams is undefined', () => {
-            const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            const originalURLSearchParams = window.URLSearchParams;
-            delete window.URLSearchParams;
-
-            expect(getAmbientParam()).toBeNull();
-
-            window.URLSearchParams = originalURLSearchParams;
-        });
-
-        test('returns null if search length > 1000', () => {
-            const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/?ambient=' + 'a'.repeat(1001));
-
-            expect(getAmbientParam()).toBeNull();
-        });
-
-        test('returns null and warns if parsing fails', () => {
-            const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/?ambient=1');
-
-            const originalURLSearchParams = window.URLSearchParams;
-            window.URLSearchParams = jest.fn().mockImplementation(() => {
-                throw new Error('Parse error');
-            });
-            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            expect(getAmbientParam()).toBeNull();
-            expect(warnSpy).toHaveBeenCalledWith(
-                'URLSearchParams parsing failed:',
-                expect.any(Error)
-            );
-
-            window.URLSearchParams = originalURLSearchParams;
-            warnSpy.mockRestore();
-        });
-    });
-
-    describe('getAmbientParam', () => {
-        test('returns the value of ambient param', () => {
-            const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/?ambient=debug');
-            expect(getAmbientParam()).toBe('debug');
-        });
-
-        test('returns null if search is empty', () => {
-            const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/');
-            expect(getAmbientParam()).toBeNull();
-        });
-    });
-
-    describe('Transitions and Particle Reset', () => {
-        beforeEach(() => {
-            jest.useFakeTimers();
-            // JSDOM's performance.now is not always synchronized with jest timers. We force it to use Date.now
-            let currentTime = 1000;
-            window.performance.now = jest.fn(() => {
-                currentTime += 1000; // Force advance 1000 on each call so elapsed > duration
-                return currentTime;
-            });
-            // Ensure particles logic is executed
-            document.body.getAttribute.mockReturnValue('project');
-        });
-
-        afterEach(() => {
-            jest.useRealTimers();
-        });
-
-        test('beginExitBurst modifies transition mode and particle properties', () => {
-            const s = mockSketch.create.mock.results[0].value;
-            // The setup method was called during init, which populates particles array
-            s.setup();
-
-            window.AmbientTransitionController.playExit();
-
-            expect(s.canvas.style.transition).toBe('opacity 0.4s var(--brand-ease)');
-            expect(s.canvas.style.opacity).toBe('1');
-
-            // Advance time and update to trigger internal idle reset
-            window.__mockTimeAdvance(1500);
-            s.update();
-            expect(s.canvas.style.opacity).toBe('');
-        });
-
-        test('beginIntroSweep modifies transition mode and particle properties', () => {
-            const s = mockSketch.create.mock.results[0].value;
-            s.setup();
-
-            window.AmbientTransitionController.playIntro();
-
-            expect(s.canvas.style.transition).toBe('opacity 0.4s var(--brand-ease)');
-            expect(s.canvas.style.opacity).toBe('1');
-
-            // Trigger update to evaluate particle update during intro
-            s.update();
-
-            window.__mockTimeAdvance(1500);
-            s.update();
-            expect(s.canvas.style.opacity).toBe('');
-        });
-
-        test('particle boundary reset triggers inside update when idle', () => {
-            const s = mockSketch.create.mock.results[0].value;
-            s.setup();
-
-            // Move all particles way out of bounds
-            s.draw(); // to cover trace path check
-
-            // In mock sketch context particles array is trapped in the closure,
-            // but we can trigger it by advancing timers to idle and forcing update bounds over iterations.
-            window.__mockTimeAdvance(1500);
-            for (let i = 0; i < 200; i++) {
-                s.update(); // eventually particles go out of bounds and reset() is called
-            }
-        });
-
-        test('sessionStorage failure gracefully fallback', () => {
-            document.body.getAttribute.mockReturnValue('project');
-            const mockStorage = {
-                getItem: jest.fn().mockImplementation(() => {
-                    throw new Error('storage err');
-                }),
-                removeItem: jest.fn().mockImplementation(() => {
-                    throw new Error('storage err');
-                }),
-            };
-            Object.defineProperty(window, 'sessionStorage', {
-                value: mockStorage,
-                configurable: true,
-            });
-
-            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            // Trigger maybePlayIntro
-            window.AmbientTransitionController.maybePlayIntro();
-
-            expect(warnSpy).toHaveBeenCalledWith(
-                '[ambient] sessionStorage get error:',
-                expect.any(Error)
-            );
-
-            warnSpy.mockRestore();
-        });
-    });
-
-    describe('metrics', () => {
-        test('returns default metrics using window dimensions', () => {
-            const metrics = window.__AmbientForTesting.metrics;
-            const m = metrics();
-            expect(m.cw).toBeDefined();
-            expect(m.width).toBeDefined();
-        });
+        // Setup circular references
+        context.window.document = context.document;
     });
 
     describe('getConfig', () => {
+        let getConfig;
+
+        beforeEach(() => {
+            vm.createContext(context);
+            vm.runInContext(code, context);
+            getConfig = context.window.__AmbientForTesting.getConfig;
+        });
+
         test('returns default configuration', () => {
-            const getConfig = window.__AmbientForTesting.getConfig;
             const config = getConfig(null, false);
             expect(config.enabled).toBe(true);
             expect(config.minWidth).toBe(1024);
+            expect(config.maxParticles).toBe(120);
+            expect(config.radius).toEqual({ min: 4.0, max: 8.0 });
         });
 
         test('merges with window.AMBIENT_CONFIG', () => {
-            window.AMBIENT_CONFIG = { minWidth: 800 };
-            const getConfig = window.__AmbientForTesting.getConfig;
+            context.window.AMBIENT_CONFIG = { minWidth: 800, maxParticles: 200 };
             const config = getConfig(null, false);
             expect(config.minWidth).toBe(800);
+            expect(config.maxParticles).toBe(200);
+        });
+
+        test('applies force overrides when force is debug', () => {
+            const config = getConfig('debug', false);
+            expect(config.zIndex).toBe(999);
+            expect(config.radius).toEqual({ min: 8.0, max: 16.0 });
+            expect(config.alpha.max).toBe(0.8);
+            expect(config.speed).toBeGreaterThanOrEqual(0.3);
+        });
+
+        test('applies trace overrides when trace is true', () => {
+            const config = getConfig(null, true);
+            expect(config.zIndex).toBe(999);
+            expect(config.radius).toEqual({ min: 8.0, max: 16.0 });
         });
     });
 
     test('initializes Sketch if conditions are met', () => {
-        expect(mockSketch.create).toHaveBeenCalled();
-        expect(window.AmbientTransitionController).toBeDefined();
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(mockSketch.create).toHaveBeenCalledWith({
+            container: context.document.body,
+            retina: true,
+            interval: 2,
+            globals: false,
+            autopause: true,
+        });
+
+        // Test if the controller is attached
+        expect(context.window.AmbientTransitionController).toBeDefined();
+        expect(typeof context.window.AmbientTransitionController.playIntro).toBe('function');
+        expect(typeof context.window.AmbientTransitionController.playExit).toBe('function');
     });
 
-    describe('shouldSkip', () => {
-        let originalInnerWidth;
-        let originalMatchMedia;
+    test('does not initialize if window.Sketch is missing', () => {
+        delete context.window.Sketch;
 
-        beforeEach(() => {
-            originalInnerWidth = window.innerWidth;
-            originalMatchMedia = window.matchMedia;
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-            Object.defineProperty(window, 'innerWidth', {
-                writable: true,
-                configurable: true,
-                value: 1200,
-            });
+        expect(context.window.AmbientTransitionController).toBeUndefined();
+    });
 
-            window.matchMedia = jest.fn().mockImplementation((query) => ({
-                matches: false,
-                media: query,
-            }));
+    test('does not initialize if prefers-reduced-motion is true', () => {
+        context.window.matchMedia.mockReturnValue({ matches: true });
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(mockSketch.create).not.toHaveBeenCalled();
+    });
+
+    test('does not initialize if innerWidth is below minWidth (1024 by default)', () => {
+        context.window.innerWidth = 800;
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(mockSketch.create).not.toHaveBeenCalled();
+    });
+
+    test('initializes despite small width if ?ambient=on is forced', () => {
+        context.window.innerWidth = 800;
+        context.window.location.search = '?ambient=on';
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(mockSketch.create).toHaveBeenCalled();
+    });
+
+    test('handles ?ambient=debug correctly', () => {
+        context.window.location.search = '?ambient=debug';
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(mockSketch.create).toHaveBeenCalled();
+    });
+
+    test('handles ?ambient=trace correctly', () => {
+        context.window.location.search = '?ambient=trace';
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(mockSketch.create).toHaveBeenCalled();
+        expect(context.window.__ambient).toBeDefined();
+        expect(context.window.__ambient.config.zIndex).toBe(999);
+    });
+
+    test('AmbientTransitionController.playIntro changes transition state', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const sketchInstance = mockSketch.create.mock.results[0].value;
+        sketchInstance.setup = jest.fn();
+
+        context.window.AmbientTransitionController.playIntro();
+
+        expect(sketchInstance.canvas.style.transition).toBe('opacity 0.4s ease');
+        expect(sketchInstance.canvas.style.opacity).toBe('1');
+    });
+
+    test('AmbientTransitionController.playExit changes transition state', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const sketchInstance = mockSketch.create.mock.results[0].value;
+        sketchInstance.setup = jest.fn();
+
+        context.window.AmbientTransitionController.playExit();
+
+        expect(sketchInstance.canvas.style.transition).toBe('opacity 0.4s ease');
+        expect(sketchInstance.canvas.style.opacity).toBe('1');
+    });
+
+    test('perfNow falls back to Date.now when window.performance is missing', () => {
+        delete context.window.performance;
+        const mockNow = jest.spyOn(Date, 'now').mockReturnValue(5000);
+
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        context.window.AmbientTransitionController.playIntro();
+
+        expect(mockNow).toHaveBeenCalled();
+        mockNow.mockRestore();
+    });
+
+    test('s.setup initializes particles correctly', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        const sketchInstance = mockSketch.create.mock.results[0].value;
+        sketchInstance.setup();
+
+        // Let's call update to see it runs without errors
+        sketchInstance.update();
+
+        // draw should also run without errors
+        sketchInstance.save = jest.fn();
+        sketchInstance.restore = jest.fn();
+        sketchInstance.beginPath = jest.fn();
+        sketchInstance.arc = jest.fn();
+        sketchInstance.fill = jest.fn();
+        sketchInstance.fillRect = jest.fn();
+
+        sketchInstance.draw();
+
+        // Also test resize which calls setup
+        sketchInstance.resize();
+
+        expect(sketchInstance.save).toHaveBeenCalled();
+        expect(sketchInstance.restore).toHaveBeenCalled();
+    });
+
+    test('getFlag and clearFlag handle sessionStorage exceptions and log warnings', () => {
+        // To hit getFlag('ambientTransition:intro') we must be on a project page
+        context.document.body.getAttribute.mockReturnValue('project');
+
+        context.window.sessionStorage.getItem.mockImplementation(() => {
+            throw new Error('Storage disabled');
+        });
+        context.window.sessionStorage.removeItem.mockImplementation(() => {
+            throw new Error('Storage disabled');
         });
 
-        afterEach(() => {
-            Object.defineProperty(window, 'innerWidth', {
-                writable: true,
-                configurable: true,
-                value: originalInnerWidth,
-            });
-            window.matchMedia = originalMatchMedia;
-        });
+        context.window.console.warn = jest.fn();
 
-        test('returns true if window.Sketch is not available', () => {
-            const originalSketch = window.Sketch;
-            delete window.Sketch;
-            expect(window.__AmbientForTesting.shouldSkip({ minWidth: 1024 }, false)).toBe(true);
-            window.Sketch = originalSketch;
-        });
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        test('returns false if force is true, bypassing other checks', () => {
-            window.innerWidth = 500;
-            expect(window.__AmbientForTesting.shouldSkip({ minWidth: 1024 }, true)).toBe(false);
-        });
+        // VM context errors are not instances of global.Error, so use expect.anything()
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            '[ambient] sessionStorage get error:',
+            expect.anything()
+        );
 
-        test('returns true if disabled in config', () => {
-            expect(
-                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: false }, false)
-            ).toBe(true);
-        });
+        // We can trigger clearFlag by faking a success in getFlag then forcing playIntro
+        context.window.sessionStorage.getItem.mockReturnValue('1');
 
-        test('returns true if prefers reduced motion is true and not explicitly bypassed', () => {
-            window.matchMedia = jest.fn().mockImplementation((query) => ({
-                matches: true,
-                media: query,
-            }));
-            jest.resetModules();
-            require('../../../js/ambient/ambient.js');
-            expect(
-                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
-            ).toBe(true);
-        });
+        // reset mock calls before re-eval
+        context.window.console.warn.mockClear();
 
-        test('returns false if prefers reduced motion is true but config respects reduced motion is false', () => {
-            window.matchMedia = jest.fn().mockImplementation((query) => ({
-                matches: true,
-                media: query,
-            }));
-            jest.resetModules();
-            require('../../../js/ambient/ambient.js');
-            expect(
-                window.__AmbientForTesting.shouldSkip(
-                    { minWidth: 1024, enabled: true, respectReducedMotion: false },
-                    false
-                )
-            ).toBe(false);
-        });
+        // re-eval to trigger maybePlayIntro with the updated mock
+        vm.runInContext(code, context);
 
-        test('returns true if window.innerWidth is less than config minWidth', () => {
-            window.innerWidth = 800;
-            expect(
-                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
-            ).toBe(true);
-        });
-
-        test('returns false when all conditions are met', () => {
-            expect(
-                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
-            ).toBe(false);
-        });
-
-        test('gracefully handles missing matchMedia', () => {
-            delete window.matchMedia;
-            jest.resetModules();
-            require('../../../js/ambient/ambient.js');
-            expect(
-                window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
-            ).toBe(false);
-        });
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            '[ambient] sessionStorage remove error:',
+            expect.anything()
+        );
     });
 });

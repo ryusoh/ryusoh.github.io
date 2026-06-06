@@ -1,85 +1,70 @@
-/**
- * @jest-environment jsdom
- */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
 
 describe('js/cursor-init.js', () => {
-    test('does not execute if document is null', () => {
-        const originalDocument = global.document;
-        global.document = null;
-        expect(() => {
-            require('../../js/cursor-init.js');
-        }).not.toThrow();
-        global.document = originalDocument;
-    });
+    let context;
+    let code;
     let mockInitCursor;
-    let mockInitMagneticNav;
-    let originalDocument;
 
     beforeEach(() => {
-        jest.resetModules();
+        // We replace the import statement to make it executable in the VM context
+        const sourcePath = path.resolve(__dirname, '../../js/cursor-init.js');
+        const originalCode = fs.readFileSync(sourcePath, 'utf8');
+        code = originalCode.replace("import { initCursor } from './vendor/cursor.js';", '');
 
         mockInitCursor = jest.fn().mockReturnValue({ cursor: { id: 'mocked-cursor' } });
-        mockInitMagneticNav = jest.fn();
 
-        jest.doMock('../../js/vendor/cursor.js', () => ({
+        context = {
+            window: {
+                console: {
+                    warn: jest.fn(),
+                },
+            },
+            document: {
+                addEventListener: jest.fn((event, cb) => {
+                    if (event === 'DOMContentLoaded') {
+                        // We store the callback to call it manually
+                        context.__domContentLoadedCb = cb;
+                    }
+                }),
+            },
             initCursor: mockInitCursor,
-        }));
-        jest.doMock('../../js/magnetic-nav.js', () => ({
-            initMagneticNav: mockInitMagneticNav,
-        }));
-
-        originalDocument = global.document;
-
-        // Reset global state
-        delete window.gsap;
-        delete window.cursorInstances;
-    });
-
-    afterEach(() => {
-        global.document = originalDocument;
-        jest.restoreAllMocks();
+            console: {
+                warn: jest.fn(),
+            },
+        };
     });
 
     test('adds a DOMContentLoaded event listener', () => {
-        const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
-        require('../../js/cursor-init.js');
-        expect(addEventListenerSpy).toHaveBeenCalledWith('DOMContentLoaded', expect.any(Function));
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        expect(context.document.addEventListener).toHaveBeenCalledWith(
+            'DOMContentLoaded',
+            expect.any(Function)
+        );
     });
 
     test('exits early if window.gsap is not defined', () => {
-        let cb;
-        jest.spyOn(document, 'addEventListener').mockImplementation((event, fn) => {
-            if (event === 'DOMContentLoaded') {
-                cb = fn;
-            }
-        });
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        require('../../js/cursor-init.js');
-
-        // window.gsap is undefined by default in this test
-        if (cb) {
-            cb();
-        }
+        // Trigger DOMContentLoaded
+        context.__domContentLoadedCb();
 
         expect(mockInitCursor).not.toHaveBeenCalled();
-        expect(window.cursorInstances).toBeUndefined();
+        expect(context.window.cursorInstances).toBeUndefined();
     });
 
     test('initializes cursor if window.gsap is available', () => {
-        window.gsap = {}; // Provide gsap
+        context.window.gsap = {}; // Mock GSAP
 
-        let cb;
-        jest.spyOn(document, 'addEventListener').mockImplementation((event, fn) => {
-            if (event === 'DOMContentLoaded') {
-                cb = fn;
-            }
-        });
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        require('../../js/cursor-init.js');
-
-        if (cb) {
-            cb();
-        }
+        // Trigger DOMContentLoaded
+        context.__domContentLoadedCb();
 
         expect(mockInitCursor).toHaveBeenCalledWith({
             cursor: {
@@ -89,27 +74,50 @@ describe('js/cursor-init.js', () => {
                 hoverScale: 3,
             },
         });
-        expect(mockInitMagneticNav).toHaveBeenCalled();
-        expect(window.cursorInstances).toBeDefined();
-        expect(window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
+
+        expect(context.window.cursorInstances).toBeDefined();
+        expect(context.window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
     });
 
-    test('does not execute if typeof document is undefined', () => {
-        const origDoc = Object.getOwnPropertyDescriptor(global, 'document');
-        Object.defineProperty(global, 'document', {
-            get() {
-                return undefined;
+    test('does not throw when document is not defined', () => {
+        const customCode = `
+            let document; // shadow the document
+            ${code}
+        `;
+
+        vm.createContext(context);
+        expect(() => {
+            vm.runInContext(customCode, context);
+        }).not.toThrow();
+    });
+
+    test('does not throw when initCursor throws but allows bubbling', () => {
+        context.window.gsap = {}; // Mock GSAP
+
+        // Let's modify the custom context to throw
+        const customContext = {
+            ...context,
+            initCursor: jest.fn().mockImplementation(() => {
+                throw new Error('initCursor error');
+            }),
+            document: {
+                addEventListener: jest.fn((event, cb) => {
+                    if (event === 'DOMContentLoaded') {
+                        customContext.__domContentLoadedCb = cb;
+                    }
+                }),
             },
-            configurable: true,
-        });
+        };
 
-        jest.resetModules();
-        require('../../js/cursor-init.js');
+        vm.createContext(customContext);
+        vm.runInContext(code, customContext);
 
-        if (origDoc) {
-            Object.defineProperty(global, 'document', origDoc);
-        } else {
-            delete global.document;
-        }
+        // Trigger DOMContentLoaded which calls initCursor
+        // The script doesn't wrap it in a try-catch, so we assert it throws.
+        expect(() => {
+            customContext.__domContentLoadedCb();
+        }).toThrow('initCursor error');
+
+        expect(customContext.window.cursorInstances).toBeUndefined();
     });
 });

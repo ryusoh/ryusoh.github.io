@@ -6,17 +6,14 @@
         --line-color: #161d27;
     }
     a .fa-home,
-    a .fa-chevron-left,
-    a .fa-chevron-right {
+    a .fa-chevron-left {
         color: var(--font-color);
         font-size: large;
     }
     a:focus .fa-home,
     a:hover .fa-home,
     a:focus .fa-chevron-left,
-    a:hover .fa-chevron-left,
-    a:focus .fa-chevron-right,
-    a:hover .fa-chevron-right {
+    a:hover .fa-chevron-left {
         color: var(--link-color);
     }
     a .fa-search {

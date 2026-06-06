@@ -1,16 +1,20 @@
-/**
- * @jest-environment jsdom
- */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const { URL } = require('url');
+
+const sourcePath = path.resolve(__dirname, '../../sw.js');
+const code = fs.readFileSync(sourcePath, 'utf8');
 
 describe('Service Worker', () => {
-    let sw;
-    let mockCaches;
+    let context;
     let mockSelf;
+    let mockCaches;
     let mockFetch;
     let mockCache;
 
     beforeEach(() => {
-        jest.resetModules();
+        jest.clearAllMocks();
 
         mockCache = {
             addAll: jest.fn().mockResolvedValue(),
@@ -27,248 +31,638 @@ describe('Service Worker', () => {
         mockSelf = {
             addEventListener: jest.fn(),
             skipWaiting: jest.fn().mockResolvedValue(),
-            location: { origin: 'http://localhost' },
+            location: { origin: 'https://example.com' },
             clients: { claim: jest.fn().mockResolvedValue() },
-            console: { warn: jest.fn() },
         };
 
         mockFetch = jest.fn();
 
-        global.self = mockSelf;
-        global.caches = mockCaches;
-        global.fetch = mockFetch;
+        context = {
+            self: mockSelf,
+            caches: mockCaches,
+            fetch: mockFetch,
+            URL: URL,
+            console: console,
+        };
 
-        window.self = mockSelf;
-        window.caches = mockCaches;
-        window.console = mockSelf.console;
-        window.fetch = mockFetch;
-        window.skipWaiting = mockSelf.skipWaiting;
-        window.clients = mockSelf.clients;
-
-        sw = require('../../sw.js');
+        vm.createContext(context);
+        vm.runInContext(code, context);
     });
 
-    test('module exposes functions', () => {
-        expect(sw.isValidResponse).toBeDefined();
+    // Helper to get registered event handler
+    const getEventHandler = (eventName) => {
+        const call = mockSelf.addEventListener.mock.calls.find((c) => c[0] === eventName);
+        return call ? call[1] : null;
+    };
+
+    describe('Lifecycle Events', () => {
+        test('install event should cache CORE_ASSETS', async () => {
+            const installHandler = getEventHandler('install');
+            const mockEvent = {
+                waitUntil: jest.fn(),
+            };
+
+            installHandler(mockEvent);
+
+            const waitUntilPromise = mockEvent.waitUntil.mock.calls[0][0];
+            await waitUntilPromise;
+
+            expect(mockCaches.open).toHaveBeenCalledWith('ryusoh-cache-v2');
+            expect(mockCache.addAll).toHaveBeenCalledWith([
+                '/',
+                '/index.html',
+                '/css/main_style.css',
+                '/js/service-worker-register.js',
+                '/js/page-transition.js',
+                '/js/ga.js',
+            ]);
+            expect(mockSelf.skipWaiting).toHaveBeenCalled();
+        });
+
+        test('activate event should delete old caches and claim clients', async () => {
+            const activateHandler = getEventHandler('activate');
+            const mockEvent = {
+                waitUntil: jest.fn(),
+            };
+
+            // Set up caches.keys to return an old cache and the current cache
+            mockCaches.keys.mockResolvedValue([
+                'ryusoh-cache-v1',
+                'ryusoh-cache-v2',
+                'other-cache',
+            ]);
+
+            activateHandler(mockEvent);
+
+            const waitUntilPromise = mockEvent.waitUntil.mock.calls[0][0];
+            await waitUntilPromise;
+
+            expect(mockCaches.keys).toHaveBeenCalled();
+            // Wait for internal promises in activate to resolve
+            await new Promise(process.nextTick);
+
+            expect(mockCaches.delete).toHaveBeenCalledWith('ryusoh-cache-v1');
+            expect(mockCaches.delete).toHaveBeenCalledWith('other-cache');
+            expect(mockCaches.delete).not.toHaveBeenCalledWith('ryusoh-cache-v2');
+            expect(mockSelf.clients.claim).toHaveBeenCalled();
+        });
     });
 
-    test('isValidResponse should validate correctly', () => {
-        const res = { ok: true, status: 200, type: 'basic', headers: { get: () => null } };
-        const req = { headers: { has: () => false } };
-        expect(sw.isValidResponse(res, req)).toBe(true);
-
-        expect(sw.isValidResponse({ ...res, ok: false }, req)).toBe(false);
-        expect(sw.isValidResponse(res, { headers: { has: () => true } })).toBe(false);
-    });
-
-    test('installLogic should cache CORE_ASSETS', async () => {
-        window.skipWaiting = mockSelf.skipWaiting;
-        const event = { waitUntil: jest.fn() };
-        sw.installLogic(event);
-        await event.waitUntil.mock.calls[0][0];
-        expect(mockCaches.open).toHaveBeenCalledWith(sw.CACHE_NAME);
-        expect(mockCache.addAll).toHaveBeenCalledWith(sw.CORE_ASSETS);
-        expect(mockSelf.skipWaiting).toHaveBeenCalled();
-    });
-
-    test('activateLogic should clean up old caches', async () => {
-        window.clients = mockSelf.clients;
-        const event = { waitUntil: jest.fn() };
-        mockCaches.keys.mockResolvedValue(['old', sw.CACHE_NAME]);
-        sw.activateLogic(event);
-        await event.waitUntil.mock.calls[0][0];
-        expect(mockCaches.delete).toHaveBeenCalledWith('old');
-        expect(mockCaches.delete).not.toHaveBeenCalledWith(sw.CACHE_NAME);
-        expect(mockSelf.clients.claim).toHaveBeenCalled();
-    });
-
-    describe('fetchLogic', () => {
-        let event;
-
-        beforeEach(() => {
-            event = {
-                request: {
-                    url: 'http://localhost/test.js',
-                    destination: 'script',
-                    headers: { has: () => false },
-                },
+    describe('Fetch Event Strategies', () => {
+        test('should ignore cross-origin requests', () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://other-domain.com/api/data.json',
+            };
+            const mockEvent = {
+                request: mockRequest,
                 respondWith: jest.fn(),
             };
+
+            fetchHandler(mockEvent);
+
+            expect(mockEvent.respondWith).not.toHaveBeenCalled();
         });
 
-        test('should return early if URL is too long', () => {
-            event.request.url = 'http://localhost/test.js?' + 'a'.repeat(2001);
-            sw.fetchLogic(event);
-            expect(event.respondWith).not.toHaveBeenCalled();
+        test('should use Cache First strategy for immutable assets (images)', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/images/logo.png',
+                destination: 'image',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            const mockCachedResponse = { status: 200, body: 'cached-image' };
+            mockCaches.match.mockResolvedValue(mockCachedResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockCaches.match).toHaveBeenCalledWith(mockRequest);
+            // It found a cached response, so it shouldn't fetch
+            expect(mockFetch).not.toHaveBeenCalled();
+            expect(result).toBe(mockCachedResponse);
         });
 
-        test('should ignore cross-origin requests', () => {
-            event.request.url = 'https://other-domain.com/test.js';
-            sw.fetchLogic(event);
-            expect(event.respondWith).not.toHaveBeenCalled();
+        test('should fetch and cache if image is not in cache (Cache First fallback)', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/fonts/custom.woff2',
+                destination: 'font',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            // Cache miss
+            mockCaches.match.mockResolvedValue(undefined);
+
+            const mockResponseClone = { status: 200, cloned: true };
+            const mockResponse = {
+                ok: true,
+                status: 200,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+                clone: jest.fn().mockReturnValue(mockResponseClone),
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockCaches.match).toHaveBeenCalledWith(mockRequest);
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+
+            // Wait for internal cache.put promise to resolve
+            await new Promise(process.nextTick);
+            expect(mockCache.put).toHaveBeenCalledWith(mockRequest, mockResponseClone);
         });
 
-        describe('Cache First Strategy (Immutable Assets)', () => {
-            beforeEach(() => {
-                event.request.destination = 'image';
-                event.request.url = 'http://localhost/test.png';
-            });
+        test('should skip caching if response has Content-Range header during Cache First fallback', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/images/large.jpg',
+                destination: 'image',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
 
-            test('should return cached response if found', async () => {
-                const mockResponse = { ok: true, status: 200 };
-                mockCaches.match.mockResolvedValue(mockResponse);
+            mockCaches.match.mockResolvedValue(undefined);
 
-                sw.fetchLogic(event);
+            const mockResponse = {
+                ok: true,
+                status: 200,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue('bytes 21010-47021/47022') }, // Content-Range header present
+            };
+            mockFetch.mockResolvedValue(mockResponse);
 
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                const res = await respondWithPromise;
+            fetchHandler(mockEvent);
 
-                expect(mockCaches.match).toHaveBeenCalledWith(event.request);
-                expect(res).toBe(mockResponse);
-                expect(mockFetch).not.toHaveBeenCalled();
-            });
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
 
-            test('should fallback to fetch if not cached, and put in cache if valid', async () => {
-                mockCaches.match.mockResolvedValue(null);
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
 
-                const mockFetchResponse = {
-                    ok: true,
-                    status: 200,
-                    type: 'basic',
-                    headers: { get: () => null },
-                    clone: jest.fn().mockReturnValue('cloned-response'),
-                };
-                mockFetch.mockResolvedValue(mockFetchResponse);
-
-                sw.fetchLogic(event);
-
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                const res = await respondWithPromise;
-
-                expect(mockFetch).toHaveBeenCalledWith(event.request);
-                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
-                expect(res).toBe(mockFetchResponse);
-            });
-
-            test('should fallback to fetch if not cached, and NOT put in cache if INVALID', async () => {
-                mockCaches.match.mockResolvedValue(null);
-
-                const mockFetchResponse = {
-                    ok: false,
-                    status: 404,
-                    type: 'basic',
-                    headers: { get: () => null },
-                };
-                mockFetch.mockResolvedValue(mockFetchResponse);
-
-                sw.fetchLogic(event);
-
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                const res = await respondWithPromise;
-
-                expect(mockFetch).toHaveBeenCalledWith(event.request);
-                expect(mockCaches.open).not.toHaveBeenCalled();
-                expect(mockCache.put).not.toHaveBeenCalled();
-                expect(res).toBe(mockFetchResponse);
-            });
-
-            test('should handle font fallback correctly', async () => {
-                event.request.destination = 'font';
-                event.request.url = 'http://localhost/test.woff2';
-
-                mockCaches.match.mockResolvedValue(null);
-
-                const mockFetchResponse = {
-                    ok: true,
-                    status: 200,
-                    type: 'basic',
-                    headers: { get: () => null },
-                    clone: jest.fn().mockReturnValue('cloned-response'),
-                };
-                mockFetch.mockResolvedValue(mockFetchResponse);
-
-                sw.fetchLogic(event);
-
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                await respondWithPromise;
-
-                expect(mockFetch).toHaveBeenCalledWith(event.request);
-                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
-            });
+            expect(mockCache.put).not.toHaveBeenCalled();
         });
 
-        describe('Network First Strategy (Mutable Assets)', () => {
-            beforeEach(() => {
-                event.request.destination = 'document';
-                event.request.url = 'http://localhost/index.html';
-            });
+        test('should skip caching if response is invalid (e.g. status 500) during Cache First fallback', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/images/fail.png',
+                destination: 'image',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
 
-            test('should fetch from network and put in cache if valid', async () => {
-                const mockFetchResponse = {
-                    ok: true,
-                    status: 200,
-                    type: 'basic',
-                    headers: { get: () => null },
-                    clone: jest.fn().mockReturnValue('cloned-response'),
-                };
-                mockFetch.mockResolvedValue(mockFetchResponse);
+            mockCaches.match.mockResolvedValue(undefined); // Cache miss
 
-                sw.fetchLogic(event);
+            const mockResponse = {
+                ok: false,
+                status: 500,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+            };
+            mockFetch.mockResolvedValue(mockResponse);
 
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                const res = await respondWithPromise;
+            fetchHandler(mockEvent);
 
-                expect(mockFetch).toHaveBeenCalledWith(event.request);
-                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
-                expect(res).toBe(mockFetchResponse);
-            });
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
 
-            test('should fetch from network and NOT put in cache if INVALID', async () => {
-                const mockFetchResponse = {
-                    ok: false,
-                    status: 500,
-                    type: 'basic',
-                    headers: { get: () => null },
-                };
-                mockFetch.mockResolvedValue(mockFetchResponse);
-
-                sw.fetchLogic(event);
-
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                const res = await respondWithPromise;
-
-                expect(mockFetch).toHaveBeenCalledWith(event.request);
-                expect(mockCaches.open).not.toHaveBeenCalled();
-                expect(mockCache.put).not.toHaveBeenCalled();
-                expect(res).toBe(mockFetchResponse);
-            });
-
-            test('should fallback to cache if network fetch fails', async () => {
-                window.console = mockSelf.console;
-                mockFetch.mockRejectedValue(new Error('Network offline'));
-                const mockCachedResponse = { ok: true, status: 200 };
-                mockCaches.match.mockResolvedValue(mockCachedResponse);
-
-                sw.fetchLogic(event);
-
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                const res = await respondWithPromise;
-
-                expect(mockFetch).toHaveBeenCalledWith(event.request);
-                expect(mockSelf.console.warn).toHaveBeenCalled();
-                expect(mockCaches.match).toHaveBeenCalledWith(event.request);
-                expect(res).toBe(mockCachedResponse);
-            });
-
-            test('should gracefully handle missing console during fallback', async () => {
-                mockFetch.mockRejectedValue(new Error('Network offline'));
-                delete mockSelf.console;
-
-                sw.fetchLogic(event);
-                const respondWithPromise = event.respondWith.mock.calls[0][0];
-                await respondWithPromise;
-                expect(mockCaches.match).toHaveBeenCalledWith(event.request);
-            });
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+            // Cache should not be put
+            expect(mockCache.put).not.toHaveBeenCalled();
         });
+
+        test('should skip caching if request has range headers during Cache First fallback', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/images/large.jpg',
+                destination: 'image',
+                headers: { has: jest.fn().mockReturnValue(true) }, // simulate range header
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            mockCaches.match.mockResolvedValue(undefined);
+
+            const mockResponse = {
+                ok: true,
+                status: 200,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+            expect(mockCache.put).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Network Fallback (Mutable assets)', () => {
+        test('should fallback to cache when network fails', async () => {
+            const fetchHandler = getEventHandler('fetch');
+
+            const mockRequest = {
+                url: 'https://example.com/api/data.json',
+                destination: '',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            mockFetch.mockRejectedValue(new Error('Network error'));
+
+            const mockCachedResponse = { status: 200, body: 'cached' };
+            mockCaches.match.mockResolvedValue(mockCachedResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(mockCaches.match).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockCachedResponse);
+        });
+
+        test('should cache the response when network succeeds (Network First)', async () => {
+            const fetchHandler = getEventHandler('fetch');
+
+            const mockRequest = {
+                url: 'https://example.com/api/data.json',
+                destination: '',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            const mockResponseClone = { status: 200, cloned: true };
+            const mockResponse = {
+                ok: true,
+                status: 200,
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+                clone: jest.fn().mockReturnValue(mockResponseClone),
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+
+            expect(mockResponse.clone).toHaveBeenCalled();
+            expect(mockCaches.open).toHaveBeenCalledWith('ryusoh-cache-v2');
+
+            await new Promise(process.nextTick);
+            expect(mockCache.put).toHaveBeenCalledWith(mockRequest, mockResponseClone);
+        });
+
+        test('should skip caching if response is invalid during Network First', async () => {
+            const fetchHandler = getEventHandler('fetch');
+            const mockRequest = {
+                url: 'https://example.com/api/data.json',
+                destination: '',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            const mockResponse = {
+                ok: false,
+                status: 404, // Invalid status
+                type: 'basic',
+                headers: { get: jest.fn().mockReturnValue(null) },
+            };
+            mockFetch.mockResolvedValue(mockResponse);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBe(mockResponse);
+            expect(mockCache.put).not.toHaveBeenCalled();
+        });
+
+        test('should return undefined when both network and cache fail', async () => {
+            const fetchHandler = getEventHandler('fetch');
+
+            const mockRequest = {
+                url: 'https://example.com/api/data.json',
+                destination: '',
+                headers: { has: jest.fn().mockReturnValue(false) },
+            };
+
+            const mockEvent = {
+                request: mockRequest,
+                respondWith: jest.fn(),
+            };
+
+            mockFetch.mockRejectedValue(new Error('Network error'));
+
+            mockCaches.match.mockResolvedValue(undefined);
+
+            fetchHandler(mockEvent);
+
+            const respondWithPromise = mockEvent.respondWith.mock.calls[0][0];
+            const result = await respondWithPromise;
+
+            expect(mockFetch).toHaveBeenCalledWith(mockRequest);
+            expect(mockCaches.match).toHaveBeenCalledWith(mockRequest);
+            expect(result).toBeUndefined();
+        });
+    });
+});
+
+describe('sw.js uncovered lines', () => {
+    let mockCache;
+    let mockCaches;
+    let mockFetch;
+    let mockSelf;
+    let context;
+    const fs = require('fs');
+    const path = require('path');
+    const vm = require('vm');
+    const { URL } = require('url');
+
+    const sourcePath = path.resolve(__dirname, '../../sw.js');
+    const code = fs.readFileSync(sourcePath, 'utf8');
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        mockCache = {
+            addAll: jest.fn().mockResolvedValue(),
+            put: jest.fn().mockResolvedValue(),
+            delete: jest.fn().mockResolvedValue(),
+        };
+
+        mockCaches = {
+            open: jest.fn().mockResolvedValue(mockCache),
+            keys: jest.fn().mockResolvedValue(['ryusoh-cache-v1', 'ryusoh-cache-v2']),
+            delete: jest.fn().mockResolvedValue(true),
+            match: jest.fn().mockResolvedValue(undefined),
+        };
+
+        mockFetch = jest.fn();
+
+        mockSelf = {
+            addEventListener: jest.fn(),
+            skipWaiting: jest.fn().mockResolvedValue(),
+            clients: { claim: jest.fn().mockResolvedValue() },
+            location: { origin: 'https://example.com' },
+            console: { warn: jest.fn() },
+        };
+
+        context = vm.createContext({
+            self: mockSelf,
+            caches: mockCaches,
+            fetch: mockFetch,
+            URL,
+            Promise,
+            console: { warn: jest.fn() },
+        });
+
+        vm.runInContext(code, context);
+    });
+
+    const getEventHandler = (event) => {
+        const call = mockSelf.addEventListener.mock.calls.find((call) => call[0] === event);
+        return call ? call[1] : null;
+    };
+
+    it('should ignore requests with range headers in isValidResponse check', async () => {
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(true) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const res = {
+            ok: true,
+            status: 200,
+            type: 'basic',
+            headers: { get: jest.fn().mockReturnValue(null) },
+        };
+        mockFetch.mockResolvedValue(res);
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(res);
+        expect(req.headers.has).toHaveBeenCalledWith('range');
+        // Because has('range') is true, it fails isValidResponse, so cache.put is not called
+        await new Promise(process.nextTick);
+        expect(mockCache.put).not.toHaveBeenCalled();
+    });
+
+    it('should ignore responses with Content-Range header in isValidResponse check', async () => {
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const res = {
+            ok: true,
+            status: 200,
+            type: 'basic',
+            headers: { get: jest.fn().mockReturnValue('bytes 0-100/200') },
+        };
+        mockFetch.mockResolvedValue(res);
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(res);
+        expect(res.headers.get).toHaveBeenCalledWith('Content-Range');
+        // Because get('Content-Range') returns true, it fails isValidResponse
+        await new Promise(process.nextTick);
+        expect(mockCache.put).not.toHaveBeenCalled();
+    });
+
+    it('should handle network failure gracefully without self.console', async () => {
+        // Remove console from mockSelf
+        mockSelf.console = undefined;
+
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const mockCachedResponse = { status: 200, body: 'cached fallback' };
+        mockCaches.match.mockResolvedValue(mockCachedResponse);
+        mockFetch.mockRejectedValue(new Error('Network offline'));
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(mockCachedResponse);
+        expect(mockCaches.match).toHaveBeenCalledWith(req);
+    });
+
+    it('should fall back correctly if a fetch for an image throws an error', async () => {
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/image.png',
+            destination: 'image',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        // Cache miss
+        mockCaches.match.mockResolvedValue(undefined);
+        mockFetch.mockRejectedValue(new Error('Network offline'));
+
+        fetchHandler(event);
+
+        // Ensure the error from fetch rejects the promise because Cache First Strategy does not catch error.
+        await expect(event.respondWith.mock.calls[0][0]).rejects.toThrow('Network offline');
+    });
+});
+
+describe('more sw.js coverage', () => {
+    let mockCache;
+    let mockCaches;
+    let mockFetch;
+    let mockSelf;
+    let context;
+    const fs = require('fs');
+    const path = require('path');
+    const vm = require('vm');
+    const { URL } = require('url');
+
+    const sourcePath = path.resolve(__dirname, '../../sw.js');
+    const code = fs.readFileSync(sourcePath, 'utf8');
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        mockCache = {
+            addAll: jest.fn().mockResolvedValue(),
+            put: jest.fn().mockResolvedValue(),
+            delete: jest.fn().mockResolvedValue(),
+        };
+
+        mockCaches = {
+            open: jest.fn().mockResolvedValue(mockCache),
+            keys: jest.fn().mockResolvedValue(['ryusoh-cache-v1', 'ryusoh-cache-v2']),
+            delete: jest.fn().mockResolvedValue(true),
+            match: jest.fn().mockResolvedValue(undefined),
+        };
+
+        mockFetch = jest.fn();
+
+        mockSelf = {
+            addEventListener: jest.fn(),
+            skipWaiting: jest.fn().mockResolvedValue(),
+            clients: { claim: jest.fn().mockResolvedValue() },
+            location: { origin: 'https://example.com' },
+            console: { warn: jest.fn() },
+        };
+
+        context = vm.createContext({
+            self: mockSelf,
+            caches: mockCaches,
+            fetch: mockFetch,
+            URL,
+            Promise,
+            console: { warn: jest.fn() },
+        });
+
+        vm.runInContext(code, context);
+    });
+
+    const getEventHandler = (event) => {
+        const call = mockSelf.addEventListener.mock.calls.find((call) => call[0] === event);
+        return call ? call[1] : null;
+    };
+
+    it('should test typeof self.console.warn is not function', async () => {
+        // Mock so warn is not a function
+        mockSelf.console.warn = 'not a function';
+
+        const fetchHandler = getEventHandler('fetch');
+        const req = {
+            url: 'https://example.com/some/path',
+            destination: 'document',
+            headers: { has: jest.fn().mockReturnValue(false) },
+        };
+        const event = {
+            request: req,
+            respondWith: jest.fn(),
+        };
+
+        const mockCachedResponse = { status: 200, body: 'cached fallback' };
+        mockCaches.match.mockResolvedValue(mockCachedResponse);
+        mockFetch.mockRejectedValue(new Error('Network offline'));
+
+        fetchHandler(event);
+        const result = await event.respondWith.mock.calls[0][0];
+
+        expect(result).toBe(mockCachedResponse);
+        expect(mockCaches.match).toHaveBeenCalledWith(req);
     });
 });

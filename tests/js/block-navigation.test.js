@@ -1,816 +1,641 @@
 /**
- * @jest-environment jsdom
+ * Tests for block-navigation.js
  */
-
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-describe('js/block-navigation.js', () => {
+const sourcePath = path.resolve(__dirname, '../../js/block-navigation.js');
+const code = fs.readFileSync(sourcePath, 'utf8');
+
+describe('block-navigation', () => {
+    let clampScrollTop;
+    let isEditableActive;
+    let shouldUseElement;
+    let handleEscapeKey;
+    let getIndexFromFallback;
     let context;
-    let code;
-    let testing;
+    let mockDocument;
+    let mockWindow;
 
     beforeEach(() => {
-        jest.resetModules();
+        jest.clearAllMocks();
 
-        // Read source file
-        const sourcePath = path.resolve(__dirname, '../../js/block-navigation.js');
-        code = fs.readFileSync(sourcePath, 'utf8');
-
-        // Setup DOM
-        document.documentElement.innerHTML =
-            '<html><body><div id="cont"><div class="intro-header"></div><div class="post-content"><p>P1</p><p>P2</p></div></div></body></html>';
-
-        Object.defineProperty(document.documentElement, 'scrollHeight', {
-            value: 1000,
-            configurable: true,
-        });
-        Object.defineProperty(window, 'innerHeight', { value: 500, configurable: true });
-
-        // Ensure requestAnimationFrame acts like setTimeout 0
-        window.requestAnimationFrame = jest.fn((cb) => setTimeout(cb, 0));
-        window.cancelAnimationFrame = jest.fn();
-
-        context = {
-            window,
-            document: window.document,
-            setTimeout: window.setTimeout,
-            clearTimeout: window.clearTimeout,
-            Number: window.Number,
-            Math: window.Math,
-            Set: window.Set,
-            Event: window.Event,
-            IntersectionObserver: class {
-                constructor() {}
-                observe() {}
-                unobserve() {}
-                disconnect() {}
+        mockDocument = {
+            documentElement: {
+                scrollHeight: 1000,
             },
-            console: {
-                warn: jest.fn(),
-                error: jest.fn(),
+            body: {
+                scrollHeight: 1000,
             },
+            readyState: 'complete',
+            addEventListener: jest.fn(),
+            createTreeWalker: jest.fn().mockReturnValue({
+                nextNode: jest.fn().mockReturnValue(false),
+            }),
+            querySelectorAll: jest.fn().mockReturnValue([]),
+            activeElement: null,
+            images: [],
         };
 
-        // Expose extra functions for testing
-        code = code.replace(
-            /const testing = \{/,
-            'const testing = {\n        isNavigationKey,\n        prefersReducedMotion,\n        logWarning,\n        collectBlocks,\n        isParagraphElement,\n        BLOCK_ELEMENT_SELECTOR,'
-        );
+        mockWindow = {
+            innerHeight: 500,
+            scrollY: 0,
+            addEventListener: jest.fn(),
+            scrollTo: jest.fn(),
+            matchMedia: jest.fn().mockReturnValue({ matches: false }),
+        };
+
+        // We provide a module object to capture the exports
+        const mockModule = {
+            exports: {},
+        };
+
+        context = {
+            document: mockDocument,
+            window: mockWindow,
+            module: mockModule,
+            console: console,
+            setTimeout: jest.fn(),
+            clearTimeout: jest.fn(),
+            Set: Set,
+            Array: Array,
+            Math: Math,
+            Number: Number,
+        };
 
         vm.createContext(context);
         vm.runInContext(code, context);
 
-        testing = context.window.__BlockNavigationForTesting;
+        clampScrollTop = context.module.exports.clampScrollTop;
+        isEditableActive = context.module.exports.isEditableActive;
+        shouldUseElement = context.module.exports.shouldUseElement;
+        handleEscapeKey = context.module.exports.handleEscapeKey;
+        getIndexFromFallback = context.module.exports.getIndexFromFallback;
     });
 
     describe('calculateNextIndex', () => {
-        it('should return correct index based on bounds for empty state', () => {
-            // blocks.length is 3 due to beforeEach document setup
-            expect(testing.calculateNextIndex('ArrowRight')).toBe(1);
-            expect(testing.calculateNextIndex('ArrowLeft')).toBe(0);
+        beforeEach(() => {});
+
+        it('should return next index when pressing forward keys', () => {
+            const customCode = `
+                let blocks = [1, 2, 3, 4];
+                let currentIndex = 1;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowRight')).toBe(2);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowDown')).toBe(2);
+        });
+
+        it('should return previous index when pressing backward keys', () => {
+            const customCode = `
+                let blocks = [1, 2, 3, 4];
+                let currentIndex = 2;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowLeft')).toBe(1);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowUp')).toBe(1);
+        });
+
+        it('should not exceed blocks.length - 1 when going forward', () => {
+            const customCode = `
+                let blocks = [1, 2, 3];
+                let currentIndex = 2;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowRight')).toBe(2);
+        });
+
+        it('should not fall below 0 when going backward', () => {
+            const customCode = `
+                let blocks = [1, 2, 3];
+                let currentIndex = 0;
+                function getCurrentIndex() { return currentIndex; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowLeft')).toBe(0);
+        });
+
+        it('should handle currentIndex being -1 by falling back to getCurrentIndex', () => {
+            const customCode = `
+                let blocks = [1, 2, 3];
+                let currentIndex = -1;
+                function getCurrentIndex() { return 1; }
+                const KEY_FORWARD = new Set(['ArrowRight', 'ArrowDown']);
+                const KEY_BACKWARD = new Set(['ArrowLeft', 'ArrowUp']);
+                ${code.match(/function calculateNextIndex\(key\) {[\s\S]*?return Math\.min\(Math\.max\(startIndex \+ delta, 0\), blocks\.length - 1\);\n    }/)[0]}
+                module.exports.calculateNextIndexCustom = calculateNextIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.calculateNextIndexCustom('ArrowRight')).toBe(2);
         });
     });
 
-    describe('getIndexFromFallback', () => {
-        it('should return correct fallback index', () => {
-            window.scrollY = 0;
-            window.innerHeight = 500;
-            expect(testing.getIndexFromFallback()).toBe(2);
-        });
-    });
+    describe('scrollToIndex', () => {
+        it('should not do anything if index is out of bounds', () => {
+            const customCode = `
+                let blocks = [1, 2];
+                let topSentinel = null;
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
 
-    describe('isNavigationKey', () => {
-        it('should return correct boolean for keys', () => {
-            expect(testing.isNavigationKey('ArrowRight')).toBe(true);
-            expect(testing.isNavigationKey('ArrowDown')).toBe(true);
-            expect(testing.isNavigationKey('ArrowLeft')).toBe(true);
-            expect(testing.isNavigationKey('ArrowUp')).toBe(true);
-            expect(testing.isNavigationKey('Enter')).toBe(false);
-            expect(testing.isNavigationKey('a')).toBe(false);
-        });
-    });
-
-    describe('clampScrollTop', () => {
-        test('should clamp to 0 if value is less than 0', () => {
-            expect(testing.clampScrollTop(-100)).toBe(0);
+            customContext.module.exports.scrollToIndexCustom(-1);
+            customContext.module.exports.scrollToIndexCustom(2);
+            expect(customContext.window.scrollTo).not.toHaveBeenCalled();
         });
 
-        test('should clamp to maxScroll if value is greater than maxScroll', () => {
-            expect(testing.clampScrollTop(1000)).toBe(500); // 1000 - 500 = 500
+        it('should scroll top sentinel to 0', () => {
+            const topSentinel = {};
+            const customCode = `
+                let topSentinel = window.__topSentinel;
+                let blocks = [window.__topSentinel, 2];
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?scrollFallback\(target, behavior, isFirstContentBlock\);\n            }\n        }\n    }/)[0]}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, __topSentinel: topSentinel },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+
+            customContext.module.exports.scrollToIndexCustom(0);
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 0,
+                behavior: 'smooth',
+            });
+        });
+
+        it('should call scrollIntoView on the target block', () => {
+            const mockTarget = { scrollIntoView: jest.fn() };
+            const customCode = `
+                let topSentinel = null;
+                let blocks = [window.__mockTarget];
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?scrollFallback\(target, behavior, isFirstContentBlock\);\n            }\n        }\n    }/)[0]}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, __mockTarget: mockTarget },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+
+            customContext.module.exports.scrollToIndexCustom(0);
+            expect(mockTarget.scrollIntoView).toHaveBeenCalledWith({
+                behavior: 'smooth',
+                block: 'start',
+                inline: 'nearest',
+            });
+        });
+
+        it('should call fallback window.scrollTo if scrollIntoView throws', () => {
+            const mockTarget = {
+                scrollIntoView: jest.fn().mockImplementation(() => {
+                    throw new Error('Not supported');
+                }),
+                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 50 }),
+                offsetHeight: 50,
+            };
+            const customCode = `
+                let topSentinel = null;
+                let blocks = [window.__mockTarget];
+                function prefersReducedMotion() { return false; }
+                function startPending() {}
+                ${code.match(/function clampScrollTop\(value\) {[\s\S]*?return Math\.max\(0, Math\.min\(value, maxScroll\)\);\n    }/)[0]}
+                ${code.match(/function scrollFallback\(target, behavior, isFirstContentBlock\) {[\s\S]*?behavior,\n        \}\);\n    }/)[0]}
+                ${code.match(/function performScroll\(target, isTopSentinel, behavior, isFirstContentBlock\) {[\s\S]*?scrollFallback\(target, behavior, isFirstContentBlock\);\n            }\n        }\n    }/)[0]}
+                ${code.match(/function scrollToIndex\(index\) {[\s\S]*?startPending\(index, behavior\);\n    }/)[0]}
+                module.exports.scrollToIndexCustom = scrollToIndex;
+            `;
+            const customContext = {
+                ...context,
+                window: {
+                    ...context.window,
+                    __mockTarget: mockTarget,
+                    scrollY: 10,
+                    innerHeight: 500,
+                },
+                document: { ...context.document, documentElement: { scrollHeight: 1000 } },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+
+            customContext.module.exports.scrollToIndexCustom(0);
+            expect(customContext.window.scrollTo).toHaveBeenCalledWith({
+                top: 110,
+                behavior: 'smooth',
+            });
         });
     });
 
     describe('handleEscapeKey', () => {
         it('should call click and prevent default if .nav-back exists', () => {
             const mockClick = jest.fn();
-            const navBack = document.createElement('a');
-            navBack.className = 'nav-back';
-            navBack.click = mockClick;
-            document.body.appendChild(navBack);
-
             const mockPreventDefault = jest.fn();
             const mockEvent = { preventDefault: mockPreventDefault };
 
-            testing.handleEscapeKey(mockEvent);
+            mockDocument.querySelector = jest.fn().mockImplementation((sel) => {
+                if (sel === '.nav-back') {
+                    return { click: mockClick };
+                }
+                return null;
+            });
 
+            handleEscapeKey(mockEvent);
+
+            expect(mockDocument.querySelector).toHaveBeenCalledWith('.nav-back');
             expect(mockPreventDefault).toHaveBeenCalled();
             expect(mockClick).toHaveBeenCalled();
         });
-    });
 
-    describe('isEditableActive', () => {
-        it('should return true for TEXTAREA elements', () => {
-            const textarea = document.createElement('textarea');
-            const originalActiveElement = document.activeElement;
-            Object.defineProperty(document, 'activeElement', {
-                get: () => textarea,
-                configurable: true,
-            });
-            try {
-                expect(testing.isEditableActive()).toBe(true);
-            } finally {
-                Object.defineProperty(document, 'activeElement', {
-                    get: () => originalActiveElement,
-                    configurable: true,
-                });
-            }
-        });
+        it('should do nothing if .nav-back does not exist', () => {
+            const mockPreventDefault = jest.fn();
+            const mockEvent = { preventDefault: mockPreventDefault };
 
-        it('should return true if element has contenteditable attribute set to true', () => {
-            const div = document.createElement('div');
-            Object.defineProperty(div, 'isContentEditable', { value: true });
-            const originalActiveElement = document.activeElement;
-            Object.defineProperty(document, 'activeElement', {
-                get: () => div,
-                configurable: true,
-            });
-            try {
-                expect(testing.isEditableActive()).toBe(true);
-            } finally {
-                Object.defineProperty(document, 'activeElement', {
-                    get: () => originalActiveElement,
-                    configurable: true,
-                });
-            }
-        });
+            mockDocument.querySelector = jest.fn().mockReturnValue(null);
 
-        it('should return false if activeElement is the body element', () => {
-            const { isEditableActive } = testing;
-            const originalActiveElement = document.activeElement;
-            Object.defineProperty(document, 'activeElement', {
-                get: () => document.body,
-                configurable: true,
-            });
-            try {
-                expect(isEditableActive()).toBe(false);
-            } finally {
-                Object.defineProperty(document, 'activeElement', {
-                    get: () => originalActiveElement,
-                    configurable: true,
-                });
-            }
-        });
+            handleEscapeKey(mockEvent);
 
-        it('should return false if activeElement exists but its tag name is not editable', () => {
-            const { isEditableActive } = testing;
-            const div = document.createElement('div');
-            const originalActiveElement = document.activeElement;
-            Object.defineProperty(document, 'activeElement', {
-                get: () => div,
-                configurable: true,
-            });
-            try {
-                expect(isEditableActive()).toBe(false);
-            } finally {
-                Object.defineProperty(document, 'activeElement', {
-                    get: () => originalActiveElement,
-                    configurable: true,
-                });
-            }
-        });
-
-        it('should return false when there is no active element', () => {
-            expect(testing.isEditableActive()).toBe(false);
-        });
-
-        it('should return true for INPUT elements', () => {
-            const input = document.createElement('input');
-            const originalActiveElement = document.activeElement;
-            Object.defineProperty(document, 'activeElement', {
-                get: () => input,
-                configurable: true,
-            });
-            try {
-                expect(testing.isEditableActive()).toBe(true);
-            } finally {
-                Object.defineProperty(document, 'activeElement', {
-                    get: () => originalActiveElement,
-                    configurable: true,
-                });
-            }
-        });
-    });
-
-    describe('shouldUseElement', () => {
-        it('should return true if element has .intro-header class', () => {
-            const el = document.querySelector('.intro-header');
-            expect(testing.shouldUseElement(el)).toBe(true);
-        });
-
-        it('should return true for post-content paragraphs', () => {
-            const el = document.querySelector('.post-content p');
-            expect(testing.shouldUseElement(el)).toBe(true);
-        });
-        it('should return false if element is null', () => {
-            expect(testing.shouldUseElement(null)).toBe(false);
-        });
-
-        it('should return false for script, style, noscript tags', () => {
-            const script = document.createElement('script');
-            const style = document.createElement('style');
-            const noscript = document.createElement('noscript');
-            document.body.appendChild(script);
-            document.body.appendChild(style);
-            document.body.appendChild(noscript);
-
-            expect(testing.shouldUseElement(script)).toBe(false);
-            expect(testing.shouldUseElement(style)).toBe(false);
-            expect(testing.shouldUseElement(noscript)).toBe(false);
-        });
-
-        it('should return false if closest parent has data-block-nav="ignore"', () => {
-            const parent = document.createElement('div');
-            parent.setAttribute('data-block-nav', 'ignore');
-            const child = document.createElement('div');
-            parent.appendChild(child);
-            document.body.appendChild(parent);
-            expect(testing.shouldUseElement(child)).toBe(false);
-        });
-
-        it('should return true if element has data-block-nav="block"', () => {
-            const el = document.createElement('div');
-            el.setAttribute('data-block-nav', 'block');
-            document.body.appendChild(el);
-            expect(testing.shouldUseElement(el)).toBe(true);
-        });
-
-        it('should return false if closest parent has data-block-nav="block" but element itself does not', () => {
-            const parent = document.createElement('div');
-            parent.setAttribute('data-block-nav', 'block');
-            const child = document.createElement('div');
-            parent.appendChild(child);
-            document.body.appendChild(parent);
-            expect(testing.shouldUseElement(child)).toBe(false);
-        });
-
-        it('should return true for .post-heading only if it is not inside .intro-header', () => {
-            const div = document.createElement('div');
-            div.className = 'post-heading';
-            document.body.appendChild(div);
-            expect(testing.shouldUseElement(div)).toBe(true);
-
-            const introHeader = document.createElement('div');
-            introHeader.className = 'intro-header';
-            const childHeading = document.createElement('div');
-            childHeading.className = 'post-heading';
-            introHeader.appendChild(childHeading);
-            document.body.appendChild(introHeader);
-            expect(testing.shouldUseElement(childHeading)).toBe(false);
-        });
-
-        it('should return false for element not matching anything', () => {
-            const el = document.createElement('div');
-            document.body.appendChild(el);
-            expect(testing.shouldUseElement(el)).toBe(false);
+            expect(mockDocument.querySelector).toHaveBeenCalledWith('.nav-back');
+            expect(mockPreventDefault).not.toHaveBeenCalled();
         });
     });
 
     describe('debounce', () => {
-        let originalRequestAnimationFrame;
-        let originalCancelAnimationFrame;
-
         beforeEach(() => {
             jest.useFakeTimers();
-            originalRequestAnimationFrame = window.requestAnimationFrame;
-            originalCancelAnimationFrame = window.cancelAnimationFrame;
-
-            // To ensure we bypass VM specific bugs regarding setTimeout returning numbers
-            context.setTimeout = window.setTimeout;
-            context.clearTimeout = window.clearTimeout;
         });
 
         afterEach(() => {
             jest.useRealTimers();
-            window.requestAnimationFrame = originalRequestAnimationFrame;
-            window.cancelAnimationFrame = originalCancelAnimationFrame;
-            jest.restoreAllMocks();
         });
 
-        test('should delay execution', () => {
+        it('should debounce function calls and use requestAnimationFrame when available', () => {
             const mockFn = jest.fn();
-            const debouncedFn = testing.debounce(mockFn, 100);
+            const mockCancelAnimationFrame = jest.fn();
 
-            // Delete requestAnimationFrame so we rely entirely on setTimeout for this test
-            delete context.window.requestAnimationFrame;
-
-            debouncedFn();
-            expect(mockFn).not.toHaveBeenCalled();
-
-            jest.advanceTimersByTime(50);
-            expect(mockFn).not.toHaveBeenCalled();
-
-            jest.advanceTimersByTime(50);
-            expect(mockFn).toHaveBeenCalledTimes(1);
-        });
-
-        test('should clear previous timeout', () => {
-            const mockFn = jest.fn();
-            const debouncedFn = testing.debounce(mockFn, 100);
-
-            // Delete requestAnimationFrame so we rely entirely on setTimeout for this test
-            delete context.window.requestAnimationFrame;
-
-            debouncedFn();
-            jest.advanceTimersByTime(50);
-            debouncedFn();
-            jest.advanceTimersByTime(50);
-
-            expect(mockFn).not.toHaveBeenCalled();
-
-            jest.advanceTimersByTime(50);
-            expect(mockFn).toHaveBeenCalledTimes(1);
-        });
-
-        test('should utilize requestAnimationFrame if available', () => {
-            const mockFn = jest.fn();
-            const debouncedFn = testing.debounce(mockFn, 100);
-
-            context.window.requestAnimationFrame = jest.fn((cb) => cb());
-            context.window.cancelAnimationFrame = jest.fn();
-
-            debouncedFn();
-            jest.advanceTimersByTime(100);
-
-            expect(context.window.requestAnimationFrame).toHaveBeenCalled();
-            expect(mockFn).toHaveBeenCalledTimes(1);
-        });
-
-        test('should fall back to synchronous execution within timeout if requestAnimationFrame is unavailable', () => {
-            const mockFn = jest.fn();
-            const debouncedFn = testing.debounce(mockFn, 100);
-
-            delete context.window.requestAnimationFrame;
-
-            debouncedFn();
-            jest.advanceTimersByTime(100);
-
-            expect(mockFn).toHaveBeenCalledTimes(1);
-        });
-    });
-
-    describe('rapid ArrowDown bounce bug', () => {
-        let observedElements;
-        let observerCallback;
-        let bounceContext;
-        let bounceTesting;
-
-        beforeEach(() => {
-            jest.useFakeTimers();
-
-            // Setup DOM with multiple image blocks for scrollable content
-            document.documentElement.innerHTML = `<html><body data-page-type="project">
-                <div class="intro-header" data-block-nav="block"></div>
-                <div class="post-content">
-                    <img src="img1.jpg" alt="1" />
-                    <img src="img2.jpg" alt="2" />
-                    <img src="img3.jpg" alt="3" />
-                    <img src="img4.jpg" alt="4" />
-                    <img src="img5.jpg" alt="5" />
-                </div>
-            </body></html>`;
-
-            Object.defineProperty(document.documentElement, 'scrollHeight', {
-                value: 5000,
-                configurable: true,
-            });
-            Object.defineProperty(document.body, 'scrollHeight', {
-                value: 5000,
-                configurable: true,
-            });
-
-            observedElements = new Set();
-
-            // Functional IntersectionObserver mock that tracks observed elements
-            const MockIO = class {
-                constructor(callback) {
-                    observerCallback = callback;
-                }
-                observe(el) {
-                    observedElements.add(el);
-                }
-                unobserve(el) {
-                    observedElements.delete(el);
-                }
-                disconnect() {
-                    observedElements.clear();
-                }
-            };
-
-            // Must set on window so code's `window.IntersectionObserver` check works
-            window.IntersectionObserver = MockIO;
-
-            window.scrollTo = jest.fn();
-            window.scrollY = 0;
-
-            // Mock scrollIntoView to prevent jsdom warnings
-            Element.prototype.scrollIntoView = jest.fn();
-
-            // Create a fresh context with IntersectionObserver on window
-            bounceContext = {
-                window,
-                document: window.document,
-                setTimeout: window.setTimeout,
-                clearTimeout: window.clearTimeout,
-                Number: window.Number,
-                Math: window.Math,
-                Set: window.Set,
-                Event: window.Event,
-                console: { warn: jest.fn(), error: jest.fn() },
-            };
-
-            const freshCode = code.replace(
-                /const testing = {/,
-                'const testing = {\n        isNavigationKey,'
-            );
-            vm.createContext(bounceContext);
-            vm.runInContext(freshCode, bounceContext);
-            bounceTesting = bounceContext.window.__BlockNavigationForTesting;
-        });
-
-        afterEach(() => {
-            jest.useRealTimers();
-            delete window.IntersectionObserver;
-            delete Element.prototype.scrollIntoView;
-        });
-
-        it('should NOT observe topSentinel (document.body) with IntersectionObserver', () => {
-            // document.body is blocks[0] (topSentinel) — it always intersects
-            // the narrow probe zone, causing getIndexFromObserver to return 0
-            // when no content block is visible, which resets currentIndex
-            expect(observedElements.has(document.body)).toBe(false);
-        });
-
-        it('should preserve intended index when pendingTimeout fires mid-scroll', () => {
-            // Simulate pressing ArrowDown 3 times rapidly
-            for (let i = 0; i < 3; i++) {
-                const event = new Event('keydown', { bubbles: true });
-                event.key = 'ArrowDown';
-                event.preventDefault = jest.fn();
-                document.dispatchEvent(event);
-            }
-
-            // After 3 presses, calculateNextIndex should return 4 (current=3, +1)
-            expect(bounceTesting.calculateNextIndex('ArrowDown')).toBe(4);
-
-            // Simulate observer firing with ONLY topSentinel visible
-            // (this is what happens mid-scroll when between content blocks)
-            if (observerCallback) {
-                observerCallback([{ target: document.body, isIntersecting: true }]);
-            }
-
-            // Now simulate the pendingTimeout firing (600ms for smooth scroll)
-            jest.advanceTimersByTime(600);
-
-            // After timeout, calculateNextIndex should STILL return 4
-            // Bug: without fix, syncCurrentIndex() recalculates from observer
-            // which sees body (index 0) as highest visible, resetting currentIndex to 0
-            expect(bounceTesting.calculateNextIndex('ArrowDown')).toBe(4);
-        });
-
-        it('should not bounce back when no content block is in probe zone after timeout', () => {
-            // Press ArrowDown 3 times
-            for (let i = 0; i < 3; i++) {
-                const event = new Event('keydown', { bubbles: true });
-                event.key = 'ArrowDown';
-                event.preventDefault = jest.fn();
-                document.dispatchEvent(event);
-            }
-
-            // Advance past pending timeout
-            jest.advanceTimersByTime(600);
-
-            // Simulate observer firing with no blocks visible
-            // (mid-scroll, between content blocks, probe zone is empty)
-            if (observerCallback) {
-                observerCallback([]);
-            }
-
-            // Fire scroll-debounce syncCurrentIndex (150ms)
-            jest.advanceTimersByTime(200);
-
-            // After all timers settle, the next ArrowDown should continue
-            // from index 3, not bounce back to 1
-            const nextIndex = bounceTesting.calculateNextIndex('ArrowDown');
-            expect(nextIndex).toBeGreaterThanOrEqual(4);
-        });
-    });
-
-    describe('logWarning', () => {
-        let originalConsole;
-        beforeEach(() => {
-            originalConsole = context.window.console;
-            context.window.console = {
-                warn: jest.fn(),
-            };
-        });
-
-        afterEach(() => {
-            context.window.console = originalConsole;
-        });
-
-        test('should log warning to console if window.console.warn is available', () => {
-            const error = new Error('Test Error');
-            testing.logWarning('Test message', error);
-            expect(context.window.console.warn).toHaveBeenCalledWith('Test message', error);
-        });
-
-        test('should handle gracefully if window.console is missing', () => {
-            delete context.window.console;
-            expect(() => {
-                testing.logWarning('Test message', new Error());
-            }).not.toThrow();
-        });
-
-        test('should handle gracefully if window.console.warn is missing', () => {
-            delete context.window.console.warn;
-            expect(() => {
-                testing.logWarning('Test message', new Error());
-            }).not.toThrow();
-        });
-    });
-
-    describe('prefersReducedMotion', () => {
-        test('should fallback correctly if matchMedia throws an error', () => {
-            const originalMatchMedia = window.matchMedia;
-            const originalWarn = window.console.warn;
-            window.matchMedia = jest.fn(() => {
-                throw new Error('Simulated matchMedia error');
-            });
-            window.console.warn = jest.fn();
-
-            try {
-                const { prefersReducedMotion } = testing;
-                expect(prefersReducedMotion()).toBe(false);
-                expect(window.console.warn).toHaveBeenCalledWith(
-                    '[block-navigation] prefersReducedMotion error:',
-                    expect.any(Error)
-                );
-            } finally {
-                window.matchMedia = originalMatchMedia;
-                window.console.warn = originalWarn;
-            }
-        });
-
-        beforeEach(() => {
-            // Because prefersReducedMotion uses a cached value, we need to bypass caching
-            // by resetting the module or manually evaluating the source again.
-            // But since caching is internal, we can test it with the bounceContext method used later,
-            // or just test the happy path if it wasn't cached yet.
-        });
-
-        test('should return false if matchMedia is missing or throws', () => {
-            const originalMatchMedia = context.window.matchMedia;
-            delete context.window.matchMedia;
-
-            // Create a fresh context to ensure no caching affects the result
-            const freshContext = {
-                window: { ...context.window },
-                document: context.document,
-                console: { warn: jest.fn() },
-            };
-            delete freshContext.window.matchMedia;
-            vm.createContext(freshContext);
-            vm.runInContext(code, freshContext);
-
-            const freshTesting = freshContext.window.__BlockNavigationForTesting;
-            expect(freshTesting.prefersReducedMotion()).toBe(false);
-
-            context.window.matchMedia = originalMatchMedia;
-        });
-
-        test('should return true if matchMedia matches', () => {
-            const freshContext = {
-                window: { ...context.window },
-                document: context.document,
-                console: { warn: jest.fn() },
-            };
-            freshContext.window.matchMedia = jest.fn().mockReturnValue({ matches: true });
-
-            vm.createContext(freshContext);
-            vm.runInContext(code, freshContext);
-
-            const freshTesting = freshContext.window.__BlockNavigationForTesting;
-            expect(freshTesting.prefersReducedMotion()).toBe(true);
-            expect(freshContext.window.matchMedia).toHaveBeenCalledWith(
-                '(prefers-reduced-motion: reduce)'
-            );
-
-            // Test caching behavior
-            expect(freshTesting.prefersReducedMotion()).toBe(true);
-            expect(freshContext.window.matchMedia).toHaveBeenCalledTimes(1); // Cached, shouldn't call again
-        });
-    });
-
-    describe('collectBlocks', () => {
-        beforeEach(() => {
-            // Setup DOM
-            context.document.body.innerHTML = `
-                <div class="intro-header"></div>
-                <div data-block-nav="ignore">
-                    <div class="post-content"><p>Ignored P1</p></div>
-                </div>
-                <div class="post-content">
-                    <p id="p1">P1</p>
-                    <p id="p2">P2</p>
-                </div>
-                <div data-block-nav="block" id="block1"></div>
+            // We can test the exported `debounce` function directly. We just need to ensure
+            // the `window` object in our test has the necessary functions.
+            // Since `debounce` relies on lexical scope for `window`, we can test it within the vm context
+            const customCode = `
+                window.cancelAnimationFrame = function(id) {
+                    window.__mockCancelAnimationFrame(id);
+                };
+                window.requestAnimationFrame = function(cb) {
+                    window.__rAFCallback = cb;
+                    return 123;
+                };
+                module.exports.debouncedFn = module.exports.debounce(function() {
+                    window.__mockFn.apply(this, arguments);
+                }, 100);
             `;
-        });
-
-        test('should collect blocks using native DOM selection', () => {
-            const blocks = testing.collectBlocks();
-
-            // Should collect intro-header, p1, and block1. p2 should be grouped with p1.
-            expect(blocks.length).toBe(3);
-            expect(blocks[0].className).toBe('intro-header');
-            expect(blocks[1].id).toBe('p1');
-            expect(blocks[2].id).toBe('block1');
-        });
-    });
-
-    describe('performScroll', () => {
-        let mockTarget;
-
-        beforeEach(() => {
-            context.window.scrollTo = jest.fn();
-            context.window.console = { warn: jest.fn() };
-
-            mockTarget = {
-                scrollIntoView: jest.fn(),
-                getBoundingClientRect: jest.fn().mockReturnValue({ top: 100, height: 200 }),
-                offsetHeight: 200,
+            // Must inject a fresh setTimeout mock implementation inside customContext because
+            // fakeTimers doesn't automatically wrap vm context setTimeout.
+            const customContext = {
+                ...context,
+                window: {
+                    ...context.window,
+                    __mockFn: mockFn,
+                    __mockCancelAnimationFrame: mockCancelAnimationFrame,
+                },
+                setTimeout: setTimeout,
+                clearTimeout: clearTimeout,
             };
+            vm.createContext(customContext);
+            vm.runInContext(code, customContext);
+            vm.runInContext(customCode, customContext);
+
+            const debouncedFn = customContext.module.exports.debouncedFn;
+            debouncedFn('arg1');
+            debouncedFn('arg2');
+
+            jest.advanceTimersByTime(150);
+
+            expect(customContext.window.__rAFCallback).not.toBeUndefined();
+            customContext.window.__rAFCallback();
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+            expect(mockFn).toHaveBeenCalledWith('arg2');
+
+            debouncedFn('arg3');
+            // The first call to setTimeout is scheduled, advance again to trigger cancel
+            jest.advanceTimersByTime(150);
+            expect(mockCancelAnimationFrame).toHaveBeenCalledWith(123);
         });
 
-        test('should call window.scrollTo when isTopSentinel is true', () => {
-            testing.performScroll(mockTarget, true, 'smooth', true);
+        it('should fallback to direct execution if requestAnimationFrame is not available', () => {
+            const mockFn = jest.fn();
 
-            expect(context.window.scrollTo).toHaveBeenCalledWith({
-                top: 0,
-                behavior: 'smooth',
-            });
-            expect(mockTarget.scrollIntoView).not.toHaveBeenCalled();
-        });
+            const customCode = `
+                delete window.requestAnimationFrame;
+                delete window.cancelAnimationFrame;
+                module.exports.debouncedFn = module.exports.debounce(function() {
+                    window.__mockFn.apply(this, arguments);
+                }, 100);
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, __mockFn: mockFn },
+                setTimeout: setTimeout,
+                clearTimeout: clearTimeout,
+            };
+            vm.createContext(customContext);
+            vm.runInContext(code, customContext);
+            vm.runInContext(customCode, customContext);
 
-        test('should call target.scrollIntoView correctly', () => {
-            testing.performScroll(mockTarget, false, 'smooth', false);
+            const debouncedFn = customContext.module.exports.debouncedFn;
+            debouncedFn('arg1');
+            debouncedFn('arg2');
 
-            expect(mockTarget.scrollIntoView).toHaveBeenCalledWith({
-                behavior: 'smooth',
-                block: 'center',
-                inline: 'nearest',
-            });
-            expect(context.window.scrollTo).not.toHaveBeenCalled();
-        });
+            jest.advanceTimersByTime(150);
 
-        test('should use fallback window.scrollTo if scrollIntoView throws', () => {
-            mockTarget.scrollIntoView.mockImplementation(() => {
-                throw new Error('scrollIntoView error');
-            });
-
-            testing.performScroll(mockTarget, false, 'smooth', false);
-
-            expect(context.window.console.warn).toHaveBeenCalledWith(
-                '[block-navigation] scrollIntoView failed, using fallback:',
-                expect.any(Error)
-            );
-
-            // Expected fallback logic using clampScrollTop
-            // Offset = (500 - 200) / 2 = 150
-            // Top = clampScrollTop(100 + 0 - 150) = clampScrollTop(-50) = 0
-            expect(context.window.scrollTo).toHaveBeenCalledWith({
-                top: 0,
-                behavior: 'smooth',
-            });
+            expect(mockFn).toHaveBeenCalledTimes(1);
+            expect(mockFn).toHaveBeenCalledWith('arg2');
         });
     });
-});
 
-describe('coverage helper', () => {
-    test('run original file to get coverage', () => {
-        jest.isolateModules(() => {
-            document.body.innerHTML =
-                '<div class="post-content"><p>A</p><p>B</p><img /><div data-block-nav="block"></div></div><div class="intro-header"></div>';
-            Object.defineProperty(document.documentElement, 'scrollHeight', {
-                value: 1000,
-                configurable: true,
-            });
-            let cb;
-            let loadCb;
-            let resizeCb;
-            let scrollCb;
-            let keydownCb;
+    describe('getIndexFromFallback', () => {
+        it('should return -1 if blockPositions is empty', () => {
+            // Need to mock blockPositions, which is an internal variable in the IIFE.
+            // Since we can't easily mock it, we'll create a scenario where blockPositions length is 0.
+            const customCode = `
+                let blockPositions = [];
+                ${getIndexFromFallback.toString()}
+                module.exports.getIndexFromFallbackCustom = getIndexFromFallback;
+            `;
+            const customContext = { ...context };
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            expect(customContext.module.exports.getIndexFromFallbackCustom()).toBe(-1);
+        });
 
-            jest.spyOn(document, 'addEventListener').mockImplementation((e, fn) => {
-                if (e === 'DOMContentLoaded') {
-                    cb = fn;
-                }
-                if (e === 'keydown') {
-                    keydownCb = fn;
-                }
-                if (e === 'load') {
-                    /* load image bind */
-                }
-            });
-            jest.spyOn(window, 'addEventListener').mockImplementation((e, fn) => {
-                if (e === 'load') {
-                    loadCb = fn;
-                }
-                if (e === 'resize') {
-                    resizeCb = fn;
-                }
-                if (e === 'scroll') {
-                    scrollCb = fn;
-                }
-            });
+        it('should calculate best index based on scroll position and blockPositions', () => {
+            const customCode = `
+                let blockPositions = [0, 400, 800, 1200];
+                ${getIndexFromFallback.toString()}
+                module.exports.getIndexFromFallbackCustom = getIndexFromFallback;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 300, innerHeight: 500 },
+            };
+            // probe = 300 + 125 = 425
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            // 425 >= 0 (best=0), 425 >= 400 (best=1), 425 < 800 (break) -> returns 1
+            expect(customContext.module.exports.getIndexFromFallbackCustom()).toBe(1);
+        });
 
-            require('../../js/block-navigation.js');
-            if (cb) {
-                cb();
-            }
+        it('should handle probe past all blocks', () => {
+            const customCode = `
+                let blockPositions = [0, 400, 800];
+                ${getIndexFromFallback.toString()}
+                module.exports.getIndexFromFallbackCustom = getIndexFromFallback;
+            `;
+            const customContext = {
+                ...context,
+                window: { ...context.window, scrollY: 1000, innerHeight: 500 },
+            };
+            // probe = 1000 + 125 = 1125
+            vm.createContext(customContext);
+            vm.runInContext(customCode, customContext);
+            // 1125 >= 0, >= 400, >= 800 -> returns 2
+            expect(customContext.module.exports.getIndexFromFallbackCustom()).toBe(2);
+        });
+    });
 
-            if (window.__BlockNavigationForTesting) {
-                const t = window.__BlockNavigationForTesting;
-                try {
-                    t.clampScrollTop(-10);
-                } catch {}
-                try {
-                    t.isEditableActive();
-                } catch {}
-                try {
-                    t.shouldUseElement(document.body);
-                } catch {}
-                try {
-                    t.handleEscapeKey({ preventDefault: () => {} });
-                } catch {}
-                try {
-                    t.debounce(() => {}, 10)();
-                } catch {}
-                try {
-                    t.getIndexFromFallback();
-                } catch {}
-                try {
-                    t.calculateNextIndex('ArrowDown');
-                } catch {}
-                try {
-                    t.scrollToIndex(0);
-                } catch {}
-                try {
-                    t.performScroll(document.body, true, 'smooth', true);
-                } catch {}
+    describe('clampScrollTop', () => {
+        test('should clamp to 0 if value is less than 0', () => {
+            mockDocument.documentElement.scrollHeight = 1000;
+            mockWindow.innerHeight = 500;
+            // maxScroll = 500
+            expect(clampScrollTop(-100)).toBe(0);
+        });
 
-                // Trigger events
-                if (loadCb) {
-                    loadCb();
-                }
-                if (resizeCb) {
-                    resizeCb();
-                }
-                if (scrollCb) {
-                    scrollCb();
-                }
-                if (keydownCb) {
-                    keydownCb({ key: 'ArrowDown', preventDefault: () => {} });
-                    keydownCb({ key: 'ArrowUp', preventDefault: () => {} });
-                    keydownCb({ key: 'Escape', preventDefault: () => {} });
-                }
+        test('should clamp to maxScroll if value is greater than maxScroll', () => {
+            mockDocument.documentElement.scrollHeight = 1000;
+            mockWindow.innerHeight = 500;
+            // maxScroll = 500
+            expect(clampScrollTop(600)).toBe(500);
+        });
 
-                // Now without intersection observer
-                const originalIO = window.IntersectionObserver;
-                delete window.IntersectionObserver;
+        test('should return value if it is between 0 and maxScroll', () => {
+            mockDocument.documentElement.scrollHeight = 1000;
+            mockWindow.innerHeight = 500;
+            // maxScroll = 500
+            expect(clampScrollTop(250)).toBe(250);
+        });
 
-                // Re-require to trigger !useObserver path
-                jest.resetModules();
-                require('../../js/block-navigation.js');
-                if (cb) {
-                    cb();
+        test('should clamp to 0 if maxScroll is less than 0', () => {
+            mockDocument.documentElement.scrollHeight = 400;
+            mockWindow.innerHeight = 500;
+            // maxScroll = -100
+            // Since maxScroll < 0, it should return Math.max(0, value)
+            expect(clampScrollTop(200)).toBe(200);
+            expect(clampScrollTop(-50)).toBe(0);
+        });
+
+        test('should clamp to Math.max(0, value) if maxScroll is not finite', () => {
+            mockDocument.documentElement.scrollHeight = NaN;
+            mockWindow.innerHeight = 500;
+            // maxScroll = NaN
+            expect(clampScrollTop(300)).toBe(300);
+            expect(clampScrollTop(-100)).toBe(0);
+        });
+    });
+
+    describe('isEditableActive', () => {
+        it('should return false when there is no active element', () => {
+            context.document.activeElement = null;
+            expect(isEditableActive()).toBe(false);
+        });
+
+        it('should return false for non-editable generic elements', () => {
+            context.document.activeElement = {
+                tagName: 'DIV',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(false);
+        });
+
+        it('should return true for contenteditable elements', () => {
+            context.document.activeElement = {
+                tagName: 'DIV',
+                isContentEditable: true,
+            };
+            expect(isEditableActive()).toBe(true);
+        });
+
+        it('should return true for INPUT elements', () => {
+            context.document.activeElement = {
+                tagName: 'INPUT',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(true);
+        });
+
+        it('should return true for TEXTAREA elements', () => {
+            context.document.activeElement = {
+                tagName: 'TEXTAREA',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(true);
+        });
+
+        it('should return true for SELECT elements', () => {
+            context.document.activeElement = {
+                tagName: 'SELECT',
+                isContentEditable: false,
+            };
+            expect(isEditableActive()).toBe(true);
+        });
+    });
+
+    describe('shouldUseElement', () => {
+        const createMockElement = (matchesSelector, closestSelector) => ({
+            matches: jest.fn((selector) => {
+                if (matchesSelector === undefined) {
+                    return false;
                 }
+                if (typeof matchesSelector === 'string') {
+                    return selector === matchesSelector;
+                }
+                if (typeof matchesSelector === 'function') {
+                    return matchesSelector(selector);
+                }
+                if (Array.isArray(matchesSelector)) {
+                    return matchesSelector.includes(selector);
+                }
+                return matchesSelector;
+            }),
+            closest: jest.fn((selector) => {
+                if (closestSelector === undefined) {
+                    return null;
+                }
+                if (typeof closestSelector === 'string') {
+                    return selector === closestSelector ? {} : null;
+                }
+                if (typeof closestSelector === 'function') {
+                    return closestSelector(selector) ? {} : null;
+                }
+                if (Array.isArray(closestSelector)) {
+                    return closestSelector.includes(selector) ? {} : null;
+                }
+                return closestSelector ? {} : null;
+            }),
+        });
 
-                window.IntersectionObserver = originalIO;
-            }
-            jest.restoreAllMocks();
+        it('should return false if element is falsy', () => {
+            expect(shouldUseElement(null)).toBe(false);
+            expect(shouldUseElement(undefined)).toBe(false);
+        });
+
+        it('should return false for script, style, noscript elements', () => {
+            const el = createMockElement('script, style, noscript');
+            expect(shouldUseElement(el)).toBe(false);
+            expect(el.matches).toHaveBeenCalledWith('script, style, noscript');
+        });
+
+        it('should return false if element is within an ignored block', () => {
+            const el = createMockElement(false, '[data-block-nav="ignore"]');
+            expect(shouldUseElement(el)).toBe(false);
+            expect(el.closest).toHaveBeenCalledWith('[data-block-nav="ignore"]');
+        });
+
+        it('should return true if element has data-block-nav="block"', () => {
+            const el = createMockElement('[data-block-nav="block"]');
+            expect(shouldUseElement(el)).toBe(true);
+        });
+
+        it('should return false if element is a child of an explicitly declared block', () => {
+            const el = createMockElement(false, '[data-block-nav="block"]');
+            expect(shouldUseElement(el)).toBe(false);
+        });
+
+        it('should return true if element has .intro-header class', () => {
+            const el = createMockElement('.intro-header');
+            expect(shouldUseElement(el)).toBe(true);
+        });
+
+        it('should return false for .post-heading if it is inside .intro-header', () => {
+            const el = createMockElement('.post-heading', '.intro-header');
+            expect(shouldUseElement(el)).toBe(false);
+        });
+
+        it('should return true if element matches BLOCK_ELEMENT_SELECTOR', () => {
+            // Need to match against the exact string or use a custom function
+            const BLOCK_ELEMENT_SELECTOR = [
+                '.post-heading',
+                '.post-content h1',
+                '.post-content h2',
+                '.post-content h3',
+                '.post-content h4',
+                '.post-content h5',
+                '.post-content h6',
+                '.post-content p',
+                '.post-content img',
+                '.post-content figure',
+                '.post-content blockquote',
+                '.post-content li',
+                '.post-content pre',
+                '.post-content table',
+                '.post-content video',
+                '.post-content .visual-block',
+            ].join(', ');
+
+            const el = createMockElement(BLOCK_ELEMENT_SELECTOR);
+            expect(shouldUseElement(el)).toBe(true);
+        });
+
+        it('should return false if it does not match any known selector rules', () => {
+            const el = createMockElement(false, false);
+            expect(shouldUseElement(el)).toBe(false);
         });
     });
 });

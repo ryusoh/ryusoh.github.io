@@ -1,15 +1,6 @@
 // Ambient background effect (localized copy)
 // Expects window.Sketch and optional window.AMBIENT_CONFIG
-(function initAmbient() {
-    function applyDebugOverrides(C) {
-        C.zIndex = 999;
-        C.radius = { min: C.radius.min * 2, max: C.radius.max * 2 };
-        C.alpha = { min: Math.min(0.4, C.alpha.min * 2), max: Math.min(0.8, C.alpha.max * 2) };
-        C.speed = Math.max(C.speed, 0.3);
-        C.densityDivisor = Math.max(15000, C.densityDivisor - 10000);
-        return C;
-    }
-
+(function () {
     function getConfig(force, trace) {
         const C = Object.assign(
             {
@@ -26,7 +17,11 @@
             window.AMBIENT_CONFIG || {}
         );
         if (force === 'debug' || trace) {
-            return applyDebugOverrides(C);
+            C.zIndex = 999;
+            C.radius = { min: C.radius.min * 2, max: C.radius.max * 2 };
+            C.alpha = { min: Math.min(0.4, C.alpha.min * 2), max: Math.min(0.8, C.alpha.max * 2) };
+            C.speed = Math.max(C.speed, 0.3);
+            C.densityDivisor = Math.max(15000, C.densityDivisor - 10000);
         }
         return C;
     }
@@ -37,47 +32,7 @@
      * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
      * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
      */
-    function logWarning(msg, e) {
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
-            window.console.warn(msg, e);
-        }
-    }
-
-    function logError(msg, e) {
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.error === 'function'
-        ) {
-            if (e) {
-                window.console.error(msg, e);
-            } else {
-                window.console.error(msg);
-            }
-        }
-    }
-
     let prefersReducedMotionMediaQuery = null;
-
-    function getPrefersReducedMotion() {
-        try {
-            if (prefersReducedMotionMediaQuery === null && window.matchMedia) {
-                prefersReducedMotionMediaQuery = window.matchMedia(
-                    '(prefers-reduced-motion: reduce)'
-                );
-            }
-            return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
-        } catch (e) {
-            logWarning('[ambient] prefersReducedMotion error:', e);
-            return false;
-        }
-    }
 
     function shouldSkip(C, force) {
         if (!window.Sketch) {
@@ -86,7 +41,25 @@
         if (force) {
             return false;
         }
-        const reduce = getPrefersReducedMotion();
+        try {
+            if (prefersReducedMotionMediaQuery === null && window.matchMedia) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[ambient] prefersReducedMotion error:', e);
+            }
+        }
+        const reduce = prefersReducedMotionMediaQuery
+            ? prefersReducedMotionMediaQuery.matches
+            : false;
         const large = window.innerWidth >= C.minWidth;
         const enabled = C.enabled;
         if (!enabled || (reduce && C.respectReducedMotion !== false)) {
@@ -98,62 +71,50 @@
         return false;
     }
 
-    function getAmbientParam() {
-        if (typeof window.URLSearchParams === 'undefined') {
-            return null;
-        }
-        try {
-            const searchStr = window.location.search || '';
-            if (searchStr.length > 1000) {
+    try {
+        function getAmbientParam() {
+            if (typeof window.URLSearchParams === 'undefined') {
                 return null;
             }
-            return new window.URLSearchParams(searchStr).get('ambient');
-        } catch (e) {
-            logWarning('URLSearchParams parsing failed:', e);
-            return null;
+            return new window.URLSearchParams(window.location.search || '').get('ambient');
         }
-    }
+        const force = getAmbientParam();
+        const trace = force === 'trace';
+        const C = getConfig(force, trace);
 
-    function runAmbient(C, force, trace) {
-        function initSketchCanvas(C, trace) {
-            const sketchInstance = window.Sketch.create({
-                container: document.body,
-                retina: true,
-                interval: 2,
-                globals: false,
-                autopause: true,
-            });
-            sketchInstance.canvas.className += ' ambient-canvas';
-            sketchInstance.canvas.style.position = 'fixed';
-            sketchInstance.canvas.style.top = '0';
-            sketchInstance.canvas.style.left = '0';
-            sketchInstance.canvas.style.pointerEvents = 'none';
-            sketchInstance.canvas.style.zIndex = String(C.zIndex);
-            sketchInstance.canvas.style.width = '100vw';
-            sketchInstance.canvas.style.height = '100vh';
-            if (trace) {
-                sketchInstance.canvas.style.background = 'rgba(255,0,0,0.06)';
-            }
-            return sketchInstance;
+        if (shouldSkip(C, force)) {
+            return;
         }
-
-        const s = initSketchCanvas(C, trace);
-        function getDim(c, clientProp, baseProp, winVal, ratio) {
-            const cv = c && c[clientProp] ? c[clientProp] : winVal;
-            const bv = c && c[baseProp] ? c[baseProp] : cv * ratio;
-            return { cv, bv };
+        const s = window.Sketch.create({
+            container: document.body,
+            retina: true,
+            interval: 2,
+            globals: false,
+            autopause: true,
+        });
+        s.canvas.className += ' ambient-canvas';
+        s.canvas.style.position = 'fixed';
+        s.canvas.style.top = '0';
+        s.canvas.style.left = '0';
+        s.canvas.style.pointerEvents = 'none';
+        s.canvas.style.zIndex = String(C.zIndex);
+        s.canvas.style.width = '100vw';
+        s.canvas.style.height = '100vh';
+        if (trace) {
+            s.canvas.style.background = 'rgba(255,0,0,0.06)';
         }
-
         function metrics() {
             const ratio = window.devicePixelRatio || 1;
-            const w = getDim(s.canvas, 'clientWidth', 'width', window.innerWidth, ratio);
-            const h = getDim(s.canvas, 'clientHeight', 'height', window.innerHeight, ratio);
-
-            const width = w.bv / ratio;
-            const height = h.bv / ratio;
+            const cw = s.canvas && s.canvas.clientWidth ? s.canvas.clientWidth : window.innerWidth;
+            const ch =
+                s.canvas && s.canvas.clientHeight ? s.canvas.clientHeight : window.innerHeight;
+            const pw = s.canvas && s.canvas.width ? s.canvas.width : cw * ratio;
+            const ph = s.canvas && s.canvas.height ? s.canvas.height : ch * ratio;
+            const width = pw / ratio;
+            const height = ph / ratio;
             s.width = width;
             s.height = height;
-            return { width: width, height: height, cw: w.cv, ch: h.cv, ratio: ratio };
+            return { width: width, height: height, cw: cw, ch: ch, ratio: ratio };
         }
 
         const MAX = C.maxParticles,
@@ -198,7 +159,7 @@
             transitionControl.start = perfNow();
             transitionControl.duration = 900;
             if (s.canvas) {
-                s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
+                s.canvas.style.transition = 'opacity 0.4s ease';
                 s.canvas.style.opacity = '1';
             }
             for (let i = 0; i < particles.length; i += 1) {
@@ -217,7 +178,7 @@
             transitionControl.start = perfNow();
             transitionControl.duration = 750;
             if (s.canvas) {
-                s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
+                s.canvas.style.transition = 'opacity 0.4s ease';
                 s.canvas.style.opacity = '1';
             }
             const m = metrics();
@@ -247,10 +208,6 @@
         s.resize = function () {
             s.setup();
         };
-        function isOutOfBounds(p, w, h) {
-            return p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10;
-        }
-
         function updateParticle(p, exiting, intro, w, h) {
             p.x += p.vx;
             p.y += p.vy;
@@ -258,7 +215,9 @@
                 p.a = Math.max(0, p.a - 0.02);
             } else if (intro) {
                 p.a = Math.max(0, p.a - 0.01);
-            } else if (isOutOfBounds(p, w, h)) {
+            }
+
+            if (!exiting && !intro && (p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10)) {
                 reset(p);
             }
         }
@@ -293,20 +252,11 @@
                 ctx.fillStyle = 'rgba(0,128,255,0.12)';
                 ctx.fillRect(0, 0, this.width, this.height);
             }
-
-            /**
-             * Bolt Optimization:
-             * - What: Replace `rgba()` string concatenation with `ctx.globalAlpha` and a static `fillStyle`.
-             * - Why: Creating new strings like `'rgba(255,255,255,' + p.a + ')'` inside a 60FPS render loop for hundreds of particles causes high memory churn and triggers frequent garbage collection pauses on the main thread.
-             * - Impact: Measurably reduces memory allocations and GC overhead, resulting in smoother animations and less CPU usage.
-             */
-            ctx.fillStyle = '#ffffff';
-
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
-                ctx.globalAlpha = p.a;
+                ctx.fillStyle = 'rgba(255,255,255,' + p.a + ')';
                 ctx.fill();
             }
             ctx.restore();
@@ -322,7 +272,14 @@
                 }
                 return val === '1';
             } catch (e) {
-                logWarning('[ambient] sessionStorage get error:', e);
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[ambient] sessionStorage get error:', e);
+                }
                 return false;
             }
         }
@@ -330,7 +287,14 @@
             try {
                 window.sessionStorage.removeItem(key);
             } catch (e) {
-                logWarning('[ambient] sessionStorage remove error:', e);
+                if (
+                    typeof window !== 'undefined' &&
+                    window !== null &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[ambient] sessionStorage remove error:', e);
+                }
             }
         }
         function maybePlayIntro() {
@@ -358,26 +322,20 @@
         };
         maybePlayIntro();
 
-        window.__AmbientForTesting = {
-            getConfig: getConfig,
-            shouldSkip: shouldSkip,
-            getAmbientParam: getAmbientParam,
-            metrics: metrics,
-        };
-    }
-
-    try {
-        const force =
-            typeof window !== 'undefined' && typeof window.URLSearchParams !== 'undefined'
-                ? getAmbientParam()
-                : null;
-        const trace = force === 'trace';
-        const C = getConfig(force, trace);
-
-        if (!shouldSkip(C, force)) {
-            runAmbient(C, force, trace);
+        if (typeof window !== 'undefined') {
+            window.__AmbientForTesting = {
+                getConfig: getConfig,
+                shouldSkip: shouldSkip,
+            };
         }
     } catch (e) {
-        logError('[ambient] Initialization failed:', e);
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.error === 'function'
+        ) {
+            window.console.error('[ambient] Initialization failed:', e);
+        }
     }
 })();

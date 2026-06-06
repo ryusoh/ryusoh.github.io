@@ -7,12 +7,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta
             http-equiv="Content-Security-Policy"
-            content="default-src 'self'; script-src 'self' https://www.google-analytics.com https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://fonts.bunny.net https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.bunny.net https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+            content="default-src 'self'; script-src 'self' https://www.google-analytics.com https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.bunny.net https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
         <meta name="view-transition" content="same-origin" />
-        <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta property="og:image" content="../assets/img/og-image.png" />
         <meta property="og:image:width" content="1447" />
         <meta property="og:image:height" content="965" />
@@ -120,20 +119,15 @@
 
     <body data-page-type="project">
         <a href="#main" class="sr-only sr-only-focusable">Skip to content</a>
-
-        <!-- Navigation Buttons (Persistent during transitions) -->
-        <!-- prettier-ignore -->
-        <a class="nav-back" aria-keyshortcuts="Escape" href="../" target="_self" data-page-transition data-destination="home" aria-label="Back to home">
-            <i class="fa fa-chevron-left" aria-hidden="true"></i>
-        </a>
-
-        <!-- prettier-ignore -->
-        <a class="nav-next" aria-keyshortcuts="ArrowRight" href="../p2/" target="_self" data-page-transition data-destination="project" aria-label="Next project">
-            <i class="fa fa-chevron-right" aria-hidden="true"></i>
-        </a>
-
         <!-- Content -->
         <main id="main" class="article-container" tabindex="-1">
+            <!-- Back Home -->
+
+            <!-- prettier-ignore -->
+            <a class="nav-back" aria-keyshortcuts="Escape" href="../" target="_self" data-page-transition data-destination="home" aria-label="Back to home">
+                <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            </a>
+
             <!-- Page Header -->
             <header class="intro-header" data-block-nav="block">
                 <div class="container">
@@ -275,7 +269,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         class="scroll-reveal-instagram"
-                        aria-label="Instagram Lyeutsaon (opens in a new tab)"
+                        aria-label="Instagram Lyeutsaon"
                     >
                         <i class="fa fa-instagram" aria-hidden="true"></i>
                     </a>
@@ -287,6 +281,7 @@
 
         <!-- Scripts -->
         <script type="text/javascript"></script>
+        <script defer src="../js/vendor/html2canvas.min.js"></script>
         <script type="module" src="../js/page-transition.js"></script>
         <script defer src="../js/ambient/loader.js"></script>
         <script defer src="../js/block-navigation.js"></script>
@@ -298,8 +293,6 @@
         <script type="module" src="../js/cursor-init.js"></script>
         <!-- Scroll reveal icon -->
         <script defer src="../js/scroll-reveal-icon.js"></script>
-        <!-- Scroll-driven content reveal -->
-        <script defer src="../js/scroll-reveal.js"></script>
         <!-- Service Worker -->
         <script defer src="../js/service-worker-register.js"></script>
     </body>

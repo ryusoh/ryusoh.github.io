@@ -1,249 +1,250 @@
-/**
- * @jest-environment jsdom
- */
-
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
 describe('AssetPreloader', () => {
     let context;
-    let code;
+    let mockDocument;
+    let mockWindow;
     let AssetPreloader;
+    let appendedElements = [];
 
     beforeEach(() => {
-        jest.resetModules();
-        document.head.innerHTML = '';
+        appendedElements = [];
+        jest.clearAllMocks();
 
-        const sourcePath = path.resolve(__dirname, '../../js/preloader.js');
-        code = fs.readFileSync(sourcePath, 'utf8');
+        mockDocument = {
+            createElement: jest.fn((tag) => {
+                const el = { tagName: tag.toUpperCase() };
+                return el;
+            }),
+            createDocumentFragment: jest.fn(() => {
+                const frag = {
+                    nodeType: 11,
+                    children: [],
+                    appendChild: jest.fn(function (el) {
+                        this.children.push(el);
+                    }),
+                };
+                return frag;
+            }),
+            head: {
+                appendChild: jest.fn((el) => {
+                    if (el && el.nodeType === 11) {
+                        appendedElements.push(...el.children);
+                    } else if (el) {
+                        appendedElements.push(el);
+                    }
+                }),
+            },
+            addEventListener: jest.fn(),
+        };
 
-        // Strip the DOMContentLoaded listener to avoid side effects
-        const strippedCode = code.replace(
-            /document\.addEventListener\('DOMContentLoaded'[\s\S]*?\}\);/,
-            ''
-        );
+        mockWindow = {
+            location: {
+                pathname: '/',
+            },
+            addEventListener: jest.fn(),
+        };
 
         context = {
-            window,
-            document: window.document,
-            navigator: window.navigator,
-            setTimeout: window.setTimeout,
-            URL: window.URL,
-            console: window.console,
+            document: mockDocument,
+            window: mockWindow,
+            navigator: {
+                serviceWorker: {},
+            },
+            console: console,
+            module: { exports: {} },
         };
 
         vm.createContext(context);
-        vm.runInContext(strippedCode, context);
+        const sourcePath = path.resolve(__dirname, '../../js/preloader.js');
+        let code = fs.readFileSync(sourcePath, 'utf8');
 
-        AssetPreloader = context.window.__AssetPreloaderForTesting.AssetPreloader;
+        // Strip out the event listener that initializes it on load
+        code = code.replace(
+            /document\.addEventListener\('DOMContentLoaded', \(\) => {[\s\S]*?}\);/g,
+            ''
+        );
+
+        vm.runInContext(code, context);
+        AssetPreloader = context.module.exports.AssetPreloader;
     });
 
-    test('getCurrentPageKey should identify p1 correctly', () => {
-        const preloader = new AssetPreloader();
-        delete context.window.location;
-        context.window.location = new URL('https://example.com/p1/');
-        expect(preloader.getCurrentPageKey()).toBe('p1');
+    describe('getCurrentPageKey', () => {
+        it('should return "p1" when pathname contains "/p1/"', () => {
+            mockWindow.location.pathname = '/p1/';
+            const preloader = new AssetPreloader();
+            expect(preloader.getCurrentPageKey()).toBe('p1');
+
+            mockWindow.location.pathname = '/project/p1/index.html';
+            expect(preloader.getCurrentPageKey()).toBe('p1');
+        });
+
+        it('should return "p2" when pathname contains "/p2/"', () => {
+            mockWindow.location.pathname = '/p2/';
+            const preloader = new AssetPreloader();
+            expect(preloader.getCurrentPageKey()).toBe('p2');
+
+            mockWindow.location.pathname = '/p2/gallery.html';
+            expect(preloader.getCurrentPageKey()).toBe('p2');
+        });
+
+        it('should return "p3" when pathname contains "/p3/"', () => {
+            mockWindow.location.pathname = '/p3/';
+            const preloader = new AssetPreloader();
+            expect(preloader.getCurrentPageKey()).toBe('p3');
+        });
+
+        it('should return "main" when pathname is "/"', () => {
+            mockWindow.location.pathname = '/';
+            const preloader = new AssetPreloader();
+            expect(preloader.getCurrentPageKey()).toBe('main');
+        });
+
+        it('should return "main" when pathname contains "/index.html"', () => {
+            mockWindow.location.pathname = '/index.html';
+            const preloader = new AssetPreloader();
+            expect(preloader.getCurrentPageKey()).toBe('main');
+
+            mockWindow.location.pathname = '/subdir/index.html';
+            expect(preloader.getCurrentPageKey()).toBe('main');
+        });
+
+        it('should return "main" for unknown paths', () => {
+            mockWindow.location.pathname = '/about.html';
+            const preloader = new AssetPreloader();
+            expect(preloader.getCurrentPageKey()).toBe('main');
+        });
     });
 
-    test('getCurrentPageKey should identify p2 correctly', () => {
+    test('createPreloadLink creates link element and returns it', () => {
         const preloader = new AssetPreloader();
-        delete context.window.location;
-        context.window.location = new URL('https://example.com/p2/');
-        expect(preloader.getCurrentPageKey()).toBe('p2');
+        const link = preloader.createPreloadLink('test-image.jpg');
+
+        expect(mockDocument.createElement).toHaveBeenCalledWith('link');
+
+        expect(link.rel).toBe('preload');
+        expect(link.as).toBe('image');
+        expect(link.href).toBe('test-image.jpg');
     });
 
-    test('getCurrentPageKey should identify p3 correctly', () => {
+    test('preloadImage creates link element and appends to head (maintains public API)', () => {
         const preloader = new AssetPreloader();
-        delete context.window.location;
-        context.window.location = new URL('https://example.com/p3/');
-        expect(preloader.getCurrentPageKey()).toBe('p3');
+        preloader.preloadImage('test-image.jpg');
+
+        expect(mockDocument.createElement).toHaveBeenCalledWith('link');
+        expect(mockDocument.head.appendChild).toHaveBeenCalled();
+
+        const appended = appendedElements[0];
+        expect(appended.rel).toBe('preload');
+        expect(appended.as).toBe('image');
+        expect(appended.href).toBe('test-image.jpg');
     });
 
-    test('should preload single image with correct link', () => {
+    test('preloadAssets creates links via createPreloadLink and appends them using a fragment', () => {
         const preloader = new AssetPreloader();
-        const imgSrc = '/test.jpg';
-        const headSpy = jest.spyOn(context.document.head, 'appendChild');
-
-        preloader.preloadImage(imgSrc);
-
-        expect(headSpy).toHaveBeenCalled();
-        const addedLink = headSpy.mock.calls[0][0];
-        expect(addedLink.rel).toBe('preload');
-        expect(addedLink.as).toBe('image');
-        expect(addedLink.href).toContain(imgSrc);
-    });
-
-    test('should append multiple links to head when preloading assets', () => {
-        const preloader = new AssetPreloader();
-        const headSpy = jest.spyOn(context.document.head, 'appendChild');
+        preloader.createPreloadLink = jest.fn((imgSrc) => {
+            return {
+                tagName: 'LINK',
+                rel: 'preload',
+                as: 'image',
+                href: imgSrc,
+            };
+        });
 
         preloader.preloadAssets(['p1']);
 
-        expect(headSpy).toHaveBeenCalled();
-        expect(
-            context.document.head.querySelectorAll('link[rel="preload"]').length
-        ).toBeGreaterThan(0);
+        expect(mockDocument.createDocumentFragment).toHaveBeenCalled();
+        expect(preloader.createPreloadLink).toHaveBeenCalledTimes(preloader.assetSets.p1.length);
+        expect(preloader.createPreloadLink).toHaveBeenCalledWith(preloader.assetSets.p1[0]);
+
+        expect(mockDocument.head.appendChild).toHaveBeenCalled();
+        expect(appendedElements.length).toBe(preloader.assetSets.p1.length);
+
+        const firstAppended = appendedElements[0];
+        expect(firstAppended.rel).toBe('preload');
+        expect(firstAppended.href).toBe(preloader.assetSets.p1[0]);
     });
 
-    test('init should register load event listener', () => {
-        const addEventSpy = jest.spyOn(context.window, 'addEventListener');
+    test('preloadForCurrentPage calls preloadAssets with correct pages', () => {
         const preloader = new AssetPreloader();
+        preloader.preloadAssets = jest.fn();
 
-        // Mock serviceWorker in navigator to pass the check
-        context.window.navigator.serviceWorker = {};
+        mockWindow.location.pathname = '/p1/';
+        preloader.preloadForCurrentPage();
+        expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3']);
 
+        mockWindow.location.pathname = '/p2/';
+        preloader.preloadForCurrentPage();
+        expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3']);
+
+        mockWindow.location.pathname = '/p3/';
+        preloader.preloadForCurrentPage();
+        expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2']);
+
+        mockWindow.location.pathname = '/';
+        preloader.preloadForCurrentPage();
+        expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3']);
+    });
+
+    test('init sets up load event listener when serviceWorker is available', () => {
+        const preloader = new AssetPreloader();
         preloader.init();
-        expect(addEventSpy).toHaveBeenCalledWith('load', expect.any(Function));
+        expect(mockWindow.addEventListener).toHaveBeenCalledWith('load', expect.any(Function));
     });
 
-    describe('preloadForCurrentPage', () => {
-        test('should preload assets for other portfolio pages on p1', () => {
-            const preloader = new AssetPreloader();
-            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p1');
-            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+    test('init load event listener calls preloadForCurrentPage', () => {
+        const preloader = new AssetPreloader();
+        preloader.preloadForCurrentPage = jest.fn();
+        preloader.init();
 
-            preloader.preloadForCurrentPage();
+        const loadCallback = mockWindow.addEventListener.mock.calls.find(
+            (call) => call[0] === 'load'
+        )[1];
+        loadCallback();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3']);
-        });
-
-        test('should preload assets for remaining portfolio pages on p2', () => {
-            const preloader = new AssetPreloader();
-            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p2');
-            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
-
-            preloader.preloadForCurrentPage();
-
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3']);
-        });
-
-        test('should preload assets for remaining portfolio pages on p3', () => {
-            const preloader = new AssetPreloader();
-            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p3');
-            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
-
-            preloader.preloadForCurrentPage();
-
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2']);
-        });
-
-        test('should fallback to main for unknown paths', () => {
-            const preloader = new AssetPreloader();
-            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('unknown');
-            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
-
-            preloader.preloadForCurrentPage();
-
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3']);
-        });
+        expect(preloader.preloadForCurrentPage).toHaveBeenCalled();
     });
 
-    describe('init behaviors', () => {
-        let preloader;
-        let preloadSpy;
-
-        beforeEach(() => {
-            preloader = new AssetPreloader();
-            preloadSpy = jest
-                .spyOn(preloader, 'preloadForCurrentPage')
-                .mockImplementation(() => {});
-
-            // Mock serviceWorker check
-            context.window.navigator.serviceWorker = {};
-
-            // Trigger the 'load' listener automatically
-            jest.spyOn(context.window, 'addEventListener').mockImplementation((event, cb) => {
-                if (event === 'load') {
-                    cb();
-                }
-            });
-        });
-
-        test('should call preloadForCurrentPage using requestIdleCallback if available', () => {
-            context.window.requestIdleCallback = jest.fn((cb) => cb());
-            preloader.init();
-            expect(context.window.requestIdleCallback).toHaveBeenCalled();
-            expect(preloadSpy).toHaveBeenCalled();
-        });
-
-        test('should fallback to setTimeout if requestIdleCallback is not available', () => {
-            delete context.window.requestIdleCallback;
-            jest.useFakeTimers();
-            preloader.init();
-            jest.runAllTimers();
-            expect(preloadSpy).toHaveBeenCalled();
-            jest.useRealTimers();
-        });
+    test('init does nothing when serviceWorker is not available', () => {
+        delete context.navigator.serviceWorker;
+        const preloader = new AssetPreloader();
+        preloader.init();
+        expect(mockWindow.addEventListener).not.toHaveBeenCalled();
     });
-});
 
-describe('coverage helper', () => {
-    test('run original file to get coverage', () => {
-        jest.isolateModules(() => {
-            let cb;
-            jest.spyOn(document, 'addEventListener').mockImplementation((e, fn) => {
-                if (e === 'DOMContentLoaded') {
-                    cb = fn;
-                }
-            });
-            require('../../js/preloader.js');
-            if (cb) {
-                cb();
+    test('initializes preloader on DOMContentLoaded', () => {
+        const sourcePath = path.resolve(__dirname, '../../js/preloader.js');
+        const originalCode = fs.readFileSync(sourcePath, 'utf8');
+
+        context.document.addEventListener = jest.fn((event, cb) => {
+            if (event === 'DOMContentLoaded') {
+                context.__domContentLoadedCb = cb;
             }
-
-            if (window.__AssetPreloaderForTesting) {
-                const p = new window.__AssetPreloaderForTesting.AssetPreloader();
-                p.preloadImage('/test');
-                p.preloadAssets(['p1']);
-
-                delete window.location;
-                window.location = { pathname: '/p1/' };
-                p.getCurrentPageKey();
-                p.preloadForCurrentPage();
-
-                window.location = { pathname: '/p2/' };
-                p.preloadForCurrentPage();
-
-                window.location = { pathname: '/p3/' };
-                p.preloadForCurrentPage();
-
-                window.location = { pathname: '/index.html' };
-                p.preloadForCurrentPage();
-
-                const originalSW = navigator.serviceWorker;
-                Object.defineProperty(navigator, 'serviceWorker', {
-                    value: {},
-                    configurable: true,
-                });
-
-                let loadCb;
-                jest.spyOn(window, 'addEventListener').mockImplementation((e, fn) => {
-                    if (e === 'load') {
-                        loadCb = fn;
-                    }
-                });
-
-                p.init();
-                if (loadCb) {
-                    loadCb();
-                }
-
-                const origRIC = window.requestIdleCallback;
-                window.requestIdleCallback = undefined;
-                p.init();
-                if (loadCb) {
-                    loadCb();
-                }
-                window.requestIdleCallback = origRIC;
-
-                Object.defineProperty(navigator, 'serviceWorker', {
-                    value: originalSW,
-                    configurable: true,
-                });
-            }
-
-            jest.restoreAllMocks();
         });
+
+        vm.createContext(context);
+
+        // Create a fresh context to avoid 'Identifier has already been declared'
+        const freshContext = {
+            document: context.document,
+            window: context.window,
+            navigator: context.navigator,
+            console: console,
+            module: { exports: {} },
+        };
+        freshContext.document.addEventListener = context.document.addEventListener;
+        vm.createContext(freshContext);
+        vm.runInContext(originalCode, freshContext);
+
+        expect(context.document.addEventListener).toHaveBeenCalledWith(
+            'DOMContentLoaded',
+            expect.any(Function)
+        );
+
+        expect(() => {
+            context.__domContentLoadedCb();
+        }).not.toThrow();
     });
 });

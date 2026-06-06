@@ -4,7 +4,6 @@ assets/
 dist/
 venv/
 js/vendor/
-js/viewer.min.js
 .husky/_/
 .mypy_cache/
 .pytest_cache/
@@ -12,4 +11,3 @@ js/viewer.min.js
 .idea/
 .vscode/
 .git/
-pnpm-lock.yaml

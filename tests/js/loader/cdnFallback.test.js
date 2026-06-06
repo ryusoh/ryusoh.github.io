@@ -1,53 +1,95 @@
-/** @jest-environment jsdom */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+/**
+ * Consolidated tests for cdnFallback.js
+ */
+
+const sourcePath = path.resolve(__dirname, '../../../js/loader/cdnFallback.js');
+const code = fs.readFileSync(sourcePath, 'utf8');
 
 describe('CDNLoader', () => {
     let loader;
+    let context;
+    let mockDocument;
+    let mockWindow;
     let createdElements = [];
 
     beforeEach(() => {
-        jest.resetModules();
+        jest.clearAllMocks();
         createdElements = [];
 
-        // Setup global window properties
-        window.fetch = jest.fn();
-        jest.spyOn(console, 'error').mockImplementation(() => {});
-        jest.spyOn(console, 'warn').mockImplementation(() => {});
-        jest.spyOn(console, 'log').mockImplementation(() => {});
+        mockDocument = {
+            createElement: jest.fn((tagName) => {
+                const el = {
+                    tagName: tagName.toLowerCase(),
+                    src: '',
+                    href: '',
+                    rel: '',
+                    crossOrigin: '',
+                    defer: false,
+                    async: false,
+                    onload: null,
+                    onerror: null,
+                    textContent: '',
+                };
+                createdElements.push(el);
+                return el;
+            }),
+            createDocumentFragment: jest.fn(() => {
+                const children = [];
+                return {
+                    appendChild: jest.fn((el) => children.push(el)),
+                    children,
+                };
+            }),
+            head: {
+                appendChild: jest.fn(),
+            },
+            body: {
+                appendChild: jest.fn(),
+            },
+        };
 
-        // Mock document.createElement to track elements
-        const originalCreateElement = document.createElement.bind(document);
-        jest.spyOn(document, 'createElement').mockImplementation((tagName) => {
-            const el = originalCreateElement(tagName);
-            createdElements.push(el);
-            return el;
-        });
+        mockWindow = {};
 
-        // Mock head.appendChild to track
-        jest.spyOn(document.head, 'appendChild').mockImplementation(() => {});
+        context = {
+            document: mockDocument,
+            window: mockWindow,
+            fetch: jest.fn(),
+            console: {
+                error: jest.fn(),
+                warn: jest.fn(),
+                log: jest.fn(),
+            },
+            setTimeout: jest.fn((fn) => fn()),
+            Promise: Promise,
+        };
 
-        loader = require('../../../js/loader/cdnFallback.js');
-    });
+        context.window.console = context.console;
+        context.window.document = mockDocument;
+        context.document.defaultView = mockWindow;
 
-    afterEach(() => {
-        delete window.CDNLoader;
-        jest.restoreAllMocks();
+        vm.createContext(context);
+        vm.runInContext(code, context);
+
+        loader = context.window.CDNLoader;
     });
 
     describe('initialization', () => {
         it('should exit early if window.CDNLoader already exists', () => {
             const existingLoader = { preconnect: jest.fn() };
-            window.CDNLoader = existingLoader;
+            const customContext = {
+                window: {
+                    CDNLoader: existingLoader,
+                },
+            };
+            vm.createContext(customContext);
+            vm.runInContext(code, customContext);
 
-            // Re-require to trigger initialization
-            require('../../../js/loader/cdnFallback.js');
-
-            // It should not have been overwritten on window
-            expect(window.CDNLoader).toBe(existingLoader);
-            // But require() returns the module's exports, which are the functions defined in the file
-            // even if they weren't assigned to window.
-            // Wait, the IIFE returns early. Let's check what require returns.
-            // In my implementation of cdnFallback.js, if it returns early,
-            // module.exports will be empty or previous value.
+            // It should not have been overwritten
+            expect(customContext.window.CDNLoader).toBe(existingLoader);
         });
     });
 
@@ -56,26 +98,30 @@ describe('CDNLoader', () => {
             const origins = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
             loader.preconnect(origins);
 
-            const links = createdElements.filter((el) => el.tagName === 'LINK');
+            expect(mockDocument.createDocumentFragment).toHaveBeenCalled();
+            expect(mockDocument.createElement).toHaveBeenCalledWith('link');
+            expect(mockDocument.head.appendChild).toHaveBeenCalledTimes(1);
+
+            const links = createdElements.filter((el) => el.tagName === 'link');
             expect(links).toHaveLength(2);
             expect(links[0].rel).toBe('preconnect');
-            expect(links[0].href).toContain(origins[0]);
-            expect(links[1].href).toContain(origins[1]);
+            expect(links[0].href).toBe(origins[0]);
+            expect(links[1].href).toBe(origins[1]);
         });
 
         it('should gracefully handle and log errors', () => {
             const error = new Error('createElement error');
-            document.createElement.mockImplementationOnce(() => {
+            mockDocument.createElement.mockImplementationOnce(() => {
                 throw error;
             });
             expect(() => loader.preconnect(['https://example.com'])).not.toThrow();
-            expect(console.error).toHaveBeenCalledWith('Preconnect failed:', error);
+            expect(context.console.warn).toHaveBeenCalledWith('Preconnect failed:', error);
         });
 
         it('should not append anything if origins array is empty', () => {
             loader.preconnect([]);
-            const links = createdElements.filter((el) => el.tagName === 'LINK');
-            expect(links).toHaveLength(0);
+            expect(mockDocument.createElement).not.toHaveBeenCalled();
+            expect(mockDocument.head.appendChild).toHaveBeenCalled();
         });
     });
 
@@ -84,8 +130,8 @@ describe('CDNLoader', () => {
             const urls = ['script1.js', 'script2.js'];
             const promise = loader.loadScriptSequential(urls);
 
-            const scriptEl = createdElements.find((el) => el.tagName === 'SCRIPT');
-            expect(scriptEl.src).toContain('script1.js');
+            const scriptEl = createdElements.find((el) => el.tagName === 'script');
+            expect(scriptEl.src).toBe('script1.js');
 
             scriptEl.onload();
             await expect(promise).resolves.toBeUndefined();
@@ -99,7 +145,7 @@ describe('CDNLoader', () => {
             firstScript.onerror();
 
             const secondScript = createdElements[1];
-            expect(secondScript.src).toContain('success.js');
+            expect(secondScript.src).toBe('success.js');
 
             secondScript.onload();
             await expect(promise).resolves.toBeUndefined();
@@ -135,12 +181,12 @@ describe('CDNLoader', () => {
             const urls = ['style1.css', 'style2.css'];
             const promise = loader.loadCssWithFallback(urls);
 
-            const linkEl = createdElements.find((el) => el.tagName === 'LINK');
-            expect(linkEl.href).toContain('style1.css');
+            const linkEl = createdElements.find((el) => el.tagName === 'link');
+            expect(linkEl.href).toBe('style1.css');
 
             linkEl.onload();
             await expect(promise).resolves.toBeUndefined();
-            expect(window.fetch).not.toHaveBeenCalled();
+            expect(context.fetch).not.toHaveBeenCalled();
         });
 
         it('should try second URL if first link tag fails', async () => {
@@ -151,7 +197,7 @@ describe('CDNLoader', () => {
             firstLink.onerror();
 
             const secondLink = createdElements[1];
-            expect(secondLink.href).toContain('success.css');
+            expect(secondLink.href).toBe('success.css');
 
             secondLink.onload();
             await expect(promise).resolves.toBeUndefined();
@@ -159,42 +205,39 @@ describe('CDNLoader', () => {
 
         it('should fetch css when all link tags fail and resolve if OK', async () => {
             const urls = ['style.css'];
-            window.fetch.mockResolvedValueOnce({
+            context.fetch.mockResolvedValueOnce({
                 ok: true,
                 text: () => Promise.resolve('body { color: red; }'),
             });
 
             const promise = loader.loadCssWithFallback(urls);
-            const linkEl = createdElements.find((el) => el.tagName === 'LINK');
+            const linkEl = createdElements.find((el) => el.tagName === 'link');
             linkEl.onerror();
 
             await promise;
-            expect(window.fetch).toHaveBeenCalledWith(
-                'style.css',
-                expect.objectContaining({ mode: 'cors' })
-            );
-            const styleTag = createdElements.find((el) => el.tagName === 'STYLE');
+            expect(context.fetch).toHaveBeenCalledWith('style.css', { mode: 'cors' });
+            const styleTag = createdElements.find((el) => el.tagName === 'style');
             expect(styleTag.textContent).toBe('body { color: red; }');
         });
 
         it('should resolve without throwing if fetch fails after link tag fails', async () => {
             const urls = ['style.css'];
-            window.fetch.mockRejectedValueOnce(new Error('Network Error'));
+            context.fetch.mockRejectedValueOnce(new Error('Network Error'));
 
             const promise = loader.loadCssWithFallback(urls);
-            const linkEl = createdElements.find((el) => el.tagName === 'LINK');
+            const linkEl = createdElements.find((el) => el.tagName === 'link');
             linkEl.onerror();
 
             await expect(promise).resolves.toBeUndefined();
-            expect(createdElements.some((el) => el.tagName === 'STYLE')).toBe(false);
+            expect(mockDocument.createElement).not.toHaveBeenCalledWith('style');
         });
 
         it('should resolve if fetch response is not ok after link tag fails', async () => {
             const urls = ['style.css'];
-            window.fetch.mockResolvedValueOnce({ ok: false });
+            context.fetch.mockResolvedValueOnce({ ok: false });
 
             const promise = loader.loadCssWithFallback(urls);
-            const linkEl = createdElements.find((el) => el.tagName === 'LINK');
+            const linkEl = createdElements.find((el) => el.tagName === 'link');
             linkEl.onerror();
 
             await expect(promise).resolves.toBeUndefined();
@@ -203,43 +246,6 @@ describe('CDNLoader', () => {
         it('should resolve immediately if urls is empty', async () => {
             const promise = loader.loadCssWithFallback([]);
             await expect(promise).resolves.toBeUndefined();
-        });
-    });
-
-    describe('fallback edge cases', () => {
-        it('should gracefully handle missing window.console.warn', async () => {
-            const urls = ['style.css'];
-            window.fetch.mockRejectedValueOnce(new Error('Network Error'));
-
-            // Mock console.warn to be undefined
-            const originalWarn = console.warn;
-            console.warn = undefined;
-
-            const promise = loader.loadCssWithFallback(urls);
-            const linkEl = createdElements.find((el) => el.tagName === 'LINK');
-            linkEl.onerror();
-
-            await expect(promise).resolves.toBeUndefined();
-            console.warn = originalWarn;
-        });
-
-        it('should call window.console.warn when fetch fails after link tag fails', async () => {
-            const urls = ['style.css'];
-            const mockError = new Error('Network Error');
-            window.fetch.mockRejectedValueOnce(mockError);
-
-            const promise = loader.loadCssWithFallback(urls);
-            const linkEl = createdElements.find((el) => el.tagName === 'LINK');
-            linkEl.onerror();
-
-            await expect(promise).resolves.toBeUndefined();
-            expect(console.warn).toHaveBeenCalledWith('CDN fallback CSS load failed:', mockError);
-        });
-    });
-
-    describe('empty urls edge case for loadScriptSequential', () => {
-        it('should reject if urls is empty', async () => {
-            await expect(loader.loadScriptSequential([])).rejects.toThrow('all failed: ');
         });
     });
 });

@@ -9,16 +9,16 @@ const CORE_ASSETS = [
     '/js/ga.js',
 ];
 
-const installLogic = (event) => {
+self.addEventListener('install', (event) => {
     event.waitUntil(
         caches
             .open(CACHE_NAME)
             .then((cache) => cache.addAll(CORE_ASSETS))
             .then(() => self.skipWaiting())
     );
-};
+});
 
-const activateLogic = (event) => {
+self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches
             .keys()
@@ -33,7 +33,7 @@ const activateLogic = (event) => {
             )
             .then(() => self.clients.claim())
     );
-};
+});
 
 // Helper to check if a response is a valid clean response we want to cache
 const isValidResponse = (res, req) => {
@@ -47,11 +47,8 @@ const isValidResponse = (res, req) => {
     );
 };
 
-const fetchLogic = (event) => {
+self.addEventListener('fetch', (event) => {
     const req = event.request;
-    if (req.url.length > 2000) {
-        return;
-    }
     const url = new URL(req.url);
 
     // Only handle same-origin requests
@@ -115,30 +112,4 @@ const fetchLogic = (event) => {
                 })
         );
     }
-};
-
-if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') {
-    self.addEventListener('install', installLogic);
-    self.addEventListener('activate', activateLogic);
-    self.addEventListener('fetch', fetchLogic);
-}
-
-// Expose for testing
-const testing = {
-    isValidResponse,
-    installLogic,
-    activateLogic,
-    fetchLogic,
-    CACHE_NAME,
-    CORE_ASSETS,
-};
-
-if (typeof self !== 'undefined') {
-    self.__swForTesting = testing;
-}
-
-/* eslint-disable no-undef */
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = testing;
-}
-/* eslint-enable no-undef */
+});

@@ -18,9 +18,7 @@ html.force-hide-cursor [role='button'],
 html.force-hide-cursor [class*='nav'],
 html.force-hide-cursor [class*='back'],
 html.force-hide-cursor .nav-back,
-html.force-hide-cursor .nav-next,
 html.force-hide-cursor .nav-back *,
-html.force-hide-cursor .nav-next *,
 html.force-hide-cursor .nav-container *,
 html.force-hide-cursor .nav-container a {
     cursor: var(--hidden-cursor-value, none) !important;
@@ -36,7 +34,6 @@ html.force-hide-cursor .custom-cursor {
     transform: translate(-50%, -50%);
     z-index: 99999 !important; /* Very high z-index to ensure visibility above all other elements */
     mix-blend-mode: difference;
-    view-transition-name: custom-cursor;
 }
 
 .custom-cursor__core {

@@ -1,17 +1,13 @@
 // Custom cursor and UI enhancements
 import { initCursor } from './vendor/cursor.js';
-import { initMagneticNav } from './magnetic-nav.js';
 
-if (typeof document !== 'undefined' && document !== null) {
+if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
         // Check if GSAP is available
         if (!window.gsap) {
             // GSAP is required for cursor functionality
             return;
         }
-
-        // Initialize magnetic navigation effect
-        initMagneticNav();
 
         // Initialize just the cursor
         const { cursor } = initCursor({

@@ -33,39 +33,3 @@
 **Vulnerability:** Empty catch blocks in `prefersReducedMotion` handlers across the codebase (`js/page-transition.js`, `js/ambient/ambient.js`, `js/block-navigation.js`) suppressed `window.matchMedia` errors. This silent failure hid potential issues in unsupported environments or testing contexts where `matchMedia` might throw.
 **Learning:** While gracefully falling back to `false` (meaning motion is enabled) is the correct functional behavior when `matchMedia` fails, the error itself must still be observable for debugging and health monitoring. A silent `catch {}` prevents this visibility.
 **Prevention:** Replace all empty catch blocks with defensive logging (e.g., `window.console.warn`). Always wrap the logging call in environmental safety checks (e.g., `typeof window !== 'undefined' && window.console`) to ensure the logging attempt itself does not cause a secondary fatal error.
-
-## 2026-04-12 - [DoS via Unbounded URL Search Params]
-
-**Vulnerability:** `URLSearchParams` was parsing `window.location.search` without any length limitations. An attacker could craft a massive query string, potentially causing performance degradation or memory exhaustion on the client-side.
-**Learning:** Just as with `localStorage` parsing, any input derived from the environment—including URL parameters—should be length-validated before being handed off to native parsers, serving as a defense-in-depth measure.
-**Prevention:** Apply a reasonable bounds check (e.g., 1000 characters) to `window.location.search` before invoking `URLSearchParams`.
-
-## 2024-04-16 - [DoS via Hanging Fetch Requests]
-
-**Vulnerability:** External `fetch` requests in `cdnFallback.js` lacked explicit timeouts. This could lead to client-side Denial of Service (DoS) and resource exhaustion if the remote server hung indefinitely, blocking the completion of the fallback CSS loading promise.
-**Learning:** By default, the native `fetch` API does not implement a timeout. In environments where network reliability is uncertain, failing to bound the duration of network requests leaves the application vulnerable to stalled execution paths.
-**Prevention:** Always wrap external `window.fetch` requests with an explicit timeout mechanism using `AbortController` and `setTimeout` (e.g., 5000ms), and ensure the timeout is cleaned up to prevent memory leaks.
-
-## 2026-05-13 - [DoS via Unbounded URL Parsing]
-
-**Vulnerability:** The native `new window.URL()` constructor was repeatedly called with `window.location.href` to parse query parameters (e.g., `hasTransitionParam()`) without any length limitations. An attacker could craft an excessively long URL that forces the client to allocate significant memory and CPU time to parse it, causing a Denial of Service (DoS) and hanging the user's browser.
-**Learning:** Even built-in browser functions like `new window.URL()` can be computationally expensive when forced to parse arbitrarily massive strings. Protecting against DoS requires validating the size of the input _before_ passing it to the parsing engine, just as we did for `URLSearchParams`.
-**Prevention:** Apply bounds checking (e.g., `window.location.href.length > 2000`) before passing dynamic, attacker-controlled strings like URLs into native parsing constructors.
-
-## 2026-06-25 - [Incomplete DoS Prevention on URL Parsing]
-
-**Vulnerability:** While `window.location.search` was previously secured against massive lengths before parsing to prevent Denial of Service (DoS), the `window.location.href` and passed `url` string were passed to `new window.URL()` without length limits in `getValidatedUrl` and `buildTransitionUrl`. An attacker could exploit this by crafting a massive URL.
-**Learning:** Security fixes must be comprehensive across all similar patterns. Fixing a DoS vulnerability for `URLSearchParams` but leaving `new window.URL` exposed reveals a gap in identifying all vector surfaces for a single class of vulnerability (Unbounded Input to Native Parsers).
-**Prevention:** Apply rigorous pattern searching (`grep -rn 'new window.URL'`) when addressing DoS vulnerabilities to ensure all similar usages (e.g., `new window.URL`, `URLSearchParams`) enforce strict length boundaries (e.g., `> 2000` characters) on inputs derived from the environment.
-
-## 2026-06-25 - [DoS via Unbounded URL Parsing in Service Worker]
-
-**Vulnerability:** Similar to previous URL parsing vulnerabilities, `sw.js` instantiated `new URL(req.url)` inside `fetchLogic` without restricting the length of `req.url`. An attacker could exploit this by crafting an excessively long request URL, consuming vast CPU and memory resources to parse it within the Service Worker, potentially leading to a Denial of Service.
-**Learning:** Native `URL` parsing is computationally expensive and poses a DoS vector if inputs are unrestricted. Service Workers, operating as a proxy layer, are equally susceptible to these vectors and must enforce length boundaries on incoming request URLs before processing them.
-**Prevention:** Always implement strict string length limits (e.g., `if (req.url.length > 2000)`) on request URLs before passing them to native parsers like `new URL()` in both standard client scripts and Service Workers.
-
-## 2026-06-25 - [Code Hygiene: Empty Catch Blocks & Cyclomatic Complexity]
-
-**Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis. High cyclomatic complexity (> 8) increases cognitive load and maintenance overhead.
-**Learning:** During the codebase health pass, multiple critical `catch {}` blocks were identified in `js/page-transition.js`, `js/loader/imageFallback.js`, `js/scroll-reveal.js`, `js/service-worker-register.js`, and `js/ambient/config/default.js` that masked runtime exceptions. Additionally, core functions had overgrown into tightly coupled blocks.
-**Prevention:** Never use empty catch blocks unless explicitly intentional (and documented with a comment) for non-critical, degradable features. Extract complex logic into smaller, single-responsibility sub-functions to keep cyclomatic complexity strictly below 8 for maintainability and readability.

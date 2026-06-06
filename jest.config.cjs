@@ -1,4 +1,4 @@
 module.exports = {
-    testEnvironment: 'jsdom',
+    testEnvironment: 'node',
     collectCoverageFrom: ['js/**/*.js', 'sw.js', '!js/vendor/**/*.js', '!js/**/*.min.js'],
 };

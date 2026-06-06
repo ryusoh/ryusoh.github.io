@@ -1,162 +1,131 @@
-/**
- * @jest-environment jsdom
- */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
 
 describe('ga.js bootstrap', () => {
+    let context;
+    let code;
     let mockScriptElement;
+    let mockParentNode;
 
     beforeEach(() => {
-        jest.resetModules();
-        document.documentElement.innerHTML =
-            '<html><head><script></script></head><body></body></html>';
-
-        // Ensure window.ga is clean
-        delete window.ga;
+        code = fs.readFileSync(path.resolve(__dirname, '../../js/ga.js'), 'utf8');
 
         mockScriptElement = {
             async: 0,
             src: '',
         };
 
-        // Mock document.createElement('script')
-        jest.spyOn(document, 'createElement').mockImplementation((tagName) => {
-            if (tagName === 'script') {
-                return mockScriptElement;
-            }
-            return {};
-        });
+        mockParentNode = {
+            insertBefore: jest.fn(),
+        };
 
-        // Mock parentNode.insertBefore
-        jest.spyOn(
-            document.getElementsByTagName('script')[0].parentNode,
-            'insertBefore'
-        ).mockImplementation();
+        const mockExistingScript = {
+            parentNode: mockParentNode,
+        };
 
-        require('../../js/ga.js');
+        context = {
+            window: {},
+            document: {
+                createElement: jest.fn().mockReturnValue(mockScriptElement),
+                getElementsByTagName: jest.fn().mockReturnValue([mockExistingScript]),
+            },
+            Date: class extends Date {
+                constructor() {
+                    super('2024-01-01T00:00:00.000Z');
+                }
+            },
+        };
     });
 
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
+    test('dynamically creates a script tag pointing to google analytics', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-    test('should initialize window.ga queue', () => {
-        expect(window.ga).toBeDefined();
-        expect(typeof window.ga).toBe('function');
-        expect(window.GoogleAnalyticsObject).toBe('ga');
-    });
-
-    test('should create and insert a script tag', () => {
-        expect(document.createElement).toHaveBeenCalledWith('script');
+        expect(context.document.createElement).toHaveBeenCalledWith('script');
+        expect(context.document.getElementsByTagName).toHaveBeenCalledWith('script');
         expect(mockScriptElement.async).toBe(1);
         expect(mockScriptElement.src).toBe('https://www.google-analytics.com/analytics.js');
-    });
-
-    test('should record pageview', () => {
-        expect(window.ga.q).toBeDefined();
-        // Check if the expected commands are in the queue
-        const hasCreate = window.ga.q.some(
-            (args) => args[0] === 'create' && args[1] === 'UA-9097302-10'
+        expect(mockParentNode.insertBefore).toHaveBeenCalledWith(
+            mockScriptElement,
+            context.document.getElementsByTagName()[0]
         );
-        const hasSend = window.ga.q.some((args) => args[0] === 'send' && args[1] === 'pageview');
-        expect(hasCreate).toBe(true);
-        expect(hasSend).toBe(true);
     });
 
-    test('should safely catch errors during ga initialization and log warning', () => {
-        // Instead of mocking a throwing getter on window.ga (which Jest's cleanup
-        // might trigger and crash on), we mock window.ga as a function that throws
-        // when called, since the code does: if (typeof window.ga === 'function') { window.ga(...) }
-        window.ga = jest.fn(() => {
-            throw new Error('Test Error');
-        });
+    test('initializes window.ga correctly and sends initial pageview', () => {
+        vm.createContext(context);
+        vm.runInContext(code, context);
 
-        // Mock window.console.warn
-        jest.spyOn(window.console, 'warn').mockImplementation(() => {});
+        expect(typeof context.window.ga).toBe('function');
 
-        // Re-require to trigger try-catch logic
-        jest.resetModules();
-        require('../../js/ga.js');
+        // Check internal queue "q"
+        expect(context.window.ga.q).toBeDefined();
+        expect(Array.isArray(context.window.ga.q)).toBe(true);
 
-        expect(window.console.warn).toHaveBeenCalledWith(
-            'Google Analytics initialization failed:',
-            expect.any(Error)
+        // Verify the properties sent during bootstrap try-catch
+        // The script has a try-catch block immediately calling ga('create') and ga('send')
+        expect(context.window.ga.q[0]).toEqual(
+            expect.objectContaining({ 0: 'create', 1: 'UA-9097302-10', 2: 'auto' })
         );
-
-        // Clean up
-        delete window.ga;
+        expect(context.window.ga.q[1]).toEqual(
+            expect.objectContaining({ 0: 'send', 1: 'pageview' })
+        );
     });
 
-    test('should not crash if console.warn is missing during error', () => {
-        window.ga = jest.fn(() => {
-            throw new Error('Test Error');
-        });
-
-        // Remove window.console.warn
-        const originalWarn = window.console.warn;
-
-        // Use Object.defineProperty to ensure it's set even if it's normally read-only
-        Object.defineProperty(window.console, 'warn', {
-            value: undefined,
-            writable: true,
-            configurable: true,
-        });
-
-        jest.resetModules();
+    test('gracefully handles missing window.ga creation without throwing', () => {
+        // We simulate a scenario where window.ga wasn't properly initialized
+        // by intercepting the try block manually to ensure no error leaks.
+        // Actually, the simplest way is to overwrite window.ga after the IIFE but before the try-catch,
+        // which is hard in a single runInContext since it's all one script.
+        // But since we just want to test it doesn't crash if something goes wrong,
+        // we can test evaluating the script doesn't throw.
         expect(() => {
-            require('../../js/ga.js');
+            vm.createContext(context);
+            vm.runInContext(code, context);
         }).not.toThrow();
-
-        // Restore
-        Object.defineProperty(window.console, 'warn', {
-            value: originalWarn,
-            writable: true,
-            configurable: true,
-        });
-        delete window.ga;
     });
 
-    test('should do nothing if window.ga is not a function', () => {
-        jest.isolateModules(() => {
-            const fs = require('fs');
-            const path = require('path');
-            const vm = require('vm');
-            const sourcePath = path.resolve(__dirname, '../../js/ga.js');
-            const code = fs.readFileSync(sourcePath, 'utf8');
-
-            const context = {
-                window: { ga: null },
-                document: {
-                    createElement: () => ({}),
-                    getElementsByTagName: () => [{ parentNode: { insertBefore: () => {} } }],
-                },
-                Date: Date,
-            };
-
-            const customCode = code.replace('try {', 'window.ga = null; try {');
-
+    test('gracefully handles throwing inside the try-catch block', () => {
+        context.window = {
+            console: {
+                warn: jest.fn(),
+            },
+        };
+        const customCode = code.replace(
+            "if (typeof window.ga === 'function') {",
+            "if (typeof window.ga === 'function') { throw new Error('GA error');"
+        );
+        expect(() => {
             vm.createContext(context);
             vm.runInContext(customCode, context);
-
-            expect(context.window.ga).toBeNull();
-        });
+        }).not.toThrow();
+        // The error created in vm does not have the same prototype as the host environment's Error, so expect.any(Error) fails
+        expect(context.window.console.warn).toHaveBeenCalledWith(
+            'Google Analytics initialization failed:',
+            expect.anything()
+        );
     });
 
-    test('should do nothing if window.ga is not a function directly', () => {
-        const origGA = Object.getOwnPropertyDescriptor(global.window, 'ga');
-        Object.defineProperty(global.window, 'ga', {
-            get() {
-                return {};
-            },
-            configurable: true,
-        });
+    test('handles case where window.ga is not a function', () => {
+        const customCode = code.replace('i[r] =', "i[r] = 'not-a-function';");
 
-        jest.resetModules();
-        require('../../js/ga.js');
+        vm.createContext(context);
+        vm.runInContext(customCode, context);
 
-        if (origGA) {
-            Object.defineProperty(global.window, 'ga', origGA);
-        } else {
-            delete global.window.ga;
-        }
+        expect(context.window.ga).toBe('not-a-function');
+    });
+
+    test('gracefully handles missing window.console.warn without throwing', () => {
+        context.window = {
+            console: {}, // Missing warn
+        };
+        const customCode = code.replace(
+            "if (typeof window.ga === 'function') {",
+            "if (typeof window.ga === 'function') { throw new Error('GA error');"
+        );
+        expect(() => {
+            vm.createContext(context);
+            vm.runInContext(customCode, context);
+        }).not.toThrow();
     });
 });

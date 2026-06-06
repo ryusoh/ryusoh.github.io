@@ -100,8 +100,7 @@ const readStoredCursorPosition = () => {
             Number.isFinite(parsed.x) &&
             Number.isFinite(parsed.y)
         ) {
-            // Return a sanitized, fresh object to mitigate data injection
-            return { x: parsed.x, y: parsed.y };
+            return parsed;
         }
     } catch (e) {
         // ignore JSON/storage errors

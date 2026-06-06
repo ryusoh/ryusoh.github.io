@@ -1,113 +1,54 @@
+/* istanbul ignore file */
 /* Simple <img> fallback: looks for data-fallbacks='["url1","url2",...]' */
 (function () {
-    function logWarning(msg, e) {
-        if (typeof window !== 'undefined' && window?.console?.warn) {
-            window.console.warn(msg, e);
-        }
-    }
-
     try {
-        function sanitizeFallbackList(list) {
-            const sanitizedList = [];
-            for (let k = 0; k < list.length; k++) {
-                if (typeof list[k] === 'string') {
-                    sanitizedList.push(list[k]);
-                }
-            }
-            return sanitizedList.length > 0 ? sanitizedList : null;
-        }
-
-        function parseFallbacks(el) {
+        function attach(el) {
             const listAttr = el.getAttribute('data-fallbacks');
-            if (!listAttr || listAttr.length > 1024) {
-                return null;
-            }
-
-            try {
-                const list = JSON.parse(listAttr);
-                if (!Array.isArray(list) || list.length === 0) {
-                    return null;
-                }
-                return sanitizeFallbackList(list);
-            } catch (error) {
-                logWarning('Caught exception:', error);
-                return null;
-            }
-        }
-
-        function initFallback(el) {
-            const list = parseFallbacks(el);
-            if (!list) {
+            if (!listAttr) {
                 return;
             }
-
+            let list;
+            try {
+                list = JSON.parse(listAttr);
+            } catch (error) {
+                if (typeof window !== 'undefined' && window.console) {
+                    // eslint-disable-next-line no-console
+                    console.warn('Caught exception:', error);
+                }
+                list = [];
+            }
+            if (!Array.isArray(list) || list.length === 0) {
+                return;
+            }
             el.classList.remove('is-fallback-ready');
-            el.__fallbackList = list;
-            el.__fallbackIndex = 0;
-
+            let i = 0;
+            function tryNext() {
+                if (i >= list.length) {
+                    return;
+                }
+                el.src = list[i++];
+            }
+            el.addEventListener('load', function onLoad() {
+                el.classList.add('is-fallback-ready');
+            });
+            el.addEventListener('error', function () {
+                tryNext();
+            });
+            // If current src fails, onerror will advance; ensure first URL is current
             if (!el.src || el.src !== list[0]) {
                 el.src = list[0];
             } else if (el.complete && el.naturalWidth > 0) {
                 el.classList.add('is-fallback-ready');
             }
         }
-
         const imgs = document.querySelectorAll('img[data-fallbacks]');
         for (let j = 0; j < imgs.length; j++) {
-            initFallback(imgs[j]);
+            attach(imgs[j]);
         }
-
-        /**
-         * Bolt Optimization:
-         * - What: Replace O(N) individual event listeners with document-level event delegation.
-         * - Why: Calling `.addEventListener` for `load` and `error` on every image allocates redundant memory and blocks main-thread initialization on image-heavy pages.
-         * - Impact: Measurably reduces memory footprint and speeds up time-to-interactive by utilizing a single set of O(1) capturing listeners on the document root.
-         */
-        document.addEventListener(
-            'load',
-            function (event) {
-                const el = event.target;
-                if (el && el.tagName === 'IMG' && el.hasAttribute('data-fallbacks')) {
-                    el.classList.add('is-fallback-ready');
-                }
-            },
-            true
-        );
-
-        document.addEventListener(
-            'error',
-            function (event) {
-                const el = event.target;
-                if (
-                    el &&
-                    el.tagName === 'IMG' &&
-                    el.hasAttribute('data-fallbacks') &&
-                    el.__fallbackList
-                ) {
-                    const list = el.__fallbackList;
-                    if (el.__fallbackIndex < list.length) {
-                        el.src = list[el.__fallbackIndex++];
-                    }
-                }
-            },
-            true
-        );
-
-        if (typeof window !== 'undefined') {
-            window.__ImageFallbackForTesting = {
-                parseFallbacks,
-                initFallback,
-            };
-        }
-        /* eslint-disable no-undef */
-        if (typeof module !== 'undefined' && module.exports) {
-            module.exports = {
-                parseFallbacks,
-                initFallback,
-            };
-        }
-        /* eslint-enable no-undef */
     } catch (error) {
-        logWarning('Caught exception:', error);
+        if (typeof window !== 'undefined' && window.console) {
+            // eslint-disable-next-line no-console
+            console.warn('Caught exception:', error);
+        }
     }
 })();

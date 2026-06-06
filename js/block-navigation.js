@@ -29,17 +29,6 @@
         '.post-content .visual-block',
     ].join(', ');
     let blocks = [];
-    function logWarning(msg, e) {
-        if (
-            typeof window !== 'undefined' &&
-            window !== null &&
-            window.console &&
-            typeof window.console.warn === 'function'
-        ) {
-            window.console.warn(msg, e);
-        }
-    }
-
     let blockPositions = []; // Used for fallback
     let topSentinel = null;
     let currentIndex = -1;
@@ -77,7 +66,14 @@
             }
             return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
         } catch (e) {
-            logWarning('[block-navigation] prefersReducedMotion error:', e);
+            if (
+                typeof window !== 'undefined' &&
+                window !== null &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[block-navigation] prefersReducedMotion error:', e);
+            }
             return false;
         }
     }
@@ -97,27 +93,20 @@
         );
     }
 
-    function isIgnoredElement(element) {
-        return (
-            element.matches('script, style, noscript') ||
-            element.closest('[data-block-nav="ignore"]')
-        );
-    }
-
-    function isExplicitBlock(element) {
-        return element.matches('[data-block-nav="block"]');
-    }
-
     function shouldUseElement(element) {
         if (!element) {
             return false;
         }
 
-        if (isIgnoredElement(element)) {
+        if (element.matches('script, style, noscript')) {
             return false;
         }
 
-        if (isExplicitBlock(element)) {
+        if (element.closest('[data-block-nav="ignore"]')) {
+            return false;
+        }
+
+        if (element.matches('[data-block-nav="block"]')) {
             return true;
         }
 
@@ -127,7 +116,9 @@
 
         if (element.matches('.intro-header')) {
             return true;
-        } else if (element.matches('.post-heading')) {
+        }
+
+        if (element.matches('.post-heading')) {
             return !element.closest('.intro-header');
         }
 
@@ -226,14 +217,7 @@
 
         observer = new window.IntersectionObserver((entries) => {
             let changed = false;
-            /**
-             * Bolt Optimization:
-             * - What: Replace Array.prototype.forEach with a traditional for loop.
-             * - Why: The intersection observer callback can fire frequently during scrolling. Using .forEach allocates a new callback function closure on every invocation, causing memory churn and GC overhead.
-             * - Impact: Eliminates redundant function allocations during scroll events, slightly reducing main thread GC pressure.
-             */
-            for (let i = 0; i < entries.length; i++) {
-                const entry = entries[i];
+            entries.forEach((entry) => {
                 const target = entry.target;
                 if (entry.isIntersecting) {
                     visibleBlocks.add(target);
@@ -242,18 +226,14 @@
                     visibleBlocks.delete(target);
                     changed = true;
                 }
-            }
+            });
 
             if (changed) {
                 syncCurrentIndex();
             }
         }, options);
 
-        blocks.forEach((block) => {
-            if (block !== topSentinel) {
-                observer.observe(block);
-            }
-        });
+        blocks.forEach((block) => observer.observe(block));
     }
 
     function refreshBlocks() {
@@ -300,18 +280,12 @@
         }
 
         let bestIndex = 0;
-        /**
-         * Bolt Optimization:
-         * - What: Replace Set.prototype.forEach with a for...of loop.
-         * - Why: getIndexFromObserver is called frequently on scroll. Using .forEach allocates a new callback function on every call, increasing memory churn.
-         * - Impact: Eliminates function allocation overhead in a hot path, reducing GC pressure.
-         */
-        for (const element of visibleBlocks) {
+        visibleBlocks.forEach((element) => {
             const index = blocks.indexOf(element);
             if (index > bestIndex) {
                 bestIndex = index;
             }
-        }
+        });
         return bestIndex;
     }
 
@@ -361,8 +335,8 @@
         pendingIndex = index;
         clearTimeout(pendingTimeout);
         pendingTimeout = setTimeout(() => {
-            currentIndex = pendingIndex;
             pendingIndex = null;
+            syncCurrentIndex();
         }, delay);
     }
 
@@ -432,10 +406,6 @@
         return Math.min(Math.max(startIndex + delta, 0), blocks.length - 1);
     }
 
-    function isNavigationKey(key) {
-        return KEY_FORWARD.has(key) || KEY_BACKWARD.has(key);
-    }
-
     function handleKeydown(event) {
         if (isEditableActive()) {
             return;
@@ -446,15 +416,23 @@
             return;
         }
 
-        if (!isNavigationKey(event.key) || !blocks.length) {
+        if (!KEY_FORWARD.has(event.key) && !KEY_BACKWARD.has(event.key)) {
+            return;
+        }
+
+        if (!blocks.length) {
             return;
         }
 
         event.preventDefault();
         const nextIndex = calculateNextIndex(event.key);
-        let startIndex = currentIndex === -1 ? getCurrentIndex() : currentIndex;
-        startIndex = startIndex === -1 ? 0 : startIndex;
-
+        let startIndex = currentIndex;
+        if (startIndex === -1) {
+            startIndex = getCurrentIndex();
+        }
+        if (startIndex === -1) {
+            startIndex = 0;
+        }
         if (nextIndex !== startIndex) {
             currentIndex = nextIndex;
             scrollToIndex(nextIndex);
@@ -530,25 +508,19 @@
 
     ready(init);
 
-    const testing = {
-        clampScrollTop,
-        isEditableActive,
-        shouldUseElement,
-        handleEscapeKey,
-        debounce,
-        getIndexFromFallback,
-        calculateNextIndex,
-        scrollToIndex,
-        performScroll,
-    };
-
-    if (typeof window !== 'undefined') {
-        window.__BlockNavigationForTesting = testing;
-    }
-
-    /* eslint-disable no-undef */
+    // eslint-disable-next-line no-undef
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = testing;
+        // eslint-disable-next-line no-undef
+        module.exports = {
+            clampScrollTop,
+            isEditableActive,
+            shouldUseElement,
+            handleEscapeKey,
+            debounce,
+            getIndexFromFallback,
+            calculateNextIndex,
+            scrollToIndex,
+            performScroll,
+        };
     }
-    /* eslint-enable no-undef */
 })();

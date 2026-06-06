@@ -27,18 +27,3 @@
 
 **Learning:** "Skip to content" links (with visually hidden `.sr-only` classes) are great for keyboard users, but if the target element (like `<main id="main">`) is not inherently focusable, some browsers will scroll the viewport but fail to move the actual focus. When the user presses Tab again, focus jumps back to the top of the page.
 **Action:** Always add `tabindex="-1"` to the target element of a skip link. This makes the element programmatically focusable without adding it to the normal tab order, ensuring focus is reliably transferred so the next Tab keypress moves into the main content.
-
-## 2026-11-22 - [Hide Focus Ring on Skip Link Targets]
-
-**Learning:** When using `tabindex="-1"` to make non-interactive layout elements programmatically focusable (like `<main>` for 'Skip to content' targets), browsers often apply a default focus ring. This ring is visually confusing as the element is not interactive.
-**Action:** Pair the `tabindex="-1"` attribute on layout targets with a global CSS rule like `[tabindex="-1"]:focus { outline: none !important; }` to prevent default focus rings, ensuring a clean visual experience while maintaining accessibility.
-
-## 2026-11-23 - [UX/Accessibility: target="_blank" and mailto: links]
-
-**Learning:** Opening a new tab merely to trigger an email client is an unnecessary friction point and a known anti-pattern. Applying `target="_blank"` to `mailto:` links spawns a confusing blank tab that users must manually close. Furthermore, external links lacking an explicit indication that they open in a new tab can disorient screen reader users due to sudden context switching.
-**Action:** Always avoid applying `target="_blank"` to `mailto:` links. For any external links that correctly open in a new tab using `target="_blank"`, strictly append `(opens in a new tab)` to their `aria-label` to ensure predictability for screen reader users.
-
-## 2025-02-28 - [Accessibility: Skip-to-content Visibility]
-
-**Learning:** When styling 'Skip to content' links (often with `.sr-only-focusable`), transitioning from `position: absolute` (with `.sr-only` constraints) to `position: static` on `:focus` causes the newly visible element to push down the entire layout. This creates a jarring visual jump for keyboard users and can temporarily break page layouts until focus moves again.
-**Action:** When styling the `:active` and `:focus` states for skip-to-content links, retain `position: absolute` but apply a high `z-index`, contrasting background/text colors, and padding. This ensures the link appears as a highly visible, floating overlay button that does not disrupt the surrounding document flow. Additionally, ensure target elements with `tabindex="-1"` receive an `outline: none !important;` rule to prevent the browser's default focus ring from enveloping the entire content area upon successful skip.

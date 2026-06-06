@@ -1,6 +1,6 @@
 // Local default configuration for Ambient
 (function () {
-    function init() {
+    try {
         window.AMBIENT_CONFIG = Object.assign(
             {
                 enabled: true,
@@ -16,26 +16,15 @@
             },
             window.AMBIENT_CONFIG || {}
         );
-    }
-
-    function logError(e) {
-        if (typeof window !== 'undefined' && window?.console?.warn) {
+    } catch (e) {
+        // Do nothing but log
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
             window.console.warn('Ambient config initialization failed:', e);
         }
     }
-
-    try {
-        init();
-    } catch (e) {
-        logError(e);
-    }
-
-    if (typeof window !== 'undefined') {
-        window.__DefaultConfigForTesting = { init };
-    }
-    /* eslint-disable no-undef */
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { init };
-    }
-    /* eslint-enable no-undef */
 })();

@@ -15,8 +15,10 @@
             }
             document.head.appendChild(fragment);
         } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error('Preconnect failed:', e);
+            if (typeof window !== 'undefined' && window.console) {
+                // eslint-disable-next-line no-console
+                console.warn('Preconnect failed:', e);
+            }
         }
     }
     function loadScriptSequential(urls, attrs) {
@@ -52,18 +54,7 @@
                     if (!last) {
                         return resolve();
                     }
-                    let controller;
-                    let timeoutId;
-                    const options = { mode: 'cors' };
-                    if (typeof window !== 'undefined' && window.AbortController) {
-                        controller = new window.AbortController();
-                        options.signal = controller.signal;
-                        timeoutId = setTimeout(function () {
-                            controller.abort();
-                        }, 5000);
-                    }
-
-                    fetch(last, options)
+                    fetch(last, { mode: 'cors' })
                         .then(function (r) {
                             return r.ok ? r.text() : Promise.reject();
                         })
@@ -83,11 +74,6 @@
                                 window.console.warn('CDN fallback CSS load failed:', e);
                             }
                             resolve();
-                        })
-                        .finally(function () {
-                            if (timeoutId) {
-                                clearTimeout(timeoutId);
-                            }
                         });
                     return;
                 }
@@ -105,21 +91,9 @@
             })(0);
         });
     }
-    if (typeof window !== 'undefined') {
-        window.CDNLoader = {
-            preconnect: preconnect,
-            loadScriptSequential: loadScriptSequential,
-            loadCssWithFallback: loadCssWithFallback,
-        };
-    }
-
-    /* eslint-disable no-undef */
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = {
-            preconnect: preconnect,
-            loadScriptSequential: loadScriptSequential,
-            loadCssWithFallback: loadCssWithFallback,
-        };
-    }
-    /* eslint-enable no-undef */
+    window.CDNLoader = {
+        preconnect: preconnect,
+        loadScriptSequential: loadScriptSequential,
+        loadCssWithFallback: loadCssWithFallback,
+    };
 })();

@@ -20,7 +20,7 @@
 .post-preview {
     animation: bodyshow 0.9s linear;
 }
-@-moz-keyframes bodyshow {
+@-moz-keyframes 'bodyshow' {
     0% {
         top: -60px;
         opacity: 0;
@@ -38,7 +38,7 @@
         opacity: 1;
     }
 }
-@-webkit-keyframes bodyshow {
+@-webkit-keyframes 'bodyshow' {
     0% {
         top: -60px;
         opacity: 0;
@@ -56,7 +56,7 @@
         opacity: 1;
     }
 }
-@-o-keyframes bodyshow {
+@-o-keyframes 'bodyshow' {
     0% {
         top: -60px;
         opacity: 0;
@@ -74,7 +74,7 @@
         opacity: 1;
     }
 }
-@keyframes bodyshow {
+@keyframes 'bodyshow' {
     0% {
         top: -60px;
         opacity: 0;
@@ -153,31 +153,16 @@ hr.small {
     border-width: 4px;
     border-color: #fff;
 }
-a.nav-back,
-a.nav-next {
+a.nav-back {
     position: fixed;
-    top: 10px; /* 20px original position - 10px padding */
+    top: 15px;
+    left: 15px;
     color: #fff;
     z-index: 99;
-    padding: 10px; /* Increase hit area for mobile */
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
-a.nav-back {
-    left: 10px; /* 20px original - 10px padding */
-}
-a.nav-next {
-    right: 10px; /* 20px original - 10px padding */
-}
-
 a.nav-back:hover,
-a.nav-next:hover,
-a.nav-back:focus,
-a.nav-next:focus {
+a.nav-back:focus {
     color: #ce2323;
-    outline: none !important;
-    box-shadow: none !important;
 }
 nav {
     position: fixed;
@@ -274,7 +259,6 @@ nav {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 10;
-    line-clamp: 10;
     -webkit-box-orient: vertical;
 }
 .post-preview blockquote {
@@ -311,7 +295,6 @@ nav {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 7;
-    line-clamp: 7;
 }
 .post-preview > a > .post-title.archive {
     font-size: 22px;
@@ -404,6 +387,8 @@ footer {
     margin: 0;
     font-size: 0.85em;
     line-height: 1.764705882em;
+    vertical-align: middle;
+    vertical-align: baseline;
     opacity: 0;
     -webkit-transition:
         top 0.3s ease,
@@ -503,5 +488,5 @@ img::-moz-selection {
     background: transparent;
 }
 body {
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(224, 71, 71, 0.9);
 }
