@@ -3,7 +3,6 @@
  */
 
 describe('Service Worker', () => {
-
     describe('sw.js module.exports edge case', () => {
         beforeEach(() => {
             jest.resetModules();
@@ -28,7 +27,7 @@ describe('Service Worker', () => {
 
         test('calls handleFetch without respondingWith when fetch is not handled', () => {
             const listeners = {};
-            self.addEventListener = jest.fn((event, callback) => {
+            global.self.addEventListener = jest.fn((event, callback) => {
                 listeners[event] = callback;
             });
 
@@ -45,7 +44,7 @@ describe('Service Worker', () => {
 
         test('sw.js handles install and activate gracefully', () => {
             const listeners = {};
-            self.addEventListener = jest.fn((event, callback) => {
+            global.self.addEventListener = jest.fn((event, callback) => {
                 listeners[event] = callback;
             });
 
