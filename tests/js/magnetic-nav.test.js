@@ -5,7 +5,6 @@
 // We mock it so we don't have to deal with Babel transform issues for the export
 // Actually, jest currently fails to parse export without babel. Let's add a simple babel config to fix it for all modules using export/import
 describe('js/magnetic-nav.js', () => {
-
     describe('Magnetic Nav Edge Cases', () => {
         let originalWindow;
         let originalNavigator;
