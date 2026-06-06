@@ -16,6 +16,11 @@
 **Learning:** When addressing high cyclomatic complexity (e.g. >10) in monolithic initialization scripts like `js/ambient/loader.js`, extracting logical sections such as the asynchronous loading sequence and synchronous error handlers into dedicated internal helper functions (`initLoader`, `handleAsyncError`, `handleSyncError`) effectively reduces complexity scores while preserving the identical IIFE structure and functionality.
 **Action:** Refactored `js/ambient/loader.js` to reduce cyclomatic complexity from 12 to 6, maintaining graceful fallbacks and the `AppLogger` integration.
 
+## 2026-06-25 - [Lowering Cyclomatic Complexity]
+
+**Learning:** High cyclomatic complexity (> 10) significantly increases cognitive load and maintenance overhead, leading to fragile code. The codebase strictly limits cyclomatic complexity.
+**Action:** Always extract nested logic, such as large callbacks, closures inside loops, and verbose initialization sequences, into smaller, single-responsibility helper functions located in the outer scope, ensuring complexity remains strictly below 10.
+
 ## 2026-10-25 - Extracting methods for cyclomatic complexity in js/magnetic-nav.js, js/page-transition.js, js/block-navigation.js and js/ambient/quantum_particles.js
 
 **Learning:** Extracting code logic into smaller helper functions drastically decreases cyclomatic complexity of individual functions without impacting expected functionality. This keeps the codebase maintainable and strictly obeys maximum allowed complexity threshold (7).
