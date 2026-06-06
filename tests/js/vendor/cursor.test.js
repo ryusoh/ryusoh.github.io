@@ -125,6 +125,17 @@ describe('js/vendor/cursor.js', () => {
 
     test('throttle implementation works', () => {
         vm.createContext(context);
+        // Proper async simulation for rAF
+        const pendingRafs = new Map();
+        let rafCounter = 1;
+        context.requestAnimationFrame = jest.fn((cb) => {
+            const id = rafCounter++;
+            pendingRafs.set(id, cb);
+            return id;
+        });
+        context.cancelAnimationFrame = jest.fn((id) => {
+            pendingRafs.delete(id);
+        });
         vm.runInContext(code, context);
 
         const throttle = vm.runInContext('throttle', context);
@@ -133,8 +144,20 @@ describe('js/vendor/cursor.js', () => {
 
         throttledFn('arg1');
 
+        // Execute pending rAFs
+        for (const cb of pendingRafs.values()) {
+            cb();
+        }
+        pendingRafs.clear();
+
         expect(mockFn).toHaveBeenCalledTimes(1);
         expect(mockFn).toHaveBeenCalledWith('arg1');
+
+        // Test flush
+        throttledFn('arg2');
+        throttledFn.flush();
+        expect(mockFn).toHaveBeenCalledTimes(2);
+        expect(mockFn).toHaveBeenCalledWith('arg2');
     });
 
     test('CustomCursor binds and unbinds events', () => {
