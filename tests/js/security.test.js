@@ -40,7 +40,7 @@ describe('DOM XSS Security Tests', () => {
     test('getValidatedUrl should block malicious URL schemes', () => {
         expect(getValidatedUrl('javascript:alert(1)')).toBeNull();
         expect(window.console.error).toHaveBeenCalledWith(
-            expect.stringContaining('Blocked potentially malicious URL scheme')
+            expect.stringContaining('Blocked definitively malicious URL scheme')
         );
 
         expect(getValidatedUrl('data:text/html,<script>alert(1)</script>')).toBeNull();
@@ -64,14 +64,14 @@ describe('DOM XSS Security Tests', () => {
     test('getValidatedUrl should block javascript: URLs even with leading whitespace or different case', () => {
         expect(getValidatedUrl('  JAVASCRIPT:alert(1)')).toBeNull();
         expect(window.console.error).toHaveBeenCalledWith(
-            expect.stringContaining('Blocked potentially malicious URL scheme')
+            expect.stringContaining('Blocked definitively malicious URL scheme')
         );
     });
 
     test('getValidatedUrl should block javascript: URLs even with leading control characters', () => {
         expect(getValidatedUrl('\x01\x02\x09\x1fjavascript:alert(1)')).toBeNull();
         expect(window.console.error).toHaveBeenCalledWith(
-            expect.stringContaining('Blocked potentially malicious URL scheme')
+            expect.stringContaining('Blocked definitively malicious URL scheme')
         );
     });
 

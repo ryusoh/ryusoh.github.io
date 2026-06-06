@@ -214,7 +214,12 @@
     // --- URL validation (preserved from original) ---
 
     function isValidProtocol(parsedUrl) {
-        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+        const p = (parsedUrl.protocol || '').toLowerCase();
+        if (p === 'javascript:' || p === 'vbscript:' || p === 'data:') {
+            logError('[page-transition] Blocked definitively malicious URL scheme');
+            return false;
+        }
+        if (p !== 'http:' && p !== 'https:') {
             logError('[page-transition] Blocked potentially malicious URL scheme');
             return false;
         }
