@@ -459,6 +459,25 @@ describe('page-transition.js', () => {
             window.sessionStorage = originalSessionStorage;
         });
 
+        test('should return early if payload is too long', () => {
+            const setItemMock = jest.fn();
+            const originalSessionStorage = window.sessionStorage;
+            Object.defineProperty(window, 'sessionStorage', {
+                value: { setItem: setItemMock },
+                writable: true,
+                configurable: true,
+            });
+
+            const originalStringify = JSON.stringify;
+            JSON.stringify = jest.fn().mockReturnValue('a'.repeat(201));
+
+            window.__PageTransitionForTesting.storeCursorPositionForTransition(100, 200);
+            expect(setItemMock).not.toHaveBeenCalled();
+
+            JSON.stringify = originalStringify;
+            window.sessionStorage = originalSessionStorage;
+        });
+
         test('gracefully handles unavailable sessionStorage', () => {
             const originalSessionStorage = window.sessionStorage;
             Object.defineProperty(window, 'sessionStorage', {
