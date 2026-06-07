@@ -136,3 +136,8 @@
 
 **Learning:** Found that `js/scroll-reveal.js` was reading `document.body.offsetHeight` simply to force the browser to commit the hidden state of images before attaching the `IntersectionObserver`. Reading layout properties synchronously during script initialization forces the browser into premature layout recalculations, causing main-thread overhead and blocking Time to Interactive.
 **Action:** Replace synchronous layout reads used purely to force style commits with a double `requestAnimationFrame` block. This ensures the browser paints the hidden state asynchronously in the next frame without forcing synchronous layouts on the main thread.
+
+## 2026-06-28 - Remove Synchronous Storage Writes in High-Frequency Events
+
+**Learning:** Found that `js/vendor/cursor.js` was writing to `sessionStorage` synchronously during `mousemove` events (even if throttled). Writing to `sessionStorage` inside high-frequency event listeners causes main-thread blocking and layout stuttering.
+**Action:** Avoid synchronous storage writes inside high-frequency event listeners. Use memory caching for active states and flush data to storage only during critical lifecycle boundaries (e.g., `beforeunload`, `pagehide`, or navigation clicks).
