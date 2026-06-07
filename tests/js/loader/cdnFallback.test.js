@@ -43,11 +43,6 @@ describe('CDNLoader', () => {
 
             // It should not have been overwritten on window
             expect(window.CDNLoader).toBe(existingLoader);
-            // But require() returns the module's exports, which are the functions defined in the file
-            // even if they weren't assigned to window.
-            // Wait, the IIFE returns early. Let's check what require returns.
-            // In my implementation of cdnFallback.js, if it returns early,
-            // module.exports will be empty or previous value.
         });
     });
 
@@ -239,10 +234,6 @@ describe('CDNLoader', () => {
 
     describe('edge cases', () => {
         it('loadCssWithFallback branch for typeof window === "undefined" and AbortController missing', async () => {
-            // First we need to mock window to be undefined, but loadCssWithFallback relies on fetch and document!
-            // Wait, if window is undefined, it skips AbortController.
-            // In Jest JSDOM, window is always defined. But we can temporary override AbortController to undefined.
-            // Already did that? No, wait:
             const originalAbortController = window.AbortController;
             window.AbortController = undefined;
 
@@ -262,7 +253,6 @@ describe('CDNLoader', () => {
         it('loadCssWithFallback branch for window === null in catch block', async () => {
             // To hit window === null in catch block:
             // if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function')
-            // Wait, we can't make window null in JSDOM easily. But we can set window.console to undefined.
             const originalConsole = window.console;
             window.console = undefined;
 

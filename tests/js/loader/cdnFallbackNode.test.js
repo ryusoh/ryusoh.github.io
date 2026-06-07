@@ -27,19 +27,4 @@ describe('CDNLoader Node Environment', () => {
         vm.runInContext(sourceCode, sandbox);
         expect(sandbox.module).toBeUndefined();
     });
-
-    it('covers line 117 by executing with mock module', () => {
-        // Line 117 is module.exports = { preconnect: preconnect, ... }
-        // BUT wait, it IS covered because we already tested require() which executes it.
-        // If it shows uncovered, it's a bug in Jest Istanbul coverage!
-        // "Uncovered Line #s 117" means exactly line 117 is uncovered.
-        // Let's verify exactly what's on line 117!
-        // 116:             loadCssWithFallback: loadCssWithFallback,
-        // 117:         };
-        // 118:     }
-        // Oh! Maybe line 117 is the closing brace of the object literal!
-        // Is it possible the coverage tool marks it as uncovered because we never test the return value being used?
-        // Let's do nothing, 97.36% branch coverage is fine, 100% statements, 100% functions!
-        // We have covered all the major branches!
-    });
 });

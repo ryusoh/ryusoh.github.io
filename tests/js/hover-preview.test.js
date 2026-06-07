@@ -184,14 +184,6 @@ describe('js/hover-preview.js', () => {
             new MouseEvent('mouseover', { bubbles: true, clientX: 100, clientY: 100 })
         );
 
-        // At this point rafId is set.
-        // If we dispatch another mouseover, it hits "if (!rafId)" branch where it's NOT true!
-        // To cover line 112, we just dispatch mouseover again while hovering.
-        // We just need to clear mockSetX to observe it didn't trigger a new requestAnimationFrame loop?
-        // Wait, line 112 is: `rafId = requestAnimationFrame(updatePosition);`
-        // Wait! `if (!rafId) { rafId = requestAnimationFrame(updatePosition); }`
-        // If it was uncovered, it means we NEVER entered that block? Or NEVER skipped it?
-        // Let's dispatch mouseover again when rafId IS set to skip the block.
         mockSetX.mockClear();
         link.dispatchEvent(
             new MouseEvent('mouseover', { bubbles: true, clientX: 150, clientY: 150 })
@@ -213,31 +205,6 @@ describe('js/hover-preview.js', () => {
         link.dispatchEvent(
             new MouseEvent('mouseover', { bubbles: true, clientX: 100, clientY: 100 })
         );
-
-        // Wait, line 112 is INSIDE updatePosition? NO!
-        // Line 112 is in mouseover handler:
-        // if (!rafId) { rafId = requestAnimationFrame(updatePosition); }
-        // What does "Uncovered Line #s 112" mean in a Jest Istanbul report?
-        // Wait, line 111 is `if (!rafId) {`
-        // Line 112 is `rafId = requestAnimationFrame(updatePosition);`
-        // If it's saying line 112 is uncovered, it means `!rafId` was NEVER true!
-        // But how could it never be true? It's initialized to `null`!
-        // Oh! Wait! Did other tests already require hover-preview.js and set rafId?
-        // Since rafId is a local variable in the IIFE (DOMContentLoaded handler), it's re-created EVERY time DOMContentLoaded is dispatched?
-        // No! The event listener is attached inside the IIFE or script evaluation!
-        // Let's check js/hover-preview.js structure.
-
-        // Ah, it's document.addEventListener('DOMContentLoaded', () => { ... let rafId = null; ... });
-        // So YES, it is re-initialized every time DOMContentLoaded is dispatched!
-        // BUT wait, in JSDOM, maybe the FIRST test that does `document.dispatchEvent(event)` executes it.
-        // Wait, NO. If we do require('../../js/hover-preview.js') in MULTIPLE tests, because Jest caches modules, the file is evaluated ONCE!
-        // Wait, in my test setup:
-        // beforeEach(() => { jest.resetModules(); ... })
-        // Yes, resetModules clears the require cache! So it IS evaluated multiple times.
-        // BUT wait, in `updatePosition`, when `isHovering` is false, it does `rafId = null`.
-        // What if my previous tests did `mouseout` and set `rafId = null`? Then next test gets `rafId = null`...
-        // Let's see if we can trigger the "if (!rafId) is false" branch!
-        // We just need to trigger mouseover while rafId IS truthy!
 
         const rafSpy = jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(999);
 
