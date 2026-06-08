@@ -141,3 +141,8 @@
 
 **Learning:** Found that `js/vendor/cursor.js` was writing to `sessionStorage` synchronously during `mousemove` events (even if throttled). Writing to `sessionStorage` inside high-frequency event listeners causes main-thread blocking and layout stuttering.
 **Action:** Avoid synchronous storage writes inside high-frequency event listeners. Use memory caching for active states and flush data to storage only during critical lifecycle boundaries (e.g., `beforeunload`, `pagehide`, or navigation clicks).
+
+## 2026-07-01 - Avoid Synchronous Layout Reads in Scroll Event Listeners
+
+**Learning:** Found that `updateVisibility` in `js/scroll-reveal-icon.js` was reading `window.innerHeight` synchronously on every `scroll` frame. Reading layout properties inside high-frequency event handlers, even when throttled with `requestAnimationFrame`, forces the browser into redundant layout recalculations if previous frames dirtied the DOM, causing layout thrashing and scroll jank.
+**Action:** Cache window dimensions like `window.innerHeight` during `resize` and `load` events, and read the cached variable during high-frequency scroll event loops instead of accessing the native layout property.
