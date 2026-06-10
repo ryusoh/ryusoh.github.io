@@ -87,3 +87,9 @@
 **Vulnerability:** Ineffective security headers (`X-Frame-Options`, `X-Content-Type-Options`) implemented as HTML `<meta>` tags (Security Theater).
 **Learning:** Modern browsers explicitly ignore these directives when placed inside HTML `<meta>` tags. They are only recognized and enforced when sent as actual HTTP response headers from the server.
 **Prevention:** Never attempt to configure `X-Frame-Options` or `X-Content-Type-Options` using `<meta>` tags. Focus on server-level configuration or application-level logic for DOM security.
+
+## 2026-12-05 - Avoid generic error suppressions
+
+**Vulnerability:** Generic error suppressions and non-contextual log warnings make debugging challenging and can silently ignore critical errors by not distinguishing different failures.
+**Learning:** Found instances where `catch (error) { logWarning('Caught exception:', error); }` was used generically. While not empty, it lacked sufficient context to be immediately actionable.
+**Prevention:** Enhance generic catch blocks with descriptive, contextual messages (e.g. `logWarning('Caught exception during image fallback init:', error);`) so that errors trace directly back to their source operation.

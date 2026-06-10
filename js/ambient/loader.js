@@ -49,14 +49,24 @@
         }
     }
 
+    function getFallbackLogger() {
+        if (window !== null && window.console && typeof window.console.warn === 'function') {
+            return window.console.warn.bind(window.console);
+        }
+        return null;
+    }
+
     function handleSyncError(e) {
         if (typeof window === 'undefined') {
             return;
         }
         if (window.AppLogger && typeof window.AppLogger.error === 'function') {
             window.AppLogger.error('Ambient initialization failed:', e);
-        } else if (window !== null && window.console && typeof window.console.warn === 'function') {
-            window.console.warn('Ambient initialization failed:', e);
+            return;
+        }
+        const logger = getFallbackLogger();
+        if (logger) {
+            logger('Ambient initialization failed:', e);
         }
     }
 
