@@ -25,3 +25,8 @@
 
 **Learning:** Extracting code logic into smaller helper functions drastically decreases cyclomatic complexity of individual functions without impacting expected functionality. This keeps the codebase maintainable and strictly obeys maximum allowed complexity threshold (7).
 **Action:** Extracted logic in `js/magnetic-nav.js`, `js/page-transition.js`, `js/block-navigation.js` and `js/ambient/quantum_particles.js` to new single-responsibility functions. The code passed 100% tests and ESLint complexity limits.
+
+## 2026-12-05 - Refactored handleSyncError complexity
+
+**Learning:** When addressing cyclomatic complexity, deeply nested logic with multiple logical operators (like `&&` and `!==`) quickly drives up complexity score.
+**Action:** Refactored `handleSyncError` in `js/ambient/loader.js` by extracting `getFallbackLogger` helper function. This reduced the cyclomatic complexity of `handleSyncError` from 7 to 5.

@@ -108,6 +108,6 @@
         }
         /* eslint-enable no-undef */
     } catch (error) {
-        logWarning('Caught exception:', error);
+        logWarning('Caught exception during image fallback init:', error);
     }
 })();
