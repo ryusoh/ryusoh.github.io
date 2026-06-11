@@ -33,5 +33,4 @@ describe('vendorLoader.js Node Environment', () => {
         expect(vendorLoader).toBeDefined();
         expect(typeof vendorLoader.init).toBe('function');
     });
-
 });
