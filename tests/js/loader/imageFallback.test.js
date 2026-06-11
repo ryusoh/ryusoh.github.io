@@ -327,4 +327,23 @@ describe('imageFallback.js', () => {
         vm.runInContext(code, sandbox);
         expect(sandbox.module.exports).toBeDefined();
     });
+
+    it('should fall through else-if gracefully when el.complete is undefined or conditions are false without adding class', () => {
+        const img = document.createElement('img');
+        img.src = 'url1.png';
+        img.setAttribute('data-fallbacks', '["url1.png"]');
+        Object.defineProperty(img, 'complete', { value: false });
+        imageFallback.initFallback(img);
+        expect(img.classList.contains('is-fallback-ready')).toBe(false);
+    });
+
+    it('should fall through else-if when el.complete is true but el.naturalWidth is undefined or 0', () => {
+        const img = document.createElement('img');
+        img.src = 'url1.png';
+        img.setAttribute('data-fallbacks', '["url1.png"]');
+        Object.defineProperty(img, 'complete', { value: true });
+        Object.defineProperty(img, 'naturalWidth', { value: 0 });
+        imageFallback.initFallback(img);
+        expect(img.classList.contains('is-fallback-ready')).toBe(false);
+    });
 });
