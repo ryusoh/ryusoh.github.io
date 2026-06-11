@@ -146,3 +146,8 @@
 
 **Learning:** Found that `updateVisibility` in `js/scroll-reveal-icon.js` was reading `window.innerHeight` synchronously on every `scroll` frame. Reading layout properties inside high-frequency event handlers, even when throttled with `requestAnimationFrame`, forces the browser into redundant layout recalculations if previous frames dirtied the DOM, causing layout thrashing and scroll jank.
 **Action:** Cache window dimensions like `window.innerHeight` during `resize` and `load` events, and read the cached variable during high-frequency scroll event loops instead of accessing the native layout property.
+
+## 2026-07-01 - Avoid Synchronous Layout Reads in Block Navigation Update Checks
+
+**Learning:** Found that `js/block-navigation.js` was reading `window.innerHeight` synchronously in multiple functions (`isAtTopOrBottom`, `getIndexFromFallback`, `clampScrollTop`, `scrollFallback`) that execute frequently, either on debounced scroll/resize events or layout probing. Reading `innerHeight` synchronously like this forces the browser into redundant layout recalculations on the main thread, causing layout thrashing.
+**Action:** Always cache window dimensions like `window.innerHeight` during `resize` and `load` events, and read those cached variables during frequent checks instead of directly accessing the native layout properties to eliminate synchronous main-thread layouts.
