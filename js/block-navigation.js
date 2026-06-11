@@ -66,6 +66,21 @@
      * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
      * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
      */
+
+    /**
+     * Bolt Optimization:
+     * - What: Cache `window.innerHeight` during `resize` and `load` events.
+     * - Why: `isAtTopOrBottom`, `getIndexFromFallback`, `clampScrollTop`, and `scrollFallback` are called frequently (especially via `scroll` handlers or debounced resize). Reading `window.innerHeight` synchronously repeatedly forces the browser to evaluate layout, causing main-thread overhead.
+     * - Impact: Eliminates redundant synchronous layout recalculations during scrolling and navigation events by relying on a cached window dimension.
+     */
+    let cachedInnerHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+
+    function updateCachedDimensions() {
+        if (typeof window !== 'undefined') {
+            cachedInnerHeight = window.innerHeight;
+        }
+    }
+
     let prefersReducedMotionMediaQuery = null;
 
     function prefersReducedMotion() {
@@ -298,7 +313,7 @@
             document.body ? document.body.scrollHeight : 0,
             document.documentElement ? document.documentElement.scrollHeight : 0
         );
-        const atBottom = docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 1;
+        const atBottom = docHeight > 0 && window.scrollY + cachedInnerHeight >= docHeight - 1;
         if (atBottom) {
             return blocks.length - 1;
         }
@@ -331,7 +346,7 @@
         if (!blockPositions.length) {
             return -1;
         }
-        const probe = window.scrollY + window.innerHeight * 0.25;
+        const probe = window.scrollY + cachedInnerHeight * 0.25;
         let bestIndex = 0;
         for (let i = 0; i < blockPositions.length; i += 1) {
             if (probe >= blockPositions[i]) {
@@ -361,7 +376,7 @@
     }
 
     function clampScrollTop(value) {
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const maxScroll = document.documentElement.scrollHeight - cachedInnerHeight;
         if (!Number.isFinite(maxScroll) || maxScroll < 0) {
             return Math.max(0, value);
         }
@@ -383,7 +398,7 @@
         const elementHeight = rect.height || target.offsetHeight || 0;
         const offset = isFirstContentBlock
             ? 0
-            : Math.max(0, (window.innerHeight - Math.max(elementHeight, 1)) / 2);
+            : Math.max(0, (cachedInnerHeight - Math.max(elementHeight, 1)) / 2);
         const top = clampScrollTop(rect.top + window.scrollY - offset);
         window.scrollTo({
             top,
@@ -529,17 +544,33 @@
     }
 
     function init() {
+        updateCachedDimensions();
         refreshBlocks();
         bindImageLoadHandlers();
 
-        if (!useObserver) {
-            window.addEventListener('resize', debounce(updatePositions, 150));
-            window.addEventListener('load', updatePositions);
-        } else {
-            window.addEventListener('resize', debounce(syncCurrentIndex, 150));
-            window.addEventListener('load', syncCurrentIndex);
-        }
+        const handleResizeUpdate = debounce(() => {
+            updateCachedDimensions();
+            updatePositions();
+        }, 150);
 
+        const handleResizeSync = debounce(() => {
+            updateCachedDimensions();
+            syncCurrentIndex();
+        }, 150);
+
+        if (!useObserver) {
+            window.addEventListener('resize', handleResizeUpdate);
+            window.addEventListener('load', () => {
+                updateCachedDimensions();
+                updatePositions();
+            });
+        } else {
+            window.addEventListener('resize', handleResizeSync);
+            window.addEventListener('load', () => {
+                updateCachedDimensions();
+                syncCurrentIndex();
+            });
+        }
         document.addEventListener('keydown', handleKeydown, { passive: false });
         window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
     }
