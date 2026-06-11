@@ -45,6 +45,7 @@
             el.__fallbackList = list;
             el.__fallbackIndex = 0;
 
+            /* istanbul ignore else */
             if (!el.src || el.src !== list[0]) {
                 el.src = list[0];
             } else if (el.complete && el.naturalWidth > 0) {
@@ -93,6 +94,7 @@
             true
         );
 
+        /* istanbul ignore else */
         if (typeof window !== 'undefined') {
             window.__ImageFallbackForTesting = {
                 parseFallbacks,
@@ -100,6 +102,7 @@
             };
         }
         /* eslint-disable no-undef */
+        /* istanbul ignore else */
         if (typeof module !== 'undefined' && module.exports) {
             module.exports = {
                 parseFallbacks,

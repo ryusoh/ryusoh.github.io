@@ -26,4 +26,12 @@ describe('vendorLoader.js Node Environment', () => {
         Object.defineProperty(global, 'window', { value: origWindow, configurable: true });
         Object.defineProperty(global, 'module', { value: origModule, configurable: true });
     });
+
+    it('covers typeof module !== "undefined" && module.exports is true', () => {
+        jest.resetModules();
+        const vendorLoader = require('../../../js/loader/vendorLoader.js');
+        expect(vendorLoader).toBeDefined();
+        expect(typeof vendorLoader.init).toBe('function');
+    });
+
 });
