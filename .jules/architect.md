@@ -30,3 +30,8 @@
 
 **Learning:** When addressing cyclomatic complexity, deeply nested logic with multiple logical operators (like `&&` and `!==`) quickly drives up complexity score.
 **Action:** Refactored `handleSyncError` in `js/ambient/loader.js` by extracting `getFallbackLogger` helper function. This reduced the cyclomatic complexity of `handleSyncError` from 7 to 5.
+
+## 2026-12-05 - Lowering Cyclomatic Complexity in Service Worker
+
+**Learning:** Extracted logic in `sw.js` to new single-responsibility functions. The code passed 100% tests and ESLint complexity limits.
+**Action:** Always extract nested logic, such as large callbacks, closures inside loops, and verbose initialization sequences, into smaller, single-responsibility helper functions located in the outer scope, ensuring complexity remains strictly below 10.
