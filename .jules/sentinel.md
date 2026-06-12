@@ -93,3 +93,9 @@
 **Vulnerability:** Generic error suppressions and non-contextual log warnings make debugging challenging and can silently ignore critical errors by not distinguishing different failures.
 **Learning:** Found instances where `catch (error) { logWarning('Caught exception:', error); }` was used generically. While not empty, it lacked sufficient context to be immediately actionable.
 **Prevention:** Enhance generic catch blocks with descriptive, contextual messages (e.g. `logWarning('Caught exception during image fallback init:', error);`) so that errors trace directly back to their source operation.
+
+## 2026-12-05 - Avoid generic error suppressions in Service Worker
+
+**Vulnerability:** Empty catch blocks in `sw.js` can obscure errors, making debugging difficult.
+**Learning:** We need to explicitly log exceptions when catching them, even during progressive enhancements.
+**Prevention:** Ensured all explicit catch blocks in `sw.js` handle the exceptions by logging warnings via a safe console check or AppLogger.

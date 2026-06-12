@@ -36,14 +36,77 @@ const activateLogic = (event) => {
 };
 
 // Helper to check if a response is a valid clean response we want to cache
+
+const isBasicResponse = (res) => {
+    return res && res.ok && res.status === 200 && res.type === 'basic';
+};
+
 const isValidResponse = (res, req) => {
+    if (!isBasicResponse(res)) {
+        return false;
+    }
+    const isRange = req.headers.has('range') || res.headers.get('Content-Range');
+    return !isRange;
+};
+
+const handleFetchCacheFirst = (event, req) => {
+    event.respondWith(
+        caches.match(req).then((cached) => {
+            if (cached) {
+                return cached;
+            }
+            return fetch(req).then((res) => {
+                if (isValidResponse(res, req)) {
+                    const resClone = res.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+                }
+                return res;
+            });
+        })
+    );
+};
+
+const handleFetchNetworkFirst = (event, req) => {
+    event.respondWith(
+        fetch(req)
+            .then((res) => {
+                if (isValidResponse(res, req)) {
+                    const resClone = res.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+                }
+                return res;
+            })
+            .catch((e) => {
+                if (
+                    typeof self !== 'undefined' &&
+                    self.console &&
+                    typeof self.console.warn === 'function'
+                ) {
+                    self.console.warn(
+                        '[ServiceWorker] Network fetch failed, falling back to cache:',
+                        e
+                    );
+                }
+                return caches.match(req);
+            })
+    );
+};
+
+const isImageOrFontFile = (url, dest) => {
     return (
-        res &&
-        res.ok &&
-        res.status === 200 &&
-        res.type === 'basic' &&
-        !req.headers.has('range') &&
-        !res.headers.get('Content-Range')
+        dest === 'image' ||
+        dest === 'font' ||
+        url.pathname.endsWith('.png') ||
+        url.pathname.endsWith('.jpg') ||
+        url.pathname.endsWith('.jpeg')
+    );
+};
+
+const isImmutableFile = (url, dest) => {
+    return (
+        isImageOrFontFile(url, dest) ||
+        url.pathname.endsWith('.svg') ||
+        url.pathname.endsWith('.woff2')
     );
 };
 
@@ -62,58 +125,15 @@ const fetchLogic = (event) => {
     // Determine strategy based on file type
     // Images & Fonts: Cache First (Immutable-ish, speed priority)
     // HTML, JS, CSS: Network First (Mutable, freshness priority)
-    const isImmutable =
-        req.destination === 'image' ||
-        req.destination === 'font' ||
-        url.pathname.endsWith('.png') ||
-        url.pathname.endsWith('.jpg') ||
-        url.pathname.endsWith('.jpeg') ||
-        url.pathname.endsWith('.svg') ||
-        url.pathname.endsWith('.woff2');
+    const isImmutable = isImmutableFile(url, req.destination);
 
     if (isImmutable) {
         // --- CACHE FIRST ---
-        event.respondWith(
-            caches.match(req).then((cached) => {
-                if (cached) {
-                    return cached;
-                }
-                return fetch(req).then((res) => {
-                    if (isValidResponse(res, req)) {
-                        const resClone = res.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
-                    }
-                    return res;
-                });
-            })
-        );
+        handleFetchCacheFirst(event, req);
     } else {
         // --- NETWORK FIRST ---
         // (Includes style, script, document, and everything else)
-        event.respondWith(
-            fetch(req)
-                .then((res) => {
-                    if (isValidResponse(res, req)) {
-                        const resClone = res.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
-                    }
-                    return res;
-                })
-                .catch((e) => {
-                    if (
-                        typeof self !== 'undefined' &&
-                        self.console &&
-                        typeof self.console.warn === 'function'
-                    ) {
-                        self.console.warn(
-                            '[ServiceWorker] Network fetch failed, falling back to cache:',
-                            e
-                        );
-                    }
-                    // Network failed, try cache
-                    return caches.match(req);
-                })
-        );
+        handleFetchNetworkFirst(event, req);
     }
 };
 
@@ -124,6 +144,7 @@ if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') 
 }
 
 // Expose for testing
+
 const testing = {
     isValidResponse,
     installLogic,
@@ -131,6 +152,9 @@ const testing = {
     fetchLogic,
     CACHE_NAME,
     CORE_ASSETS,
+    isImmutableFile,
+    handleFetchCacheFirst,
+    handleFetchNetworkFirst,
 };
 
 if (typeof self !== 'undefined') {
