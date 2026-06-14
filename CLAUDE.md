@@ -17,8 +17,13 @@ and add an entry when you hit a new one. Notably: throwing **getters** defined o
 `window` are silently bypassed in this jsdom version — inject errors via
 function-value mocks or setters instead.
 
-(`.jules/testpilot.md` also contains test learnings, but it is auto-managed by the
-Jules agent — read it for reference, do not hand-edit it.)
+## Do not hand-edit `.jules/`
+
+The entire `.jules/` directory (`architect.md`, `bolt.md`, `janitor.md`,
+`palette.md`, `sentinel.md`, `testpilot.md`) is owned and auto-recorded by the
+Jules agent (a separate Google tool). It is tracked in git but **read-only for us** —
+read it for reference, never write to it. Capture our own learnings in `docs/`
+instead.
 
 ## Agent commands
 
