@@ -303,6 +303,7 @@ describe('js/ambient/ambient.js', () => {
 
         test('returns true if window.innerWidth is less than config minWidth', () => {
             window.innerWidth = 800;
+            window.dispatchEvent(new Event('resize'));
             expect(
                 window.__AmbientForTesting.shouldSkip({ minWidth: 1024, enabled: true }, false)
             ).toBe(true);
