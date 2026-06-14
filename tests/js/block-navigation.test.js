@@ -907,31 +907,31 @@ describe('coverage helper', () => {
                 const t = window.__BlockNavigationForTesting;
                 try {
                     t.clampScrollTop(-10);
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.isEditableActive();
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.shouldUseElement(document.body);
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.handleEscapeKey({ preventDefault: () => {} });
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.debounce(() => {}, 10)();
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.getIndexFromFallback();
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.calculateNextIndex('ArrowDown');
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.scrollToIndex(0);
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
                 try {
                     t.performScroll(document.body, true, 'smooth', true);
-                } catch {}
+                } catch { /* ignore error during coverage check */ }
 
                 // Trigger events
                 if (loadCb) {
