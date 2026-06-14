@@ -18,7 +18,7 @@ describe('scroll-reveal-icon.js', () => {
         observeMock = jest.fn();
         unobserveMock = jest.fn();
 
-        window.IntersectionObserver = jest.fn(function(cb) {
+        window.IntersectionObserver = jest.fn(function (cb) {
             observerCallback = cb;
             this.observe = observeMock;
             this.unobserve = unobserveMock;
