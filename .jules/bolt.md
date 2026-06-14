@@ -151,3 +151,7 @@
 
 **Learning:** Found that `js/block-navigation.js` was reading `window.innerHeight` synchronously in multiple functions (`isAtTopOrBottom`, `getIndexFromFallback`, `clampScrollTop`, `scrollFallback`) that execute frequently, either on debounced scroll/resize events or layout probing. Reading `innerHeight` synchronously like this forces the browser into redundant layout recalculations on the main thread, causing layout thrashing.
 **Action:** Always cache window dimensions like `window.innerHeight` during `resize` and `load` events, and read those cached variables during frequent checks instead of directly accessing the native layout properties to eliminate synchronous main-thread layouts.
+
+## 2024-06-14 - Replace scroll listener with IntersectionObserver
+**Learning:** Polling layout properties in a high-frequency `scroll` event listener forces synchronous DOM layout recalculations, causing layout thrashing and CPU overhead. Delegating this to `IntersectionObserver` eliminates synchronous DOM layout recalculations by utilizing the browser's optimized asynchronous layout engine.
+**Action:** Always prefer `IntersectionObserver` over `scroll` event listeners when tracking elements entering or leaving the viewport.

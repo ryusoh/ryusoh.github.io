@@ -4,6 +4,9 @@
 
 describe('scroll-reveal-icon.js', () => {
     let iconElement;
+    let observeMock;
+    let unobserveMock;
+    let observerCallback;
 
     beforeEach(() => {
         jest.useFakeTimers();
@@ -12,141 +15,61 @@ describe('scroll-reveal-icon.js', () => {
             '<html><body><div class="scroll-reveal-instagram"></div></body></html>';
         iconElement = document.querySelector('.scroll-reveal-instagram');
 
-        // Mock scroll and window properties
-        Object.defineProperty(document.documentElement, 'scrollHeight', {
-            value: 1000,
-            configurable: true,
-            writable: true,
-        });
-        Object.defineProperty(window, 'innerHeight', {
-            value: 500,
-            configurable: true,
-            writable: true,
-        });
-        Object.defineProperty(window, 'scrollY', { value: 0, writable: true, configurable: true });
+        observeMock = jest.fn();
+        unobserveMock = jest.fn();
 
-        // Mock requestAnimationFrame to execute asynchronously using setTimeout
-        window.requestAnimationFrame = jest.fn((cb) => {
-            return setTimeout(cb, 0);
+        window.IntersectionObserver = jest.fn(function(cb) {
+            observerCallback = cb;
+            this.observe = observeMock;
+            this.unobserve = unobserveMock;
+            this.disconnect = jest.fn();
         });
     });
 
     afterEach(() => {
         jest.useRealTimers();
+        delete window.IntersectionObserver;
     });
 
-    test('should add "is-visible" class when scrolled near bottom', () => {
+    test('should add "is-visible" class when intersecting', () => {
         require('../../js/scroll-reveal-icon.js');
-        jest.runAllTimers();
 
-        // Mock scroll state: near the bottom
-        window.scrollY = 450;
+        // Ensure observer was created and observe was called
+        expect(window.IntersectionObserver).toHaveBeenCalled();
+        expect(observeMock).toHaveBeenCalled();
 
         // Reset class to be sure
         iconElement.classList.remove('is-visible');
 
-        window.dispatchEvent(new Event('scroll'));
-        jest.runAllTimers();
+        // Simulate intersecting
+        observerCallback([{ isIntersecting: true, target: iconElement }]);
 
         expect(iconElement.classList.contains('is-visible')).toBe(true);
     });
 
-    test('should remove "is-visible" class when scrolled away from bottom', () => {
+    test('should remove "is-visible" class when not intersecting', () => {
         require('../../js/scroll-reveal-icon.js');
-        jest.runAllTimers();
 
         // First make it visible
-        window.scrollY = 450;
-        window.dispatchEvent(new Event('scroll'));
-        jest.runAllTimers();
+        observerCallback([{ isIntersecting: true, target: iconElement }]);
         expect(iconElement.classList.contains('is-visible')).toBe(true);
 
-        // Then scroll up
-        window.scrollY = 0;
-        window.dispatchEvent(new Event('scroll'));
-        jest.runAllTimers();
+        // Simulate not intersecting
+        observerCallback([{ isIntersecting: false, target: iconElement }]);
 
         expect(iconElement.classList.contains('is-visible')).toBe(false);
     });
 
-    test('should execute gracefully on resize event', () => {
-        require('../../js/scroll-reveal-icon.js');
-        jest.runAllTimers();
-
-        // Trigger resize event
-        window.dispatchEvent(new Event('resize'));
-        jest.runAllTimers();
-
-        // No particular expectation since it just runs updateVisibility
-        expect(window.requestAnimationFrame).toHaveBeenCalled();
-    });
-
     test('exits early if icon not found', () => {
         document.documentElement.innerHTML = '';
-
-        const originalAddEventListener = window.addEventListener;
-        window.addEventListener = jest.fn();
-
         require('../../js/scroll-reveal-icon.js');
-
-        expect(window.requestAnimationFrame).not.toHaveBeenCalled();
-        expect(window.addEventListener).not.toHaveBeenCalled();
-
-        window.addEventListener = originalAddEventListener;
+        expect(window.IntersectionObserver).not.toHaveBeenCalled();
     });
 
-    test('should return early and not throw if scrollHeight or innerHeight is missing', () => {
-        // Redefine to undefined
-        Object.defineProperty(document.documentElement, 'scrollHeight', {
-            value: undefined,
-            configurable: true,
-            writable: true,
-        });
-        Object.defineProperty(window, 'innerHeight', {
-            value: undefined,
-            configurable: true,
-            writable: true,
-        });
-
+    test('fallback works without IntersectionObserver', () => {
+        delete window.IntersectionObserver;
         require('../../js/scroll-reveal-icon.js');
-        jest.runAllTimers();
 
-        // Ensure requestAnimationFrame is defined for this test
-        window.requestAnimationFrame = jest.fn((cb) => {
-            return setTimeout(cb, 0);
-        });
-
-        // Trigger resize event which sets ticking=true and schedules requestAnimationFrame
-        window.dispatchEvent(new Event('resize'));
-
-        // This will call the mock requestAnimationFrame which triggers setTimeout
-        jest.runAllTimers();
-    });
-
-    test('should prevent multiple requestAnimationFrame calls when ticking is true', () => {
-        jest.isolateModules(() => {
-            const originalAddEventListener = window.addEventListener;
-            let onScrollCb;
-            window.addEventListener = jest.fn((event, cb) => {
-                if (event === 'scroll') {
-                    onScrollCb = cb;
-                }
-            });
-
-            window.requestAnimationFrame = jest.fn(() => {});
-
-            require('../../js/scroll-reveal-icon.js');
-
-            if (onScrollCb) {
-                // Call it once to set ticking to true
-                onScrollCb();
-                // Call it again to hit the if (!ticking) branch
-                onScrollCb();
-            }
-
-            expect(window.requestAnimationFrame).toHaveBeenCalledTimes(1);
-
-            window.addEventListener = originalAddEventListener;
-        });
+        expect(iconElement.classList.contains('is-visible')).toBe(true);
     });
 });
