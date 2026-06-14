@@ -135,9 +135,9 @@ describe('ambient/loader.js', () => {
     test('ignores synchronous errors during initialization gracefully', () => {
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
-            get: () => {
+            value: jest.fn(() => {
                 throw new Error('Simulated synchronous error');
-            },
+            }),
         });
 
         expect(() => {
@@ -177,9 +177,9 @@ describe('ambient/loader.js', () => {
     test('ignores synchronous errors during initialization gracefully and logs warning to AppLogger', () => {
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
-            get: () => {
+            value: jest.fn(() => {
                 throw new Error('Simulated synchronous error');
-            },
+            }),
         });
 
         require('../../../js/ambient/loader.js');
@@ -194,9 +194,9 @@ describe('ambient/loader.js', () => {
         delete window.AppLogger;
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
-            get: () => {
+            value: jest.fn(() => {
                 throw new Error('Simulated synchronous error');
-            },
+            }),
         });
 
         require('../../../js/ambient/loader.js');
@@ -232,9 +232,9 @@ describe('ambient/loader.js', () => {
 
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
-            get: () => {
+            value: jest.fn(() => {
                 throw new Error('Simulated synchronous error');
-            },
+            }),
         });
 
         expect(() => {

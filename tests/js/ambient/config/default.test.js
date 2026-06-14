@@ -50,10 +50,11 @@ describe('ambient/config/default.js', () => {
     test('handles errors gracefully without throwing', () => {
         // Simulated config error by throwing when AMBIENT_CONFIG is accessed
         Object.defineProperty(window, 'AMBIENT_CONFIG', {
-            get: () => {
+            configurable: true,
+            get: () => undefined,
+            set: () => {
                 throw new Error('Simulated config error');
             },
-            configurable: true,
         });
 
         expect(() => {
@@ -64,10 +65,11 @@ describe('ambient/config/default.js', () => {
     test('logs a warning when initialization fails', () => {
         // Simulated config error by throwing when AMBIENT_CONFIG is accessed
         Object.defineProperty(window, 'AMBIENT_CONFIG', {
-            get: () => {
+            configurable: true,
+            get: () => undefined,
+            set: () => {
                 throw new Error('Simulated config error');
             },
-            configurable: true,
         });
 
         require('../../../../js/ambient/config/default.js');
@@ -83,10 +85,11 @@ describe('ambient/config/default.js', () => {
         window.console.warn = undefined;
 
         Object.defineProperty(window, 'AMBIENT_CONFIG', {
-            get: () => {
+            configurable: true,
+            get: () => undefined,
+            set: () => {
                 throw new Error('Simulated config error');
             },
-            configurable: true,
         });
 
         expect(() => {
@@ -104,10 +107,11 @@ describe('ambient/config/default.js', () => {
         });
 
         Object.defineProperty(window, 'AMBIENT_CONFIG', {
-            get: () => {
+            configurable: true,
+            get: () => undefined,
+            set: () => {
                 throw new Error('Simulated config error');
             },
-            configurable: true,
         });
 
         expect(() => {
