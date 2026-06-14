@@ -907,31 +907,49 @@ describe('coverage helper', () => {
                 const t = window.__BlockNavigationForTesting;
                 try {
                     t.clampScrollTop(-10);
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.isEditableActive();
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.shouldUseElement(document.body);
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.handleEscapeKey({ preventDefault: () => {} });
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.debounce(() => {}, 10)();
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.getIndexFromFallback();
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.calculateNextIndex('ArrowDown');
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.scrollToIndex(0);
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
                 try {
                     t.performScroll(document.body, true, 'smooth', true);
-                } catch { /* ignore error during coverage check */ }
+                } catch {
+                    /* ignore error during coverage check */
+                }
 
                 // Trigger events
                 if (loadCb) {
