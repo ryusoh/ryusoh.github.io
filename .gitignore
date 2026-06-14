@@ -14,4 +14,5 @@ __pycache__/
 .ipynb_checkpoints
 .idea/
 .vscode/
-.claude/
+.claude/*
+!.claude/commands/
