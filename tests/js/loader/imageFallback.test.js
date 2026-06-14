@@ -60,7 +60,10 @@ describe('imageFallback.js', () => {
     it('should warn and do nothing if data-fallbacks is invalid JSON', () => {
         imgElement.setAttribute('data-fallbacks', 'invalid-json');
         imageFallback.initFallback(imgElement);
-        expect(consoleWarnMock).toHaveBeenCalledWith('Caught exception parsing fallback list:', expect.any(Error));
+        expect(consoleWarnMock).toHaveBeenCalledWith(
+            'Caught exception parsing fallback list:',
+            expect.any(Error)
+        );
     });
 
     it('should do nothing if data-fallbacks string exceeds length limit', () => {
