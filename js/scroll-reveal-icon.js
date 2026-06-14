@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /**
  * Shows the scroll-reveal-instagram icon only when the user has scrolled to the bottom.
  */

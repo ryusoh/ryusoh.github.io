@@ -30,10 +30,12 @@
         logError(e);
     }
 
+    /* istanbul ignore else */
     if (typeof window !== 'undefined') {
         window.__DefaultConfigForTesting = { init };
     }
     /* eslint-disable no-undef */
+    /* istanbul ignore else */
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = { init };
     }

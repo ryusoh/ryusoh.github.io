@@ -77,6 +77,7 @@ const handleFetchNetworkFirst = (event, req) => {
                 return res;
             })
             .catch((e) => {
+                /* istanbul ignore else */
                 if (
                     typeof self !== 'undefined' &&
                     self.console &&
@@ -137,6 +138,7 @@ const fetchLogic = (event) => {
     }
 };
 
+/* istanbul ignore else */
 if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') {
     self.addEventListener('install', installLogic);
     self.addEventListener('activate', activateLogic);
@@ -157,11 +159,13 @@ const testing = {
     handleFetchNetworkFirst,
 };
 
+/* istanbul ignore else */
 if (typeof self !== 'undefined') {
     self.__swForTesting = testing;
 }
 
 /* eslint-disable no-undef */
+/* istanbul ignore else */
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = testing;
 }

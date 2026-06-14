@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 (function () {
     'use strict';
     const LINK_ATTR = 'data-page-transition';

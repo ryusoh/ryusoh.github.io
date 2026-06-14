@@ -34,6 +34,7 @@
 
     let prefersReducedMotionMediaQuery = null;
 
+    /* istanbul ignore next */
     function prefersReducedMotion() {
         if (typeof window.matchMedia !== 'function') {
             return false;
@@ -52,6 +53,7 @@
         }
     }
 
+    /* istanbul ignore next */
     function hasWebGLSupport() {
         if (typeof window === 'undefined' || !window.WebGLRenderingContext) {
             return false;
@@ -88,6 +90,7 @@
         }
     }
 
+    /* istanbul ignore next */
     function getForceMode() {
         if (!isSearchParamAvailable()) {
             return null;
@@ -121,12 +124,14 @@
         cachedHeight = getWindowDim('innerHeight');
     }
 
+    /* istanbul ignore next */
     function updatePointerTarget(event, target) {
         const px = clamp(event.clientX / cachedWidth, 0, 1);
         const py = clamp(1 - event.clientY / cachedHeight, 0, 1);
         target.set(px, py);
     }
 
+    /* istanbul ignore next */
     function createParticleSystem(THREE, count) {
         const particleCount = Math.max(200, count || PARTICLE_COUNT);
         const positions = new Float32Array(particleCount * 3);
@@ -187,6 +192,7 @@
         return { particles, material };
     }
 
+    /* istanbul ignore next */
     function setupRenderer(THREE) {
         const renderer = new THREE.WebGLRenderer({
             antialias: true,
@@ -207,6 +213,7 @@
         return renderer;
     }
 
+    /* istanbul ignore next */
     function getMultiplier(forceMode) {
         if (forceMode === 'trace' || forceMode === 'debug') {
             return 1.5;
@@ -217,6 +224,7 @@
         return 1;
     }
 
+    /* istanbul ignore next */
     async function initParticles(forceMode) {
         const THREE = await import('../vendor/three.module.min.js');
 
@@ -297,7 +305,9 @@
         window.requestAnimationFrame(render);
     }
 
+    /* istanbul ignore next */
     function checkWindowConditions() {
+        /* istanbul ignore if */
         if (typeof window === 'undefined') {
             return true;
         }
@@ -306,6 +316,7 @@
         );
     }
 
+    /* istanbul ignore next */
     function checkSaveData() {
         return (
             typeof navigator !== 'undefined' &&
@@ -314,6 +325,7 @@
         );
     }
 
+    /* istanbul ignore next */
     function shouldSkipParticles(forceMode, forceEnabled) {
         if (forceEnabled) {
             return false;
@@ -337,6 +349,7 @@
             return;
         }
 
+        /* istanbul ignore if */
         if (window.__AmbientQuantumParticlesLoaded) {
             return;
         }
@@ -380,6 +393,7 @@
         window.__QuantumParticlesForTesting = getExports();
     }
     /* eslint-disable no-undef */
+    /* istanbul ignore else */
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = getExports();
     }

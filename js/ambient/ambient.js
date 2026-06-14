@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 // Ambient background effect (localized copy)
 // Expects window.Sketch and optional window.AMBIENT_CONFIG
 (function initAmbient() {

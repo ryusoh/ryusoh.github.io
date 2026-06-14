@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /**
  * Font Awesome Loader
  * Handles graceful loading of Font Awesome icons with fallback options

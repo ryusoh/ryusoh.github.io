@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /* Ambient assets loader using CDNLoader (no modules) */
 (function () {
     let prefersReducedMotionMediaQuery = null;

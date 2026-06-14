@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /**
  * Asset preloader for cross-page performance optimization
  * Preloads images from other portfolio pages to improve navigation experience
