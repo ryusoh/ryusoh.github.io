@@ -30,7 +30,7 @@
                 }
                 return sanitizeFallbackList(list);
             } catch (error) {
-                logWarning('Caught exception:', error);
+                logWarning('Caught exception parsing fallback list:', error);
                 return null;
             }
         }
