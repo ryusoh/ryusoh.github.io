@@ -7,6 +7,7 @@ styles in `css/`, Jest tests in `tests/js/` (jest-environment-jsdom 29).
 
 - `make precommit-fix` — auto-fixes formatting/lint and runs the full Jest suite + coverage. Run this before every commit; it must exit 0.
 - `make check` — format-check + lint only (no tests). `make fix` — format + lint-fix.
+- `make test` — full Jest suite + coverage table on demand (same report as `npm test`).
 - `npx jest <path>` — run a single suite while iterating.
 - Do not commit unless explicitly asked.
 
