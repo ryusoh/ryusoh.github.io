@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix test
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -14,6 +14,7 @@ help:
 	@echo "  lint-fix      Apply ESLint/Stylelint auto-fixes"
 	@echo "  check         Run fmt-check + lint (quick CI parity)"
 	@echo "  fix           Run fmt + lint-fix"
+	@echo "  test          Run the full Jest suite with a coverage report"
 
 hooks:
 	@if [ ! -f .pre-commit-config.yaml ]; then \
@@ -68,3 +69,7 @@ lint-fix:
 	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --fix --max-warnings=0 || true
 
 fix: fmt lint-fix
+
+# Full Jest suite + coverage report (fund-style on-demand check).
+test:
+	@$(NPX) jest --coverage

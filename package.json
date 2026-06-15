@@ -9,7 +9,7 @@
         "lint:css": "stylelint \"**/*.css\" --config .stylelintrc.cjs --max-warnings=0",
         "fmt": "prettier --write . --config .prettierrc.cjs --ignore-path .prettierignore",
         "fmt:check": "prettier -c . --config .prettierrc.cjs --ignore-path .prettierignore",
-        "test": "jest"
+        "test": "jest --coverage"
     },
     "devDependencies": {
         "@babel/core": "^7.29.0",
