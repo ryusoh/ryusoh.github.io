@@ -156,3 +156,8 @@
 
 **Learning:** Polling layout properties in a high-frequency `scroll` event listener forces synchronous DOM layout recalculations, causing layout thrashing and CPU overhead. Delegating this to `IntersectionObserver` eliminates synchronous DOM layout recalculations by utilizing the browser's optimized asynchronous layout engine.
 **Action:** Always prefer `IntersectionObserver` over `scroll` event listeners when tracking elements entering or leaving the viewport.
+
+## 2026-07-15 - Use passive true on continuous event listeners
+
+**Learning:** High frequency continuous events like `scroll` and `resize` (and sometimes `mousemove` depending on use case) block the main thread from painting if the browser doesn't know whether `preventDefault()` will be called inside the listener.
+**Action:** Always add `{ passive: true }` to continuous, high-frequency event listeners (`scroll`, `resize`, `touchstart`, `pointermove`) where `preventDefault()` is not required, to tell the browser it can immediately composite the frame without waiting for the JS execution to finish.

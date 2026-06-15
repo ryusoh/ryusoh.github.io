@@ -559,20 +559,20 @@
         }, 150);
 
         if (!useObserver) {
-            window.addEventListener('resize', handleResizeUpdate);
+            window.addEventListener('resize', handleResizeUpdate, { passive: true });
             window.addEventListener('load', () => {
                 updateCachedDimensions();
                 updatePositions();
             });
         } else {
-            window.addEventListener('resize', handleResizeSync);
+            window.addEventListener('resize', handleResizeSync, { passive: true });
             window.addEventListener('load', () => {
                 updateCachedDimensions();
                 syncCurrentIndex();
             });
         }
         document.addEventListener('keydown', handleKeydown, { passive: false });
-        window.addEventListener('scroll', debounce(syncCurrentIndex, 150));
+        window.addEventListener('scroll', debounce(syncCurrentIndex, 150), { passive: true });
     }
 
     ready(init);
