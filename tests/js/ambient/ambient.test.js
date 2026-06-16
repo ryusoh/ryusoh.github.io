@@ -59,16 +59,14 @@ describe('js/ambient/ambient.js', () => {
 
         test('returns null if search length > 1000', () => {
             const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/?ambient=' + 'a'.repeat(1001));
+            window.history.pushState({}, '', '/?ambient=' + 'a'.repeat(1001));
 
             expect(getAmbientParam()).toBeNull();
         });
 
         test('returns null and warns if parsing fails', () => {
             const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/?ambient=1');
+            window.history.pushState({}, '', '/?ambient=1');
 
             const originalURLSearchParams = window.URLSearchParams;
             window.URLSearchParams = jest.fn().mockImplementation(() => {
@@ -90,15 +88,13 @@ describe('js/ambient/ambient.js', () => {
     describe('getAmbientParam', () => {
         test('returns the value of ambient param', () => {
             const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/?ambient=debug');
+            window.history.pushState({}, '', '/?ambient=debug');
             expect(getAmbientParam()).toBe('debug');
         });
 
         test('returns null if search is empty', () => {
             const getAmbientParam = window.__AmbientForTesting.getAmbientParam;
-            delete window.location;
-            window.location = new URL('https://example.com/');
+            window.history.pushState({}, '', '/');
             expect(getAmbientParam()).toBeNull();
         });
     });

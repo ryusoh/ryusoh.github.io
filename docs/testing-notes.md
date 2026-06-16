@@ -1,7 +1,43 @@
 # Testing notes (Jest + jsdom)
 
-Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 29).
+Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
+
+## 2026-06-16 — `window.location` / `window.document` are non-configurable in jsdom 26 (jest 30)
+
+**Problem:** After bumping to jest 30 / jest-environment-jsdom 30 (jsdom 26), the
+old location-mocking patterns all throw:
+
+```js
+delete window.location;                                  // Cannot delete property 'location'
+window.location = new URL('https://example.com/');       //   (the delete above already threw)
+Object.defineProperty(window, 'location', { value });    // Cannot redefine property: location
+Object.defineProperty(window.location, 'href', { ... }); // Cannot redefine property: href
+jest.replaceProperty(window, 'location', ...);           // Property `location` is not declared configurable
+window.location.href = '...';                            // attempts a real (not-implemented) navigation
+```
+
+`global.document` is likewise a non-configurable accessor (no setter), so
+`Object.defineProperty(global, 'document', { get: () => undefined })` throws
+`Cannot redefine property: document` and `global.document = undefined` is a silent no-op.
+
+**Fixes (in order of preference):**
+
+- **Change `search` / `pathname` / `hash`** → use the History API, which mutates the
+  _same_ Location object: `window.history.pushState({}, '', '/?ambient=on')`.
+- **Make `location.href` long** (for `href.length > 2000` guards) → set a long
+  **hash**: `window.location.hash = '#' + 'a'.repeat(2000)` (then reset to `''`).
+  `pushState` rejects URLs longer than ~2000 chars with a `SecurityError`, so it
+  can't build a long href.
+- **Vary `hostname` / `readyState`, or make a global absent** (i.e. anything
+  `pushState`/hash can't reach, or testing a `typeof window.location === 'undefined'`
+  guard) → run the source in a `vm` context with hand-built `window`/`document`/
+  `navigator` globals. Good fit for load-time IIFEs like `service-worker-register.js`.
+  If the source uses ES `import`, strip the import lines first
+  (`code.replace(/^import .*$/gm, '')`) when the imported bindings aren't reached
+  on the path under test — see `cursor-init.test.js`.
+- **Set a per-file base URL** with a docblock when a whole suite needs one origin:
+  `/** @jest-environment-options {"url": "https://example.com/"} */`.
 
 ## 2026-06-14 — Throwing getters on `window` are silently bypassed in jsdom
 

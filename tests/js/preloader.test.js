@@ -41,22 +41,19 @@ describe('AssetPreloader', () => {
 
     test('getCurrentPageKey should identify p1 correctly', () => {
         const preloader = new AssetPreloader();
-        delete context.window.location;
-        context.window.location = new URL('https://example.com/p1/');
+        context.window.history.pushState({}, '', '/p1/');
         expect(preloader.getCurrentPageKey()).toBe('p1');
     });
 
     test('getCurrentPageKey should identify p2 correctly', () => {
         const preloader = new AssetPreloader();
-        delete context.window.location;
-        context.window.location = new URL('https://example.com/p2/');
+        context.window.history.pushState({}, '', '/p2/');
         expect(preloader.getCurrentPageKey()).toBe('p2');
     });
 
     test('getCurrentPageKey should identify p3 correctly', () => {
         const preloader = new AssetPreloader();
-        delete context.window.location;
-        context.window.location = new URL('https://example.com/p3/');
+        context.window.history.pushState({}, '', '/p3/');
         expect(preloader.getCurrentPageKey()).toBe('p3');
     });
 
@@ -197,18 +194,17 @@ describe('coverage helper', () => {
                 p.preloadImage('/test');
                 p.preloadAssets(['p1']);
 
-                delete window.location;
-                window.location = { pathname: '/p1/' };
+                window.history.pushState({}, '', '/p1/');
                 p.getCurrentPageKey();
                 p.preloadForCurrentPage();
 
-                window.location = { pathname: '/p2/' };
+                window.history.pushState({}, '', '/p2/');
                 p.preloadForCurrentPage();
 
-                window.location = { pathname: '/p3/' };
+                window.history.pushState({}, '', '/p3/');
                 p.preloadForCurrentPage();
 
-                window.location = { pathname: '/index.html' };
+                window.history.pushState({}, '', '/index.html');
                 p.preloadForCurrentPage();
 
                 const originalSW = navigator.serviceWorker;

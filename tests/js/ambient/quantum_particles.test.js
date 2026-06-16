@@ -148,19 +148,13 @@ describe('quantum_particles.js', () => {
 
     describe('getForceMode', () => {
         it('should return ambient param value if provided in search', () => {
-            Object.defineProperty(window, 'location', {
-                value: { search: '?ambient=trace' },
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/?ambient=trace');
             const qp = getQuantumParticles();
             expect(qp.getForceMode()).toBe('trace');
         });
 
         it('should return null if ambient param is missing in search', () => {
-            Object.defineProperty(window, 'location', {
-                value: { search: '?other=value' },
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/?other=value');
             const qp = getQuantumParticles();
             expect(qp.getForceMode()).toBeNull();
         });
@@ -319,19 +313,13 @@ describe('quantum_particles.js', () => {
 
     describe('getForceMode Error Handling', () => {
         it('should gracefully return null and warn on search lengths > 1000', () => {
-            Object.defineProperty(window, 'location', {
-                value: { search: '?ambient=' + 'a'.repeat(1001) },
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/?ambient=' + 'a'.repeat(1001));
             const qp = getQuantumParticles();
             expect(qp.getForceMode()).toBeNull();
         });
 
         it('should fallback and return null if URLSearchParams throws an error, and log warning', () => {
-            Object.defineProperty(window, 'location', {
-                value: { search: '?ambient=on' },
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/?ambient=on');
             const originalParams = window.URLSearchParams;
             window.URLSearchParams = jest.fn().mockImplementation(() => {
                 throw new Error('Simulated URLSearchParams error');

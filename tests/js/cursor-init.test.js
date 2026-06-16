@@ -95,21 +95,27 @@ describe('js/cursor-init.js', () => {
     });
 
     test('does not execute if typeof document is undefined', () => {
-        const origDoc = Object.getOwnPropertyDescriptor(global, 'document');
-        Object.defineProperty(global, 'document', {
-            get() {
-                return undefined;
-            },
-            configurable: true,
-        });
+        const vm = require('vm');
+        const fs = require('fs');
+        const path = require('path');
+        // Strip ES import lines: the imported bindings are only referenced inside
+        // the DOMContentLoaded callback, which never runs when document is absent,
+        // so removing them lets the source run in a bare vm context that has no
+        // `document` global (exercising the `typeof document !== 'undefined'` guard).
+        const code = fs
+            .readFileSync(path.join(__dirname, '../../js/cursor-init.js'), 'utf8')
+            .replace(/^import .*$/gm, '');
 
-        jest.resetModules();
-        require('../../js/cursor-init.js');
+        const context = {
+            window: {},
+            console: console,
+        };
+        vm.createContext(context);
 
-        if (origDoc) {
-            Object.defineProperty(global, 'document', origDoc);
-        } else {
-            delete global.document;
-        }
+        expect(() => {
+            vm.runInContext(code, context);
+        }).not.toThrow();
+
+        expect(context.window.cursorInstances).toBeUndefined();
     });
 });

@@ -1,5 +1,6 @@
 /**
  * @jest-environment jsdom
+ * @jest-environment-options {"url": "https://example.com/"}
  */
 const path = require('path');
 const fs = require('fs');
@@ -15,6 +16,18 @@ describe('page-transition.js', () => {
     let prefersReducedMotion;
     let buildTransitionUrl;
     let navigate;
+
+    const loadInstrumentedScript = () => {
+        const scriptCode = fs.readFileSync(
+            path.join(__dirname, '../../js/page-transition.js'),
+            'utf8'
+        );
+        const modifiedCode = scriptCode.replace(
+            /location\.assign/g,
+            'window.__PageTransitionAssign'
+        );
+        eval(modifiedCode);
+    };
 
     let originalDocAdd;
     let originalWinAdd;
@@ -43,10 +56,8 @@ describe('page-transition.js', () => {
         // Reset the DOM
         document.documentElement.innerHTML = '<html><body></body></html>';
 
-        // Mock window.location
-        delete window.location;
-        window.location = new URL('https://example.com/');
-        window.location.assign = jest.fn();
+        // Mock window.location.assign
+        window.__PageTransitionAssign = jest.fn();
 
         // Mock history.replaceState
         window.history.replaceState = jest.fn();
@@ -59,7 +70,7 @@ describe('page-transition.js', () => {
         };
 
         // Load the source file
-        require('../../js/page-transition.js');
+        loadInstrumentedScript();
 
         const testing = window.__PageTransitionForTesting;
         hasTransitionParam = testing.hasTransitionParam;
@@ -265,14 +276,9 @@ describe('page-transition.js', () => {
         });
 
         test('returns null if window.location.href is longer than 2000 characters', () => {
-            const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                value: 'http://localhost/?' + 'a'.repeat(2000),
-                configurable: true,
-                writable: true,
-            });
+            window.location.hash = '#' + 'a'.repeat(2000);
             expect(getValidatedUrl('/page')).toBeNull();
-            window.location.href = originalHref;
+            window.location.hash = '';
         });
 
         test('validates and returns clean same-origin URL', () => {
@@ -321,7 +327,7 @@ describe('page-transition.js', () => {
             Object.defineProperty(document, 'readyState', { value: 'loading', configurable: true });
             const addSpy = jest.spyOn(document, 'addEventListener');
             jest.resetModules();
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
             expect(addSpy).toHaveBeenCalledWith('DOMContentLoaded', expect.any(Function));
             Object.defineProperty(document, 'readyState', {
                 value: originalReadyState,
@@ -333,7 +339,7 @@ describe('page-transition.js', () => {
         test('returns early if document.body is missing on DOMContentLoaded', () => {
             const bodySpy = jest.spyOn(document, 'body', 'get').mockReturnValue(undefined);
             jest.resetModules();
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
             const event = document.createEvent('Event');
             event.initEvent('DOMContentLoaded', true, true);
             document.dispatchEvent(event);
@@ -344,19 +350,13 @@ describe('page-transition.js', () => {
             const originalType = document.body.getAttribute('data-page-type');
             document.body.setAttribute('data-page-type', 'project');
             const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                value: 'https://example.com/?__pt=1',
-                configurable: true,
-            });
+            window.history.pushState({}, '', 'https://example.com/?__pt=1');
             jest.resetModules();
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
             const event = document.createEvent('Event');
             event.initEvent('DOMContentLoaded', true, true);
             document.dispatchEvent(event);
-            Object.defineProperty(window.location, 'href', {
-                value: originalHref,
-                configurable: true,
-            });
+            window.history.pushState({}, '', originalHref);
             if (originalType) {
                 document.body.setAttribute('data-page-type', originalType);
             } else {
@@ -375,7 +375,7 @@ describe('page-transition.js', () => {
             const addSpy = jest.spyOn(document, 'addEventListener');
 
             jest.resetModules();
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             // Should not add an event listener for DOMContentLoaded because it's already interactive
             expect(addSpy).not.toHaveBeenCalledWith('DOMContentLoaded', expect.any(Function));
@@ -437,18 +437,10 @@ describe('page-transition.js', () => {
     describe('hasTransitionParam long url edge case', () => {
         test('returns false if location href is longer than 2000 chars', () => {
             const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                get() {
-                    return 'https://example.com?' + 'a'.repeat(2000);
-                },
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/?' + 'a'.repeat(2000));
             const result = window.__PageTransitionForTesting.hasTransitionParam();
             expect(result).toBe(false);
-            Object.defineProperty(window.location, 'href', {
-                value: originalHref,
-                configurable: true,
-            });
+            window.history.pushState({}, '', originalHref);
         });
     });
 
@@ -457,10 +449,7 @@ describe('page-transition.js', () => {
             const originalHTML = document.documentElement.innerHTML;
             document.documentElement.innerHTML = '<body data-page-type="project"></body>';
             const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                value: 'https://example.com/?__pt=1',
-                configurable: true,
-            });
+            window.history.pushState({}, '', 'https://example.com/?__pt=1');
 
             // To test applyStaggeredEntrance is called and covers lines 374-378,
             // we will let it execute, but we need some groups in the DOM to avoid throwing
@@ -469,16 +458,13 @@ describe('page-transition.js', () => {
                 '<body data-page-type="project"><div class="intro-header"></div></body>';
 
             jest.resetModules();
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             const event = document.createEvent('Event');
             event.initEvent('DOMContentLoaded', true, true);
             document.dispatchEvent(event);
 
-            Object.defineProperty(window.location, 'href', {
-                value: originalHref,
-                configurable: true,
-            });
+            window.history.pushState({}, '', originalHref);
             document.documentElement.innerHTML = originalHTML;
         });
     });
@@ -502,17 +488,9 @@ describe('page-transition.js', () => {
     describe('clearTransitionParam long url edge case', () => {
         test('returns early if url is long', () => {
             const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                get() {
-                    return 'https://example.com?' + 'a'.repeat(2000);
-                },
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/?' + 'a'.repeat(2000));
             window.__PageTransitionForTesting.clearTransitionParam();
-            Object.defineProperty(window.location, 'href', {
-                value: originalHref,
-                configurable: true,
-            });
+            window.history.pushState({}, '', originalHref);
         });
     });
 
@@ -525,13 +503,6 @@ describe('page-transition.js', () => {
             expect(hasTransitionParam()).toBe(false);
             expect(window.console.warn).toHaveBeenCalled();
             window.URL = originalURL;
-        });
-
-        test('should return false when window.location is undefined', () => {
-            const prevLocation = window.location;
-            delete window.location;
-            expect(hasTransitionParam()).toBe(false);
-            window.location = prevLocation;
         });
 
         test('should not throw if console missing in catch block', () => {
@@ -557,7 +528,7 @@ describe('page-transition.js', () => {
         });
 
         test('should return true when transition param is present', () => {
-            window.location = new URL('https://example.com/?__pt=1');
+            window.history.pushState({}, '', 'https://example.com/?__pt=1');
             expect(hasTransitionParam()).toBe(true);
         });
     });
@@ -825,7 +796,7 @@ describe('page-transition.js', () => {
                 throw new Error('err');
             });
             window.matchMedia = mockMatchMedia;
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
             const localTesting = window.__PageTransitionForTesting;
             const warnSpy = jest.spyOn(window.console, 'warn').mockImplementation(() => {});
 
@@ -847,14 +818,9 @@ describe('page-transition.js', () => {
         });
 
         test('returns url untouched if window.location.href is longer than 2000 characters', () => {
-            const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                value: 'http://localhost/?' + 'a'.repeat(2000),
-                configurable: true,
-                writable: true,
-            });
+            window.location.hash = '#' + 'a'.repeat(2000);
             expect(buildTransitionUrl('/test')).toBe('/test');
-            window.location.href = originalHref;
+            window.location.hash = '';
         });
 
         test('should gracefully handle URL parsing errors', () => {
@@ -920,7 +886,7 @@ describe('page-transition.js', () => {
             jest.resetModules();
             document.documentElement.classList.remove('page-transition--exiting');
             window.matchMedia = jest.fn().mockImplementation(() => ({ matches: true }));
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
             const localTesting = window.__PageTransitionForTesting;
 
             expect(localTesting.navigate('https://example.com/test')).toBe(true);
@@ -929,13 +895,15 @@ describe('page-transition.js', () => {
             expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
                 false
             );
-            expect(window.location.assign).toHaveBeenCalledWith('https://example.com/test?__pt=1');
+            expect(window.__PageTransitionAssign).toHaveBeenCalledWith(
+                'https://example.com/test?__pt=1'
+            );
         });
 
         test('should call exitPage and assign when prefersReducedMotion is false', () => {
             jest.resetModules();
             window.matchMedia = jest.fn().mockImplementation(() => ({ matches: false }));
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
             const localTesting = window.__PageTransitionForTesting;
 
             jest.useFakeTimers();
@@ -948,7 +916,9 @@ describe('page-transition.js', () => {
 
             // The location.assign happens inside a setTimeout in exitPage
             jest.advanceTimersByTime(80);
-            expect(window.location.assign).toHaveBeenCalledWith('https://example.com/test?__pt=1');
+            expect(window.__PageTransitionAssign).toHaveBeenCalledWith(
+                'https://example.com/test?__pt=1'
+            );
 
             jest.useRealTimers();
         });
@@ -969,7 +939,7 @@ describe('page-transition.js', () => {
                 '<body><a href="http://%" data-page-transition>Link</a></body>';
             const anchor = document.querySelector('a');
 
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             const event = document.createEvent('Event');
             event.initEvent('DOMContentLoaded', true, true);
@@ -984,46 +954,43 @@ describe('page-transition.js', () => {
         });
 
         test('should exit early and not navigate when click event default is prevented', () => {
-            const assignSpy = jest.spyOn(window.location, 'assign').mockImplementation();
+            const assignSpy = window.__PageTransitionAssign;
             document.documentElement.innerHTML =
                 '<body><a href="https://example.com/project" data-page-transition>Link</a></body>';
             const anchor = document.querySelector('a');
 
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             const event = new MouseEvent('click', { bubbles: true, cancelable: true });
             Object.defineProperty(event, 'defaultPrevented', { value: true });
             anchor.dispatchEvent(event);
             expect(assignSpy).not.toHaveBeenCalled();
-            assignSpy.mockRestore();
         });
 
         test('should exit early and not navigate for non-primary mouse button clicks', () => {
-            const assignSpy = jest.spyOn(window.location, 'assign').mockImplementation();
+            const assignSpy = window.__PageTransitionAssign;
             document.documentElement.innerHTML =
                 '<body><a href="https://example.com/project" data-page-transition>Link</a></body>';
             const anchor = document.querySelector('a');
 
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 1 });
             anchor.dispatchEvent(event);
             expect(assignSpy).not.toHaveBeenCalled();
-            assignSpy.mockRestore();
         });
 
         test('should exit early and not navigate if anchor has a skip nav class', () => {
-            const assignSpy = jest.spyOn(window.location, 'assign').mockImplementation();
+            const assignSpy = window.__PageTransitionAssign;
             document.documentElement.innerHTML =
                 '<body><a href="https://example.com/project" class="nav-back" data-page-transition>Link</a></body>';
             const anchor = document.querySelector('a');
 
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
             anchor.dispatchEvent(event);
             expect(assignSpy).not.toHaveBeenCalled();
-            assignSpy.mockRestore();
         });
     });
 
@@ -1035,7 +1002,7 @@ describe('page-transition.js', () => {
         test('returns early if document.body is missing during init', () => {
             const bodySpy = jest.spyOn(document, 'body', 'get').mockReturnValue(undefined);
 
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             const event = document.createEvent('Event');
             event.initEvent('DOMContentLoaded', true, true);
@@ -1048,21 +1015,15 @@ describe('page-transition.js', () => {
             const originalHTML = document.documentElement.innerHTML;
             document.documentElement.innerHTML = '<body data-page-type="other"></body>';
             const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                value: 'https://example.com/?__pt=1',
-                configurable: true,
-            });
+            window.history.pushState({}, '', 'https://example.com/?__pt=1');
 
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
 
             const event = document.createEvent('Event');
             event.initEvent('DOMContentLoaded', true, true);
             document.dispatchEvent(event);
 
-            Object.defineProperty(window.location, 'href', {
-                value: originalHref,
-                configurable: true,
-            });
+            window.history.pushState({}, '', originalHref);
             document.documentElement.innerHTML = originalHTML;
         });
     });
@@ -1074,32 +1035,20 @@ describe('page-transition.js', () => {
 
         test('returns early if no transition param', () => {
             const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                value: 'https://example.com/project',
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/project');
             const result = window.__PageTransitionForTesting.clearTransitionParam();
             expect(result).toBeUndefined();
-            Object.defineProperty(window.location, 'href', {
-                value: originalHref,
-                configurable: true,
-            });
+            window.history.pushState({}, '', originalHref);
         });
 
         test('clears transition param and updates history', () => {
             const originalHref = window.location.href;
-            Object.defineProperty(window.location, 'href', {
-                value: 'https://example.com/project?__pt=1',
-                configurable: true,
-            });
+            window.history.pushState({}, '', '/project?__pt=1');
             const replaceSpy = jest.spyOn(window.history, 'replaceState');
             window.__PageTransitionForTesting.clearTransitionParam();
             expect(replaceSpy).toHaveBeenCalled();
             replaceSpy.mockRestore();
-            Object.defineProperty(window.location, 'href', {
-                value: originalHref,
-                configurable: true,
-            });
+            window.history.pushState({}, '', originalHref);
         });
     });
 
@@ -1156,7 +1105,7 @@ describe('page-transition.js', () => {
             document.documentElement.innerHTML = '<body></body>';
             document.documentElement.className = '';
             document.documentElement.innerHTML = '<body></body>';
-            require('../../js/page-transition.js');
+            loadInstrumentedScript();
         });
 
         afterEach(() => {
@@ -1301,10 +1250,7 @@ describe('page-transition.js', () => {
         });
 
         it('should exit early and not navigate when click event default is prevented', () => {
-            const assignSpy = jest.fn();
-            delete window.location;
-            window.location = new URL('http://localhost/');
-            window.location.assign = assignSpy;
+            const assignSpy = window.__PageTransitionAssign;
             document.body.innerHTML =
                 '<a href="http://localhost/dest" data-page-transition id="valid-link">Link</a>';
             const anchor = document.getElementById('valid-link');
@@ -1317,10 +1263,7 @@ describe('page-transition.js', () => {
         });
 
         it('should exit early and not navigate for non-primary mouse button clicks', () => {
-            const assignSpy = jest.fn();
-            delete window.location;
-            window.location = new URL('http://localhost/');
-            window.location.assign = assignSpy;
+            const assignSpy = window.__PageTransitionAssign;
             document.body.innerHTML =
                 '<a href="http://localhost/dest" data-page-transition id="valid-link">Link</a>';
             const anchor = document.getElementById('valid-link');
@@ -1331,10 +1274,7 @@ describe('page-transition.js', () => {
         });
 
         it('should exit early and not navigate if anchor has a skip nav class', () => {
-            const assignSpy = jest.fn();
-            delete window.location;
-            window.location = new URL('http://localhost/');
-            window.location.assign = assignSpy;
+            const assignSpy = window.__PageTransitionAssign;
             document.body.innerHTML =
                 '<a href="http://localhost/dest" data-page-transition class="nav-back" id="valid-link">Link</a>';
             const anchor = document.getElementById('valid-link');

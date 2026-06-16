@@ -1,5 +1,6 @@
 /**
  * @jest-environment jsdom
+ * @jest-environment-options {"url": "http://localhost/"}
  */
 const fs = require('fs');
 const path = require('path');
@@ -13,11 +14,6 @@ describe('DOM XSS Security Tests', () => {
 
         // Reset the DOM
         document.documentElement.innerHTML = '<html><head></head><body></body></html>';
-
-        // Mock window.location
-        delete window.location;
-        window.location = new URL('http://localhost/');
-        window.location.assign = jest.fn();
 
         // Mock console
         window.console = {
