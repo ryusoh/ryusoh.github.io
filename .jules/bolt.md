@@ -161,3 +161,6 @@
 
 **Learning:** High frequency continuous events like `scroll` and `resize` (and sometimes `mousemove` depending on use case) block the main thread from painting if the browser doesn't know whether `preventDefault()` will be called inside the listener.
 **Action:** Always add `{ passive: true }` to continuous, high-frequency event listeners (`scroll`, `resize`, `touchstart`, `pointermove`) where `preventDefault()` is not required, to tell the browser it can immediately composite the frame without waiting for the JS execution to finish.
+## 2024-05-24 - DOM Caching Test Failures
+**Learning:** Optimizations that cache DOM queries (like `querySelectorAll`) or layout reads (like `getBoundingClientRect`) in module-scoped variables or object state surprisingly failed existing Jest tests. The tests in this codebase rely on JSDOM re-evaluating DOM state and frequently tear down or mutate the DOM test-by-test, causing cached nodes to become orphaned or stale.
+**Action:** Avoid caching global DOM queries or layout measurements across multiple event lifecycles or module instances unless an explicit cache-invalidation hook is implemented or the test suite specifically mocks the cache layer.
