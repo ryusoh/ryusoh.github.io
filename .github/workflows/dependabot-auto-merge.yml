@@ -21,3 +21,38 @@ jobs:
               env:
                   PR_URL: ${{github.event.pull_request.html_url}}
                   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+    # Optional: Fix formatting on Dependabot PRs if CI fails due to style
+    fix-style:
+        runs-on: ubuntu-latest
+        if: github.actor == 'dependabot[bot]'
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '24'
+            - name: Install dependencies
+              run: |
+                  if [ -f package.json ]; then npm ci; fi
+            - name: Fix formatting
+              run: |
+                  if [ -f Makefile ]; then
+                    make fmt || true
+                  else
+                    npx prettier --write . || true
+                  fi
+            - name: Commit and push changes
+              run: |
+                  if [ -n "$(git status --porcelain)" ]; then
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git add .
+                    git commit -m "style: fix formatting on dependabot PR"
+                    git push
+                  fi
