@@ -3,6 +3,12 @@
 Static site (vanilla JS, no framework/modules). Frontend code lives in `js/`,
 styles in `css/`, Jest tests in `tests/js/` (jest-environment-jsdom 30).
 
+Tooling is **npm**-based: `package-lock.json` is authoritative and `make`/CI run via
+`npx`. A `pnpm-lock.yaml` also exists but is secondary — it drifts from `package.json`
+(dependency bumps update only `package-lock.json`) and is regenerated out-of-band by
+Jules/bolt branches. Expect large-but-benign `pnpm-lock.yaml` diffs when shipping those;
+confirm it matches `package.json` rather than assuming a regression.
+
 ## Verify before committing
 
 - `make precommit-fix` — auto-fixes formatting/lint and runs the full Jest suite + coverage. Run this before every commit; it must exit 0.
@@ -30,7 +36,9 @@ The entire `.jules/` directory (`architect.md`, `bolt.md`, `janitor.md`,
 `palette.md`, `sentinel.md`, `testpilot.md`) is owned and auto-recorded by the
 Jules agent (a separate Google tool). It is tracked in git but **read-only for us** —
 read it for reference, never write to it. Capture our own learnings in `docs/`
-instead.
+instead. `.jules/` is excluded from our Prettier and markdownlint gates
+(`.prettierignore`, `.markdownlintignore`), so a format/lint failure in a `.jules/`
+file is expected — never "fix" it by editing the file.
 
 ## Agent commands
 
