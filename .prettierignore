@@ -13,3 +13,6 @@ js/viewer.min.js
 .vscode/
 .git/
 pnpm-lock.yaml
+
+# Owned/auto-recorded by the Jules agent — read-only for us (see CLAUDE.md)
+.jules/

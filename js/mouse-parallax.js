@@ -57,20 +57,35 @@ document.addEventListener('DOMContentLoaded', () => {
         ease: 'cubic-bezier(0.65, 0.05, 0, 1)',
     });
 
-    document.addEventListener(
-        'mousemove',
-        (e) => {
-            // Calculate offset from center (-1 to 1)
-            const diffX = (e.clientX - centerX) / centerX;
-            const diffY = (e.clientY - centerY) / centerY;
+    /**
+     * Bolt Optimization:
+     * - What: Use IntersectionObserver to detach the `mousemove` listener when the title is off-screen.
+     * - Why: The previous implementation attached a global, always-on `mousemove` listener that continuously triggered GSAP style updates even when the title was completely out of the viewport. This caused unnecessary CPU usage and GSAP ticker evaluations.
+     * - Impact: Measurably reduces main-thread CPU overhead during scrolling and reading by ensuring mouse parallax computations only run when the target element is actually visible.
+     */
+    const handleMouseMove = (e) => {
+        // Calculate offset from center (-1 to 1)
+        const diffX = (e.clientX - centerX) / centerX;
+        const diffY = (e.clientY - centerY) / centerY;
 
-            // Apply a subtle parallax translation
-            // Opposite direction of mouse movement
-            setX(-diffX * 15);
-            setY(-diffY * 15);
-            setRotationY(diffX * 5); // subtle 3D rotation
-            setRotationX(-diffY * 5);
-        },
-        { passive: true }
-    );
+        // Apply a subtle parallax translation
+        // Opposite direction of mouse movement
+        setX(-diffX * 15);
+        setY(-diffY * 15);
+        setRotationY(diffX * 5); // subtle 3D rotation
+        setRotationX(-diffY * 5);
+    };
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                document.addEventListener('mousemove', handleMouseMove, { passive: true });
+            } else {
+                document.removeEventListener('mousemove', handleMouseMove);
+            }
+        });
+        observer.observe(title);
+    } else {
+        document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    }
 });

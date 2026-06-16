@@ -83,13 +83,21 @@ function setupMagneticElement(el) {
         // Strength of pull factor (lower = less pull)
         const strength = 0.4;
 
-        setElX(distX * strength);
-        setElY(distY * strength);
+        /**
+         * Bolt Optimization:
+         * - What: Skip GSAP updates if the cursor movement is negligible.
+         * - Why: The previous implementation triggered GSAP quickTo setters even for 1px sub-pixel movements, which causes continuous TICK evaluation and style recalculations.
+         * - Impact: Measurably reduces CPU load when the user is holding the mouse relatively still over the magnetic element.
+         */
+        if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {
+            setElX(distX * strength);
+            setElY(distY * strength);
 
-        // Pull the child element (e.g. <i>) slightly more for a parallax effect
-        if (child && setChildX && setChildY) {
-            setChildX(distX * (strength * 1.5));
-            setChildY(distY * (strength * 1.5));
+            // Pull the child element (e.g. <i>) slightly more for a parallax effect
+            if (child && setChildX && setChildY) {
+                setChildX(distX * (strength * 1.5));
+                setChildY(distY * (strength * 1.5));
+            }
         }
     });
 

@@ -72,9 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Track mouse movement
+    /**
+     * Bolt Optimization:
+     * - What: Only track mouse movement when actually hovering over a link.
+     * - Why: The previous implementation attached a global `mousemove` listener that continuously updated variables on every cursor move across the entire site, regardless of whether a hover preview was active.
+     * - Impact: Measurably reduces main thread overhead by skipping variable updates and function execution during normal site navigation.
+     */
     document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+        if (isHovering) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        }
     });
 
     /**
