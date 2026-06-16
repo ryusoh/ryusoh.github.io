@@ -20,8 +20,8 @@ Follow these steps precisely:
     - If changes were made, commit them: `git commit -am "style: fix quality failures"`.
 
 3. **Merge into Main:**
-    - Switch to main: `git checkout main`
-    - Pull latest: `git pull origin main`
+    - Switch to master: `git checkout master`
+    - Pull latest: `git pull origin master`
     - Merge the branch: `git merge $ARGUMENTS`
     - **Conflict Resolution:** If conflicts occur:
         - List conflicted files: `git status`.
@@ -30,11 +30,11 @@ Follow these steps precisely:
         - Complete the merge: `git commit`.
 
 4. **Final Verification:**
-    - Run `make check` and `make test` on the merged `main` branch to ensure no regressions.
+    - Run `make check` and `make test` on the merged `master` branch to ensure no regressions.
 
 5. **Cleanup:**
     - **Ask for acknowledgement before pushing changes.**
-    - Push main: `git push origin main`.
+    - Push master: `git push origin master`.
     - Delete the local branch: `git branch -d $ARGUMENTS`.
     - Delete the remote branch: `git push origin --delete $ARGUMENTS`.
 
