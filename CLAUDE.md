@@ -1,7 +1,7 @@
 # Project guide for AI agents
 
 Static site (vanilla JS, no framework/modules). Frontend code lives in `js/`,
-styles in `css/`, Jest tests in `tests/js/` (jest-environment-jsdom 29).
+styles in `css/`, Jest tests in `tests/js/` (jest-environment-jsdom 30).
 
 ## Verify before committing
 
@@ -14,9 +14,15 @@ styles in `css/`, Jest tests in `tests/js/` (jest-environment-jsdom 29).
 ## Writing/debugging Jest tests
 
 Read `docs/testing-notes.md` first — dated jsdom/jest gotchas specific to this repo,
-and add an entry when you hit a new one. Notably: throwing **getters** defined on
-`window` are silently bypassed in this jsdom version — inject errors via
-function-value mocks or setters instead.
+and add an entry when you hit a new one. The two that bite most: `window.location`,
+`window.document`, and `location.href` are **non-configurable** under jsdom 26
+(`delete`/`Object.defineProperty` throw) — mock via `history.pushState`, a long
+`location.hash`, or a `vm` context; and throwing **getters** on `window` are
+silently bypassed — inject errors via function-value mocks or setters instead.
+
+Scratch experiments: `npx jest` only discovers tests under the repo (a `/tmp`
+path matches nothing), so probe jsdom behavior with a temp `tests/js/_*.test.js`
+file — that prefix is gitignored, so it won't be committed or left in the suite.
 
 ## Do not hand-edit `.jules/`
 

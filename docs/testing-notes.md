@@ -24,7 +24,12 @@ window.location.href = '...';                            // attempts a real (not
 **Fixes (in order of preference):**
 
 - **Change `search` / `pathname` / `hash`** → use the History API, which mutates the
-  _same_ Location object: `window.history.pushState({}, '', '/?ambient=on')`.
+  _same_ Location object: `window.history.pushState({}, '', '/?ambient=on')`
+  (use `replaceState({}, '', window.location.pathname)` to clear the query). Do **not**
+  assign `window.location.search = ...` / `.href = ...` directly: each assignment is a
+  no-op navigation that jsdom logs as `console.error: Not implemented: navigation
+(except hash changes)`. The test still passes, but in a `beforeEach` this floods the
+  output with one stack trace per test and looks like a failure.
 - **Make `location.href` long** (for `href.length > 2000` guards) → set a long
   **hash**: `window.location.hash = '#' + 'a'.repeat(2000)` (then reset to `''`).
   `pushState` rejects URLs longer than ~2000 chars with a `SecurityError`, so it

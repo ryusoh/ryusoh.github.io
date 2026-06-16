@@ -12,7 +12,9 @@ describe('quantum_particles.js', () => {
         // Mock window properties
         window.innerWidth = 1024;
         window.innerHeight = 768;
-        window.location.search = '';
+        // Reset the query string without triggering a jsdom "navigation not
+        // implemented" error (assigning to location.search navigates; History does not).
+        window.history.replaceState({}, '', window.location.pathname);
         window.performance.now = jest.fn(() => 0);
         window.devicePixelRatio = 1;
         window.matchMedia = jest.fn().mockReturnValue({ matches: false });

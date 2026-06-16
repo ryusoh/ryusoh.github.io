@@ -16,3 +16,9 @@ __pycache__/
 .vscode/
 .claude/*
 !.claude/commands/
+
+# Scratch Jest experiments (see CLAUDE.md) — never committed
+tests/js/_*.test.js
+tests/**/*.test.js.instrumented
+tests/**/*.test.js.new
+tests/**/*.test.js.vm
