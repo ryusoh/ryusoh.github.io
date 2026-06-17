@@ -94,7 +94,8 @@ describe('js/vendor/cursor.js', () => {
         expect(context.document.body.appendChild).toHaveBeenCalled();
         expect(context.window.addEventListener).toHaveBeenCalledWith(
             'mousemove',
-            expect.any(Function)
+            expect.any(Function),
+            { passive: true }
         );
     });
 
@@ -178,7 +179,8 @@ describe('js/vendor/cursor.js', () => {
 
         expect(context.window.addEventListener).toHaveBeenCalledWith(
             'mousemove',
-            cursor.onMouseMove
+            cursor.onMouseMove,
+            { passive: true }
         );
         expect(mockRoot.addEventListener).toHaveBeenCalledWith(
             'mouseover',

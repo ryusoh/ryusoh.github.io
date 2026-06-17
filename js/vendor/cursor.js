@@ -301,8 +301,8 @@ export class CustomCursor {
         this.loop = this.loop.bind(this);
         this.flushStoredPosition = this.flushStoredPosition.bind(this);
 
-        window.addEventListener('mousemove', this.onMouseMove);
-        window.addEventListener('mouseout', this.onMouseOut);
+        window.addEventListener('mousemove', this.onMouseMove, { passive: true });
+        window.addEventListener('mouseout', this.onMouseOut, { passive: true });
         window.addEventListener('beforeunload', this.flushStoredPosition);
         window.addEventListener('pagehide', this.flushStoredPosition);
         this.attachHoverTargets();

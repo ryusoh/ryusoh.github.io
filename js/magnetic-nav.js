@@ -74,32 +74,36 @@ function setupMagneticElement(el) {
         centerY = rect.top + rect.height / 2;
     });
 
-    el.addEventListener('mousemove', (e) => {
-        // Calculate distance from center to cursor
-        const distX = e.clientX - centerX;
-        const distY = e.clientY - centerY;
+    el.addEventListener(
+        'mousemove',
+        (e) => {
+            // Calculate distance from center to cursor
+            const distX = e.clientX - centerX;
+            const distY = e.clientY - centerY;
 
-        // Apply magnetic pull using GSAP
-        // Strength of pull factor (lower = less pull)
-        const strength = 0.4;
+            // Apply magnetic pull using GSAP
+            // Strength of pull factor (lower = less pull)
+            const strength = 0.4;
 
-        /**
-         * Bolt Optimization:
-         * - What: Skip GSAP updates if the cursor movement is negligible.
-         * - Why: The previous implementation triggered GSAP quickTo setters even for 1px sub-pixel movements, which causes continuous TICK evaluation and style recalculations.
-         * - Impact: Measurably reduces CPU load when the user is holding the mouse relatively still over the magnetic element.
-         */
-        if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {
-            setElX(distX * strength);
-            setElY(distY * strength);
+            /**
+             * Bolt Optimization:
+             * - What: Skip GSAP updates if the cursor movement is negligible.
+             * - Why: The previous implementation triggered GSAP quickTo setters even for 1px sub-pixel movements, which causes continuous TICK evaluation and style recalculations.
+             * - Impact: Measurably reduces CPU load when the user is holding the mouse relatively still over the magnetic element.
+             */
+            if (Math.abs(distX) > 1 || Math.abs(distY) > 1) {
+                setElX(distX * strength);
+                setElY(distY * strength);
 
-            // Pull the child element (e.g. <i>) slightly more for a parallax effect
-            if (child && setChildX && setChildY) {
-                setChildX(distX * (strength * 1.5));
-                setChildY(distY * (strength * 1.5));
+                // Pull the child element (e.g. <i>) slightly more for a parallax effect
+                if (child && setChildX && setChildY) {
+                    setChildX(distX * (strength * 1.5));
+                    setChildY(distY * (strength * 1.5));
+                }
             }
-        }
-    });
+        },
+        { passive: true }
+    );
 
     el.addEventListener('mouseleave', () => {
         // Elastic snap back to origin

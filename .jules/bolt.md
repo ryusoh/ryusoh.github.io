@@ -164,3 +164,7 @@
 ## 2024-05-24 - DOM Caching Test Failures
 **Learning:** Optimizations that cache DOM queries (like `querySelectorAll`) or layout reads (like `getBoundingClientRect`) in module-scoped variables or object state surprisingly failed existing Jest tests. The tests in this codebase rely on JSDOM re-evaluating DOM state and frequently tear down or mutate the DOM test-by-test, causing cached nodes to become orphaned or stale.
 **Action:** Avoid caching global DOM queries or layout measurements across multiple event lifecycles or module instances unless an explicit cache-invalidation hook is implemented or the test suite specifically mocks the cache layer.
+## 2026-07-28 - Dynamic listener detachment for performance
+
+**Learning:** Global `mousemove` event listeners continuously execute function callbacks and cause main thread CPU overhead even if they immediately return early or if their active condition is false.
+**Action:** When an event is only relevant during a specific state (like hovering an element), attach the listener inside the `mouseover` event and detach it inside the `mouseout` event to eliminate unnecessary function execution. Also always use `{ passive: true }` on `mousemove` listeners when `preventDefault` is not required.

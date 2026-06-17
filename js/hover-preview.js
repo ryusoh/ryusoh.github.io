@@ -74,16 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Track mouse movement
     /**
      * Bolt Optimization:
-     * - What: Only track mouse movement when actually hovering over a link.
-     * - Why: The previous implementation attached a global `mousemove` listener that continuously updated variables on every cursor move across the entire site, regardless of whether a hover preview was active.
-     * - Impact: Measurably reduces main thread overhead by skipping variable updates and function execution during normal site navigation.
+     * - What: Only attach `mousemove` listener when actually hovering over a link.
+     * - Why: The previous implementation attached a global `mousemove` listener that continuously triggered function execution on every cursor move across the entire site, even if it returned early. Detaching the listener entirely eliminates this main-thread event overhead.
+     * - Impact: Measurably reduces main thread overhead by eliminating unnecessary event dispatching and function execution during normal site navigation.
      */
-    document.addEventListener('mousemove', (e) => {
-        if (isHovering) {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        }
-    });
+    const handleMouseMove = (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    };
 
     /**
      * Bolt Optimization:
@@ -117,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setX(mouseX + 20);
             setY(mouseY + 20);
 
+            document.addEventListener('mousemove', handleMouseMove, { passive: true });
+
             if (!rafId) {
                 rafId = requestAnimationFrame(updatePosition);
             }
@@ -142,6 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         isHovering = false;
+        document.removeEventListener('mousemove', handleMouseMove);
+
         gsap.to(previewContainer, {
             clipPath: 'ellipse(0% 0% at 50% 50%)',
             opacity: 0,
