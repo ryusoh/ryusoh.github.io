@@ -270,6 +270,53 @@ describe('page-transition.js', () => {
             expect(getValidatedUrl(123)).toBeNull();
         });
 
+        test('returns null for malicious protocols', () => {
+            const originalWarn = window.console.warn;
+            window.console.warn = jest.fn();
+            try {
+                expect(getValidatedUrl('javascript:alert(1)')).toBeNull();
+                expect(getValidatedUrl('data:text/html,<html>')).toBeNull();
+                expect(getValidatedUrl('vbscript:msgbox("hello")')).toBeNull();
+            } finally {
+                window.console.warn = originalWarn;
+            }
+        });
+
+        test('returns null for potentially malicious protocols like ftp', () => {
+            const originalWarn = window.console.warn;
+            window.console.warn = jest.fn();
+            try {
+                expect(getValidatedUrl('ftp://example.com')).toBeNull();
+            } finally {
+                window.console.warn = originalWarn;
+            }
+        });
+
+        test('returns null for cross-origin URLs', () => {
+            const originalWarn = window.console.warn;
+            window.console.warn = jest.fn();
+            try {
+                expect(getValidatedUrl('https://cross-origin.com/test')).toBeNull();
+            } finally {
+                window.console.warn = originalWarn;
+            }
+        });
+
+        test('returns valid clean URL for same origin', () => {
+            expect(getValidatedUrl('/test-path')).toBe('/test-path');
+            const originStr = window.location.origin + '/test-path';
+            expect(getValidatedUrl(originStr)).toBe(originStr);
+        });
+
+        test('returns null for unparseable URLs', () => {
+            const originalWarn = window.console.warn;
+            window.console.warn = jest.fn();
+            try {
+                expect(getValidatedUrl('http://%')).toBeNull();
+            } finally {
+                window.console.warn = originalWarn;
+            }
+        });
         test('returns null if url is longer than 2000 characters', () => {
             const longUrl = '/page?' + 'a'.repeat(2000);
             expect(getValidatedUrl(longUrl)).toBeNull();
@@ -834,6 +881,21 @@ describe('page-transition.js', () => {
             expect(warnSpy).toHaveBeenCalled();
             warnSpy.mockRestore();
             window.URL = originalURL;
+        });
+    });
+
+    describe('isValidProtocol', () => {
+        it('returns false for javascript: protocols', () => {
+            const originalWarn = window.console.warn;
+            window.console.warn = jest.fn();
+            const spy = jest.spyOn(window.__PageTransitionForTesting, 'getValidatedUrl');
+            const ptObj = window.__PageTransitionForTesting;
+            try {
+                expect(ptObj.getValidatedUrl('javascript:alert(1)')).toBeNull();
+            } finally {
+                window.console.warn = originalWarn;
+                spy.mockRestore();
+            }
         });
     });
 

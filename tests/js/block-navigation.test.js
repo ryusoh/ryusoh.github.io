@@ -143,6 +143,24 @@ describe('js/block-navigation.js', () => {
         });
     });
 
+    describe('scrollToIndex', () => {
+        it('should return early if index is out of bounds', () => {
+            const performScrollSpy = jest
+                .spyOn(testing, 'performScroll')
+                .mockImplementation(() => {});
+
+            // Negative index
+            testing.scrollToIndex(-1);
+            expect(performScrollSpy).not.toHaveBeenCalled();
+
+            // Index >= blocks.length (blocks is length 3 due to beforeEach)
+            testing.scrollToIndex(3);
+            expect(performScrollSpy).not.toHaveBeenCalled();
+
+            performScrollSpy.mockRestore();
+        });
+    });
+
     describe('calculateNextIndex', () => {
         it('should return correct index based on bounds for empty state', () => {
             // blocks.length is 3 due to beforeEach document setup
@@ -151,11 +169,31 @@ describe('js/block-navigation.js', () => {
         });
     });
 
+    describe('debounce functionality', () => {
+        it('should execute the debounced function via real timers', (done) => {
+            const spy = jest.fn();
+            const debounced = testing.debounce(spy, 10);
+            debounced();
+            setTimeout(() => {
+                expect(spy).toHaveBeenCalled();
+                done();
+            }, 30);
+        });
+    });
+
     describe('getIndexFromFallback', () => {
         it('should return correct fallback index', () => {
             window.scrollY = 0;
             window.innerHeight = 500;
             expect(testing.getIndexFromFallback()).toBe(2);
+        });
+    });
+
+    describe('getStartIndex', () => {
+        it('returns 0 when currentIndex is not set and current is at top', () => {
+            window.scrollY = 0;
+            window.innerHeight = 500;
+            expect(testing.getStartIndex()).toBe(0);
         });
     });
 

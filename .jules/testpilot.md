@@ -118,3 +118,8 @@
 
 **Learning:** When writing try-catch blocks where the caught error object is unused, ESLint will fail with `no-unused-vars` if the error variable is explicitly captured.
 **Action:** Use ES2019 optional catch binding (e.g., `catch { /* ignore */ }`) instead of explicitly capturing the error variable (e.g., `catch (e)`) to prevent ESLint failures.
+
+## 2026-06-17 - Asserting internal property getters in JSDOM
+
+**Learning:** When writing Jest tests to evaluate global variables constructed via IIFE patterns without exported states or mutable dependencies, ensure you directly mock DOM parameters via global window property overriding rather than asserting un-mocked properties in test scripts.
+**Action:** When interacting with isolated `vm` context elements or DOM nodes, use Object.defineProperty on elements or `window.innerHeight/window.scrollY` to accurately evaluate branch coverage.
