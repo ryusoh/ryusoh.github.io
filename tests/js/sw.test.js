@@ -259,6 +259,40 @@ describe('Service Worker', () => {
             });
         });
 
+        describe('Misc branches', () => {
+            test('testing exposed addEventListener fallback', () => {
+                // To cover the block: if (typeof self !== 'undefined' && typeof self.addEventListener === 'function')
+                // This is already evaluated when sw is required. We'd have to reload it with self.addEventListener removed.
+                const originalSelf = global.self;
+                global.self = { ...originalSelf };
+                delete global.self.addEventListener;
+                jest.isolateModules(() => {
+                    require('../../sw.js');
+                });
+                global.self = originalSelf;
+            });
+            test('testing module exports fallback', () => {
+                jest.isolateModules(() => {
+                    const originalSelf = global.self;
+                    delete global.self;
+                    require('../../sw.js');
+                    global.self = originalSelf;
+                });
+            });
+            test('isImageOrFontFile matching other image types', () => {
+                mockCaches.match.mockResolvedValue({ ok: true, status: 200 });
+                event.request.url = 'http://localhost/test.jpg';
+                event.request.destination = 'empty';
+                sw.fetchLogic(event);
+
+                event.request.url = 'http://localhost/test.jpeg';
+                sw.fetchLogic(event);
+
+                event.request.url = 'http://localhost/test.svg';
+                sw.fetchLogic(event);
+            });
+        });
+
         describe('Network First Strategy (Mutable Assets)', () => {
             beforeEach(() => {
                 event.request.destination = 'document';
