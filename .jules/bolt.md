@@ -168,3 +168,7 @@
 
 **Learning:** Global `mousemove` event listeners continuously execute function callbacks and cause main thread CPU overhead even if they immediately return early or if their active condition is false.
 **Action:** When an event is only relevant during a specific state (like hovering an element), attach the listener inside the `mouseover` event and detach it inside the `mouseout` event to eliminate unnecessary function execution. Also always use `{ passive: true }` on `mousemove` listeners when `preventDefault` is not required.
+## 2026-07-28 - Replace setInterval with recursive setTimeout
+
+**Learning:** `setInterval` does not guarantee the delay if the event loop is blocked or if the callback takes longer than the interval. This can lead to stacked callbacks and main-thread jank when using polling intervals (like `font-awesome-loader.js` checking for loaded status).
+**Action:** Replace `setInterval` with a recursive `setTimeout` inside the callback function. This guarantees the minimum specified delay between the completion of one callback and the start of the next, avoiding stacked executions and reducing main-thread contention.

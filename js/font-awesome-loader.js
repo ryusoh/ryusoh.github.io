@@ -97,7 +97,7 @@
          * Start periodic checking for Font Awesome load status
          */
         startChecking() {
-            this.checkInterval = setInterval(() => {
+            const check = () => {
                 if (this.isFontAwesomeLoaded()) {
                     this.fontAwesomeLoaded = true;
                     this.showIcons();
@@ -107,9 +107,12 @@
                     if (this.retryCount >= this.maxRetries) {
                         this.handleLoadFailure();
                         this.stopChecking();
+                    } else {
+                        this.checkInterval = window.setTimeout(check, 100);
                     }
                 }
-            }, 100); // Check every 100ms
+            };
+            this.checkInterval = window.setTimeout(check, 100);
         }
 
         /**
@@ -117,7 +120,7 @@
          */
         stopChecking() {
             if (this.checkInterval) {
-                clearInterval(this.checkInterval);
+                window.clearTimeout(this.checkInterval);
                 this.checkInterval = null;
             }
             this.cleanupTestElement();
