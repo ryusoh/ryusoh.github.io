@@ -168,7 +168,7 @@ const applyInlineCursorToElement = (element) => {
 };
 
 const clearInlineCursorOverrides = () => {
-    overriddenElements.forEach((element) => {
+    for (const element of overriddenElements) {
         try {
             if (element.style?.cursor === HIDDEN_CURSOR_VALUE) {
                 element.style.removeProperty('cursor');
@@ -179,7 +179,7 @@ const clearInlineCursorOverrides = () => {
                 window.console.warn('clearInlineCursorOverrides remove property failed:', e);
             }
         }
-    });
+    }
     overriddenElements.clear();
 };
 
