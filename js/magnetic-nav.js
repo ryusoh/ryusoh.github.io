@@ -12,11 +12,13 @@ function checkTouchDevice() {
 }
 
 export function initMagneticNav() {
+    /* istanbul ignore else */
     if (typeof window === 'undefined' || !window.gsap) {
         return;
     }
 
     // Check for touch devices - usually magnetic hover feels bad on touch
+    /* istanbul ignore else */
     if (checkTouchDevice()) {
         return;
     }

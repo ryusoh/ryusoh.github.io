@@ -94,6 +94,18 @@ describe('js/cursor-init.js', () => {
         expect(window.cursorInstances.cursor).toEqual({ id: 'mocked-cursor' });
     });
 
+    test('does not execute if document is undefined (mocked without vm)', () => {
+        jest.resetModules();
+        const originalDocument = global.document;
+        delete global.document;
+
+        expect(() => {
+            require('../../js/cursor-init.js');
+        }).not.toThrow();
+
+        global.document = originalDocument;
+    });
+
     test('does not execute if typeof document is undefined', () => {
         const vm = require('vm');
         const fs = require('fs');

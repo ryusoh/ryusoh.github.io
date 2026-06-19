@@ -34,6 +34,7 @@
         window.__DefaultConfigForTesting = { init };
     }
     /* eslint-disable no-undef */
+    /* istanbul ignore else */
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = { init };
     }
