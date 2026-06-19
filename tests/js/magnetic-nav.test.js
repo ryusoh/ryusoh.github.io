@@ -76,6 +76,25 @@ describe('js/magnetic-nav.js', () => {
         expect(spy).not.toHaveBeenCalled();
     });
 
+    test('checkTouchDevice returns false when navigator is undefined', () => {
+        const { initMagneticNav } = require('../../js/magnetic-nav.js');
+        const originalNavigator = global.navigator;
+
+        Object.defineProperty(global, 'navigator', {
+            get: () => undefined,
+            configurable: true,
+        });
+
+        const spy = jest.spyOn(document, 'querySelectorAll');
+        initMagneticNav();
+        expect(spy).toHaveBeenCalled();
+
+        Object.defineProperty(global, 'navigator', {
+            value: originalNavigator,
+            configurable: true,
+        });
+    });
+
     test('exits early on touch devices (ontouchstart)', () => {
         window.ontouchstart = () => {};
         const { initMagneticNav } = require('../../js/magnetic-nav.js');
@@ -89,6 +108,33 @@ describe('js/magnetic-nav.js', () => {
         const { initMagneticNav } = require('../../js/magnetic-nav.js');
         initMagneticNav();
         expect(spy).toHaveBeenCalledWith('.social-icons-container a');
+    });
+
+    test('does not apply pull when move is small', () => {
+        const { initMagneticNav } = require('../../js/magnetic-nav.js');
+        initMagneticNav();
+
+        const el = document.querySelector('a');
+        el.getBoundingClientRect = jest.fn().mockReturnValue({
+            left: 100,
+            top: 100,
+            width: 50,
+            height: 50,
+        });
+
+        el.dispatchEvent(new MouseEvent('mouseenter'));
+
+        // Center is 125, 125. Mouse is at 125.5, 125.5. Difference is 0.5 < 1
+        const mouseMoveEvent = new MouseEvent('mousemove', {
+            clientX: 125.5,
+            clientY: 125.5,
+        });
+        el.dispatchEvent(mouseMoveEvent);
+
+        const elXSetter = mockGSAP._setters.get('A-x');
+        const elYSetter = mockGSAP._setters.get('A-y');
+        expect(elXSetter).not.toHaveBeenCalled();
+        expect(elYSetter).not.toHaveBeenCalled();
     });
 
     test('applies magnetic pull on mousemove', () => {
