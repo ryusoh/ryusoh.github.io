@@ -913,28 +913,14 @@ describe('coverage helper', () => {
             let scrollCb;
             let keydownCb;
 
-            jest.spyOn(document, 'addEventListener').mockImplementation((e, fn) => {
-                if (e === 'DOMContentLoaded') {
-                    cb = fn;
-                }
-                if (e === 'keydown') {
-                    keydownCb = fn;
-                }
-                if (e === 'load') {
-                    /* load image bind */
-                }
-            });
-            jest.spyOn(window, 'addEventListener').mockImplementation((e, fn) => {
-                if (e === 'load') {
-                    loadCb = fn;
-                }
-                if (e === 'resize') {
-                    resizeCb = fn;
-                }
-                if (e === 'scroll') {
-                    scrollCb = fn;
-                }
-            });
+            function docListener(e, fn) {
+                if (e === 'DOMContentLoaded') {cb = fn;} else if (e === 'keydown') {keydownCb = fn;} else if (e === 'load') {loadCb = fn;}
+            }
+            jest.spyOn(document, 'addEventListener').mockImplementation(docListener);
+            function winListener(e, fn) {
+                if (e === 'resize') {resizeCb = fn;} else if (e === 'scroll') {scrollCb = fn;} else if (e === 'load') {loadCb = fn;}
+            }
+            jest.spyOn(window, 'addEventListener').mockImplementation(winListener);
 
             require('../../js/block-navigation.js');
             if (cb) {
@@ -943,38 +929,31 @@ describe('coverage helper', () => {
 
             if (window.__BlockNavigationForTesting) {
                 const t = window.__BlockNavigationForTesting;
-                try {
-                    t.clampScrollTop(-10);
-                } catch {}
-                try {
-                    t.isEditableActive();
-                } catch {}
-                try {
-                    t.shouldUseElement(document.body);
-                } catch {}
-                try {
-                    t.handleEscapeKey({ preventDefault: () => {} });
-                } catch {}
-                try {
-                    t.debounce(() => {}, 10)();
-                } catch {}
-                try {
-                    t.getIndexFromFallback();
-                } catch {}
-                try {
-                    t.calculateNextIndex('ArrowDown');
-                } catch {}
-                try {
-                    t.scrollToIndex(0);
-                } catch {}
-                try {
-                    t.performScroll(document.body, true, 'smooth', true);
-                } catch {}
+                function callHelpers() {
+                    try { t.clampScrollTop(-10); } catch {}
+                    try { t.isEditableActive(); } catch {}
+                    try { t.shouldUseElement(document.body); } catch {}
+                    try { t.handleEscapeKey({ preventDefault: () => {} }); } catch {}
+                    try { t.debounce(() => {}, 10)(); } catch {}
+                    try { t.getIndexFromFallback(); } catch {}
+                    try { t.calculateNextIndex('ArrowDown'); } catch {}
+                    try { t.scrollToIndex(0); } catch {}
+                    try { t.performScroll(document.body, true, 'smooth', true); } catch {}
+                }
+                callHelpers();
 
                 // Trigger events
-                if (loadCb) {
-                    loadCb();
+                function triggerEvents() {
+                    if (loadCb) {loadCb();}
+                    if (resizeCb) {resizeCb();}
+                    if (scrollCb) {scrollCb();}
+                    if (keydownCb) {
+                        keydownCb({ key: 'ArrowDown', preventDefault: () => {} });
+                        keydownCb({ key: 'ArrowUp', preventDefault: () => {} });
+                        keydownCb({ key: 'Escape', preventDefault: () => {} });
+                    }
                 }
+                triggerEvents();
                 if (resizeCb) {
                     resizeCb();
                 }
@@ -987,18 +966,15 @@ describe('coverage helper', () => {
                     keydownCb({ key: 'Escape', preventDefault: () => {} });
                 }
 
-                // Now without intersection observer
-                const originalIO = window.IntersectionObserver;
-                delete window.IntersectionObserver;
-
-                // Re-require to trigger !useObserver path
-                jest.resetModules();
-                require('../../js/block-navigation.js');
-                if (cb) {
-                    cb();
+                function runWithoutIO() {
+                    const originalIO = window.IntersectionObserver;
+                    delete window.IntersectionObserver;
+                    jest.resetModules();
+                    require('../../js/block-navigation.js');
+                    if (cb) {cb();}
+                    window.IntersectionObserver = originalIO;
                 }
-
-                window.IntersectionObserver = originalIO;
+                runWithoutIO();
             }
             jest.restoreAllMocks();
         });

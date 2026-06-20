@@ -35,3 +35,7 @@
 
 **Learning:** Extracted logic in `sw.js` to new single-responsibility functions. The code passed 100% tests and ESLint complexity limits.
 **Action:** Always extract nested logic, such as large callbacks, closures inside loops, and verbose initialization sequences, into smaller, single-responsibility helper functions located in the outer scope, ensuring complexity remains strictly below 10.
+
+## 2024-06-20 - Refactoring test cyclomatic complexity
+**Learning:** Jest tests containing multiple deeply nested anonymous functions and large mock setups inside `describe` blocks can trigger ESLint cyclomatic complexity warnings. Extracting nested logic (like mock setup defaults and manual test helper calls) into separate standalone or top-level `function`s brings complexity back under 10.
+**Action:** Always extract configuration and triggering functions in Jest test files when they become too large.

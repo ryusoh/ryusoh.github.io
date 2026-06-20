@@ -29,21 +29,48 @@ function flush() {
 
 // Builds a vm context, runs the source IIFE in it, and returns the context plus
 // the mocks the tests assert against.
+function getDefaultOptions() {
+    return {
+        hostname: 'example.com',
+        register: jest.fn().mockResolvedValue({ scope: '/sw.js' }),
+        readyState: 'complete',
+        customEvent: FakeCustomEvent,
+        withConsole: true,
+        omitWindow: false,
+        dispatchEvent: jest.fn(),
+        addEventListener: jest.fn(),
+    };
+}
+
+function getOptions(options) {
+    const defaults = getDefaultOptions();
+    return {
+        hostname: options.hostname !== undefined ? options.hostname : defaults.hostname,
+        register: options.register !== undefined ? options.register : defaults.register,
+        readyState: options.readyState !== undefined ? options.readyState : defaults.readyState,
+        customEvent: options.customEvent !== undefined ? options.customEvent : defaults.customEvent,
+        withConsole: options.withConsole !== undefined ? options.withConsole : defaults.withConsole,
+        omitWindow: options.omitWindow || defaults.omitWindow,
+        navigator: options.navigator,
+        location: options.location,
+        dispatchEvent: options.dispatchEvent !== undefined ? options.dispatchEvent : defaults.dispatchEvent,
+        createEvent: options.createEvent,
+        addEventListener: options.addEventListener !== undefined ? options.addEventListener : defaults.addEventListener,
+    };
+}
+
 function run(options = {}) {
-    const {
-        hostname = 'example.com',
-        register = jest.fn().mockResolvedValue({ scope: '/sw.js' }),
-        readyState = 'complete',
-        customEvent = FakeCustomEvent,
-        withConsole = true,
-        // Advanced overrides for the early-exit branches:
-        omitWindow = false,
-        navigator = { serviceWorker: { register } },
-        location = { hostname },
-        dispatchEvent = jest.fn(),
-        createEvent,
-        addEventListener = jest.fn(),
-    } = options;
+    const opts = getOptions(options);
+    const register = opts.register;
+    const readyState = opts.readyState;
+    const customEvent = opts.customEvent;
+    const withConsole = opts.withConsole;
+    const omitWindow = opts.omitWindow;
+    const navigator = options.navigator !== undefined ? options.navigator : { serviceWorker: { register } };
+    const location = options.location !== undefined ? options.location : { hostname: opts.hostname };
+    const dispatchEvent = opts.dispatchEvent;
+    const createEvent = opts.createEvent;
+    const addEventListener = opts.addEventListener;
 
     const warn = jest.fn();
 
