@@ -173,9 +173,12 @@ describe('js/block-navigation.js', () => {
         it('should execute the debounced function via real timers', (done) => {
             const spy = jest.fn();
             const debounced = testing.debounce(spy, 10);
+            const origRaf = window.requestAnimationFrame;
+            window.requestAnimationFrame = (cb) => setTimeout(cb, 0); // Mock rAF to trigger
             debounced();
             setTimeout(() => {
                 expect(spy).toHaveBeenCalled();
+                window.requestAnimationFrame = origRaf;
                 done();
             }, 30);
         });
