@@ -53,9 +53,13 @@ function getOptions(options) {
         omitWindow: options.omitWindow || defaults.omitWindow,
         navigator: options.navigator,
         location: options.location,
-        dispatchEvent: options.dispatchEvent !== undefined ? options.dispatchEvent : defaults.dispatchEvent,
+        dispatchEvent:
+            options.dispatchEvent !== undefined ? options.dispatchEvent : defaults.dispatchEvent,
         createEvent: options.createEvent,
-        addEventListener: options.addEventListener !== undefined ? options.addEventListener : defaults.addEventListener,
+        addEventListener:
+            options.addEventListener !== undefined
+                ? options.addEventListener
+                : defaults.addEventListener,
     };
 }
 
@@ -66,8 +70,10 @@ function run(options = {}) {
     const customEvent = opts.customEvent;
     const withConsole = opts.withConsole;
     const omitWindow = opts.omitWindow;
-    const navigator = options.navigator !== undefined ? options.navigator : { serviceWorker: { register } };
-    const location = options.location !== undefined ? options.location : { hostname: opts.hostname };
+    const navigator =
+        options.navigator !== undefined ? options.navigator : { serviceWorker: { register } };
+    const location =
+        options.location !== undefined ? options.location : { hostname: opts.hostname };
     const dispatchEvent = opts.dispatchEvent;
     const createEvent = opts.createEvent;
     const addEventListener = opts.addEventListener;

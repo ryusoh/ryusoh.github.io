@@ -917,11 +917,23 @@ describe('coverage helper', () => {
             let keydownCb;
 
             function docListener(e, fn) {
-                if (e === 'DOMContentLoaded') {cb = fn;} else if (e === 'keydown') {keydownCb = fn;} else if (e === 'load') {loadCb = fn;}
+                if (e === 'DOMContentLoaded') {
+                    cb = fn;
+                } else if (e === 'keydown') {
+                    keydownCb = fn;
+                } else if (e === 'load') {
+                    loadCb = fn;
+                }
             }
             jest.spyOn(document, 'addEventListener').mockImplementation(docListener);
             function winListener(e, fn) {
-                if (e === 'resize') {resizeCb = fn;} else if (e === 'scroll') {scrollCb = fn;} else if (e === 'load') {loadCb = fn;}
+                if (e === 'resize') {
+                    resizeCb = fn;
+                } else if (e === 'scroll') {
+                    scrollCb = fn;
+                } else if (e === 'load') {
+                    loadCb = fn;
+                }
             }
             jest.spyOn(window, 'addEventListener').mockImplementation(winListener);
 
@@ -933,23 +945,47 @@ describe('coverage helper', () => {
             if (window.__BlockNavigationForTesting) {
                 const t = window.__BlockNavigationForTesting;
                 function callHelpers() {
-                    try { t.clampScrollTop(-10); } catch {}
-                    try { t.isEditableActive(); } catch {}
-                    try { t.shouldUseElement(document.body); } catch {}
-                    try { t.handleEscapeKey({ preventDefault: () => {} }); } catch {}
-                    try { t.debounce(() => {}, 10)(); } catch {}
-                    try { t.getIndexFromFallback(); } catch {}
-                    try { t.calculateNextIndex('ArrowDown'); } catch {}
-                    try { t.scrollToIndex(0); } catch {}
-                    try { t.performScroll(document.body, true, 'smooth', true); } catch {}
+                    try {
+                        t.clampScrollTop(-10);
+                    } catch {}
+                    try {
+                        t.isEditableActive();
+                    } catch {}
+                    try {
+                        t.shouldUseElement(document.body);
+                    } catch {}
+                    try {
+                        t.handleEscapeKey({ preventDefault: () => {} });
+                    } catch {}
+                    try {
+                        t.debounce(() => {}, 10)();
+                    } catch {}
+                    try {
+                        t.getIndexFromFallback();
+                    } catch {}
+                    try {
+                        t.calculateNextIndex('ArrowDown');
+                    } catch {}
+                    try {
+                        t.scrollToIndex(0);
+                    } catch {}
+                    try {
+                        t.performScroll(document.body, true, 'smooth', true);
+                    } catch {}
                 }
                 callHelpers();
 
                 // Trigger events
                 function triggerEvents() {
-                    if (loadCb) {loadCb();}
-                    if (resizeCb) {resizeCb();}
-                    if (scrollCb) {scrollCb();}
+                    if (loadCb) {
+                        loadCb();
+                    }
+                    if (resizeCb) {
+                        resizeCb();
+                    }
+                    if (scrollCb) {
+                        scrollCb();
+                    }
                     if (keydownCb) {
                         keydownCb({ key: 'ArrowDown', preventDefault: () => {} });
                         keydownCb({ key: 'ArrowUp', preventDefault: () => {} });
@@ -974,7 +1010,9 @@ describe('coverage helper', () => {
                     delete window.IntersectionObserver;
                     jest.resetModules();
                     require('../../js/block-navigation.js');
-                    if (cb) {cb();}
+                    if (cb) {
+                        cb();
+                    }
                     window.IntersectionObserver = originalIO;
                 }
                 runWithoutIO();
