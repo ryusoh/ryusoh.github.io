@@ -958,7 +958,7 @@ describe('coverage helper', () => {
                         t.handleEscapeKey({ preventDefault: () => {} });
                     } catch { /* ignore error during coverage check */ }
                     try {
-                        t.debounce(() => {}, 10)();
+                        t.debounce(() => {}, 10).apply(this, []);
                     } catch { /* ignore error during coverage check */ }
                     try {
                         t.getIndexFromFallback();
