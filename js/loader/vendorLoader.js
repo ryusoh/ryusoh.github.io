@@ -18,6 +18,9 @@
             window.CDNLoader.loadCssWithFallback(fontAwesome);
             window.CDNLoader.loadCssWithFallback(googleFonts);
         } catch (e) {
+            if (typeof window !== 'undefined' && window.console) {
+                window.console.warn('Vendor loader failed:', e);
+            }
             // Ignore CDN loader errors as this is a progressive enhancement
             if (
                 typeof window !== 'undefined' &&
