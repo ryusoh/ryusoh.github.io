@@ -39,3 +39,6 @@
 ## 2024-06-20 - Refactoring test cyclomatic complexity
 **Learning:** Jest tests containing multiple deeply nested anonymous functions and large mock setups inside `describe` blocks can trigger ESLint cyclomatic complexity warnings. Extracting nested logic (like mock setup defaults and manual test helper calls) into separate standalone or top-level `function`s brings complexity back under 10.
 **Action:** Always extract configuration and triggering functions in Jest test files when they become too large.
+## 2024-05-18 - Cyclomatic Complexity
+**Learning:** Found several high-complexity functions, particularly in `ambient.js`, `quantum_particles.js`, `block-navigation.js`, and `page-transition.js`. Due to the nature of the codebase and test suite, aggressively refactoring these core DOM and WebGL logic files into sub-modules risks introducing subtle regressions and breaking 100% test coverage without extensive rewrites of the mocks.
+**Action:** Kept the current structure but will document the complexity. In the future, smaller functions should be extracted during active feature development rather than as a standalone mechanical task.

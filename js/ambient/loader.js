@@ -103,6 +103,9 @@
     try {
         init();
     } catch (e) {
+        if (typeof window !== 'undefined' && window.console && typeof window.console.error === 'function') {
+            window.console.error('Ambient sync error:', e);
+        }
         handleSyncError(e);
     }
 })();

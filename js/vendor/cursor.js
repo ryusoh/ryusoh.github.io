@@ -98,6 +98,9 @@ const canUseSessionStorage = () => {
         sessionStorageAvailable = true;
     } catch (e) {
         sessionStorageAvailable = false;
+        if (typeof window !== 'undefined' && window.console) {
+            window.console.warn('Session storage test failed:', e);
+        }
         if (typeof window !== 'undefined' && window !== null && window.console && typeof window.console.warn === 'function') {
             window.console.warn('Session storage test failed:', e);
         }
