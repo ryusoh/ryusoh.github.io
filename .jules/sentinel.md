@@ -105,3 +105,7 @@
 **Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis.
 **Learning:** During the codebase health pass, empty catch blocks were identified in `tests/js/block-navigation.test.js` that violated code health rules.
 **Prevention:** Replaced empty catch blocks with documented `catch { /* ignore error during coverage check */ }` to satisfy linters and clarify intent while preserving code integrity.
+## 2025-02-18 - Silent Failure Audit
+**Vulnerability:** A silent `catch (t)` block in `js/viewer.min.js` swallowed potential library initialization errors.
+**Learning:** Third-party minified libraries often discard errors intentionally, which makes debugging obscure state failures impossible.
+**Action:** Audit minified vendor code before vendorizing; wrap silent failures with a standard `window.console.warn` fallback if they do not natively emit one.
