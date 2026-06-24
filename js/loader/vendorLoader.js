@@ -1,5 +1,21 @@
 /* Load third-party vendor CSS/JS with fallbacks (e.g., Font Awesome) */
 (function () {
+    const logWarning = (msg, e) => {
+        if (
+            typeof window !== 'undefined' &&
+            window !== null &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn(msg, e);
+        }
+    };
+
+    const handleVendorLoaderError = (e) => {
+        logWarning('Vendor loader failed:', e);
+        logWarning('Vendor Loader failed:', e);
+    };
+
     const init = () => {
         try {
             if (!window.CDNLoader) {
@@ -18,24 +34,13 @@
             window.CDNLoader.loadCssWithFallback(fontAwesome);
             window.CDNLoader.loadCssWithFallback(googleFonts);
         } catch (e) {
-            if (typeof window !== 'undefined' && window.console) {
-                window.console.warn('Vendor loader failed:', e);
-            }
-            // Ignore CDN loader errors as this is a progressive enhancement
-            if (
-                typeof window !== 'undefined' &&
-                window !== null &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('Vendor Loader failed:', e);
-            }
+            handleVendorLoaderError(e);
         }
     };
 
     init();
 
-    const testing = { init };
+    const testing = { init, handleVendorLoaderError, logWarning };
     if (typeof window !== 'undefined') {
         window.__VendorLoaderForTesting = testing;
     }
