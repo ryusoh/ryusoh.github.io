@@ -111,6 +111,43 @@ describe('FontAwesomeLoader', () => {
         expect(waitSpy).toHaveBeenCalled();
     });
 
+    describe('Bolt Optimization - ClassList usage', () => {
+        it('setupPlaceholderHandling adds fa-loading to body and dataset hidden to icons', () => {
+            const loader = new FontAwesomeLoader();
+
+            const i1 = context.document.createElement('i');
+            i1.className = 'fa fa-user';
+            const i2 = context.document.createElement('i');
+            i2.className = 'fa fa-heart';
+
+            loader.faIcons = [i1, i2];
+
+            loader.setupPlaceholderHandling();
+
+            expect(context.document.body.classList.contains('fa-loading')).toBe(true);
+            expect(i1.dataset.fahidden).toBe('true');
+            expect(i2.dataset.fahidden).toBe('true');
+
+            context.document.body.classList.remove('fa-loading');
+        });
+
+        it('showIcons removes fa-loading from body and clears dataset hidden', () => {
+            const loader = new FontAwesomeLoader();
+
+            const i1 = context.document.createElement('i');
+            i1.className = 'fa fa-user';
+            i1.dataset.fahidden = 'true';
+
+            loader.faIcons = [i1];
+            context.document.body.classList.add('fa-loading');
+
+            loader.showIcons();
+
+            expect(context.document.body.classList.contains('fa-loading')).toBe(false);
+            expect(i1.dataset.fahidden).toBe('');
+        });
+    });
+
     describe('cleanupTestElement', () => {
         it('should remove testElement from its parentNode and set it to null', () => {
             const loader = new FontAwesomeLoader();
