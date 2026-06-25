@@ -35,6 +35,10 @@ try {
         process !== null &&
         typeof process.stderr !== 'undefined'
     ) {
-        process.stderr.write('Google Analytics initialization failed: ' + (e ? e.message || e : 'Unknown error') + '\n');
+        process.stderr.write(
+            'Google Analytics initialization failed: ' +
+                (e ? e.message || e : 'Unknown error') +
+                '\n'
+        );
     }
 }
