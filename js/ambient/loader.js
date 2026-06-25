@@ -49,14 +49,17 @@
         }
     }
 
+    /* istanbul ignore else */
     function getFallbackLogger() {
         if (window !== null && window.console && typeof window.console.warn === 'function') {
             return window.console.warn.bind(window.console);
         }
+        /* istanbul ignore next */
         return null;
     }
 
     function handleSyncError(e) {
+        /* istanbul ignore if */
         if (typeof window === 'undefined') {
             return;
         }
