@@ -232,7 +232,9 @@ describe('quantum_particles.js', () => {
 
             Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true });
             const mockCanvas = { getContext: jest.fn().mockReturnValue({}) };
-            const createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(mockCanvas);
+            const createElementSpy = jest
+                .spyOn(document, 'createElement')
+                .mockReturnValue(mockCanvas);
             window.WebGLRenderingContext = true;
 
             expect(qp.shouldSkipParticles(null, false)).toBe(false);

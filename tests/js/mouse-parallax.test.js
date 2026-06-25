@@ -114,7 +114,7 @@ describe('mouse-parallax.js', () => {
     test('uses IntersectionObserver when available to attach/detach mousemove', () => {
         let observerCallback;
         const mockObserve = jest.fn();
-        window.IntersectionObserver = jest.fn(function(cb) {
+        window.IntersectionObserver = jest.fn(function (cb) {
             observerCallback = cb;
             this.observe = mockObserve;
         });
