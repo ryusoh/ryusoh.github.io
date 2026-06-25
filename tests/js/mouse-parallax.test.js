@@ -111,6 +111,36 @@ describe('mouse-parallax.js', () => {
         expect(mockSetterX).toHaveBeenCalledWith(-0.1 * 15);
     });
 
+    test('uses IntersectionObserver when available to attach/detach mousemove', () => {
+        let observerCallback;
+        const mockObserve = jest.fn();
+        window.IntersectionObserver = jest.fn(function(cb) {
+            observerCallback = cb;
+            this.observe = mockObserve;
+        });
+
+        const addSpy = jest.spyOn(document, 'addEventListener');
+        const removeSpy = jest.spyOn(document, 'removeEventListener');
+
+        require('../../js/mouse-parallax.js');
+        document.dispatchEvent(new window.Event('DOMContentLoaded'));
+
+        expect(window.IntersectionObserver).toHaveBeenCalled();
+        expect(mockObserve).toHaveBeenCalled();
+
+        // Trigger intersection
+        observerCallback([{ isIntersecting: true }]);
+        expect(addSpy).toHaveBeenCalledWith('mousemove', expect.any(Function), { passive: true });
+
+        // Trigger leaving intersection
+        observerCallback([{ isIntersecting: false }]);
+        expect(removeSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
+
+        addSpy.mockRestore();
+        removeSpy.mockRestore();
+        delete window.IntersectionObserver;
+    });
+
     test('gracefully handles missing GSAP', () => {
         delete window.gsap;
 

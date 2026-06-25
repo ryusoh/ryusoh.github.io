@@ -123,3 +123,7 @@
 
 **Learning:** When writing Jest tests to evaluate global variables constructed via IIFE patterns without exported states or mutable dependencies, ensure you directly mock DOM parameters via global window property overriding rather than asserting un-mocked properties in test scripts.
 **Action:** When interacting with isolated `vm` context elements or DOM nodes, use Object.defineProperty on elements or `window.innerHeight/window.scrollY` to accurately evaluate branch coverage.
+
+## 2025-02-24 - JSDOM Virtual Machine and IntersectionObserver Fallbacks
+**Learning:** When attempting to test fallback strategies (like array-mapping vs for-loop) inside `block-navigation.js`, attempting to directly invoke DOM methods or `IntersectionObserver` inside a raw JSDOM context initialized with `jest.isolateModules` or `vm.runInContext` can lead to unstable global references (e.g. context variables suddenly being undefined or throwing context mismatch errors).
+**Action:** When adding tests for Web APIs that heavily manipulate the `document` context like `IntersectionObserver`, either construct tests strictly within normal Jest JSDOM environments, or rigorously mock the observer's interaction to prevent memory leaks and variable scoping issues.

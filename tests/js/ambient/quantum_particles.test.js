@@ -206,6 +206,45 @@ describe('quantum_particles.js', () => {
         }
     });
 
+    describe('checkSaveData', () => {
+        it('returns true if navigator.connection.saveData is true', () => {
+            const originalNavigator = window.navigator;
+            Object.defineProperty(window, 'navigator', {
+                value: { connection: { saveData: true } },
+                configurable: true,
+            });
+            const qp = getQuantumParticles();
+            expect(qp.shouldSkipParticles(null, false)).toBe(true);
+            Object.defineProperty(window, 'navigator', {
+                value: originalNavigator,
+                configurable: true,
+            });
+        });
+
+        it('returns false if navigator.connection is missing', () => {
+            const originalNavigator = window.navigator;
+            Object.defineProperty(window, 'navigator', {
+                value: {},
+                configurable: true,
+            });
+            const qp = getQuantumParticles();
+            // Assuming other conditions don't skip
+
+            Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true });
+            const mockCanvas = { getContext: jest.fn().mockReturnValue({}) };
+            const createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(mockCanvas);
+            window.WebGLRenderingContext = true;
+
+            expect(qp.shouldSkipParticles(null, false)).toBe(false);
+            createElementSpy.mockRestore();
+
+            Object.defineProperty(window, 'navigator', {
+                value: originalNavigator,
+                configurable: true,
+            });
+        });
+    });
+
     describe('shouldSkipParticles', () => {
         beforeEach(() => {
             const mockCanvas = { getContext: jest.fn().mockReturnValue({}) };
