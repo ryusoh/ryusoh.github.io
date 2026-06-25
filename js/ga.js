@@ -22,6 +22,7 @@ try {
         window.ga('send', 'pageview');
     }
 } catch (e) {
+    /* istanbul ignore else */
     if (
         typeof window !== 'undefined' &&
         window !== null &&
@@ -29,5 +30,11 @@ try {
         typeof window.console.warn === 'function'
     ) {
         window.console.warn('Google Analytics initialization failed:', e);
+    } else if (
+        typeof process !== 'undefined' &&
+        process !== null &&
+        typeof process.stderr !== 'undefined'
+    ) {
+        process.stderr.write('Google Analytics initialization failed: ' + (e ? e.message || e : 'Unknown error') + '\n');
     }
 }
