@@ -133,6 +133,7 @@ describe('ambient/loader.js', () => {
     });
 
     test('ignores synchronous errors during initialization gracefully', () => {
+        const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
             value: jest.fn(() => {
@@ -143,6 +144,7 @@ describe('ambient/loader.js', () => {
         expect(() => {
             require('../../../js/ambient/loader.js');
         }).not.toThrow();
+        spy.mockRestore();
     });
 
     test('ignores promise rejections from CDNLoader gracefully', async () => {
@@ -175,6 +177,7 @@ describe('ambient/loader.js', () => {
     });
 
     test('ignores synchronous errors during initialization gracefully and logs warning to AppLogger', () => {
+        const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
             value: jest.fn(() => {
@@ -188,9 +191,11 @@ describe('ambient/loader.js', () => {
             'Ambient initialization failed:',
             expect.any(Error)
         );
+        spy.mockRestore();
     });
 
     test('ignores synchronous errors during initialization gracefully and logs warning to console if no AppLogger', () => {
+        const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
         delete window.AppLogger;
         Object.defineProperty(window, 'matchMedia', {
             configurable: true,
@@ -205,6 +210,7 @@ describe('ambient/loader.js', () => {
             'Ambient initialization failed:',
             expect.any(Error)
         );
+        spy.mockRestore();
     });
 
     test('gracefully handles missing window.console.warn during async rejection', async () => {
