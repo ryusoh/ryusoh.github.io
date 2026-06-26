@@ -106,4 +106,8 @@ function main(argv) {
     }
 }
 
-main(process.argv.slice(2));
+module.exports = { parseArgs, coveragePct, rank, relativize, main };
+
+if (require.main === module) {
+    main(process.argv.slice(2));
+}

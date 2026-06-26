@@ -14,10 +14,15 @@ js/viewer.min.js
 .git/
 pnpm-lock.yaml
 
-# Owned/auto-recorded by the Jules agent — read-only for us (see CLAUDE.md)
+# Human-maintained persona definitions for the Jules routines (see AGENTS.md,
+# CLAUDE.md). Prose/markdown, not gated — don't let Prettier reformat them.
 .jules/
 
 # Gitignored local Claude config (see .gitignore). CI's staged-files prettier
 # hook never sees it, so don't let whole-repo `make fmt-check` fail on it.
 # Scoped to local files only — tracked .claude/commands/ stays format-checked.
 .claude/settings.local.json
+
+# Untracked local editor workspace file; whole-repo `make fmt-check` shouldn't
+# fail on a personal file CI never sees.
+dev.code-workspace

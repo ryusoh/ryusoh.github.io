@@ -1,4 +1,5 @@
-# Owned/auto-recorded by the Jules agent — read-only for us (see CLAUDE.md)
+# Human-maintained persona definitions for the Jules routines (see AGENTS.md,
+# CLAUDE.md). Not gated — don't lint their markdown.
 .jules/
 
 node_modules/
