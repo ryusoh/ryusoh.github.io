@@ -304,15 +304,19 @@
         currentIndex = getCurrentIndex();
     }
 
+    function getDocHeight() {
+        return Math.max(
+            document.body ? document.body.scrollHeight : 0,
+            document.documentElement ? document.documentElement.scrollHeight : 0
+        );
+    }
+
     function isAtTopOrBottom() {
         if (topSentinel && window.scrollY <= 1) {
             return 0;
         }
 
-        const docHeight = Math.max(
-            document.body ? document.body.scrollHeight : 0,
-            document.documentElement ? document.documentElement.scrollHeight : 0
-        );
+        const docHeight = getDocHeight();
         const atBottom = docHeight > 0 && window.scrollY + cachedInnerHeight >= docHeight - 1;
         if (atBottom) {
             return blocks.length - 1;

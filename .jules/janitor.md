@@ -22,3 +22,8 @@
 **Task:** Dead code pruning and TODO cleanup.
 **Learning:** Found and removed unused variable `forceMode` from `shouldSkipParticles` in `js/ambient/quantum_particles.js` and unused parameter `force` in `runAmbient` inside `js/ambient/ambient.js`. Addressed silent failure in `js/ga.js` by adding fallback console logging via `process.stderr` for non-browser environments.
 **Action:** Kept code clean.
+
+## 2026-06-26 - Routine Janitorial Pass
+**Task:** Dead code pruning and TODO cleanup.
+**Learning:** Checked for pending TODOs and unused blocks across all JS files. No major dead code was discovered.
+**Action:** The codebase remains clean.

@@ -109,3 +109,9 @@
 **Vulnerability:** A silent `catch (t)` block in `js/viewer.min.js` swallowed potential library initialization errors.
 **Learning:** Third-party minified libraries often discard errors intentionally, which makes debugging obscure state failures impossible.
 **Action:** Audit minified vendor code before vendorizing; wrap silent failures with a standard `window.console.warn` fallback if they do not natively emit one.
+
+## 2026-06-26 - [Avoid Empty Catch Blocks]
+
+**Vulnerability:** Empty catch blocks can suppress critical initialization or operational errors, hiding bugs and delaying diagnosis.
+**Learning:** During the codebase health pass, an empty catch block was identified in `js/loader/cdnFallback.js` that masked runtime exceptions for `console.error`.
+**Action:** Replaced empty catch blocks with documented logging or safe fallback handling to ensure errors trace directly back to their source operation without crashing the application.

@@ -45,3 +45,8 @@
 ## 2025-02-18 - Modularity Check
 **Learning:** `js/loader/vendorLoader.js` was hovering near the maximum allowed cyclomatic complexity. Extracting reusable logger and error handler functions from within the `catch` blocks dramatically simplifies the logical flow of the initialization process while preserving test coverage.
 **Action:** Continuously audit deep `try-catch` structures; error parsing should almost always be extracted into standalone helper functions.
+
+## 2026-06-26 - Extracting methods for cyclomatic complexity
+
+**Learning:** Extracted logic in `js/page-transition.js`, `js/ambient/ambient.js`, `js/block-navigation.js`, `js/mouse-parallax.js`, and `js/service-worker-register.js` to new single-responsibility functions. This drastically decreases cyclomatic complexity of individual functions (kept strictly below 6) without impacting expected functionality.
+**Action:** Always extract nested logic, such as large callbacks and verbose initialization sequences, into smaller, single-responsibility helper functions located in the outer scope.
