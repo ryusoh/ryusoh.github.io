@@ -1364,9 +1364,11 @@ describe('page-transition additional coverage', () => {
             };
 
             try {
-                const apiWrapper = require('../../js/page-transition.js');
+                require('../../js/page-transition.js');
                 const api = window.__PageTransitionForTesting;
-                if (!api) return;
+                if (!api) {
+                    return;
+                }
 
                 api.isEligibleAnchor(document.createElement('a'));
 
@@ -1389,9 +1391,9 @@ describe('page-transition additional coverage', () => {
                 }
 
                 if (api.hasTransitionParam) {
-                    context.window.location.search = '?transition=true';
+                    window.location.search = '?transition=true';
                     api.hasTransitionParam();
-                    context.window.location.search = '';
+                    window.location.search = '';
                 }
 
                 if (api.clearTransitionParam) {
@@ -1401,15 +1403,15 @@ describe('page-transition additional coverage', () => {
                     };
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.console = undefined;
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.console = {};
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.URL = originalURL;
 
                     // with param
@@ -1417,7 +1419,7 @@ describe('page-transition additional coverage', () => {
                     window.location.search = '?transition=true';
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.location.search = originalSearch;
 
                     // too long url
@@ -1428,25 +1430,25 @@ describe('page-transition additional coverage', () => {
                     });
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.location.href = originalHref;
                 }
 
                 if (api.exitPage) {
                     try {
                         api.exitPage();
-                    } catch (e) {}
+                    } catch {}
                 }
 
                 if (api.navigate) {
                     window.matchMedia = () => ({ matches: false });
                     try {
                         api.navigate('http://localhost/next');
-                    } catch (e) {}
+                    } catch {}
                     window.matchMedia = () => ({ matches: true });
                     try {
                         api.navigate('http://localhost/next');
-                    } catch (e) {}
+                    } catch {}
                 }
 
                 if (api.init) {
@@ -1455,7 +1457,7 @@ describe('page-transition additional coverage', () => {
                     window.sessionStorage.setItem('pendingReveal', 'true');
                     try {
                         api.init();
-                    } catch (e) {}
+                    } catch {}
                 }
 
                 if (api.updateHistoryUrl) {
@@ -1470,15 +1472,15 @@ describe('page-transition additional coverage', () => {
                     };
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.console = undefined;
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.console = {};
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.URL = originalURL;
 
                     // with param
@@ -1486,7 +1488,7 @@ describe('page-transition additional coverage', () => {
                     window.location.search = '?transition=true';
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.location.search = originalSearch;
 
                     // too long url
@@ -1497,25 +1499,25 @@ describe('page-transition additional coverage', () => {
                     });
                     try {
                         api.clearTransitionParam();
-                    } catch (e) {}
+                    } catch {}
                     window.location.href = originalHref;
                 }
 
                 if (api.exitPage) {
                     try {
                         api.exitPage();
-                    } catch (e) {}
+                    } catch {}
                 }
 
                 if (api.navigate) {
                     window.matchMedia = () => ({ matches: false });
                     try {
                         api.navigate('http://localhost/next');
-                    } catch (e) {}
+                    } catch {}
                     window.matchMedia = () => ({ matches: true });
                     try {
                         api.navigate('http://localhost/next');
-                    } catch (e) {}
+                    } catch {}
                 }
 
                 if (api.init) {
@@ -1524,7 +1526,7 @@ describe('page-transition additional coverage', () => {
                     window.sessionStorage.setItem('pendingReveal', 'true');
                     try {
                         api.init();
-                    } catch (e) {}
+                    } catch {}
                 }
 
                 api.getValidatedUrl('javascript:alert(1)');
@@ -1579,7 +1581,7 @@ describe('page-transition additional coverage', () => {
                 document.body.appendChild(cont);
 
                 api.applyStaggeredEntrance(document.body);
-            } catch (e) {}
+            } catch {}
 
             window.addEventListener = originalAddEventListener;
             window.requestAnimationFrame = originalRaf;
