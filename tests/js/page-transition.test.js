@@ -1348,7 +1348,6 @@ describe('page-transition.js', () => {
     });
 });
 
-
 describe('page-transition additional coverage', () => {
     test('coverage execution via mock API', () => {
         jest.isolateModules(() => {
@@ -1360,7 +1359,9 @@ describe('page-transition additional coverage', () => {
 
             // Expose a safe RAF
             const originalRaf = window.requestAnimationFrame;
-            window.requestAnimationFrame = (cb) => { setTimeout(cb, 0); };
+            window.requestAnimationFrame = (cb) => {
+                setTimeout(cb, 0);
+            };
 
             try {
                 const apiWrapper = require('../../js/page-transition.js');
@@ -1373,124 +1374,170 @@ describe('page-transition additional coverage', () => {
                 anchor.href = 'http://localhost/test';
                 api.isEligibleAnchor(anchor);
 
-        if (api.isEligibleAnchor) {
-            const externalAnchor = document.createElement('a');
-            externalAnchor.href = "http://external.com";
-            api.isEligibleAnchor(externalAnchor);
+                if (api.isEligibleAnchor) {
+                    const externalAnchor = document.createElement('a');
+                    externalAnchor.href = 'http://external.com';
+                    api.isEligibleAnchor(externalAnchor);
 
-            const blankAnchor = document.createElement('a');
-            blankAnchor.target = "_blank";
-            api.isEligibleAnchor(blankAnchor);
+                    const blankAnchor = document.createElement('a');
+                    blankAnchor.target = '_blank';
+                    api.isEligibleAnchor(blankAnchor);
 
-            const dlAnchor = document.createElement('a');
-            dlAnchor.download = "true";
-            api.isEligibleAnchor(dlAnchor);
-        }
+                    const dlAnchor = document.createElement('a');
+                    dlAnchor.download = 'true';
+                    api.isEligibleAnchor(dlAnchor);
+                }
 
-        if (api.hasTransitionParam) {
-            context.window.location.search = "?transition=true";
-            api.hasTransitionParam();
-            context.window.location.search = "";
-        }
+                if (api.hasTransitionParam) {
+                    context.window.location.search = '?transition=true';
+                    api.hasTransitionParam();
+                    context.window.location.search = '';
+                }
 
+                if (api.clearTransitionParam) {
+                    const originalURL = window.URL;
+                    window.URL = function () {
+                        throw new Error('mock error');
+                    };
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.console = undefined;
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.console = {};
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.URL = originalURL;
 
-        if (api.clearTransitionParam) {
-            const originalURL = window.URL;
-            window.URL = function() { throw new Error('mock error'); };
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.console = undefined;
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.console = {};
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.URL = originalURL;
+                    // with param
+                    const originalSearch = window.location.search;
+                    window.location.search = '?transition=true';
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.location.search = originalSearch;
 
-            // with param
-            const originalSearch = window.location.search;
-            window.location.search = "?transition=true";
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.location.search = originalSearch;
+                    // too long url
+                    const originalHref = window.location.href;
+                    Object.defineProperty(window, 'location', {
+                        value: { href: 'x'.repeat(2500) },
+                        writable: true,
+                    });
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.location.href = originalHref;
+                }
 
-            // too long url
-            const originalHref = window.location.href;
-            Object.defineProperty(window, 'location', { value: { href: "x".repeat(2500) }, writable: true });
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.location.href = originalHref;
-        }
+                if (api.exitPage) {
+                    try {
+                        api.exitPage();
+                    } catch (e) {}
+                }
 
-        if (api.exitPage) {
-            try { api.exitPage(); } catch(e) {}
-        }
+                if (api.navigate) {
+                    window.matchMedia = () => ({ matches: false });
+                    try {
+                        api.navigate('http://localhost/next');
+                    } catch (e) {}
+                    window.matchMedia = () => ({ matches: true });
+                    try {
+                        api.navigate('http://localhost/next');
+                    } catch (e) {}
+                }
 
-        if (api.navigate) {
-            window.matchMedia = () => ({ matches: false });
-            try { api.navigate("http://localhost/next"); } catch(e) {}
-            window.matchMedia = () => ({ matches: true });
-            try { api.navigate("http://localhost/next"); } catch(e) {}
-        }
+                if (api.init) {
+                    document.body.dataset.pageType = 'project';
+                    window.matchMedia = () => ({ matches: false });
+                    window.sessionStorage.setItem('pendingReveal', 'true');
+                    try {
+                        api.init();
+                    } catch (e) {}
+                }
 
-        if (api.init) {
-             document.body.dataset.pageType = "project";
-             window.matchMedia = () => ({ matches: false });
-             window.sessionStorage.setItem('pendingReveal', 'true');
-             try { api.init(); } catch(e) {}
-        }
+                if (api.updateHistoryUrl) {
+                    api.updateHistoryUrl('http://localhost/newpath');
+                }
 
-        if (api.updateHistoryUrl) {
-            api.updateHistoryUrl('http://localhost/newpath');
-        }
+                // Ensure standard mock tests inside try-catch to bypass initialization
+                if (api.clearTransitionParam) {
+                    const originalURL = window.URL;
+                    window.URL = function () {
+                        throw new Error('mock error');
+                    };
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.console = undefined;
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.console = {};
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.URL = originalURL;
 
-        // Ensure standard mock tests inside try-catch to bypass initialization
-        if (api.clearTransitionParam) {
-            const originalURL = window.URL;
-            window.URL = function() { throw new Error('mock error'); };
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.console = undefined;
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.console = {};
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.URL = originalURL;
+                    // with param
+                    const originalSearch = window.location.search;
+                    window.location.search = '?transition=true';
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.location.search = originalSearch;
 
-            // with param
-            const originalSearch = window.location.search;
-            window.location.search = "?transition=true";
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.location.search = originalSearch;
+                    // too long url
+                    const originalHref = window.location.href;
+                    Object.defineProperty(window, 'location', {
+                        value: { href: 'x'.repeat(2500), search: '' },
+                        writable: true,
+                    });
+                    try {
+                        api.clearTransitionParam();
+                    } catch (e) {}
+                    window.location.href = originalHref;
+                }
 
-            // too long url
-            const originalHref = window.location.href;
-            Object.defineProperty(window, 'location', { value: { href: "x".repeat(2500), search: "" }, writable: true });
-            try { api.clearTransitionParam(); } catch(e) {}
-            window.location.href = originalHref;
-        }
+                if (api.exitPage) {
+                    try {
+                        api.exitPage();
+                    } catch (e) {}
+                }
 
-        if (api.exitPage) {
-            try { api.exitPage(); } catch(e) {}
-        }
+                if (api.navigate) {
+                    window.matchMedia = () => ({ matches: false });
+                    try {
+                        api.navigate('http://localhost/next');
+                    } catch (e) {}
+                    window.matchMedia = () => ({ matches: true });
+                    try {
+                        api.navigate('http://localhost/next');
+                    } catch (e) {}
+                }
 
-        if (api.navigate) {
-            window.matchMedia = () => ({ matches: false });
-            try { api.navigate("http://localhost/next"); } catch(e) {}
-            window.matchMedia = () => ({ matches: true });
-            try { api.navigate("http://localhost/next"); } catch(e) {}
-        }
-
-        if (api.init) {
-             document.body.dataset.pageType = "project";
-             window.matchMedia = () => ({ matches: false });
-             window.sessionStorage.setItem('pendingReveal', 'true');
-             try { api.init(); } catch(e) {}
-        }
-
+                if (api.init) {
+                    document.body.dataset.pageType = 'project';
+                    window.matchMedia = () => ({ matches: false });
+                    window.sessionStorage.setItem('pendingReveal', 'true');
+                    try {
+                        api.init();
+                    } catch (e) {}
+                }
 
                 api.getValidatedUrl('javascript:alert(1)');
                 api.getValidatedUrl('http://other.com');
-                api.getValidatedUrl("http://localhost/" + "x".repeat(2500));
+                api.getValidatedUrl('http://localhost/' + 'x'.repeat(2500));
 
                 api.hasTransitionParam('http://localhost/?transition=true');
                 api.hasTransitionParam('http://localhost/');
 
                 const originalURL = window.URL;
-                window.URL = function() { throw new Error('mock error'); };
+                window.URL = function () {
+                    throw new Error('mock error');
+                };
                 api.clearTransitionParam();
                 window.console = undefined;
                 api.clearTransitionParam();
@@ -1504,13 +1551,13 @@ describe('page-transition additional coverage', () => {
 
                 api.storeCursorPositionForTransition({ clientX: 10, clientY: 10 });
 
-                api.buildTransitionUrl("http://localhost/", "?transition=true");
-                api.buildTransitionUrl("http://localhost/" + "x".repeat(2500), "?transition=true");
+                api.buildTransitionUrl('http://localhost/', '?transition=true');
+                api.buildTransitionUrl('http://localhost/' + 'x'.repeat(2500), '?transition=true');
 
                 const event = new window.Event('click', { bubbles: true, cancelable: true });
                 const docAnchor = document.createElement('a');
-                docAnchor.href = "http://localhost/something_new";
-                docAnchor.dataset.pageTransition = "true";
+                docAnchor.href = 'http://localhost/something_new';
+                docAnchor.dataset.pageTransition = 'true';
                 document.body.appendChild(docAnchor);
                 docAnchor.dispatchEvent(event);
 
@@ -1532,7 +1579,7 @@ describe('page-transition additional coverage', () => {
                 document.body.appendChild(cont);
 
                 api.applyStaggeredEntrance(document.body);
-            } catch(e) {}
+            } catch (e) {}
 
             window.addEventListener = originalAddEventListener;
             window.requestAnimationFrame = originalRaf;
