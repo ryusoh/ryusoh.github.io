@@ -2,3 +2,4 @@
 .jules/
 
 node_modules/
+.prettierignore

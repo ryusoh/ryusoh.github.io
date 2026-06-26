@@ -40,6 +40,11 @@ instead. `.jules/` is excluded from our Prettier and markdownlint gates
 (`.prettierignore`, `.markdownlintignore`), so a format/lint failure in a `.jules/`
 file is expected — never "fix" it by editing the file.
 
+Jules PRs occasionally commit **root-level scratch scripts** (e.g. `patch_*.js`,
+`run_*.sh`) that it used to mutate test files in place. These fail eslint
+(`require`/`no-undef` under the browser config) and break CI. When shipping a
+Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
+
 ## Agent commands
 
 Slash/custom commands are tracked under `.claude/commands/` (Claude) and

@@ -16,3 +16,8 @@ pnpm-lock.yaml
 
 # Owned/auto-recorded by the Jules agent — read-only for us (see CLAUDE.md)
 .jules/
+
+# Gitignored local Claude config (see .gitignore). CI's staged-files prettier
+# hook never sees it, so don't let whole-repo `make fmt-check` fail on it.
+# Scoped to local files only — tracked .claude/commands/ stays format-checked.
+.claude/settings.local.json
