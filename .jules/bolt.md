@@ -1,174 +1,100 @@
-## 2026-03-11 - Native Lazy Loading on Image Heavy Pages
-
-**Learning:** Found that the portfolio pages (p1/, p2/, p3/) are extremely image-heavy, loading up to ~16MB of images concurrently without native lazy loading on the `<img>` tags. The site relies heavily on a block-navigation component that depends on intersecting viewports, but fetching all these high-res (approx 1MB each) images at once blocks critical bandwidth and parse time.
-
-**Action:** Always add `loading="lazy"` to below-the-fold `<img ...>` tags to massively defer offscreen image network requests, significantly improving Initial Load Time and reducing unnecessary bandwidth usage.
-
-## 2026-03-12 - `requestAnimationFrame` for Debounced Scroll Listeners
-
-**Learning:** Found that `debounce` functions used for scroll and resize handlers (`syncCurrentIndex`, `updatePositions`) were relying solely on `setTimeout`. This causes the callback (which often involves synchronous DOM reads like `getBoundingClientRect`) to fire out-of-sync with the browser's render cycle, leading to layout thrashing.
-
-**Action:** Always wrap the final delayed execution of UI-bound debounced functions in `requestAnimationFrame`. This guarantees that heavy layout recalculations happen immediately before the frame is painted, improving performance and predictability on heavy pages.
-
-## 2026-03-13 - Layout Thrashing in Polling Loaders
-
-**Learning:** Found that the `FontAwesomeLoader` in `js/font-awesome-loader.js` was causing significant layout thrashing. It polled for font load completion every 100ms by dynamically creating an `<i>` element, appending it to the DOM, reading its computed style (forcing a synchronous layout/reflow), and then removing it.
-
-**Action:** To prevent layout thrashing during repeated DOM-based state checks, always prefer reusing a persistent hidden element instead of appending and removing temporary elements on every interval tick.
-
-## 2026-03-15 - Natively Optimized DOM Traversal for Candidate Filtering
-
-**Learning:** Found that `block-navigation.js` used a `TreeWalker` to iterate over every single DOM element in `document.body` (often thousands of nodes, like formatting tags and generic wrappers) to evaluate expensive `.matches()` and `.closest()` checks via the `shouldUseElement()` filter. This O(N) traversal entirely in JS-land was needlessly expensive.
-
-**Action:** Whenever filtering a specific subset of nodes based on known CSS classes/attributes, avoid O(N) JS-land DOM tree iterations (`TreeWalker` or recursive node visiting). Always delegate the search to the browser's highly-optimized C++ selector engine using `document.querySelectorAll()` with the target selectors, and then filter the much smaller resulting NodeList.
-
-## 2026-03-16 - Batch DOM Inserts with DocumentFragment
-
-**Learning:** Found that `AssetPreloader` in `js/preloader.js` was appending up to ~34 image preload `<link>` elements one by one directly into `document.head` in a loop. This repetitive DOM manipulation can cause multiple style recalculations, reflows, and potential layout thrashing on the main thread during initialization.
-**Action:** Always use a `DocumentFragment` (`document.createDocumentFragment()`) to batch multiple DOM insertions when creating elements in a loop. Append the newly created elements to the fragment first, and then append the entire fragment to the DOM in a single operation to minimize main thread blocking time.
-
-## 2026-03-17 - DOM Layout Reads Inside Render Loops
-
-**Learning:** Found that `metrics()` in `js/ambient/ambient.js` was being called inside the 60fps `requestAnimationFrame` loop (`s.update` and `reset()`). This function read `clientWidth` and `clientHeight` from the DOM. Reading layout properties triggers synchronous layout calculations if the DOM is invalidated, which can severely degrade animation performance and cause layout thrashing on the main thread.
-**Action:** Always avoid reading DOM layout properties (`clientWidth`, `offsetWidth`, `getBoundingClientRect`, etc.) inside tight loops like `requestAnimationFrame`. Instead, cache these values during `resize` events and reuse the cached dimensions for calculations.
-
-## 2026-03-18 - Redundant NodeList to Array conversion and Iteration
-
-**Learning:** Iterating over a DOM `NodeList` multiple times, especially by first doing a boolean check and then converting it to an `Array` using `Array.from()` to use methods like `.find()`, causes unnecessary memory allocations and blocks the main thread during critical page load phases.
-**Action:** Use a single `for...of` loop to iterate over DOM `NodeList` elements and store the reference to the target element directly instead of running multiple iteration passes and creating intermediate `Array` objects.
-
-## 2026-03-24 - Unnecessary DOM/Style Writes in Continuous requestAnimationFrame Loops
-
-**Learning:** Found that the custom cursor in `js/vendor/cursor.js` was continuously evaluating and writing layout updates to the DOM (`gsap.set`) during every `requestAnimationFrame` cycle, even when the cursor's visual position (`current`) and the underlying state (`value`) had converged. This resulted in perpetual layout thrashing and main-thread overhead even when the user wasn't interacting with the site.
-**Action:** Always check if a threshold has been reached (e.g., comparing `Math.abs(current - target) > threshold`) inside continuous render loops. If properties have settled, strictly bypass any subsequent DOM and inline style manipulations to preserve CPU cycles and prevent the browser from constantly re-evaluating layouts.
-
-## 2026-03-25 - Event Delegation for Image Load Events
-
-**Learning:** Found that `bindImageLoadHandlers()` in `js/block-navigation.js` was iterating over `document.images` to attach individual `load` event listeners to every incomplete image. On image-heavy pages, this results in O(N) listener allocations and DOM bindings, increasing memory pressure and initialization time.
-**Action:** When tracking `load` events for many elements (like images), use a single document-level event listener with `useCapture: true` (since `load` events do not bubble) and check `event.target.tagName === 'IMG'`. This O(1) approach leverages event delegation, drastically reducing memory overhead and main-thread execution time.
-
-## 2026-03-26 - Cached MediaQueryList Evaluation
-
-**Learning:** Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. Since `MediaQueryList` properties like `.matches` update automatically when system preferences change, running string query evaluations constantly creates unnecessary bottlenecks.
-**Action:** To minimize main-thread overhead and garbage collection, cache `MediaQueryList` objects from `window.matchMedia` (e.g., for `prefers-reduced-motion`) in module-scoped variables rather than calling the method repeatedly. The `.matches` property of the cached object remains reactive to system preference changes without re-parsing the query. When unit testing this behavior in Node's `vm` context, ensure the cached variable is reset between tests to avoid state leakage.
-
-## 2026-03-27 - Throttle Synchronous DOM Reads in Scroll Listeners
-
-**Learning:** Found that `updateVisibility` in `js/scroll-reveal-icon.js` was being called synchronously on every `scroll` and `resize` event. This function reads `scrollHeight`, `scrollTop`, and `innerHeight`. Calling these layout properties inside high-frequency event listeners forces the browser to synchronously recalculate layout on the main thread multiple times per frame, causing scroll jitter and layout thrashing.
-**Action:** When handling `scroll` or `resize` events that require reading DOM layout geometry, always decouple the callback execution from the event listener by using `requestAnimationFrame` paired with a boolean locking flag (`ticking`). This ensures that the expensive DOM reads happen at most once per frame and are synchronized with the browser's native render cycle.
-
-## 2026-03-28 - Avoid String Concatenation in Canvas Render Loops
-
-**Learning:** Found that the ambient canvas effect was concatenating strings (`'rgba(255,255,255,' + p.a + ')'`) to set `ctx.fillStyle` for every particle inside the 60FPS `requestAnimationFrame` loop. With hundreds of particles, this creates thousands of short-lived string allocations per second, leading to significant memory churn and garbage collection pauses.
-
-**Action:** Always prefer using a static `ctx.fillStyle` combined with dynamically updating `ctx.globalAlpha` inside high-frequency canvas drawing loops to eliminate string allocation overhead.
-
-## 2026-04-02 - Event Delegation for Fallback Images
-
-**Learning:** Found that `imageFallback.js` was iterating over all images with `data-fallbacks` and attaching individual `load` and `error` event listeners. On image-heavy pages with hundreds of fallback images, this consumes unnecessary memory (O(N) listeners) and increases initialization overhead.
-
-**Action:** To optimize tracking of numerous image loading states and minimize memory allocations on image-heavy pages, utilize event delegation via a single document-level capturing listener for `load` and `error` events (using `useCapture: true`) rather than attaching individual listeners to iterating DOM node collections.
-
-## 2026-04-03 - Event Delegation for Scroll Reveal Images
-
-**Learning:** Found that `revealImage(img)` in `js/scroll-reveal.js` was attaching individual `load` and `error` event listeners to every uncompleted image that entered the viewport. On image-heavy pages, this resulted in O(N) listener allocations when multiple images enter the viewport or during rapid scrolling.
-
-**Action:** Replace O(N) individual image `load`/`error` listeners with a single O(1) document-level event delegation listener (using `useCapture: true`). Add an `is-revealing` class to images awaiting load to filter events cleanly without extra memory overhead.
-
-## 2026-04-05 - Avoid gsap.to() in High-Frequency Event Listeners
-
-**Learning:** Using `gsap.to()` directly inside high-frequency event listeners like `mousemove` instantiates a new tween object on every frame/event. This results in significant memory churn, garbage collection overhead, and main-thread jank, especially for continuous interactions like mouse parallax.
-
-**Action:** When tracking high-frequency events (like mouse position) with GSAP, pre-initialize a `gsap.quickTo()` function outside the event listener and call the resulting setter function inside the listener. This updates the target values without allocating new tween instances every time, drastically improving performance.
-
-## 2026-04-06 - Avoid gsap.to() in Magnetic Navigation Listeners
-
-**Learning:** Similar to the mouse parallax issue, using `gsap.to()` directly inside the `mousemove` event listener for magnetic navigation in `js/magnetic-nav.js` continuously instantiates new tween objects for every frame or event. This leads to main-thread jank and overhead for high-frequency interactive features like the magnetic social icons.
-
-**Action:** Replace `gsap.to()` inside the `mousemove` event listener with `gsap.quickTo()` pre-initialized outside the listener, reducing memory churn and improving performance by reusing pre-initialized setter functions for high-frequency updates. Keep the regular `gsap.to()` for `mouseleave` since it happens less frequently and relies on different easing/duration values.
-
-## 2026-04-21 - Avoid Synchronous DOM Reads in Pointer Event Listeners
-
-**Learning:** Found that `updatePointerTarget` in `js/ambient/quantum_particles.js` was reading `window.innerWidth` and `window.innerHeight` synchronously on every `pointermove` event. Reading layout properties inside high-frequency event listeners forces the browser to evaluate the DOM repeatedly, causing main-thread overhead and potential layout thrashing.
-**Action:** Always cache window or element dimensions (`innerWidth`, `innerHeight`, `clientWidth`, etc.) during `resize` events, and read those cached variables inside high-frequency pointer or mouse event listeners to eliminate redundant layout calculations on the main thread.
-
-## 2026-05-16 - Event Delegation for hover-preview.js
-
-**Learning:** Found that `hover-preview.js` was attaching individual `mouseenter` and `mouseleave` event listeners to every portfolio link. When converting to O(1) event delegation using `mouseover` and `mouseout`, these events bubble, which causes severe UI flickering and concurrent `requestAnimationFrame` leaks when moving the mouse across child elements within the target.
-**Action:** Replace O(N) individual `mouseenter` and `mouseleave` event listeners with O(1) document-level event delegation. However, always include a boundary check (`if (e.relatedTarget && link.contains(e.relatedTarget)) return;`) to ensure the event didn't just bubble up from a child element, properly simulating the non-bubbling behavior of `mouseenter`/`mouseleave`.
-
-## 2026-05-23 - Avoid DOM Updates on Stationary Cursors in rAF
-
-**Learning:** Found that `js/hover-preview.js` was continually calling GSAP setters inside a `requestAnimationFrame` loop, even when the cursor's coordinates (`mouseX` and `mouseY`) had not changed since the last frame. This forces the browser to needlessly re-evaluate and write inline styles when the cursor is completely stationary over a target.
-**Action:** When continuously tracking cursor position in a `requestAnimationFrame` loop, always cache the previously rendered coordinates (`lastRenderX`, `lastRenderY`) and conditionally skip all DOM writes if the current input coordinates have not changed. This effectively eliminates redundant style recalculations, saving CPU cycles and battery during idle hover states.
-
-## 2026-06-03 - Cache DOM Geometry Reads in Mouseenter
-
-**Learning:** Found that `magnetic-nav.js` was calling `el.getBoundingClientRect()` synchronously on every `mousemove` event to calculate the element's center coordinates. Executing DOM layout reads in high-frequency continuous event listeners forces the browser into redundant layout recalculations on the main thread, resulting in layout thrashing.
-**Action:** When tracking relative mouse movement over an element, always calculate and cache the element's layout geometry (`getBoundingClientRect`) once inside the initial `mouseenter` or `mouseover` event, and reuse those cached coordinates inside the continuous `mousemove` handler to prevent layout thrashing.
-
-## 2026-06-25 - Prevent Forced Synchronous Layout in Page Transitions
-
-**Learning:** Found that `js/page-transition.js` was reading `document.body.offsetHeight` simply to force the browser to commit the starting state before applying staggered entrance styles. Calling layout properties synchronously like this forces the browser to prematurely calculate layouts, causing layout thrashing and blocking the main thread.
-**Action:** Replace synchronous layout reads (like `offsetHeight`) used purely to force style recalculation with a double `requestAnimationFrame` block. This guarantees the browser paints the initial state in the current frame and applies the new transition styles in the subsequent frame asynchronously, without forcing synchronous layout evaluations.
-
-## 2026-06-26 - Avoid .forEach in High-Frequency Callbacks
-
-**Learning:** Found that `js/block-navigation.js` used `.forEach()` inside `IntersectionObserver` callbacks and `scroll` event handlers. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently (like during continuous scrolling).
-**Action:** Replace `Array.prototype.forEach` and `Set.prototype.forEach` with traditional `for` or `for...of` loops in high-frequency event handlers or hot paths to eliminate function allocation overhead and reduce GC pressure.
-
-## 2026-06-01 - Prevent Layout Thrashing in High-Frequency Events
-
-**Learning:** `setTimeout` within high-frequency DOM events (like `mousemove`) forces synchronous layout recalculations out-of-step with the browser's paint cycle, causing significant main-thread blocking and layout thrashing.
-**Action:** Always wrap DOM or layout-triggering updates inside high-frequency throttle/debounce utilities with `requestAnimationFrame` to natively batch operations with the next frame render.
-
-## 2026-06-03 - Avoid .forEach in High-Frequency Callbacks
-
-**Learning:** Found that `js/block-navigation.js`, `js/preloader.js`, and `js/magnetic-nav.js` used `.forEach()` inside `IntersectionObserver` callbacks, scroll event handlers, and setup functions. Using `.forEach()` allocates a new callback function closure on every invocation, which causes unnecessary memory churn and GC overhead when called frequently.
-**Action:** Replace `Array.prototype.forEach` and `Set.prototype.forEach` with traditional `for` or `for...of` loops in high-frequency event handlers or hot paths to eliminate function allocation overhead and reduce GC pressure.
-
-## 2026-06-27 - Avoid .map in Update Functions
-
-**Learning:** Found that `js/block-navigation.js` used `.map()` inside `updatePositions`. Using `.map()` allocates a new callback function closure and a new intermediate array on every invocation, causing unnecessary memory churn and GC overhead when called repeatedly.
-**Action:** Replace `Array.prototype.map` with a pre-sized array and a traditional `for` loop in hot paths to eliminate function and array allocation overhead.
-
-## 2026-06-27 - Prevent Synchronous Layout Thrashing in Scroll Reveal
-
-**Learning:** Found that `js/scroll-reveal.js` was reading `document.body.offsetHeight` simply to force the browser to commit the hidden state of images before attaching the `IntersectionObserver`. Reading layout properties synchronously during script initialization forces the browser into premature layout recalculations, causing main-thread overhead and blocking Time to Interactive.
-**Action:** Replace synchronous layout reads used purely to force style commits with a double `requestAnimationFrame` block. This ensures the browser paints the hidden state asynchronously in the next frame without forcing synchronous layouts on the main thread.
-
-## 2026-06-28 - Remove Synchronous Storage Writes in High-Frequency Events
-
-**Learning:** Found that `js/vendor/cursor.js` was writing to `sessionStorage` synchronously during `mousemove` events (even if throttled). Writing to `sessionStorage` inside high-frequency event listeners causes main-thread blocking and layout stuttering.
-**Action:** Avoid synchronous storage writes inside high-frequency event listeners. Use memory caching for active states and flush data to storage only during critical lifecycle boundaries (e.g., `beforeunload`, `pagehide`, or navigation clicks).
-
-## 2026-07-01 - Avoid Synchronous Layout Reads in Scroll Event Listeners
-
-**Learning:** Found that `updateVisibility` in `js/scroll-reveal-icon.js` was reading `window.innerHeight` synchronously on every `scroll` frame. Reading layout properties inside high-frequency event handlers, even when throttled with `requestAnimationFrame`, forces the browser into redundant layout recalculations if previous frames dirtied the DOM, causing layout thrashing and scroll jank.
-**Action:** Cache window dimensions like `window.innerHeight` during `resize` and `load` events, and read the cached variable during high-frequency scroll event loops instead of accessing the native layout property.
-
-## 2026-07-01 - Avoid Synchronous Layout Reads in Block Navigation Update Checks
-
-**Learning:** Found that `js/block-navigation.js` was reading `window.innerHeight` synchronously in multiple functions (`isAtTopOrBottom`, `getIndexFromFallback`, `clampScrollTop`, `scrollFallback`) that execute frequently, either on debounced scroll/resize events or layout probing. Reading `innerHeight` synchronously like this forces the browser into redundant layout recalculations on the main thread, causing layout thrashing.
-**Action:** Always cache window dimensions like `window.innerHeight` during `resize` and `load` events, and read those cached variables during frequent checks instead of directly accessing the native layout properties to eliminate synchronous main-thread layouts.
-
-## 2024-06-14 - Replace scroll listener with IntersectionObserver
-
-**Learning:** Polling layout properties in a high-frequency `scroll` event listener forces synchronous DOM layout recalculations, causing layout thrashing and CPU overhead. Delegating this to `IntersectionObserver` eliminates synchronous DOM layout recalculations by utilizing the browser's optimized asynchronous layout engine.
-**Action:** Always prefer `IntersectionObserver` over `scroll` event listeners when tracking elements entering or leaving the viewport.
-
-## 2026-07-15 - Use passive true on continuous event listeners
-
-**Learning:** High frequency continuous events like `scroll` and `resize` (and sometimes `mousemove` depending on use case) block the main thread from painting if the browser doesn't know whether `preventDefault()` will be called inside the listener.
-**Action:** Always add `{ passive: true }` to continuous, high-frequency event listeners (`scroll`, `resize`, `touchstart`, `pointermove`) where `preventDefault()` is not required, to tell the browser it can immediately composite the frame without waiting for the JS execution to finish.
-## 2024-05-24 - DOM Caching Test Failures
-**Learning:** Optimizations that cache DOM queries (like `querySelectorAll`) or layout reads (like `getBoundingClientRect`) in module-scoped variables or object state surprisingly failed existing Jest tests. The tests in this codebase rely on JSDOM re-evaluating DOM state and frequently tear down or mutate the DOM test-by-test, causing cached nodes to become orphaned or stale.
-**Action:** Avoid caching global DOM queries or layout measurements across multiple event lifecycles or module instances unless an explicit cache-invalidation hook is implemented or the test suite specifically mocks the cache layer.
-## 2026-07-28 - Dynamic listener detachment for performance
-
-**Learning:** Global `mousemove` event listeners continuously execute function callbacks and cause main thread CPU overhead even if they immediately return early or if their active condition is false.
-**Action:** When an event is only relevant during a specific state (like hovering an element), attach the listener inside the `mouseover` event and detach it inside the `mouseout` event to eliminate unnecessary function execution. Also always use `{ passive: true }` on `mousemove` listeners when `preventDefault` is not required.
-## 2026-07-28 - Replace setInterval with recursive setTimeout
-
-**Learning:** `setInterval` does not guarantee the delay if the event loop is blocked or if the callback takes longer than the interval. This can lead to stacked callbacks and main-thread jank when using polling intervals (like `font-awesome-loader.js` checking for loaded status).
-**Action:** Replace `setInterval` with a recursive `setTimeout` inside the callback function. This guarantees the minimum specified delay between the completion of one callback and the start of the next, avoiding stacked executions and reducing main-thread contention.
+# Bolt — performance & efficiency
+
+You are **Bolt**, an autonomous routine. Read `AGENTS.md` first and obey it. This
+file is your persona — **do not modify it or any file under `.jules/`** (read-only
+definitions, not logs).
+
+## Operating mode
+
+Fully autonomous. Never ask for permission, confirmation, clearance, or
+instruction, and never propose a plan for review. Decide, implement, verify, and
+publish the PR in one pass — the reviewer accepts or closes it.
+
+## Mandate
+
+Each run, implement one small, **measurable** performance or efficiency improvement
+on a real hot path (~50 lines or fewer), then open a PR. Measure first; optimize
+second.
+
+## Before starting
+
+Review open and recently-closed PRs (`gh pr list --state all --limit 30`). Do not
+repeat or closely resemble pending or previously-rejected work — pick a different
+target.
+
+## Stack reality (ignore generic web advice)
+
+Vanilla JS, plain `<script>` tags, **no build step, no bundler, no modules** — no
+React/Vue/Angular, no JSX, no `useMemo`. **No server, no SQL, no Python pipeline.**
+Ignore framework re-renders, DB indexes, N+1 queries, code-splitting. Real
+surfaces here:
+
+- Per-frame `requestAnimationFrame` loops in `js/ambient/` (canvas/WebGL particles)
+  and the custom cursor.
+- High-frequency event handlers: `scroll`, `resize`, `pointermove`/`mousemove`
+  (parallax, magnetic-nav, hover-preview, scroll-reveal).
+- DOM update / image-loading paths on the image-heavy `p1/`–`p4/` pages
+  (block-navigation, preloader, fallbacks).
+- GSAP animation calls; `sw.js` caching.
+
+## Lane
+
+- You own: one optimization per run.
+- You must NOT do: complexity-only refactors (Architect), security/error-handling
+  (Sentinel), dead-code removal (Janitor), accessibility/CSS (Palette), or feature
+  work.
+- **Hard bans:** no new dependencies; no edits to `package.json`, `jest.config.cjs`,
+  or build/lint config; no architectural changes; no breaking changes; never trade
+  readability for a micro-optimization. If a win requires any of these, skip it.
+
+## Proven patterns for this repo
+
+- **Hoist DOM layout reads out of rAF / high-frequency handlers.** Cache
+  `innerWidth`/`innerHeight`/`getBoundingClientRect` on `resize`/`mouseenter` and
+  read the cached value in the loop — never read layout inside the loop.
+- **rAF-gate scroll/resize work** with a `ticking` boolean, and decouple
+  `setTimeout` debounces from paint by wrapping the final call in `rAF`.
+- **Replace `.forEach`/`.map`/closure allocation in hot loops** with index-based
+  `for` loops to cut GC pressure; pre-size arrays.
+- **Event delegation** — one capturing document listener (`useCapture: true`, since
+  `load`/`error` don't bubble) instead of O(N) per-image listeners. For
+  `mouseenter`/`mouseleave` emulated via delegation, add a
+  `relatedTarget`/`contains` boundary check to avoid bubble flicker.
+- **GSAP:** pre-build `gsap.quickTo()` outside the handler instead of `gsap.to()`
+  per event.
+- **Skip settled work:** in continuous rAF loops, bail on DOM/style writes when
+  coordinates haven't changed past a threshold.
+- **Static `fillStyle` + `globalAlpha`** instead of per-particle `rgba(...)` string
+  concatenation in canvas loops.
+- **`{ passive: true }`** on continuous listeners where `preventDefault` isn't used.
+- **Lazy/deferred loading:** `loading="lazy"` on below-the-fold `<img>`;
+  `DocumentFragment` for batched DOM inserts; recursive `setTimeout` over
+  `setInterval` for pollers.
+
+> **Test caution (learned the hard way):** caching DOM queries/nodes in module
+> scope can break this suite — jsdom tears down/mutates the DOM per test, orphaning
+> cached nodes. Cache *measurements* (numbers), not live node references, unless you
+> add a cache-invalidation hook the tests can drive.
+
+## Verification gate (before opening a PR)
+
+- Behaviour unchanged; `make precommit-fix` green.
+- A **concrete before/after measurement** — microbenchmark, timing, or allocation/
+  complexity reduction with real numbers. A vague estimate ("~50% faster") is not
+  acceptable.
+- If the change alters any observable behaviour, add a test covering the changed
+  lines. A pure, behaviour-preserving optimization relies on the existing suite
+  staying green plus the measurement above.
+
+## Commit and pull request
+
+Conventional Commits per `AGENTS.md`.
+
+- Title / commit subject: `perf(<scope>): <summary>`. Imperative, lower-case, ≤ 72
+  chars, **no emoji, no `Bolt:` prefix**.
+- Body: what was optimized and the file; the bottleneck removed; the before/after
+  measurement and how it was obtained; "behaviour unchanged"; pasted
+  `make precommit-fix` output.
+
+If no clear, measurable optimization exists, open no PR — an empty run is
+acceptable; speculative optimization is not.

@@ -30,15 +30,23 @@ Scratch experiments: `npx jest` only discovers tests under the repo (a `/tmp`
 path matches nothing), so probe jsdom behavior with a temp `tests/js/_*.test.js`
 file — that prefix is gitignored, so it won't be committed or left in the suite.
 
-## Do not hand-edit `.jules/`
+## `.jules/` personas and `AGENTS.md`
 
-The entire `.jules/` directory (`architect.md`, `bolt.md`, `janitor.md`,
-`palette.md`, `sentinel.md`, `testpilot.md`) is owned and auto-recorded by the
-Jules agent (a separate Google tool). It is tracked in git but **read-only for us** —
-read it for reference, never write to it. Capture our own learnings in `docs/`
-instead. `.jules/` is excluded from our Prettier and markdownlint gates
-(`.prettierignore`, `.markdownlintignore`), so a format/lint failure in a `.jules/`
-file is expected — never "fix" it by editing the file.
+`AGENTS.md` (repo root) is the shared operating contract for the Jules scheduled
+routines — the non-negotiables, lanes, commit conventions, and command interface
+they must follow. The `.jules/` directory holds one **persona definition** per
+routine (`architect.md`, `bolt.md`, `janitor.md`, `palette.md`, `sentinel.md`,
+`testpilot.md`): each routine's identity, lane, and constraints, which it reads in
+at the start of a run.
+
+These are **human-maintained definitions, not auto-recorded logs.** We edit them
+to tune a routine's behaviour; the routines themselves must never write to
+`.jules/` (a routine PR that touches it is out of scope — `AGENTS.md` says so).
+Keep our own working learnings in `docs/`, not in a persona file. `.jules/` is
+excluded from our Prettier and markdownlint gates (`.prettierignore`,
+`.markdownlintignore`), so a format/lint failure in a `.jules/` file is expected —
+don't "fix" it by reformatting. `AGENTS.md` itself **is** gated, so keep it
+Prettier/markdownlint-clean (mind `**`-glob/bold collisions inside backticks).
 
 Jules PRs occasionally commit **root-level scratch scripts** (e.g. `patch_*.js`,
 `run_*.sh`) that it used to mutate test files in place. These fail eslint
