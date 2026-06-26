@@ -25,8 +25,10 @@ table. Instead:
 
 1. Generate a machine-readable summary:
    `npx jest --coverage --coverageReporters=json-summary --coverageReporters=text`
-2. Read `coverage/coverage-summary.json` and rank files ascending by coverage,
-   skipping any already at 100%.
+2. Rank every file ascending with the shared helper:
+   `node scripts/coverage-rank.js --limit 5`
+   (it reads `coverage/coverage-summary.json` and skips files already at 100%;
+   `--json` for structured output, `--metric branches` to target branch coverage).
 3. Take those lowest-coverage files as targets, minus any already covered by an open
    PR. Never touch a file already at 100%.
 
