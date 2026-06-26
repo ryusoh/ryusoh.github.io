@@ -5,13 +5,19 @@
 
 /* global gsap */
 
-document.addEventListener('DOMContentLoaded', () => {
+function shouldSkipParallax() {
     if (window.PortfolioConfig && window.PortfolioConfig.enableMouseParallax === false) {
-        return;
+        return true;
     }
-
     if (typeof gsap === 'undefined') {
         window.console && window.console.warn('GSAP is not loaded. Skipping mouse parallax.');
+        return true;
+    }
+    return false;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (shouldSkipParallax()) {
         return;
     }
 

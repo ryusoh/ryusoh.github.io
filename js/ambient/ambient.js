@@ -99,6 +99,11 @@
         }
     }
 
+    function checkMotionAndEnabled(C, reduce) {
+        const enabled = C.enabled;
+        return !enabled || (reduce && C.respectReducedMotion !== false);
+    }
+
     function shouldSkip(C, force) {
         if (!window.Sketch) {
             return true;
@@ -107,11 +112,10 @@
             return false;
         }
         const reduce = getPrefersReducedMotion();
-        const large = cachedInnerWidth >= C.minWidth;
-        const enabled = C.enabled;
-        if (!enabled || (reduce && C.respectReducedMotion !== false)) {
+        if (checkMotionAndEnabled(C, reduce)) {
             return true;
         }
+        const large = cachedInnerWidth >= C.minWidth;
         if (!large) {
             return true;
         }
@@ -397,17 +401,20 @@
         };
     }
 
-    try {
-        const force =
-            typeof window !== 'undefined' && typeof window.URLSearchParams !== 'undefined'
-                ? getAmbientParam()
-                : null;
+    function handleAmbientInit() {
+        const hasWindowAndParams =
+            typeof window !== 'undefined' && typeof window.URLSearchParams !== 'undefined';
+        const force = hasWindowAndParams ? getAmbientParam() : null;
         const trace = force === 'trace';
         const C = getConfig(force, trace);
 
         if (!shouldSkip(C, force)) {
             runAmbient(C, force, trace);
         }
+    }
+
+    try {
+        handleAmbientInit();
     } catch (e) {
         logError('[ambient] Initialization failed:', e);
     }

@@ -213,9 +213,13 @@
 
     // --- URL validation (preserved from original) ---
 
+    function isMaliciousProtocol(p) {
+        return p === 'javascript:' || p === 'vbscript:' || p === 'data:';
+    }
+
     function isValidProtocol(parsedUrl) {
         const p = (parsedUrl.protocol || '').toLowerCase();
-        if (p === 'javascript:' || p === 'vbscript:' || p === 'data:') {
+        if (isMaliciousProtocol(p)) {
             logError('[page-transition] Blocked definitively malicious URL scheme');
             return false;
         }
@@ -268,15 +272,22 @@
         }
     }
 
-    function buildTransitionUrl(url) {
+    function isUrlLengthSafe(url) {
         if (typeof url !== 'string' || url.length > 2000) {
-            return url;
+            return false;
         }
         if (
             typeof window !== 'undefined' &&
             window.location &&
             window.location.href.length > 2000
         ) {
+            return false;
+        }
+        return true;
+    }
+
+    function buildTransitionUrl(url) {
+        if (!isUrlLengthSafe(url)) {
             return url;
         }
         try {
@@ -390,27 +401,29 @@
 
         let isAnimating = false;
 
+        function handleTransitionClick(event, anchor) {
+            if (isAnimating) {
+                return;
+            }
+            isAnimating = true;
+
+            if (navigate(anchor.href)) {
+                event.preventDefault();
+            } else {
+                isAnimating = false;
+            }
+        }
+
         document.addEventListener('click', function (event) {
             const anchor = event.target.closest('a');
             if (!anchor || !isEligibleAnchor(anchor)) {
                 return;
             }
 
-            // Global persistence: Store click coordinates for ALL same-origin links
             storeCursorPositionForTransition(event.clientX, event.clientY);
 
-            // If it's a link with the custom transition attribute, handle with delay
             if (anchor.hasAttribute(LINK_ATTR) && isValidTransitionClick(event, anchor)) {
-                if (isAnimating) {
-                    return;
-                }
-                isAnimating = true;
-
-                if (navigate(anchor.href)) {
-                    event.preventDefault();
-                } else {
-                    isAnimating = false;
-                }
+                handleTransitionClick(event, anchor);
             }
         });
 

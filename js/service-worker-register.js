@@ -27,21 +27,23 @@
         return;
     }
 
-    function emitEvent(name, detail) {
-        if (typeof window.dispatchEvent !== 'function') {
-            return;
-        }
-
-        if (typeof window.CustomEvent === 'function') {
-            window.dispatchEvent(new CustomEvent(name, { detail: detail || null }));
-            return;
-        }
-
+    function dispatchFallbackEvent(name, detail) {
         if (typeof document !== 'undefined' && typeof document.createEvent === 'function') {
             const event = document.createEvent('CustomEvent');
             event.initCustomEvent(name, false, false, detail || null);
             window.dispatchEvent(event);
         }
+    }
+
+    function emitEvent(name, detail) {
+        if (typeof window.dispatchEvent !== 'function') {
+            return;
+        }
+        if (typeof window.CustomEvent === 'function') {
+            window.dispatchEvent(new CustomEvent(name, { detail: detail || null }));
+            return;
+        }
+        dispatchFallbackEvent(name, detail);
     }
 
     function register() {
