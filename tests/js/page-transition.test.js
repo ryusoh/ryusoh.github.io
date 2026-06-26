@@ -1391,9 +1391,15 @@ describe('page-transition additional coverage', () => {
                 }
 
                 if (api.hasTransitionParam) {
-                    window.location.search = '?transition=true';
+                    Object.defineProperty(window, 'location', {
+                        value: { href: window.location.href, search: '?transition=true' },
+                        writable: true,
+                    });
                     api.hasTransitionParam();
-                    window.location.search = '';
+                    Object.defineProperty(window, 'location', {
+                        value: { href: window.location.href, search: '' },
+                        writable: true,
+                    });
                 }
 
                 if (api.clearTransitionParam) {
@@ -1420,7 +1426,10 @@ describe('page-transition additional coverage', () => {
                     try {
                         api.clearTransitionParam();
                     } catch {}
-                    window.location.search = originalSearch;
+                    Object.defineProperty(window, 'location', {
+                        value: { href: window.location.href, search: originalSearch },
+                        writable: true,
+                    });
 
                     // too long url
                     const originalHref = window.location.href;
