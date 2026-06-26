@@ -170,17 +170,22 @@ describe('js/block-navigation.js', () => {
     });
 
     describe('debounce functionality', () => {
-        it('should execute the debounced function via real timers', (done) => {
-            const spy = jest.fn();
+        it('should execute the debounced function via real timers', async () => {
+            let resolveExecuted;
+            const executed = new Promise((resolve) => {
+                resolveExecuted = resolve;
+            });
+            const spy = jest.fn(() => resolveExecuted());
             const debounced = testing.debounce(spy, 10);
             const origRaf = window.requestAnimationFrame;
             window.requestAnimationFrame = (cb) => setTimeout(cb, 0); // Mock rAF to trigger
             debounced();
-            setTimeout(() => {
-                expect(spy).toHaveBeenCalled();
-                window.requestAnimationFrame = origRaf;
-                done();
-            }, 30);
+            // Wait until the debounced fn actually runs instead of racing a fixed
+            // deadline — the setTimeout -> rAF -> setTimeout chain can exceed a tight
+            // window on a loaded CI runner, making the old 30ms budget flaky.
+            await executed;
+            expect(spy).toHaveBeenCalled();
+            window.requestAnimationFrame = origRaf;
         });
     });
 
