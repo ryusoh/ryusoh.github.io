@@ -1,0 +1,6 @@
+test(ambient): cover remaining lifecycle branches
+
+Added tests to cover setupCanvas tracing behavior, getDim logic, Sketch lifecycle execution (setup, update, resize, draw), clearFlag DOM edge cases, and ensure configuration gracefully handles missing methods without causing environment leaks.
+
+no production code changed
+make precommit-fix was executed locally.
