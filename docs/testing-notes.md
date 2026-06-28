@@ -3,6 +3,28 @@
 Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
 
+## 2026-06-28 — `Object.defineProperty(document, 'body')` overrides instance getter permanently, causing leaks
+
+**Problem:** Defining a mock value for `document.body` on the document instance itself via `Object.defineProperty(document, 'body', { value: undefined })` breaks the JSDOM instance prototype getter.
+Even if you attempt to restore it by defining the property back to its original value, it remains a static property on the instance rather than restoring the reactive prototype getter. As a result, in all subsequent tests in the same environment:
+
+- Setting `document.documentElement.innerHTML = ...` creates new DOM elements but does not update `document.body`.
+- `document.body` continues to return the old/detached body.
+- `document.getElementById` and `document.querySelector` fail and return `null` because elements are parsed into the active document but searched for in the detached body reference.
+
+**Fix:** Use Jest's `spyOn` to mock the getter on the prototype cleanly, allowing it to be fully restored with `.mockRestore()`:
+
+```js
+// In the test
+const bodySpy = jest.spyOn(document, 'body', 'get').mockReturnValue(undefined);
+
+// Execute code under test
+require('../../js/page-transition.js');
+
+// In afterEach or at the end of the test
+bodySpy.mockRestore();
+```
+
 ## 2026-06-16 — `window.location` / `window.document` are non-configurable in jsdom 26 (jest 30)
 
 **Problem:** After bumping to jest 30 / jest-environment-jsdom 30 (jsdom 26), the
