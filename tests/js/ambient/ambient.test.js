@@ -332,18 +332,20 @@ describe('js/ambient/ambient.js', () => {
                 beginPath: jest.fn(),
                 arc: jest.fn(),
                 fill: jest.fn(),
-                drawImage: jest.fn()
+                drawImage: jest.fn(),
             };
             mockCanvas = {
                 getContext: jest.fn(() => mockCtx),
                 style: {},
                 width: 800,
-                height: 600
+                height: 600,
             };
 
             // Mock getElementById to return canvas
             jest.spyOn(document, 'getElementById').mockImplementation((id) => {
-                if (id === 'ambient-canvas') {return mockCanvas;}
+                if (id === 'ambient-canvas') {
+                    return mockCanvas;
+                }
                 return null;
             });
         });
@@ -353,8 +355,11 @@ describe('js/ambient/ambient.js', () => {
         });
 
         it('covers getDim logic when elements are present', () => {
-            if (!api.getDim) {return;}
-            document.body.innerHTML = '<div class="transition-overlay"></div><main id="cont" style="opacity: 0.5"></main>';
+            if (!api.getDim) {
+                return;
+            }
+            document.body.innerHTML =
+                '<div class="transition-overlay"></div><main id="cont" style="opacity: 0.5"></main>';
 
             // Let's call getDim and verify it executes without error.
             expect(() => api.getDim()).not.toThrow();
@@ -362,7 +367,9 @@ describe('js/ambient/ambient.js', () => {
         });
 
         it('covers setupCanvas resizing and rendering trace', () => {
-            if (!api.setupCanvas) {return;}
+            if (!api.setupCanvas) {
+                return;
+            }
             document.body.innerHTML = '<canvas id="ambient-canvas"></canvas>';
 
             window.innerWidth = 1920;
@@ -381,9 +388,13 @@ describe('js/ambient/ambient.js', () => {
         });
 
         it('covers full Sketch lifecycle including setup, resize, update, draw', () => {
-            if (!window.Sketch || !window.Sketch.create) {return;}
+            if (!window.Sketch || !window.Sketch.create) {
+                return;
+            }
             const api = window.__AmbientForTesting;
-            if (!api) {return;}
+            if (!api) {
+                return;
+            }
 
             // Mock sketch creation
             let sketchInstance = null;
@@ -429,7 +440,9 @@ describe('js/ambient/ambient.js', () => {
         });
 
         it('hits setupCanvas tracing branch when trace mode is true', () => {
-            if (!api.setupCanvas) {return;}
+            if (!api.setupCanvas) {
+                return;
+            }
             document.body.innerHTML = '<canvas id="ambient-canvas"></canvas>';
 
             const canvasElement = document.getElementById('ambient-canvas');
@@ -449,7 +462,9 @@ describe('js/ambient/ambient.js', () => {
         });
 
         it('covers missing body early return in clearFlag', () => {
-            if (!api.clearFlag) {return;}
+            if (!api.clearFlag) {
+                return;
+            }
             const originalBody = document.body;
             Object.defineProperty(document, 'body', { value: null, configurable: true });
 
