@@ -249,13 +249,24 @@
         window.addEventListener('pointerleave', resetPointer, { passive: true });
         window.addEventListener('blur', resetPointer);
 
+        let ticking = false;
         const resize = () => {
-            updateCachedDimensions();
-            renderer.setSize(cachedWidth, cachedHeight, false);
-            camera.aspect = cachedWidth / cachedHeight;
-            camera.updateProjectionMatrix();
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    updateCachedDimensions();
+                    renderer.setSize(cachedWidth, cachedHeight, false);
+                    camera.aspect = cachedWidth / cachedHeight;
+                    camera.updateProjectionMatrix();
+                    ticking = false;
+                });
+                ticking = true;
+            }
         };
-        resize();
+        updateCachedDimensions();
+        renderer.setSize(cachedWidth, cachedHeight, false);
+        camera.aspect = cachedWidth / cachedHeight;
+        camera.updateProjectionMatrix();
+
         window.addEventListener('resize', resize, { passive: true });
 
         if (typeof window.ResizeObserver === 'function') {
