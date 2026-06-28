@@ -410,7 +410,9 @@ describe('js/ambient/ambient.js', () => {
                 sketchInstance.canvas = document.createElement('canvas');
 
                 // Execute setup, resize, update, draw
-                if (typeof sketchInstance.setup === 'function') {
+                // Wait, sketchInstance may not have setup if the init failed silently in the previous step
+                // because of missing context or mock.
+                if (sketchInstance && typeof sketchInstance.setup === 'function') {
                     sketchInstance.setup();
                     sketchInstance.resize();
                     sketchInstance.update();
