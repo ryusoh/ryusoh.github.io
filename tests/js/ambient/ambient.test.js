@@ -396,8 +396,12 @@ describe('js/ambient/ambient.js', () => {
             document.body.innerHTML = '<canvas id="ambient-canvas"></canvas>';
             // api.initAmbient isn't exported, but the IIFE runs on require.
             // We'll mock Sketch before the module is required again.
+            // Setup mock for isolateModules
             jest.isolateModules(() => {
+                const originalConsoleError = window.console.error;
+                window.console.error = jest.fn(); // Suppress expected init failure in isolated module
                 require('../../../js/ambient/ambient.js');
+                window.console.error = originalConsoleError;
             });
 
             if (sketchInstance) {
