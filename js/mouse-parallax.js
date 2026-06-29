@@ -27,15 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // We'll calculate movement relative to the center of the window
-    let centerX = window.innerWidth / 2;
-    let centerY = window.innerHeight / 2;
+    let centerX = typeof window !== 'undefined' ? window.innerWidth / 2 : 0;
+    let centerY = typeof window !== 'undefined' ? window.innerHeight / 2 : 0;
 
-    // Recalculate on resize
+    /**
+     * Bolt Optimization:
+     * - What: Debounce resize handler using requestAnimationFrame.
+     * - Why: Calculating coordinates on every resize event blocks the main thread. We only need the final values.
+     * - Impact: Eliminates main-thread blocking during resize.
+     */
+    let resizeTimeout;
+    let rafId;
     window.addEventListener(
         'resize',
         () => {
-            centerX = window.innerWidth / 2;
-            centerY = window.innerHeight / 2;
+            clearTimeout(resizeTimeout);
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
+            resizeTimeout = setTimeout(() => {
+                rafId = requestAnimationFrame(() => {
+                    centerX = typeof window !== 'undefined' ? window.innerWidth / 2 : 0;
+                    centerY = typeof window !== 'undefined' ? window.innerHeight / 2 : 0;
+                });
+            }, 150);
         },
         { passive: true }
     );

@@ -11,6 +11,9 @@ describe('mouse-parallax.js', () => {
     let mockSetterRotY;
 
     beforeEach(() => {
+        jest.useFakeTimers();
+        jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => setTimeout(cb, 0));
+        jest.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => clearTimeout(id));
         jest.resetModules();
         document.body.innerHTML = `
             <div id="main"><h1><span>Zhuang Liu</span></h1></div>
@@ -102,6 +105,7 @@ describe('mouse-parallax.js', () => {
         window.innerWidth = 2000;
         window.innerHeight = 1000;
         window.dispatchEvent(resizeEvent);
+        jest.advanceTimersByTime(200);
 
         // Check that centerX/Y is updated by checking next mousemove
         const mouseEvent2 = new window.Event('mousemove');
