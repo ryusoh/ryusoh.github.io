@@ -58,7 +58,17 @@ const handleFetchCacheFirst = (event, req) => {
             return fetch(req).then((res) => {
                 if (isValidResponse(res, req)) {
                     const resClone = res.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(req, resClone).catch((e) => {
+                            if (
+                                typeof self !== 'undefined' &&
+                                self.console &&
+                                typeof self.console.warn === 'function'
+                            ) {
+                                self.console.warn('[ServiceWorker] Cache put failed:', e);
+                            }
+                        });
+                    });
                 }
                 return res;
             });
@@ -72,7 +82,17 @@ const handleFetchNetworkFirst = (event, req) => {
             .then((res) => {
                 if (isValidResponse(res, req)) {
                     const resClone = res.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(req, resClone).catch((e) => {
+                            if (
+                                typeof self !== 'undefined' &&
+                                self.console &&
+                                typeof self.console.warn === 'function'
+                            ) {
+                                self.console.warn('[ServiceWorker] Cache put failed:', e);
+                            }
+                        });
+                    });
                 }
                 return res;
             })

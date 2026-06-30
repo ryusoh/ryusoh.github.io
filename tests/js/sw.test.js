@@ -212,6 +212,63 @@ describe('Service Worker', () => {
                 expect(res).toBe(mockFetchResponse);
             });
 
+            test('should gracefully handle cache put rejection', async () => {
+                mockCaches.match.mockResolvedValue(null);
+
+                const mockFetchResponse = {
+                    ok: true,
+                    status: 200,
+                    type: 'basic',
+                    headers: { get: () => null },
+                    clone: jest.fn().mockReturnValue('cloned-response'),
+                };
+                mockFetch.mockResolvedValue(mockFetchResponse);
+
+                mockCache.put.mockRejectedValue(new Error('Quota exceeded'));
+                window.console = mockSelf.console;
+
+                sw.fetchLogic(event);
+
+                const respondWithPromise = event.respondWith.mock.calls[0][0];
+                const res = await respondWithPromise;
+
+                await new Promise((resolve) => setTimeout(resolve, 0));
+
+                expect(mockFetch).toHaveBeenCalledWith(event.request);
+                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
+                expect(res).toBe(mockFetchResponse);
+                expect(mockSelf.console.warn).toHaveBeenCalledWith(
+                    '[ServiceWorker] Cache put failed:',
+                    expect.any(Error)
+                );
+            });
+
+            test('should gracefully handle missing console during cache put rejection', async () => {
+                mockCaches.match.mockResolvedValue(null);
+
+                const mockFetchResponse = {
+                    ok: true,
+                    status: 200,
+                    type: 'basic',
+                    headers: { get: () => null },
+                    clone: jest.fn().mockReturnValue('cloned-response'),
+                };
+                mockFetch.mockResolvedValue(mockFetchResponse);
+
+                mockCache.put.mockRejectedValue(new Error('Quota exceeded'));
+                delete mockSelf.console;
+
+                sw.fetchLogic(event);
+
+                const respondWithPromise = event.respondWith.mock.calls[0][0];
+                const res = await respondWithPromise;
+
+                await new Promise((resolve) => setTimeout(resolve, 0));
+
+                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
+                expect(res).toBe(mockFetchResponse);
+            });
+
             test('should fallback to fetch if not cached, and NOT put in cache if INVALID', async () => {
                 mockCaches.match.mockResolvedValue(null);
 
@@ -315,6 +372,59 @@ describe('Service Worker', () => {
                 const res = await respondWithPromise;
 
                 expect(mockFetch).toHaveBeenCalledWith(event.request);
+                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
+                expect(res).toBe(mockFetchResponse);
+            });
+
+            test('should gracefully handle cache put rejection in network first', async () => {
+                const mockFetchResponse = {
+                    ok: true,
+                    status: 200,
+                    type: 'basic',
+                    headers: { get: () => null },
+                    clone: jest.fn().mockReturnValue('cloned-response'),
+                };
+                mockFetch.mockResolvedValue(mockFetchResponse);
+
+                mockCache.put.mockRejectedValue(new Error('Quota exceeded'));
+                window.console = mockSelf.console;
+
+                sw.fetchLogic(event);
+
+                const respondWithPromise = event.respondWith.mock.calls[0][0];
+                const res = await respondWithPromise;
+
+                await new Promise((resolve) => setTimeout(resolve, 0));
+
+                expect(mockFetch).toHaveBeenCalledWith(event.request);
+                expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
+                expect(res).toBe(mockFetchResponse);
+                expect(mockSelf.console.warn).toHaveBeenCalledWith(
+                    '[ServiceWorker] Cache put failed:',
+                    expect.any(Error)
+                );
+            });
+
+            test('should gracefully handle missing console during cache put rejection in network first', async () => {
+                const mockFetchResponse = {
+                    ok: true,
+                    status: 200,
+                    type: 'basic',
+                    headers: { get: () => null },
+                    clone: jest.fn().mockReturnValue('cloned-response'),
+                };
+                mockFetch.mockResolvedValue(mockFetchResponse);
+
+                mockCache.put.mockRejectedValue(new Error('Quota exceeded'));
+                delete mockSelf.console;
+
+                sw.fetchLogic(event);
+
+                const respondWithPromise = event.respondWith.mock.calls[0][0];
+                const res = await respondWithPromise;
+
+                await new Promise((resolve) => setTimeout(resolve, 0));
+
                 expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
                 expect(res).toBe(mockFetchResponse);
             });
