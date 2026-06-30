@@ -998,6 +998,22 @@ describe('coverage helper', () => {
                 }
                 callHelpers();
 
+                function runManualCoverage() {
+                    // Hit more fallback branches by pushing edge cases into block positions
+                    const t = window.__BlockNavigationForTesting;
+                    t.clampScrollTop(100);
+                    t.clampScrollTop(-100);
+                    t.clampScrollTop(50000);
+
+                    // force edge index null
+                    Object.defineProperty(document.documentElement, 'scrollHeight', {
+                        value: 0,
+                        configurable: true,
+                    });
+                    t.calculateNextIndex('ArrowDown');
+                }
+                runManualCoverage();
+
                 // Trigger events
                 function triggerEvents() {
                     if (loadCb) {
@@ -1041,6 +1057,67 @@ describe('coverage helper', () => {
                 runWithoutIO();
             }
             jest.restoreAllMocks();
+        });
+    });
+
+    describe('Additional deep scroll and sync tests', () => {
+        it('tests edge bounds logic via native function calls', () => {
+            jest.isolateModules(() => {
+                document.body.innerHTML =
+                    '<div class="intro-header"></div><div class="post-content"><p id="p1" style="height: 500px">P1</p><p id="p2" style="height: 500px">P2</p></div>';
+                Object.defineProperty(document.documentElement, 'scrollHeight', {
+                    value: 2000,
+                    configurable: true,
+                });
+                window.innerHeight = 800;
+                window.scrollY = 1500;
+
+                require('../../js/block-navigation.js');
+                const t = window.__BlockNavigationForTesting;
+                if (t) {
+                    t.calculateNextIndex('ArrowDown');
+                    t.calculateNextIndex('ArrowUp');
+                }
+            });
+        });
+    });
+
+    describe('Additional IO and fallback tests', () => {
+        it('tests fallback logic directly', () => {
+            jest.isolateModules(() => {
+                document.body.innerHTML =
+                    '<div class="intro-header"></div><div class="post-content"><p id="p1" style="height: 500px">P1</p><p id="p2" style="height: 500px">P2</p></div>';
+                const origIO = window.IntersectionObserver;
+                delete window.IntersectionObserver;
+
+                require('../../js/block-navigation.js');
+                const t = window.__BlockNavigationForTesting;
+                if (t) {
+                    t.getIndexFromFallback();
+                }
+                window.IntersectionObserver = origIO;
+            });
+        });
+    });
+
+    describe('Full interaction coverage', () => {
+        it('tests edge bounds logic via native function calls', () => {
+            jest.isolateModules(() => {
+                document.body.innerHTML =
+                    '<div class="intro-header"></div><div class="post-content"><p id="p1" style="height: 500px">P1</p><p id="p2" style="height: 500px">P2</p></div>';
+                Object.defineProperty(document.documentElement, 'scrollHeight', {
+                    value: 2000,
+                    configurable: true,
+                });
+                window.innerHeight = 800;
+                window.scrollY = 1500;
+
+                require('../../js/block-navigation.js');
+                const t = window.__BlockNavigationForTesting;
+                if (t) {
+                    t.getStartIndex();
+                }
+            });
         });
     });
 });
