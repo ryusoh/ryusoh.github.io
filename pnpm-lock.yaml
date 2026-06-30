@@ -24,8 +24,8 @@ importers:
         specifier: ^30.4.1
         version: 30.4.1(@babel/core@7.29.7)
       brace-expansion:
-        specifier: ^2.1.1
-        version: 2.1.1
+        specifier: ^5.0.7
+        version: 5.0.7
       eslint:
         specifier: ^10.6.0
         version: 10.6.0
