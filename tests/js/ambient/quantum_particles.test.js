@@ -537,7 +537,6 @@ describe('quantum_particles.js', () => {
 
     describe('Missing Window and Loaded Guard', () => {
         it('returns true for checkWindowConditions if window is undefined', () => {
-            const qp = getQuantumParticles();
             // We can't delete window in JSDOM, but we can mock or use isolation.
             // Actually, we can just call checkWindowConditions manually. Wait, we exported it!
 
@@ -559,8 +558,6 @@ describe('quantum_particles.js', () => {
         });
 
         it('returns true if window is undefined in checkWindowConditions', () => {
-            const qp = getQuantumParticles();
-
             // To simulate window undefined for checkWindowConditions, we can't easily without a VM.
             // But we can run it in a VM!
             const vm = require('vm');
