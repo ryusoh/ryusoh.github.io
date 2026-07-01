@@ -1,6 +1,12 @@
 /** @jest-environment jsdom */
 
 describe('quantum_particles.js', () => {
+    beforeAll(() => {
+        HTMLCanvasElement.prototype.getContext = jest.fn(() => ({}));
+    });
+    afterAll(() => {
+        delete HTMLCanvasElement.prototype.getContext;
+    });
     let originalInnerWidth;
     let originalInnerHeight;
 
