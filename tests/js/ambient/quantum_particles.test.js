@@ -1,6 +1,16 @@
 /** @jest-environment jsdom */
 
 describe('quantum_particles.js', () => {
+    const originalCreateElement = document.createElement;
+    beforeAll(() => {
+        document.createElement = function(tag) {
+            if (tag === 'canvas') { const el = originalCreateElement.call(document, tag); el.getContext = () => ({}); return el; }
+            return originalCreateElement.call(document, tag);
+        };
+    });
+    afterAll(() => {
+        document.createElement = originalCreateElement;
+    });
     beforeAll(() => {
         HTMLCanvasElement.prototype.getContext = jest.fn(() => ({}));
     });
