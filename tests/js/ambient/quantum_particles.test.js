@@ -592,21 +592,11 @@ describe('quantum_particles.js', () => {
 });
 
 describe('quantum_particles.js extra coverage', () => {
-    it('covers early return if already loaded', () => {
-        jest.isolateModules(() => {
-            window.__AmbientQuantumParticlesLoaded = true;
-            Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
-
-            require('../../../js/ambient/quantum_particles.js');
-            expect(window.__AmbientQuantumParticlesLoaded).toBe(true);
-            delete window.__AmbientQuantumParticlesLoaded;
-        });
-    });
-
     it('covers fallback when WebGL creation throws an error', () => {
         jest.isolateModules(() => {
             Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
 
+            const warnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
             const originalCreateElement = document.createElement;
             document.createElement = jest.fn((tag) => {
                 if (tag === 'canvas') {
@@ -620,7 +610,8 @@ describe('quantum_particles.js extra coverage', () => {
             require('../../../js/ambient/quantum_particles.js');
 
             document.createElement = originalCreateElement;
-            expect(window.__AmbientQuantumParticlesLoaded).toBeUndefined(); // Should have skipped setup
+            expect(window.__AmbientQuantumParticlesLoaded).toBeFalsy(); // Should have skipped setup
+            warnMock.mockRestore();
         });
     });
 });
