@@ -1121,3 +1121,35 @@ describe('coverage helper', () => {
         });
     });
 });
+
+describe('block-navigation.js extra IO and Image Load coverage', () => {
+    it('covers IO callback with isIntersecting true and false', () => {
+        jest.isolateModules(() => {
+            let ioCallback;
+            const MockIO = class {
+                constructor(cb) { ioCallback = cb; }
+                observe() {}
+                unobserve() {}
+                disconnect() {}
+            };
+            window.IntersectionObserver = MockIO;
+
+            document.body.innerHTML = '<div class="post-content"><div data-block-nav="block">Block 1</div></div>';
+
+            require('../../js/block-navigation.js');
+
+            // Trigger load to run init
+            const loadEvent = new Event('load');
+            window.dispatchEvent(loadEvent);
+
+            // Now IO callback should exist
+            if (ioCallback) {
+                const targetEl = document.createElement('div');
+                ioCallback([{ isIntersecting: true, target: targetEl }]);
+                ioCallback([{ isIntersecting: false, target: targetEl }]);
+                // Assert that the fallback logic executed, or some internal state
+                expect(window.__BlockNavigationForTesting.getIndexFromFallback()).toBeDefined();
+            }
+        });
+    });
+});

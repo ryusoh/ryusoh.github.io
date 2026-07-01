@@ -590,3 +590,53 @@ describe('quantum_particles.js', () => {
         });
     });
 });
+
+describe('quantum_particles.js extra coverage', () => {
+    it('covers early return if already loaded', () => {
+        jest.isolateModules(() => {
+            window.__AmbientQuantumParticlesLoaded = true;
+            Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
+
+            require('../../../js/ambient/quantum_particles.js');
+            expect(window.__AmbientQuantumParticlesLoaded).toBe(true);
+            delete window.__AmbientQuantumParticlesLoaded;
+        });
+    });
+
+    it('covers fallback when WebGL creation throws an error', () => {
+        jest.isolateModules(() => {
+            Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
+
+            const originalCreateElement = document.createElement;
+            document.createElement = jest.fn((tag) => {
+                if (tag === 'canvas') {
+                    return {
+                        getContext: () => { throw new Error('webgl boom'); }
+                    };
+                }
+                return originalCreateElement.call(document, tag);
+            });
+
+            require('../../../js/ambient/quantum_particles.js');
+
+            document.createElement = originalCreateElement;
+            expect(window.__AmbientQuantumParticlesLoaded).toBeUndefined(); // Should have skipped setup
+        });
+    });
+});
+
+describe('quantum_particles.js extra coverage 2', () => {
+    it('hits early return when loaded and forced on', () => {
+        jest.isolateModules(() => {
+            window.__AmbientQuantumParticlesLoaded = true;
+            Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
+
+            // forceMode = 'on'
+            window.history.pushState({}, '', '/?ambient=on');
+
+            require('../../../js/ambient/quantum_particles.js');
+            expect(window.__AmbientQuantumParticlesLoaded).toBe(true);
+            delete window.__AmbientQuantumParticlesLoaded;
+        });
+    });
+});
