@@ -577,3 +577,63 @@ describe('coverage helper', () => {
         });
     });
 });
+
+describe('font-awesome-loader extra init coverage', () => {
+    it('covers init when already loaded', () => {
+        jest.isolateModules(() => {
+            require('../../js/font-awesome-loader.js');
+            const l = new window.__FontAwesomeLoaderForTesting.FontAwesomeLoader();
+            l.isFontAwesomeLoaded = () => true;
+            l.showIcons = jest.fn();
+            l.cleanupTestElement = jest.fn();
+            l.init();
+            expect(l.fontAwesomeLoaded).toBe(true);
+            expect(l.showIcons).toHaveBeenCalled();
+            expect(l.cleanupTestElement).toHaveBeenCalled();
+        });
+    });
+
+    it('covers showIcons removing dataset.fahidden', () => {
+        jest.isolateModules(() => {
+            require('../../js/font-awesome-loader.js');
+            const l = new window.__FontAwesomeLoaderForTesting.FontAwesomeLoader();
+            const icon = document.createElement('i');
+            icon.dataset.fahidden = 'true';
+            l.faIcons = [icon];
+            l.showIcons();
+            expect(icon.dataset.fahidden).toBe('');
+        });
+    });
+
+    it('covers waitForFontLoad positive branch', () => {
+        jest.isolateModules(() => {
+            jest.useFakeTimers();
+            require('../../js/font-awesome-loader.js');
+            const l = new window.__FontAwesomeLoaderForTesting.FontAwesomeLoader();
+
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'font-awesome.css';
+            document.body.appendChild(link);
+
+            l.fontAwesomeLoaded = false;
+            l.showIcons = jest.fn();
+            l.stopChecking = jest.fn();
+
+            l.waitForFontLoad();
+            jest.advanceTimersByTime(50);
+
+            const attachedLink = document.querySelector('link[href*="font-awesome"]');
+            if (attachedLink && typeof attachedLink.onload === 'function') {
+                attachedLink.onload();
+            }
+
+            expect(l.fontAwesomeLoaded).toBe(true);
+            expect(l.showIcons).toHaveBeenCalled();
+            expect(l.stopChecking).toHaveBeenCalled();
+
+            jest.useRealTimers();
+            document.body.removeChild(link);
+        });
+    });
+});

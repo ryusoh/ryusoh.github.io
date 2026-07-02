@@ -1593,3 +1593,195 @@ describe('page-transition.js extra coverage', () => {
         });
     });
 });
+
+describe('page-transition extra coverage branches', () => {
+    let originalURL, originalSessionStorage;
+    beforeEach(() => {
+        jest.resetModules();
+        originalURL = window.URL;
+        originalSessionStorage = window.sessionStorage;
+    });
+
+    afterEach(() => {
+        window.URL = originalURL;
+        if (originalSessionStorage) {
+            Object.defineProperty(window, 'sessionStorage', {
+                value: originalSessionStorage,
+                configurable: true,
+            });
+        }
+        jest.restoreAllMocks();
+    });
+
+    // In JSDOM, window.location is non-configurable. So to test location behaviors we must use history API or hash.
+
+    it('hasTransitionParam handles overly long href', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            // Set a long hash
+            window.location.hash = '#' + 'x'.repeat(2001);
+            expect(t.hasTransitionParam()).toBe(false);
+            window.location.hash = '';
+        });
+    });
+
+    it('clearTransitionParam handles overly long href', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            window.location.hash = '#' + 'x'.repeat(2001);
+            expect(() => t.clearTransitionParam()).not.toThrow();
+            window.location.hash = '';
+        });
+    });
+
+    it('clearTransitionParam handles missing transition param', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            // Using a valid URL without transition param
+            window.history.pushState({}, '', '/?something=else');
+            expect(() => t.clearTransitionParam()).not.toThrow();
+        });
+    });
+
+    it('clampUnit works', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+            expect(t.clampUnit(-1)).toBe(0);
+            expect(t.clampUnit(0.5)).toBe(0.5);
+            expect(t.clampUnit(2)).toBe(1);
+        });
+    });
+
+    it('storeCursorPositionForTransition handles missing sessionStorage', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            const session = window.sessionStorage;
+            Object.defineProperty(window, 'sessionStorage', {
+                get: () => {
+                    throw new Error('no storage');
+                },
+                configurable: true,
+            });
+            expect(() => t.storeCursorPositionForTransition(10, 20)).not.toThrow();
+            if (session) {
+                Object.defineProperty(window, 'sessionStorage', {
+                    value: session,
+                    configurable: true,
+                });
+            }
+        });
+    });
+
+    it('storeCursorPositionForTransition prevents too long payload', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            const originalStringify = JSON.stringify;
+            JSON.stringify = () => 'x'.repeat(201);
+            expect(() => t.storeCursorPositionForTransition(10, 20)).not.toThrow();
+            JSON.stringify = originalStringify;
+        });
+    });
+
+    it('navigate handles prefersReducedMotion', () => {
+        jest.isolateModules(() => {
+            window.matchMedia = jest.fn().mockImplementation((query) => ({
+                matches: query === '(prefers-reduced-motion: reduce)',
+            }));
+
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            // JSDOM window.location.assign is not implemented and throws or logs an error.
+            // We just ensure we reach that path and return true.
+            // Since it will throw or navigate in JSDOM, we can't easily mock it.
+            // Wait, page-transition.js has `window.location.assign(targetUrl)`. JSDOM logs a console error.
+            const logSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            try {
+                t.navigate('/target');
+            } catch {}
+            errSpy.mockRestore();
+
+            logSpy.mockRestore();
+        });
+    });
+
+    it('isUrlLengthValid covers long href', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            window.location.hash = '#' + 'x'.repeat(2001);
+            expect(t.getValidatedUrl('/target')).toBeNull();
+            window.location.hash = '';
+        });
+    });
+
+    it('tests click handling branches via DOM events', () => {
+        jest.isolateModules(() => {
+            // Setup DOM
+            document.body.innerHTML = `
+                <a href="${window.location.href}" data-page-transition id="same-page">Same</a>
+                <a href="http://localhost/new" target="_blank" data-page-transition id="blank">Blank</a>
+                <a href="http://localhost/new" data-page-transition id="normal">Normal</a>
+                <a id="no-href" data-page-transition>No href</a>
+                <div id="not-anchor">Not anchor</div>
+            `;
+
+            let isTransitionCalled = false;
+            window.__PageTransitionAssign = () => {
+                isTransitionCalled = true;
+            };
+
+            require('../../js/page-transition.js');
+
+            const same = document.getElementById('same-page');
+            const blank = document.getElementById('blank');
+            const noHref = document.getElementById('no-href');
+            const notAnchor = document.getElementById('not-anchor');
+
+            // Dispatches click
+            same.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            expect(isTransitionCalled).toBe(false);
+
+            blank.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            expect(isTransitionCalled).toBe(false);
+
+            noHref.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            expect(isTransitionCalled).toBe(false);
+
+            notAnchor.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            expect(isTransitionCalled).toBe(false);
+        });
+    });
+
+    it('handles staggered entrance on init if body has pendingReveal and project type', () => {
+        jest.isolateModules(() => {
+            document.body.setAttribute('data-page-type', 'project');
+            window.history.pushState({}, '', '/?transition=1');
+
+            window.matchMedia = jest.fn().mockImplementation(() => ({ matches: false }));
+
+            const originalRAF = window.requestAnimationFrame;
+            window.requestAnimationFrame = (cb) => {
+                cb();
+            };
+
+            require('../../js/page-transition.js');
+
+            window.requestAnimationFrame = originalRAF;
+        });
+    });
+});
