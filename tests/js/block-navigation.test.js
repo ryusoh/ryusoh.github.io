@@ -1127,14 +1127,17 @@ describe('block-navigation.js extra IO and Image Load coverage', () => {
         jest.isolateModules(() => {
             let ioCallback;
             const MockIO = class {
-                constructor(cb) { ioCallback = cb; }
+                constructor(cb) {
+                    ioCallback = cb;
+                }
                 observe() {}
                 unobserve() {}
                 disconnect() {}
             };
             window.IntersectionObserver = MockIO;
 
-            document.body.innerHTML = '<div class="post-content"><div data-block-nav="block">Block 1</div></div>';
+            document.body.innerHTML =
+                '<div class="post-content"><div data-block-nav="block">Block 1</div></div>';
 
             require('../../js/block-navigation.js');
 

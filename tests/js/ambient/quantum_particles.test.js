@@ -600,11 +600,16 @@ describe('quantum_particles.js', () => {
 describe('quantum_particles.js extra coverage', () => {
     it('covers fallback when WebGL creation throws an error', () => {
         jest.isolateModules(() => {
-            Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
+            Object.defineProperty(document, 'readyState', {
+                value: 'complete',
+                configurable: true,
+            });
 
             const warnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
             const originalGetContext = window.HTMLCanvasElement.prototype.getContext;
-            window.HTMLCanvasElement.prototype.getContext = () => { throw new Error('webgl boom'); };
+            window.HTMLCanvasElement.prototype.getContext = () => {
+                throw new Error('webgl boom');
+            };
 
             require('../../../js/ambient/quantum_particles.js');
 
@@ -619,7 +624,10 @@ describe('quantum_particles.js extra coverage 2', () => {
     it('hits early return when loaded and forced on', () => {
         jest.isolateModules(() => {
             window.__AmbientQuantumParticlesLoaded = true;
-            Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
+            Object.defineProperty(document, 'readyState', {
+                value: 'complete',
+                configurable: true,
+            });
 
             // forceMode = 'on'
             window.history.pushState({}, '', '/?ambient=on');

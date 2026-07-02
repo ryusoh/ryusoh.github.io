@@ -1497,17 +1497,23 @@ describe('page-transition.js extra coverage', () => {
 
             // Make window.URL throw
             const originalURL = window.URL;
-            window.URL = jest.fn(() => { throw new Error('url boom'); });
+            window.URL = jest.fn(() => {
+                throw new Error('url boom');
+            });
 
             // Make matchMedia throw
             const originalMatchMedia = window.matchMedia;
-            window.matchMedia = jest.fn(() => { throw new Error('matchMedia boom'); });
+            window.matchMedia = jest.fn(() => {
+                throw new Error('matchMedia boom');
+            });
 
             // Force clearTransitionParam to throw by redefining history
             const originalHistory = window.history;
             delete window.history;
             window.history = {
-                replaceState: jest.fn(() => { throw new Error('history boom'); })
+                replaceState: jest.fn(() => {
+                    throw new Error('history boom');
+                }),
             };
 
             // Trigger DOMContentLoaded
@@ -1521,29 +1527,46 @@ describe('page-transition.js extra coverage', () => {
                 // Wait, clearTransitionParam looks at window.location.href
                 // window.location mocking not needed, URL constructor throws
                 t.clearTransitionParam();
-                expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('[page-transition] clear transition param error:'), expect.any(Error));
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] clear transition param error:'),
+                    expect.any(Error)
+                );
                 warnMock.mockClear();
 
                 // Call prefersReducedMotion
                 t.prefersReducedMotion();
-                expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('[page-transition] prefersReducedMotion error:'), expect.any(Error));
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] prefersReducedMotion error:'),
+                    expect.any(Error)
+                );
                 warnMock.mockClear();
 
                 // Call hasTransitionParam
                 t.hasTransitionParam();
-                expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('[page-transition] URL parse error:'), expect.any(Error));
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] URL parse error:'),
+                    expect.any(Error)
+                );
                 warnMock.mockClear();
 
                 // Call storeCursorPositionForTransition where sessionStorage throws
                 const originalSessionStorage = window.sessionStorage;
                 Object.defineProperty(window, 'sessionStorage', {
-                    get: () => { throw new Error('storage boom'); },
-                    configurable: true
+                    get: () => {
+                        throw new Error('storage boom');
+                    },
+                    configurable: true,
                 });
                 t.storeCursorPositionForTransition(10, 10);
-                expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('[page-transition] cursor position store failed:'), expect.any(Error));
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] cursor position store failed:'),
+                    expect.any(Error)
+                );
                 if (originalSessionStorage) {
-                    Object.defineProperty(window, 'sessionStorage', { value: originalSessionStorage, configurable: true });
+                    Object.defineProperty(window, 'sessionStorage', {
+                        value: originalSessionStorage,
+                        configurable: true,
+                    });
                 }
             }
 
@@ -1551,7 +1574,10 @@ describe('page-transition.js extra coverage', () => {
             window.URL = originalURL;
             window.matchMedia = originalMatchMedia;
             window.history = originalHistory;
-            Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
+            Object.defineProperty(document, 'readyState', {
+                value: 'complete',
+                configurable: true,
+            });
         });
     });
 
@@ -1561,7 +1587,9 @@ describe('page-transition.js extra coverage', () => {
             const event = new Event('pageshow');
             Object.defineProperty(event, 'persisted', { value: true });
             window.dispatchEvent(event);
-            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(false);
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                false
+            );
         });
     });
 });
