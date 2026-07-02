@@ -1487,3 +1487,109 @@ describe('Page Transition Logic', () => {
         });
     });
 });
+
+describe('page-transition.js extra coverage', () => {
+    it('covers error handling paths', () => {
+        jest.isolateModules(() => {
+            const warnMock = jest.fn();
+            const originalConsoleWarn = window.console.warn;
+            window.console.warn = warnMock;
+
+            // Make window.URL throw
+            const originalURL = window.URL;
+            window.URL = jest.fn(() => {
+                throw new Error('url boom');
+            });
+
+            // Make matchMedia throw
+            const originalMatchMedia = window.matchMedia;
+            window.matchMedia = jest.fn(() => {
+                throw new Error('matchMedia boom');
+            });
+
+            // Force clearTransitionParam to throw by redefining history
+            const originalHistory = window.history;
+            delete window.history;
+            window.history = {
+                replaceState: jest.fn(() => {
+                    throw new Error('history boom');
+                }),
+            };
+
+            // Trigger DOMContentLoaded
+            Object.defineProperty(document, 'readyState', { value: 'loading', configurable: true });
+
+            require('../../js/page-transition.js');
+
+            const t = window.__PageTransitionForTesting;
+            if (t) {
+                // Call clearTransitionParam with a valid short URL but history will throw
+                // Wait, clearTransitionParam looks at window.location.href
+                // window.location mocking not needed, URL constructor throws
+                t.clearTransitionParam();
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] clear transition param error:'),
+                    expect.any(Error)
+                );
+                warnMock.mockClear();
+
+                // Call prefersReducedMotion
+                t.prefersReducedMotion();
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] prefersReducedMotion error:'),
+                    expect.any(Error)
+                );
+                warnMock.mockClear();
+
+                // Call hasTransitionParam
+                t.hasTransitionParam();
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] URL parse error:'),
+                    expect.any(Error)
+                );
+                warnMock.mockClear();
+
+                // Call storeCursorPositionForTransition where sessionStorage throws
+                const originalSessionStorage = window.sessionStorage;
+                Object.defineProperty(window, 'sessionStorage', {
+                    get: () => {
+                        throw new Error('storage boom');
+                    },
+                    configurable: true,
+                });
+                t.storeCursorPositionForTransition(10, 10);
+                expect(warnMock).toHaveBeenCalledWith(
+                    expect.stringContaining('[page-transition] cursor position store failed:'),
+                    expect.any(Error)
+                );
+                if (originalSessionStorage) {
+                    Object.defineProperty(window, 'sessionStorage', {
+                        value: originalSessionStorage,
+                        configurable: true,
+                    });
+                }
+            }
+
+            window.console.warn = originalConsoleWarn;
+            window.URL = originalURL;
+            window.matchMedia = originalMatchMedia;
+            window.history = originalHistory;
+            Object.defineProperty(document, 'readyState', {
+                value: 'complete',
+                configurable: true,
+            });
+        });
+    });
+
+    it('covers pageshow persisted edge case', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const event = new Event('pageshow');
+            Object.defineProperty(event, 'persisted', { value: true });
+            window.dispatchEvent(event);
+            expect(document.documentElement.classList.contains('page-transition--exiting')).toBe(
+                false
+            );
+        });
+    });
+});
