@@ -1,21 +1,11 @@
 /** @jest-environment jsdom */
 
 describe('quantum_particles.js', () => {
-    const originalCreateElement = document.createElement;
     beforeAll(() => {
-        document.createElement = function(tag) {
-            if (tag === 'canvas') { const el = originalCreateElement.call(document, tag); el.getContext = () => ({}); return el; }
-            return originalCreateElement.call(document, tag);
-        };
+        window.HTMLCanvasElement.prototype.getContext = jest.fn(() => ({}));
     });
     afterAll(() => {
-        document.createElement = originalCreateElement;
-    });
-    beforeAll(() => {
-        HTMLCanvasElement.prototype.getContext = jest.fn(() => ({}));
-    });
-    afterAll(() => {
-        delete HTMLCanvasElement.prototype.getContext;
+        delete window.HTMLCanvasElement.prototype.getContext;
     });
     let originalInnerWidth;
     let originalInnerHeight;
@@ -613,19 +603,12 @@ describe('quantum_particles.js extra coverage', () => {
             Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
 
             const warnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
-            const originalCreateElement = document.createElement;
-            document.createElement = jest.fn((tag) => {
-                if (tag === 'canvas') {
-                    return {
-                        getContext: () => { throw new Error('webgl boom'); }
-                    };
-                }
-                return originalCreateElement.call(document, tag);
-            });
+            const originalGetContext = window.HTMLCanvasElement.prototype.getContext;
+            window.HTMLCanvasElement.prototype.getContext = () => { throw new Error('webgl boom'); };
 
             require('../../../js/ambient/quantum_particles.js');
 
-            document.createElement = originalCreateElement;
+            window.HTMLCanvasElement.prototype.getContext = originalGetContext;
             expect(window.__AmbientQuantumParticlesLoaded).toBeFalsy(); // Should have skipped setup
             warnMock.mockRestore();
         });
