@@ -283,10 +283,21 @@
         }
     }
 
+    let hasCollectedBlocks = false;
+
+    /**
+     * Bolt Optimization:
+     * - What: Cache the result of `collectBlocks()` to prevent redundant DOM queries.
+     * - Why: The original `refreshBlocks()` called `collectBlocks()` (and thus `document.querySelectorAll`) every time an image loaded or the window resized. Since the DOM structure of blocks doesn't change after the initial page load, this caused unnecessary CPU overhead and memory allocation.
+     * - Impact: Measurably reduces main-thread blocking time during image loading sequences and window resizes by eliminating redundant DOM queries.
+     */
     function refreshBlocks() {
-        const contentBlocks = collectBlocks();
-        topSentinel = document.body || document.documentElement || null;
-        blocks = topSentinel ? [topSentinel].concat(contentBlocks) : contentBlocks;
+        if (!hasCollectedBlocks) {
+            const contentBlocks = collectBlocks();
+            topSentinel = document.body || document.documentElement || null;
+            blocks = topSentinel ? [topSentinel].concat(contentBlocks) : contentBlocks;
+            hasCollectedBlocks = true;
+        }
 
         setupIntersectionObserver();
 
@@ -594,6 +605,9 @@
         calculateNextIndex,
         scrollToIndex,
         performScroll,
+        resetCache: () => {
+            hasCollectedBlocks = false;
+        },
     };
 
     if (typeof window !== 'undefined') {
