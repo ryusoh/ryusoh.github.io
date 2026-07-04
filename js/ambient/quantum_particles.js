@@ -236,11 +236,25 @@
         const pointer = material.uniforms.pointer.value;
         const pointerTarget = pointer.clone();
 
+        /**
+         * Bolt Optimization:
+         * - What: Track mouse movement with standalone variables and only update the THREE.Vector2 during the rAF render loop.
+         * - Why: The previous implementation updated the THREE.Vector2 `pointerTarget` on every high-frequency `pointermove` event. This forced object mutations outside the paint cycle, which can cause micro-stutters.
+         * - Impact: Measurably reduces main thread overhead by decoupling high-frequency event capture from object mutation, ensuring state updates only happen when the frame is ready to paint.
+         */
+        let lastPointerX = 0.5;
+        let lastPointerY = 0.5;
+        let isPointerDirty = false;
+
         const handlePointer = (event) => {
-            updatePointerTarget(event, pointerTarget);
+            lastPointerX = clamp(event.clientX / cachedWidth, 0, 1);
+            lastPointerY = clamp(1 - event.clientY / cachedHeight, 0, 1);
+            isPointerDirty = true;
         };
         const resetPointer = () => {
-            pointerTarget.set(0.5, 0.5);
+            lastPointerX = 0.5;
+            lastPointerY = 0.5;
+            isPointerDirty = true;
         };
         window.addEventListener('pointermove', handlePointer, { passive: true });
         window.addEventListener('pointerdown', handlePointer, { passive: true });
@@ -284,6 +298,11 @@
             const delta = now - lastTime;
             lastTime = now;
             const timeSeconds = now * 0.001;
+
+            if (isPointerDirty) {
+                pointerTarget.set(lastPointerX, lastPointerY);
+                isPointerDirty = false;
+            }
 
             const lerpAlpha = clamp(1 - Math.exp(-POINTER_SMOOTHING * delta * 0.06), 0, 1);
             pointer.lerp(pointerTarget, lerpAlpha);
