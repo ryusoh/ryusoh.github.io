@@ -44,20 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let mouseX = 0;
     let mouseY = 0;
 
-    let rafId = null;
+    let isTicking = false;
 
     let lastRenderX = -1;
     let lastRenderY = -1;
 
-    // Update position smoothly using requestAnimationFrame
+    // Update position smoothly using requestAnimationFrame triggered only by mouse movement
     const updatePosition = () => {
         if (isHovering) {
-            /**
-             * Bolt Optimization:
-             * - What: Skip GSAP DOM writes if the cursor coordinates have not changed since the last frame.
-             * - Why: The continuous `requestAnimationFrame` loop updates inline styles on every frame while hovering, even if the cursor is completely stationary. This forces unnecessary style recalculations and layout thrashing.
-             * - Impact: Measurably reduces main thread CPU usage and battery consumption during stationary hovers.
-             */
             if (mouseX !== lastRenderX || mouseY !== lastRenderY) {
                 // Offset slightly to the right and bottom of the cursor
                 setX(mouseX + 20);
@@ -65,22 +59,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastRenderX = mouseX;
                 lastRenderY = mouseY;
             }
-            rafId = requestAnimationFrame(updatePosition);
-        } else {
-            rafId = null;
         }
+        isTicking = false;
     };
 
     // Track mouse movement
     /**
      * Bolt Optimization:
-     * - What: Only attach `mousemove` listener when actually hovering over a link.
-     * - Why: The previous implementation attached a global `mousemove` listener that continuously triggered function execution on every cursor move across the entire site, even if it returned early. Detaching the listener entirely eliminates this main-thread event overhead.
-     * - Impact: Measurably reduces main thread overhead by eliminating unnecessary event dispatching and function execution during normal site navigation.
+     * - What: Eliminate continuous `requestAnimationFrame` loop and replace with an event-driven, rAF-gated approach.
+     * - Why: The previous implementation ran a continuous 60fps render loop via `requestAnimationFrame` for the entire duration of a hover state, even when the mouse was completely stationary. This forced continuous function execution and wasted CPU/battery. By driving updates strictly from the `mousemove` event, we eliminate idle overhead completely.
+     * - Impact: Measurably reduces main-thread CPU usage to near zero during stationary hovers while maintaining perfectly smooth, frame-synchronized tracking during movement.
      */
     const handleMouseMove = (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
+        if (!isTicking) {
+            isTicking = true;
+            requestAnimationFrame(updatePosition);
+        }
     };
 
     /**
@@ -114,12 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initial jump to mouse position before animation starts
             setX(mouseX + 20);
             setY(mouseY + 20);
+            lastRenderX = mouseX;
+            lastRenderY = mouseY;
 
             document.addEventListener('mousemove', handleMouseMove, { passive: true });
-
-            if (!rafId) {
-                rafId = requestAnimationFrame(updatePosition);
-            }
 
             gsap.to(previewContainer, {
                 clipPath: 'ellipse(150% 150% at 50% 50%)',
