@@ -1693,27 +1693,6 @@ describe('page-transition extra coverage branches', () => {
         });
     });
 
-    it('navigate handles prefersReducedMotion', () => {
-        jest.isolateModules(() => {
-            window.matchMedia = jest.fn().mockImplementation((query) => ({
-                matches: query === '(prefers-reduced-motion: reduce)',
-            }));
-
-            require('../../js/page-transition.js');
-            const t = window.__PageTransitionForTesting;
-
-            // window.location.assign is a non-configurable, non-writable own
-            // property in jsdom 26+, so it can't be spied on or replaced (see
-            // docs/testing-notes.md, 2026-06-16 entry). Calling it here reaches
-            // jsdom's real (no-op) navigation, which logs "Not implemented:
-            // navigation" via its virtualConsole -- console.error spies can't
-            // catch that path since jsdom forwards to a different console
-            // instance than the one exposed to this test file. The log is
-            // expected noise; the assertion is what matters.
-            expect(t.navigate('/target')).toBe(true);
-        });
-    });
-
     it('isUrlLengthValid covers long href', () => {
         jest.isolateModules(() => {
             require('../../js/page-transition.js');

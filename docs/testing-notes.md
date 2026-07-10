@@ -65,18 +65,18 @@ window.location.href = '...';                            // attempts a real (not
   on the path under test — see `cursor-init.test.js`.
 - **Set a per-file base URL** with a docblock when a whole suite needs one origin:
   `/** @jest-environment-options {"url": "https://example.com/"} */`.
-- **Code under test calls `window.location.assign(...)` directly** → can't be
-  spied on or replaced either: `assign` is an own, non-writable,
-  non-configurable property on the `Location` instance in jsdom 26+, so
-  `jest.spyOn(window.location, 'assign')` throws `Cannot assign to read only
-property 'assign'` and aborts the whole suite. The "Not implemented:
-  navigation" log this produces also can't be caught with
-  `jest.spyOn(console, 'error')`: jsdom's `VirtualConsole` forwards jsdomError
-  events to the environment's own `context.console` instance, which is not the
-  same object as the `console` global visible inside the test file. There's no
-  clean suppression — just assert on the function's return value and leave a
-  comment noting the log is expected noise (see `page-transition.test.js`,
-  "navigate handles prefersReducedMotion").
+- **Code under test calls `window.location.assign(...)` directly** → `assign`
+  is an own, non-writable, non-configurable property on the `Location`
+  instance in jsdom 26+, so `jest.spyOn(window.location, 'assign')` throws
+  `Cannot assign to read only property 'assign'` and aborts the whole suite.
+  Letting the real call through logs jsdom's "Not implemented: navigation" via
+  `VirtualConsole`, which `jest.spyOn(console, 'error')` does **not**
+  reliably suppress. Don't fight jsdom for this one — rewrite the source at
+  load time so the call is mockable: read the file with `fs.readFileSync`,
+  `.replace(/location\.assign/g, 'window.__SomeAssignStub')`, then `eval` the
+  patched string before each test. See `loadInstrumentedScript()` in
+  `page-transition.test.js` for the full pattern (also handy for asserting on
+  the exact URL passed to `assign`, not just that navigation happened).
 
 ## 2026-06-14 — Throwing getters on `window` are silently bypassed in jsdom
 
