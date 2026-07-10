@@ -1702,19 +1702,15 @@ describe('page-transition extra coverage branches', () => {
             require('../../js/page-transition.js');
             const t = window.__PageTransitionForTesting;
 
-            // JSDOM window.location.assign is not implemented and throws or logs an error.
-            // We just ensure we reach that path and return true.
-            // Since it will throw or navigate in JSDOM, we can't easily mock it.
-            // Wait, page-transition.js has `window.location.assign(targetUrl)`. JSDOM logs a console error.
-            const logSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-            const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-            try {
-                t.navigate('/target');
-            } catch {}
-            errSpy.mockRestore();
-
-            logSpy.mockRestore();
+            // window.location.assign is a non-configurable, non-writable own
+            // property in jsdom 26+, so it can't be spied on or replaced (see
+            // docs/testing-notes.md, 2026-06-16 entry). Calling it here reaches
+            // jsdom's real (no-op) navigation, which logs "Not implemented:
+            // navigation" via its virtualConsole -- console.error spies can't
+            // catch that path since jsdom forwards to a different console
+            // instance than the one exposed to this test file. The log is
+            // expected noise; the assertion is what matters.
+            expect(t.navigate('/target')).toBe(true);
         });
     });
 
