@@ -26,6 +26,14 @@ and add an entry when you hit a new one. The two that bite most: `window.locatio
 `location.hash`, or a `vm` context; and throwing **getters** on `window` are
 silently bypassed — inject errors via function-value mocks or setters instead.
 
+Before touching or adding a test in a large suite (e.g. `page-transition.test.js`,
+100+ tests), `grep` the file for the function/branch name first. These suites often
+already cover the path you're about to test, sometimes via a non-obvious pattern —
+e.g. `loadInstrumentedScript()` in `page-transition.test.js` rewrites
+`location.assign` calls to a mockable stub at load time instead of fighting jsdom's
+non-configurable `Location`. Finding that pattern up front beats rediscovering it
+after a few failed mocking attempts.
+
 Scratch experiments: `npx jest` only discovers tests under the repo (a `/tmp`
 path matches nothing), so probe jsdom behavior with a temp `tests/js/_*.test.js`
 file — that prefix is gitignored, so it won't be committed or left in the suite.
