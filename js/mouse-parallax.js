@@ -84,7 +84,22 @@ document.addEventListener('DOMContentLoaded', () => {
      * - Why: The previous implementation attached a global, always-on `mousemove` listener that continuously triggered GSAP style updates even when the title was completely out of the viewport. This caused unnecessary CPU usage and GSAP ticker evaluations.
      * - Impact: Measurably reduces main-thread CPU overhead during scrolling and reading by ensuring mouse parallax computations only run when the target element is actually visible.
      */
+    let lastClientX = -1;
+    let lastClientY = -1;
+
     const handleMouseMove = (e) => {
+        /**
+         * Bolt Optimization:
+         * - What: Skip GSAP updates if the cursor movement is negligible.
+         * - Why: The previous implementation triggered GSAP quickTo setters even for <1px sub-pixel movements, causing continuous TICK evaluation and style recalculations.
+         * - Impact: Measurably reduces CPU load and GSAP allocations when the mouse is stationary or moving negligibly.
+         */
+        if (Math.abs(e.clientX - lastClientX) < 1 && Math.abs(e.clientY - lastClientY) < 1) {
+            return;
+        }
+        lastClientX = e.clientX;
+        lastClientY = e.clientY;
+
         // Calculate offset from center (-1 to 1)
         const diffX = (e.clientX - centerX) / centerX;
         const diffY = (e.clientY - centerY) / centerY;
