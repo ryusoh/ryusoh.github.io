@@ -587,7 +587,26 @@
             });
         }
         document.addEventListener('keydown', handleKeydown, { passive: false });
-        window.addEventListener('scroll', debounce(syncCurrentIndex, 150), { passive: true });
+
+        let tickingScroll = false;
+        window.addEventListener(
+            'scroll',
+            () => {
+                if (!tickingScroll) {
+                    if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+                        window.requestAnimationFrame(() => {
+                            syncCurrentIndex();
+                            tickingScroll = false;
+                        });
+                    } else {
+                        syncCurrentIndex();
+                        tickingScroll = false;
+                    }
+                    tickingScroll = true;
+                }
+            },
+            { passive: true }
+        );
     }
 
     ready(init);
