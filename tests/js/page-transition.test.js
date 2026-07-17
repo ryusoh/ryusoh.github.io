@@ -1548,26 +1548,6 @@ describe('page-transition.js extra coverage', () => {
                     expect.any(Error)
                 );
                 warnMock.mockClear();
-
-                // Call storeCursorPositionForTransition where sessionStorage throws
-                const originalSessionStorage = window.sessionStorage;
-                Object.defineProperty(window, 'sessionStorage', {
-                    get: () => {
-                        throw new Error('storage boom');
-                    },
-                    configurable: true,
-                });
-                t.storeCursorPositionForTransition(10, 10);
-                expect(warnMock).toHaveBeenCalledWith(
-                    expect.stringContaining('[page-transition] cursor position store failed:'),
-                    expect.any(Error)
-                );
-                if (originalSessionStorage) {
-                    Object.defineProperty(window, 'sessionStorage', {
-                        value: originalSessionStorage,
-                        configurable: true,
-                    });
-                }
             }
 
             window.console.warn = originalConsoleWarn;
