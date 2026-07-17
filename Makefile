@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix test
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix test sync-check
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -27,14 +27,14 @@ hooks:
 		python3 -m pre_commit install || true; \
 	fi
 
-precommit: hooks
+precommit: hooks sync-check
 	@if [ -f .pre-commit-config.yaml ]; then \
 		PRE_COMMIT_NO_CONCURRENCY=1 python3 -m pre_commit run --all-files --show-diff-on-failure; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit."; \
 	fi
 
-precommit-fix: hooks
+precommit-fix: hooks sync-check
 	@if [ -f .pre-commit-config.yaml ]; then \
 		echo "Running pre-commit auto-fixes..."; \
 		PRE_COMMIT_NO_CONCURRENCY=1 python3 -m pre_commit run --all-files --hook-stage manual || true; \
@@ -42,6 +42,20 @@ precommit-fix: hooks
 		git add -u; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
+	fi
+
+# .claude/commands/ is generated from .agents/skills/ (the canonical source) by
+# tools/sync_commands.py. Fail if regeneration is not a no-op (content hash of
+# the tree before vs after), so the generated copy can never silently go stale.
+sync-check:
+	@before=$$(find .claude/commands -type f | LC_ALL=C sort | xargs shasum | shasum | cut -d' ' -f1); \
+	python3 tools/sync_commands.py >/dev/null; \
+	after=$$(find .claude/commands -type f | LC_ALL=C sort | xargs shasum | shasum | cut -d' ' -f1); \
+	if [ "$$before" = "$$after" ]; then \
+		echo "sync-check: .claude/commands is up to date"; \
+	else \
+		echo "sync-check FAIL: .claude/commands was stale and has been regenerated — commit the updated files (python3 tools/sync_commands.py)."; \
+		exit 1; \
 	fi
 
 update-hooks:
@@ -62,7 +76,7 @@ lint-css:
 
 lint: lint-js lint-css
 
-check: fmt-check lint
+check: fmt-check lint sync-check
 
 lint-fix:
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true

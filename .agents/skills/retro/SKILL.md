@@ -1,6 +1,7 @@
 ---
 name: retro
 description: Retrospective — turn this session's friction into durable repo improvements (the compounding loop)
+argument-hint: "[optional focus area, e.g. 'particle animation']"
 ---
 
 You just finished a task. Run a **compounding-loop retrospective** so the next task
@@ -18,26 +19,28 @@ Work through these steps:
 
 2. **Map each friction point to a durable artifact.** For each one, name the
    thing that would have prevented it:
-    - a `GEMINI.md` at the repo root (auto-loaded context: where things live, how
-      to run/verify, project conventions) — this repo has none yet, so creating a
-      small one is often the highest-leverage fix;
-    - a knowledge doc under `docs/` for anything too long or specific for `GEMINI.md`;
+    - the `AGENTS.md` at the repo root (auto-loaded context: where things live,
+      how to run/verify, project conventions) — **only** if the rule is broadly
+      useful and stable. Extend it sparingly, since it is auto-loaded context for
+      every future session and every edit busts the prompt cache;
+    - a knowledge doc under `docs/` for anything too long or specific for
+      `AGENTS.md`;
     - a `Makefile` target (this repo uses `make check` / `make fix` / `make fmt`);
     - a Jest test or a lint/Prettier/Stylelint rule that turns a manual check into
       an automated gate;
-    - a `.gemini/commands/` custom command or a script under `scripts/`.
+    - a new or updated `.agents/skills/<name>/SKILL.md` for a multi-step prompt
+      worth replaying on demand (`.claude/commands/` is generated from these by
+      `tools/sync_commands.py` — don't edit it directly).
 
 3. **Check what already exists first.** Read the relevant `Makefile`, `README.md`,
-   `.pre-commit-config.yaml`, lint configs, existing `docs/`, and `.gemini/`
+   `.pre-commit-config.yaml`, lint configs, existing `docs/`, and `.agents/skills/`
    before adding anything, so you patch real gaps instead of duplicating. Don't
    put repo knowledge in chat or memory if it belongs in a version-controlled file.
 
-4. **Implement the safe, high-leverage fixes now.** Knowledge capture, a small
-   `GEMINI.md`, scoped custom commands, deduplication, and tests/lint rules are
-   usually safe to just do. Keep `GEMINI.md` small and stable — every edit busts
-   the prompt cache for future sessions, so put only durable, broadly-useful facts
-   there. Promote standards up the ratchet: prose → checklist → lint/Prettier rule
-   → CI-blocking check.
+4. **Implement the safe, high-leverage fixes now.** Knowledge capture, small
+   `AGENTS.md`/`.jules/*.md` edits, scoped skills, deduplication, and tests/lint
+   rules are usually safe to just do. Promote standards up the ratchet: prose →
+   checklist → lint/Prettier rule → CI-blocking check.
 
 5. **Ask before anything heavy or hard to reverse** — new dependencies, tool
    installs, CI workflow changes under `.github/`, file moves, anything

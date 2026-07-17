@@ -1,6 +1,7 @@
 ---
 name: eval-optimization
 description: Evaluate whether a Jules-recorded optimization (e.g. a bolt/… entry) is actually worth it
+argument-hint: '<optimization slug or id, e.g. bolt/optimize-hover-preview-mouse-tracking-1539…>'
 ---
 
 Judge whether a specific optimization recorded by the Jules agent is **worth keeping** —

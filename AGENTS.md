@@ -1,17 +1,37 @@
 # AGENTS.md
 
-Shared operating contract for **automated agents** (Jules scheduled routines) on
-this repo. You run unattended and open PRs. A human only does a binary
-approve/close on the result — they will **not** leave review comments or iterate
-with you. So every PR must be self-evidently correct and approvable at a glance.
-Optimize for **approve rate**, not for volume.
+Single source of truth for agent guidance on this repo — **edit this file, not
+`CLAUDE.md`** (that is a stub that imports this one). Slash-command workflows
+live in `.agents/skills/<name>/SKILL.md` (canonical — the open Agent Skills
+format); `.claude/commands/` is generated from it by `tools/sync_commands.py`,
+and the gate drift-checks it via `make sync-check`.
+
+Two audiences:
+
+- **Unattended Jules routines** (`.jules/` personas): you run unattended and
+  open PRs. A human only does a binary approve/close on the result — they will
+  **not** leave review comments or iterate with you. So every PR must be
+  self-evidently correct and approvable at a glance. Optimize for **approve
+  rate**, not for volume. The sections from "Non-negotiables" through "Lanes"
+  are binding on you.
+- **Interactive agents** (Claude Code, Kimi, Antigravity, …): the repo guide
+  (commands, gotchas, working rules) applies to you. The PR/lane contract
+  applies when you open PRs unattended; per-rule carve-outs are marked inline.
+  When options are close, pick the best one and proceed — the human wants a
+  recommendation, not a menu of questions.
 
 This repo is `ryusoh.github.io`: a static, vanilla-JS/CSS personal site served by
 GitHub Pages. **No framework, no build step, no bundler** — pages load plain
 `<script>` tags. Frontend code lives in `js/`, styles in `css/`, the service
 worker is `sw.js`, and Jest tests live in `tests/js/`. There is **no server, no
-Python pipeline, no Cloudflare worker, and no generated `data/`.** Human-facing
-detail lives in `CLAUDE.md` and `docs/`.
+Python pipeline, no Cloudflare worker, and no generated `data/`.**
+
+Tooling is **npm**-based: `package-lock.json` is authoritative and `make`/CI run
+via `npx`. A `pnpm-lock.yaml` also exists but is secondary — it drifts from
+`package.json` (dependency bumps update only `package-lock.json`) and is
+regenerated out-of-band by Jules/bolt branches. Expect large-but-benign
+`pnpm-lock.yaml` diffs when shipping those; confirm it matches `package.json`
+rather than assuming a regression.
 
 ## Non-negotiables (a PR that violates any of these will be closed)
 
@@ -108,6 +128,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Full Jest suite + coverage report           | `make test`                      |
 | Scoped JS test (fast, while iterating)      | `npx jest <path/to/test>`        |
 | Lint JS / CSS individually                  | `make lint-js` / `make lint-css` |
+| Generated-commands freshness check          | `make sync-check`                |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run
   `make precommit-fix` before opening the PR.
@@ -117,6 +138,14 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   bypassed throwing getters, `vm`-context timer mocking, and more).
 - Scratch experiments go in a `tests/js/_*.test.js` file — that prefix is
   gitignored, so it won't be committed or left in the suite.
+- Before touching or adding a test in a large suite (e.g.
+  `page-transition.test.js`, 100+ tests), `grep` the file for the
+  function/branch name first. These suites often already cover the path you're
+  about to test, sometimes via a non-obvious pattern — e.g.
+  `loadInstrumentedScript()` in `page-transition.test.js` rewrites
+  `location.assign` calls to a mockable stub at load time instead of fighting
+  jsdom's non-configurable `Location`. Finding that pattern up front beats
+  rediscovering it after a few failed mocking attempts.
 
 ## Layout
 
@@ -129,7 +158,22 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   image-heavy portfolio galleries.
 - `tests/js/**` — Jest (jsdom) tests. `docs/` — repo knowledge; **read
   `docs/testing-notes.md` before deep test work.**
-- `scripts/run-npx.sh` — the `make`/CI npx wrapper.
+- `scripts/run-npx.sh` — the `make`/CI npx wrapper. `tools/sync_commands.py` —
+  skill/command sync (see "Skills and slash commands" below).
+
+## Skills and slash commands
+
+- **`.agents/skills/<name>/SKILL.md` is canonical** — the open Agent Skills
+  format: YAML frontmatter declaring `name` and `description` (used for
+  triggering), instructions in the markdown body. Edit skills there.
+- **`.claude/commands/<name>.md` is generated** from the skills by
+  `tools/sync_commands.py` for Claude Code. Never edit the generated files by
+  hand — run `python3 tools/sync_commands.py` after editing a skill, and note
+  that `make sync-check` (wired into `make precommit`/`precommit-fix`) fails if
+  regeneration is not a no-op.
+- **Jules scheduled routines (unattended)** are a separate system from the
+  interactive skills above: their shared contract is this file and their
+  per-routine personas live in `.jules/<name>.md`.
 
 ## Lanes (keep PRs disjoint to avoid collisions)
 
@@ -156,4 +200,21 @@ The files in `.jules/<name>.md` are **persona definitions**: your identity, lane
 and constraints, which you read in at the start of a run. They are **not logs**.
 **Never append to, modify, or create files under `.jules/`.** A PR that changes a
 `.jules/` file is out of scope and will be closed — those files are edited by a
-human, not by routines.
+human, not by routines. Keep your own working learnings in `docs/`, not in a
+persona file. `.jules/` is excluded from the Prettier and markdownlint gates
+(`.prettierignore`, `.markdownlintignore`), so a format/lint failure in a
+`.jules/` file is expected — don't "fix" it by reformatting. `AGENTS.md` itself
+**is** gated, so keep it Prettier/markdownlint-clean (mind `**`-glob/bold
+collisions inside backticks).
+
+Jules PRs occasionally commit **root-level scratch scripts** (e.g. `patch_*.js`,
+`run_*.sh`) that it used to mutate test files in place. These fail eslint
+(`require`/`no-undef` under the browser config) and break CI. When shipping a
+Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
+
+## Working rules (interactive agents)
+
+- Work directly on `master`. **Commit/push only when explicitly asked.**
+- **Don't write a command or example into docs/code that you haven't actually
+  run this session.** Verify it first — don't infer behaviour from a name or a
+  `case` label.
