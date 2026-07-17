@@ -3,6 +3,33 @@
 Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
 
+## 2026-07-17 — A failing `expect` mid-callback skips cleanup and leaks corrupted globals to later tests
+
+**Problem:** A test that mutates a shared jsdom global (`window.history`,
+`window.URL`, `document.readyState`, ...) at the top of an `it()`/
+`jest.isolateModules()` callback, runs several `expect()` assertions, and only
+restores the global in plain code _after_ those assertions is not safe. If any
+assertion in the middle throws, the callback aborts immediately and the
+restoration code never runs. The global stays corrupted (e.g. `window.history`
+replaced by a plain `{ replaceState: fn }` object with no `pushState`) for
+every subsequent test in the file, which then fail with confusing, unrelated
+errors like `window.history.pushState is not a function` — nowhere near the
+actual root cause.
+
+This bit `tests/js/page-transition.test.js`: a broken assertion on a throwing
+`sessionStorage` getter (see the entry below — throwing getters are bypassed,
+so the expected `logWarning` call never happened) threw partway through
+`'covers error handling paths'`, which skipped the `window.history =
+originalHistory` restore at the end of that callback and cascaded into
+failures in two unrelated later tests.
+
+**Fix:** Wrap the assertions in `try { ... } finally { ...restore globals... }`
+so restoration always runs, or restore in the `it()`'s outer `afterEach` when
+possible. When you see a jsdom-global-shaped error (`X is not a function` on
+`window.history`/`window.location`/etc.) in a test that never touches that
+global directly, suspect a leak from an earlier test's unrestored mutation
+before debugging the failing test itself.
+
 ## 2026-06-28 — `Object.defineProperty(document, 'body')` overrides instance getter permanently, causing leaks
 
 **Problem:** Defining a mock value for `document.body` on the document instance itself via `Object.defineProperty(document, 'body', { value: undefined })` breaks the JSDOM instance prototype getter.

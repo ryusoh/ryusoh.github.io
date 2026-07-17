@@ -1521,43 +1521,48 @@ describe('page-transition.js extra coverage', () => {
 
             require('../../js/page-transition.js');
 
-            const t = window.__PageTransitionForTesting;
-            if (t) {
-                // Call clearTransitionParam with a valid short URL but history will throw
-                // Wait, clearTransitionParam looks at window.location.href
-                // window.location mocking not needed, URL constructor throws
-                t.clearTransitionParam();
-                expect(warnMock).toHaveBeenCalledWith(
-                    expect.stringContaining('[page-transition] clear transition param error:'),
-                    expect.any(Error)
-                );
-                warnMock.mockClear();
+            try {
+                const t = window.__PageTransitionForTesting;
+                if (t) {
+                    // Call clearTransitionParam with a valid short URL but history will throw
+                    // Wait, clearTransitionParam looks at window.location.href
+                    // window.location mocking not needed, URL constructor throws
+                    t.clearTransitionParam();
+                    expect(warnMock).toHaveBeenCalledWith(
+                        expect.stringContaining('[page-transition] clear transition param error:'),
+                        expect.any(Error)
+                    );
+                    warnMock.mockClear();
 
-                // Call prefersReducedMotion
-                t.prefersReducedMotion();
-                expect(warnMock).toHaveBeenCalledWith(
-                    expect.stringContaining('[page-transition] prefersReducedMotion error:'),
-                    expect.any(Error)
-                );
-                warnMock.mockClear();
+                    // Call prefersReducedMotion
+                    t.prefersReducedMotion();
+                    expect(warnMock).toHaveBeenCalledWith(
+                        expect.stringContaining('[page-transition] prefersReducedMotion error:'),
+                        expect.any(Error)
+                    );
+                    warnMock.mockClear();
 
-                // Call hasTransitionParam
-                t.hasTransitionParam();
-                expect(warnMock).toHaveBeenCalledWith(
-                    expect.stringContaining('[page-transition] URL parse error:'),
-                    expect.any(Error)
-                );
-                warnMock.mockClear();
+                    // Call hasTransitionParam
+                    t.hasTransitionParam();
+                    expect(warnMock).toHaveBeenCalledWith(
+                        expect.stringContaining('[page-transition] URL parse error:'),
+                        expect.any(Error)
+                    );
+                    warnMock.mockClear();
+                }
+            } finally {
+                // Runs even if an assertion above throws — a mid-block failure that
+                // skips these restores corrupts shared jsdom globals (window.history
+                // etc.) for every later test in the file. See docs/testing-notes.md.
+                window.console.warn = originalConsoleWarn;
+                window.URL = originalURL;
+                window.matchMedia = originalMatchMedia;
+                window.history = originalHistory;
+                Object.defineProperty(document, 'readyState', {
+                    value: 'complete',
+                    configurable: true,
+                });
             }
-
-            window.console.warn = originalConsoleWarn;
-            window.URL = originalURL;
-            window.matchMedia = originalMatchMedia;
-            window.history = originalHistory;
-            Object.defineProperty(document, 'readyState', {
-                value: 'complete',
-                configurable: true,
-            });
         });
     });
 
