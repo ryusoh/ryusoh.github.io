@@ -258,14 +258,14 @@
             };
         })();
 
-        function beginExitBurst() {
-            transitionControl.mode = 'exit';
-            transitionControl.start = perfNow();
-            transitionControl.duration = 900;
+        function applyCanvasTransition(s, opacity) {
             if (s.canvas) {
                 s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
-                s.canvas.style.opacity = '1';
+                s.canvas.style.opacity = opacity;
             }
+        }
+
+        function mutateExitParticles(particles, C) {
             for (let i = 0; i < particles.length; i += 1) {
                 const p = particles[i];
                 p.vx = (Math.random() - 0.5) * C.speed * 10;
@@ -274,18 +274,17 @@
             }
         }
 
+        function beginExitBurst() {
+            transitionControl.mode = 'exit';
+            transitionControl.start = perfNow();
+            transitionControl.duration = 900;
+            applyCanvasTransition(s, '1');
+            mutateExitParticles(particles, C);
+        }
+
         let introTriggered = false;
 
-        function beginIntroSweep() {
-            introTriggered = true;
-            transitionControl.mode = 'intro';
-            transitionControl.start = perfNow();
-            transitionControl.duration = 750;
-            if (s.canvas) {
-                s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
-                s.canvas.style.opacity = '1';
-            }
-            const m = metrics(s);
+        function mutateIntroParticles(particles, C, m) {
             for (let i = 0; i < particles.length; i += 1) {
                 const p = particles[i];
                 p.x = -m.width * 0.15 + Math.random() * m.width * 0.3;
@@ -294,6 +293,15 @@
                 p.vy = Math.abs(p.vy) + 0.5 + Math.random() * 1.2;
                 p.a = C.alpha.min + Math.random() * (C.alpha.max - C.alpha.min);
             }
+        }
+
+        function beginIntroSweep() {
+            introTriggered = true;
+            transitionControl.mode = 'intro';
+            transitionControl.start = perfNow();
+            transitionControl.duration = 750;
+            applyCanvasTransition(s, '1');
+            mutateIntroParticles(particles, C, metrics(s));
         }
 
         s.setup = function () {
@@ -314,6 +322,16 @@
             s.setup();
         };
 
+        function handleTransitionPhase() {
+            const elapsed = perfNow() - transitionControl.start;
+            if (elapsed > transitionControl.duration) {
+                transitionControl.mode = 'idle';
+                if (s.canvas) {
+                    s.canvas.style.opacity = '';
+                }
+            }
+        }
+
         s.update = function () {
             // Bolt Optimization: Replace metrics().width with cached s.width to avoid DOM reads in render loop
             const w = s.width;
@@ -326,13 +344,7 @@
             }
 
             if (exiting || intro) {
-                const elapsed = perfNow() - transitionControl.start;
-                if (elapsed > transitionControl.duration) {
-                    transitionControl.mode = 'idle';
-                    if (s.canvas) {
-                        s.canvas.style.opacity = '';
-                    }
-                }
+                handleTransitionPhase();
             }
         };
 
