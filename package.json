@@ -9,6 +9,7 @@
         "lint:css": "stylelint \"**/*.css\" --config .stylelintrc.cjs --max-warnings=0",
         "fmt": "prettier --write . --config .prettierrc.cjs --ignore-path .prettierignore",
         "fmt:check": "prettier -c . --config .prettierrc.cjs --ignore-path .prettierignore",
+        "typecheck:js": "tsc -p jsconfig.json",
         "test": "jest --coverage"
     },
     "devDependencies": {
@@ -24,6 +25,7 @@
         "js-yaml": "^5.2.1",
         "picomatch": "^4.0.5",
         "prettier": "^3.9.5",
-        "stylelint": "^17.14.0"
+        "stylelint": "^17.14.0",
+        "typescript": "^7.0.2"
     }
 }

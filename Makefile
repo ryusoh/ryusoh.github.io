@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix check fix test sync-check
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix type check fix test sync-check
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -12,7 +12,8 @@ help:
 	@echo "  fmt           Apply Prettier formatting"
 	@echo "  lint          Run JS/CSS lint (ESLint/Stylelint)"
 	@echo "  lint-fix      Apply ESLint/Stylelint auto-fixes"
-	@echo "  check         Run fmt-check + lint (quick CI parity)"
+	@echo "  type          JS strict type check (tsc --checkJs on whitelist)"
+	@echo "  check         Run fmt-check + lint + type (quick CI parity)"
 	@echo "  fix           Run fmt + lint-fix"
 	@echo "  test          Run the full Jest suite with a coverage report"
 
@@ -76,7 +77,13 @@ lint-css:
 
 lint: lint-js lint-css
 
-check: fmt-check lint sync-check
+# JS strict type check (tsc --checkJs on whitelist; blocking — see
+# docs/js-typing-strategy.md). The whitelist starts small and grows
+# incrementally, so this never fails on unannotated files outside it.
+type:
+	@$(NPX) tsc -p jsconfig.json
+
+check: fmt-check lint type sync-check
 
 lint-fix:
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true

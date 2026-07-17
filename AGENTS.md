@@ -36,8 +36,8 @@ rather than assuming a regression.
 ## Non-negotiables (a PR that violates any of these will be closed)
 
 1. **Open a PR only if `make precommit-fix` is green.** It runs the CI gate —
-   Prettier, ESLint, Stylelint, and the full Jest suite + coverage — and must
-   exit 0. Red = don't open it.
+   Prettier, ESLint, Stylelint, the JS strict type check (`tsc`), and the full
+   Jest suite + coverage — and must exit 0. Red = don't open it.
 2. **One concern, smallest possible diff.** No drive-by edits, no scope creep.
    Diff size is inversely proportional to approval — keep it tiny.
 3. **Stay in your lane** (see "Lanes" below). If two routines touch the same files,
@@ -120,15 +120,16 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 ## Command interface — prefer `make` (matches CI)
 
-| Need                                        | Command                          |
-| ------------------------------------------- | -------------------------------- |
-| Full gate (format + lint + Jest + coverage) | `make precommit-fix`             |
-| Format-check + lint only (quick CI parity)  | `make check`                     |
-| Auto-fix format + lint                      | `make fix`                       |
-| Full Jest suite + coverage report           | `make test`                      |
-| Scoped JS test (fast, while iterating)      | `npx jest <path/to/test>`        |
-| Lint JS / CSS individually                  | `make lint-js` / `make lint-css` |
-| Generated-commands freshness check          | `make sync-check`                |
+| Need                                               | Command                                  |
+| -------------------------------------------------- | ---------------------------------------- |
+| Full gate (format + lint + type + Jest + coverage) | `make precommit-fix`                     |
+| Format-check + lint + type only (quick CI parity)  | `make check`                             |
+| Auto-fix format + lint                             | `make fix`                               |
+| Full Jest suite + coverage report                  | `make test`                              |
+| Scoped JS test (fast, while iterating)             | `npx jest <path/to/test>`                |
+| Lint JS / CSS individually                         | `make lint-js` / `make lint-css`         |
+| JS strict type check (whitelist)                   | `make type` / `npx tsc -p jsconfig.json` |
+| Generated-commands freshness check                 | `make sync-check`                        |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run
   `make precommit-fix` before opening the PR.
@@ -136,6 +137,10 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   flaky JS test, read `docs/testing-notes.md` — it documents dated jsdom/jest
   gotchas specific to this repo (non-configurable `window.location`, silently
   bypassed throwing getters, `vm`-context timer mocking, and more).
+- `make type` runs `tsc -p jsconfig.json` strictly over a small, incrementally
+  growing whitelist (`include` in `jsconfig.json`) — see
+  `docs/js-typing-strategy.md`. It's blocking, but only for whitelisted files;
+  everything outside the whitelist is unchecked.
 - Scratch experiments go in a `tests/js/_*.test.js` file — that prefix is
   gitignored, so it won't be committed or left in the suite.
 - Before touching or adding a test in a large suite (e.g.
@@ -151,8 +156,12 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 - `js/` — frontend scripts loaded via plain `<script>` tags (no modules/bundler).
   `js/ambient/` = canvas/WebGL ambient effects; `js/loader/` = asset/CDN/font
-  loaders; `js/vendor/` = third-party (don't touch); `js/config.js` = tunables.
+  loaders; `js/vendor/` = third-party (don't touch); `js/config.js` = tunables;
+  `js/types/*.d.ts` = type-only ambient declarations for `tsc --checkJs`
+  (never shipped).
 - `sw.js` — the service worker (caching + fetch handling).
+- `jsconfig.json` — the `tsc --checkJs` strict-mode whitelist; see
+  `docs/js-typing-strategy.md` before touching it.
 - `css/` — stylesheets.
 - `p1/`–`p4/`, `index.html` — static page entries; the `p*` pages are
   image-heavy portfolio galleries.
@@ -185,6 +194,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Bolt      | one measurable performance/efficiency win per run                            | complexity-only refactors, security, dead code, features  |
 | Testpilot | test-only additions/coverage, no prod-code change                            | `js/` prod files, `sw.js`                                 |
 | Palette   | accessibility, UX, semantic HTML/CSS                                         | JS runtime logic, security, tests, performance            |
+| Typist    | JS strict-type annotations (JSDoc) + whitelist expansion, no logic change    | runtime behaviour                                         |
 
 If your finding belongs to another lane, **skip it** — that lane will get it.
 

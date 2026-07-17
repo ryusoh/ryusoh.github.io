@@ -61,6 +61,19 @@ repos:
             pass_filenames: true
             stages: [pre-commit, manual]
 
+    # JS strict type check (whitelist grows incrementally; see
+    # docs/js-typing-strategy.md). Project-wide, not per-file — tsc resolves
+    # the whitelist from jsconfig.json itself.
+    - repo: local
+      hooks:
+          - id: tsc
+            name: tsc (jsconfig.json whitelist)
+            entry: env FORCE_COLOR=1 ./scripts/run-npx.sh tsc -p jsconfig.json
+            language: system
+            types_or: [javascript]
+            pass_filenames: false
+            stages: [pre-commit, manual]
+
     # JS tests (commit): related tests only
     - repo: local
       hooks:

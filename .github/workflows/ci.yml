@@ -78,6 +78,14 @@ jobs:
                     echo "No ESLint config found; skipping"
                   fi
 
+            - name: TypeScript check (tsc --checkJs whitelist)
+              run: |
+                  if [ -f jsconfig.json ]; then
+                    npx --yes tsc -p jsconfig.json
+                  else
+                    echo "No jsconfig.json found; skipping"
+                  fi
+
             - name: Stylelint
               run: |
                   if [ -f .stylelintrc.cjs ]; then
