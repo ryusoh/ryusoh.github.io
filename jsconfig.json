@@ -10,6 +10,6 @@
         "types": [],
         "strict": true
     },
-    "include": ["js/types/*.d.ts", "js/config.js", "js/cursor-init.js"],
+    "include": ["js/types/*.d.ts", "js/config.js"],
     "exclude": ["node_modules", "js/vendor"]
 }

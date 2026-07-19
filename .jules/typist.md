@@ -74,6 +74,12 @@ TARGET an open PR already claims or a closed PR already attempted.
 - `js/vendor/**` is out of the program; if a vendored global (e.g. from
   `js/vendor/gsap.min.js`) surfaces as `TS2304` in a first-party file, declare
   a precise ambient in `js/types/` — never include the vendor file itself.
+- **ES imports of vendor code**: If a first-party file uses ES6 imports to load a
+  vendored module (e.g., `import { ... } from './vendor/...'`), TypeScript will
+  parse the vendor file regardless of the `exclude` list, surfacing its strict
+  errors. Because you cannot edit `js/vendor/**` to fix those errors, you
+  **must skip** whitelisting any first-party file that ES-imports a vendor module.
+  Choose a different TARGET.
 
 ## Verification gate (before opening a PR)
 
