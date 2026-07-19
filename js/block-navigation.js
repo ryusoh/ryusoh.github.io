@@ -69,15 +69,24 @@
 
     /**
      * Bolt Optimization:
-     * - What: Cache `window.innerHeight` during `resize` and `load` events.
-     * - Why: `isAtTopOrBottom`, `getIndexFromFallback`, `clampScrollTop`, and `scrollFallback` are called frequently (especially via `scroll` handlers or debounced resize). Reading `window.innerHeight` synchronously repeatedly forces the browser to evaluate layout, causing main-thread overhead.
-     * - Impact: Eliminates redundant synchronous layout recalculations during scrolling and navigation events by relying on a cached window dimension.
+     * - What: Cache `window.innerHeight` and document height during `resize` and `load` events.
+     * - Why: `isAtTopOrBottom`, `getIndexFromFallback`, `clampScrollTop`, and `scrollFallback` are called frequently (especially via `scroll` handlers or debounced resize). Reading layout properties (`window.innerHeight`, `document.body.scrollHeight`) synchronously repeatedly forces the browser to evaluate layout, causing main-thread overhead.
+     * - Impact: Eliminates redundant synchronous layout recalculations during scrolling and navigation events by relying on cached dimensions.
      */
     let cachedInnerHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+    let cachedDocHeight = 0;
+
+    function getDocHeight() {
+        return Math.max(
+            document.body ? document.body.scrollHeight : 0,
+            document.documentElement ? document.documentElement.scrollHeight : 0
+        );
+    }
 
     function updateCachedDimensions() {
         if (typeof window !== 'undefined') {
             cachedInnerHeight = window.innerHeight;
+            cachedDocHeight = getDocHeight();
         }
     }
 
@@ -315,20 +324,13 @@
         currentIndex = getCurrentIndex();
     }
 
-    function getDocHeight() {
-        return Math.max(
-            document.body ? document.body.scrollHeight : 0,
-            document.documentElement ? document.documentElement.scrollHeight : 0
-        );
-    }
-
     function isAtTopOrBottom() {
         if (topSentinel && window.scrollY <= 1) {
             return 0;
         }
 
-        const docHeight = getDocHeight();
-        const atBottom = docHeight > 0 && window.scrollY + cachedInnerHeight >= docHeight - 1;
+        const atBottom =
+            cachedDocHeight > 0 && window.scrollY + cachedInnerHeight >= cachedDocHeight - 1;
         if (atBottom) {
             return blocks.length - 1;
         }
@@ -391,7 +393,7 @@
     }
 
     function clampScrollTop(value) {
-        const maxScroll = document.documentElement.scrollHeight - cachedInnerHeight;
+        const maxScroll = cachedDocHeight - cachedInnerHeight;
         if (!Number.isFinite(maxScroll) || maxScroll < 0) {
             return Math.max(0, value);
         }
@@ -540,8 +542,14 @@
      * - Impact: Measurably reduces memory allocation for event listeners and eliminates O(N) main-thread execution time during initialization by leveraging event delegation (capturing phase for `load` events).
      */
     function bindImageLoadHandlers() {
-        const debouncedSync = debounce(syncCurrentIndex, 150);
-        const debouncedUpdate = debounce(updatePositions, 150);
+        const debouncedSync = debounce(() => {
+            updateCachedDimensions();
+            syncCurrentIndex();
+        }, 150);
+        const debouncedUpdate = debounce(() => {
+            updateCachedDimensions();
+            updatePositions();
+        }, 150);
 
         document.addEventListener(
             'load',
