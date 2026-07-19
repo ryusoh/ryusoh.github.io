@@ -4,7 +4,7 @@
 
 interface Window {
     /** GSAP animation library */
-    gsap?: Record<string, unknown>;
+    gsap?: { quickTo: Function, set: Function, to: Function };
     /** Cursor instances for cleanup */
     cursorInstances?: { cursor: unknown };
     /** Global tunables set by js/config.js and read by other page scripts. */
