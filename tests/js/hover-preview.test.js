@@ -344,4 +344,34 @@ describe('js/hover-preview.js', () => {
 
         expect(mockTo).not.toHaveBeenCalled();
     });
+
+    test('covers line 57-60 updatePosition coordinates', (done) => {
+        require('../../js/hover-preview.js');
+        const event = new Event('DOMContentLoaded');
+        document.dispatchEvent(event);
+
+        const link = document.querySelector('a');
+
+        // Initial hover
+        link.dispatchEvent(
+            new MouseEvent('mouseover', { bubbles: true, clientX: 100, clientY: 100 })
+        );
+
+        // Move to new coordinates
+        mockSetX.mockClear();
+        mockSetY.mockClear();
+
+        document.dispatchEvent(new MouseEvent('mousemove', { clientX: 200, clientY: 300 }));
+
+        // Wait for rAF to trigger updatePosition
+        setTimeout(() => {
+            // updatePosition adds +20 to mouseX and mouseY
+            expect(mockSetX).toHaveBeenCalledWith(220);
+            expect(mockSetY).toHaveBeenCalledWith(320);
+
+            // Cleanup
+            link.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+            done();
+        }, 100); // give it enough time for rAF
+    });
 });
