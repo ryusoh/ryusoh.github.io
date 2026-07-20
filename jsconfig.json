@@ -10,6 +10,6 @@
         "types": [],
         "strict": true
     },
-    "include": ["js/types/*.d.ts", "js/config.js"],
+    "include": ["js/types/*.d.ts", "js/config.js", "js/scroll-reveal.js"],
     "exclude": ["node_modules", "js/vendor"]
 }
