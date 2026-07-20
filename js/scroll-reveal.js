@@ -54,6 +54,9 @@
      */
     requestAnimationFrame(function () {
         requestAnimationFrame(function () {
+            /**
+             * @param {Element} el
+             */
             function revealElement(el) {
                 // Use requestAnimationFrame to ensure the browser paints the hidden
                 // state before adding the visible class. If we don't, cached images
@@ -70,6 +73,8 @@
              * - What: Replace O(N) individual `load` and `error` event listeners with O(1) document-level event delegation.
              * - Why: The previous implementation attached individual listeners for every uncompleted image entering the viewport. On image-heavy pages, fast scrolling triggers O(N) listener allocations, increasing memory overhead and initialization time.
              * - Impact: Measurably reduces memory footprint and main-thread execution time by leveraging O(1) capturing listeners on the document root.
+             *
+             * @param {HTMLImageElement} img
              */
             function revealImage(img) {
                 if (img.complete) {
@@ -79,8 +84,11 @@
                 img.classList.add('is-revealing');
             }
 
+            /**
+             * @param {Event} event
+             */
             function handleImageLoadEvent(event) {
-                const el = event.target;
+                const el = /** @type {Element} */ (event.target);
                 if (el && el.tagName === 'IMG' && el.classList.contains('is-revealing')) {
                     el.classList.remove('is-revealing');
                     revealElement(el);
@@ -99,7 +107,7 @@
                         if (entries[i].isIntersecting) {
                             const el = entries[i].target;
                             if (el.tagName === 'IMG') {
-                                revealImage(el);
+                                revealImage(/** @type {HTMLImageElement} */ (el));
                             }
                             observer.unobserve(el);
                         }
