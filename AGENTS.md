@@ -6,19 +6,21 @@ live in `.agents/skills/<name>/SKILL.md` (canonical — the open Agent Skills
 format); `.claude/commands/` is generated from it by `tools/sync_commands.py`,
 and the gate drift-checks it via `make sync-check`.
 
-Two audiences:
+## Two audiences (do not mix these up)
 
-- **Unattended Jules routines** (`.jules/` personas): you run unattended and
-  open PRs. A human only does a binary approve/close on the result — they will
-  **not** leave review comments or iterate with you. So every PR must be
-  self-evidently correct and approvable at a glance. Optimize for **approve
-  rate**, not for volume. The sections from "Non-negotiables" through "Lanes"
-  are binding on you.
-- **Interactive agents** (Claude Code, Kimi, Antigravity, …): the repo guide
-  (commands, gotchas, working rules) applies to you. The PR/lane contract
-  applies when you open PRs unattended; per-rule carve-outs are marked inline.
-  When options are close, pick the best one and proceed — the human wants a
-  recommendation, not a menu of questions.
+- **Unattended Jules routines** (`.jules/` personas): these bots run without a
+  human in the loop and open PRs. A human only does a binary approve/close on the
+  result — they will **not** leave review comments or iterate with you. So every
+  PR must be self-evidently correct and approvable at a glance. Optimize for
+  **approve rate**, not for volume. The sections from "Non-negotiables" through
+  "Lanes" are binding on Jules routines.
+- **Interactive coding agents** (Claude Code, Kimi, Antigravity, etc.): you work
+  directly with the user in a chat session. The project conventions below still
+  apply, but the Jules-only **PR/branch/lane restrictions do not**. You may edit
+  build files, Makefiles, configs, dependencies, and even `.jules/` persona files
+  when the user explicitly asks. You may commit to `master` or open PRs as
+  directed by the user. Do not invent Jules-style lane boundaries for normal
+  interactive work — if the user asks you to change something, change it.
 
 This repo is `ryusoh.github.io`: a static, vanilla-JS/CSS personal site served by
 GitHub Pages. **No framework, no build step, no bundler** — pages load plain
@@ -204,18 +206,25 @@ If your finding belongs to another lane, **skip it** — that lane will get it.
 > judgment-guided, not machine-gated. Your real gate is a green
 > `make precommit-fix` plus the scoped proof your lane requires.
 
-## `.jules/` is read-only personas — never write to it
+## `.jules/` personas — editing rules
 
-The files in `.jules/<name>.md` are **persona definitions**: your identity, lane,
-and constraints, which you read in at the start of a run. They are **not logs**.
-**Never append to, modify, or create files under `.jules/`.** A PR that changes a
-`.jules/` file is out of scope and will be closed — those files are edited by a
-human, not by routines. Keep your own working learnings in `docs/`, not in a
-persona file. `.jules/` is excluded from the Prettier and markdownlint gates
-(`.prettierignore`, `.markdownlintignore`), so a format/lint failure in a
-`.jules/` file is expected — don't "fix" it by reformatting. `AGENTS.md` itself
-**is** gated, so keep it Prettier/markdownlint-clean (mind `**`-glob/bold
-collisions inside backticks).
+The files in `.jules/<name>.md` are **persona definitions** for the unattended
+Jules routines: they encode identity, lane, and constraints, read at the start of
+an unattended run. They are **not logs**.
+
+- **Unattended Jules routines** must treat `.jules/` as read-only. They may **not**
+  append to, modify, or create files under `.jules/`. A PR from a Jules routine
+  that changes a `.jules/` file is out of scope and will be closed.
+- **Interactive coding agents** (Claude Code, Kimi, Antigravity, etc.) **may**
+  edit `.jules/` persona files when the user explicitly asks them to fix a
+  harness bug or clarify guidance. The change must still be a single-concern PR
+  or direct commit with a green `make precommit-fix`, and the agent must note in
+  the commit/PR body that the edit is to a persona file. Do not edit `.jules/`
+  without the user’s direction.
+
+Capture durable learnings in this file or `docs/` instead of leaving the persona
+files as the only source of truth. `AGENTS.md` itself **is** gated, so keep it
+Prettier/markdownlint-clean (mind `**`-glob/bold collisions inside backticks).
 
 Jules PRs occasionally commit **root-level scratch scripts** (e.g. `patch_*.js`,
 `run_*.sh`) that it used to mutate test files in place. These fail eslint
