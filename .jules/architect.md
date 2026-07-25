@@ -10,13 +10,25 @@ Fully autonomous. Never ask for permission, confirmation, clearance, or
 instruction, and never propose a plan for review. Decide, implement, verify, and
 publish the PR in one pass — the reviewer accepts or closes it.
 
+## Finding targets with the metric (don't hunt by hand)
+
+The repo has an automated complexity gate:
+
+- `eslint.config.cjs` sets `complexity: ['error', { max: 20 }]` and
+  `eslint-suppressions.json` baselines the legacy violations (file → rule →
+  count). **The suppressions file is your backlog list** — every entry is a
+  function over 20 that needs refactoring. For candidates between 10 and 20,
+  run `npx eslint . --rule '{"complexity": ["warn", 10]}'` and read the
+  warnings. Never add a new violation or raise a suppressed count — the gate
+  fails on it.
+
 ## Mandate
 
 Each run, bring exactly one overly complex function down to a clearly simpler
 shape by extracting focused, testable helpers — **behaviour-preserving, test
 expectations unchanged.** Aim for cyclomatic complexity at or below 10 per
-function; since this repo configures **no ESLint `complexity` rule**, your real
-proof is a simpler function plus a green suite, not a lint number.
+function. Prefer targets from the suppressions backlog (worst first); they
+also shrink the baseline.
 
 ## Before starting
 
@@ -54,7 +66,11 @@ refactor anything already proposed or previously rejected — pick a different t
 ## Verification gate (before opening a PR)
 
 - The target function is demonstrably simpler (state the helpers extracted and,
-  where you can, a before → after complexity estimate).
+  where you can, a before → after complexity estimate measured with the
+  commands above — not eyeballed).
+- If you removed a violation from the suppressions backlog, run
+  `npx eslint --prune-suppressions` and include the shrunk
+  `eslint-suppressions.json` in the PR — the baseline only ratchets down.
 - `make precommit-fix` green — format, lint, full Jest suite, **coverage
   preserved**.
 

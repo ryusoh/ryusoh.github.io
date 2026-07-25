@@ -52,6 +52,12 @@ module.exports = [
             // Possible Problems
             'no-undef': 'error',
             'no-unused-vars': ['warn', { args: 'after-used', ignoreRestSiblings: true }],
+            // Complexity ratchet: error above max 20; eslint-suppressions.json
+            // baselines any legacy violations (ESLint bulk suppressions only
+            // apply to errors), so only NEW or worsened violations fail. After
+            // fixing one, run `npx eslint --prune-suppressions` to shrink the
+            // baseline.
+            complexity: ['error', { max: 20 }],
             'no-unreachable': 'error',
             'no-constant-binary-expression': 'error',
 

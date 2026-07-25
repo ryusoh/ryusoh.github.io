@@ -135,6 +135,11 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run
   `make precommit-fix` before opening the PR.
+- **Complexity ratchet** — `make lint-js` also gates cyclomatic complexity:
+  ESLint `complexity` errors above 20 with `eslint-suppressions.json`
+  baselining the legacy violations (any NEW or worsened one fails; shrink the
+  baseline with `npx eslint --prune-suppressions`). Never raise the ceiling or
+  hand-edit the suppressions file.
 - **Jest runs silent** — `console.log` prints nothing. Before debugging an odd or
   flaky JS test, read `docs/testing-notes.md` — it documents dated jsdom/jest
   gotchas specific to this repo (non-configurable `window.location`, silently
@@ -200,11 +205,12 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 If your finding belongs to another lane, **skip it** — that lane will get it.
 
-> **Note on enforcement:** unlike some sibling repos, this one does **not**
-> configure an ESLint `complexity` rule or a Jest `coverageThreshold`. The
-> Architect (complexity) and Testpilot (coverage) targets below are therefore
-> judgment-guided, not machine-gated. Your real gate is a green
-> `make precommit-fix` plus the scoped proof your lane requires.
+> **Note on enforcement:** cyclomatic complexity is machine-gated — ESLint's
+> `complexity` rule errors above 20, with `eslint-suppressions.json`
+> baselining the legacy violations (see "Complexity ratchet" above). Coverage,
+> however, has **no** Jest `coverageThreshold`, so Testpilot's targets remain
+> judgment-guided: your real gate there is a green `make precommit-fix` plus
+> the scoped proof your lane requires.
 
 ## `.jules/` personas — editing rules
 
