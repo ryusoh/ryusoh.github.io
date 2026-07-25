@@ -10,6 +10,12 @@
         "types": [],
         "strict": true
     },
-    "include": ["js/types/*.d.ts", "js/config.js", "js/scroll-reveal.js", "js/load-animations.js"],
+    "include": [
+        "js/types/*.d.ts",
+        "js/config.js",
+        "js/scroll-reveal.js",
+        "js/load-animations.js",
+        "js/ambient/config/default.js"
+    ],
     "exclude": ["node_modules", "js/vendor"]
 }
