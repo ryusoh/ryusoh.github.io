@@ -1466,8 +1466,7 @@ describe('Page Transition Logic', () => {
     describe('buildTransitionUrl', () => {
         it('adds transition parameter to valid URLs', () => {
             const url = api.buildTransitionUrl('http://localhost/test');
-            // The actual param might be ?transition=1 or something else, wait we observed ?__pt=1 earlier? Let's check what it builds!
-            expect(url).toBe('http://localhost/test?__pt=1'); // Wait, the TRANSITION_PARAM in the code is '__pt'? Or 'transition'? Let's look at page-transition.js: TRANSITION_PARAM = 'transition'. So ?transition=1 is correct.
+            expect(url).toBe('http://localhost/test?__pt=1');
         });
 
         it('returns original url if it exceeds length limits', () => {
@@ -1524,9 +1523,6 @@ describe('page-transition.js extra coverage', () => {
             try {
                 const t = window.__PageTransitionForTesting;
                 if (t) {
-                    // Call clearTransitionParam with a valid short URL but history will throw
-                    // Wait, clearTransitionParam looks at window.location.href
-                    // window.location mocking not needed, URL constructor throws
                     t.clearTransitionParam();
                     expect(warnMock).toHaveBeenCalledWith(
                         expect.stringContaining('[page-transition] clear transition param error:'),

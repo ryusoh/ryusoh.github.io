@@ -543,18 +543,8 @@ describe('quantum_particles.js', () => {
 
     describe('Missing Window and Loaded Guard', () => {
         it('returns true for checkWindowConditions if window is undefined', () => {
-            // We can't delete window in JSDOM, but we can mock or use isolation.
-            // Actually, we can just call checkWindowConditions manually. Wait, we exported it!
-
             // For the __AmbientQuantumParticlesLoaded guard:
             window.__AmbientQuantumParticlesLoaded = true;
-
-            // We need to trigger the ready callback.
-            // In the file, the IIFE calls ready().
-            // If window.__AmbientQuantumParticlesLoaded is true, it returns early.
-            // We can just execute the ready() callback directly!
-            // Wait, we have access to `qp.ready`. But ready() is a helper, the callback was passed to it.
-            // We can isolateModules and set __AmbientQuantumParticlesLoaded = true before require.
 
             jest.isolateModules(() => {
                 window.__AmbientQuantumParticlesLoaded = true;
@@ -582,7 +572,6 @@ describe('quantum_particles.js', () => {
             vm.runInContext(source, context);
             const exports = context.module.exports;
             if (!exports || !exports.checkWindowConditions) {
-                // Wait, it might be in window.__QuantumParticlesForTesting
                 expect(
                     context.window && context.window.__QuantumParticlesForTesting
                 ).toBeUndefined();
