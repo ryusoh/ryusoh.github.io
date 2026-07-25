@@ -134,7 +134,9 @@ describe('Security: target="_blank" links', () => {
         files.forEach((file) => {
             const filePath = path.join(dir, file);
             if (fs.statSync(filePath).isDirectory()) {
-                if (!file.startsWith('.') && file !== 'node_modules') {
+                // reports/ holds the gitignored StrykerJS mutation report —
+                // third-party generated HTML, not our markup to police.
+                if (!file.startsWith('.') && file !== 'node_modules' && file !== 'reports') {
                     getHtmlFiles(filePath, fileList);
                 }
             } else if (file.endsWith('.html')) {

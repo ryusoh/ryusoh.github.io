@@ -1,6 +1,10 @@
 module.exports = {
     testEnvironment: 'jsdom',
     collectCoverageFrom: ['js/**/*.js', 'sw.js', '!js/vendor/**/*.js', '!js/**/*.min.js'],
+    // StrykerJS artifacts (make mutate-js): sandbox copies of the whole repo
+    // (including tests) and the generated HTML report. Never run/scan them.
+    testPathIgnorePatterns: ['/node_modules/', '/\\.stryker-tmp/', '/reports/'],
+    coveragePathIgnorePatterns: ['/node_modules/', '/\\.stryker-tmp/', '/reports/'],
     // Whole-suite coverage floor (ratchet): set just below the measured globals
     // on 2026-07-26 (lines ~87.2 / statements ~87.3 / functions 90.3 /
     // branches ~80.9 — varies ±0.1 between runs). Testpilot raises this floor

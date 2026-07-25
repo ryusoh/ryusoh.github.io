@@ -11,8 +11,15 @@ describe('Security: rel="noopener noreferrer" for target="_blank"', () => {
             const filePath = path.join(dir, file);
             const stat = fs.statSync(filePath);
 
-            // Skip node_modules and hidden directories
-            if (stat.isDirectory() && !file.startsWith('.') && file !== 'node_modules') {
+            // Skip node_modules, hidden directories, and generated output
+            // (reports/ holds the gitignored StrykerJS mutation report —
+            // third-party generated HTML, not our markup to police).
+            if (
+                stat.isDirectory() &&
+                !file.startsWith('.') &&
+                file !== 'node_modules' &&
+                file !== 'reports'
+            ) {
                 findHtmlFiles(filePath);
             } else if (file.endsWith('.html')) {
                 htmlFiles.push(filePath);
