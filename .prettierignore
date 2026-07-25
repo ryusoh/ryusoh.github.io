@@ -14,6 +14,9 @@ js/viewer.min.js
 .git/
 pnpm-lock.yaml
 
+# StrykerJS mutation reports (make mutate-js) — generated HTML/JSON, gitignored.
+reports/
+
 # Human-maintained persona definitions for the Jules routines (see AGENTS.md,
 # CLAUDE.md). Prose/markdown, not gated — don't let Prettier reformat them.
 .jules/

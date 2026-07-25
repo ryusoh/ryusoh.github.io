@@ -1,0 +1,54 @@
+# Weekly StrykerJS mutation run — NON-BLOCKING by design (see
+# docs/agentic-quality-gates.md §2 in the fund repo and `make mutate-js`).
+# It never gates a PR: thresholds.break is null in stryker.config.json and the
+# run step is continue-on-error, so a red mutation score only shows up in the
+# uploaded HTML report artifact, not in anyone's merge path.
+name: Mutation testing
+
+on:
+    schedule:
+        - cron: '0 3 * * 1' # Mondays 03:00 UTC
+    workflow_dispatch:
+
+jobs:
+    mutate-js:
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: '24'
+                  cache: 'npm'
+
+            - name: Install Node deps
+              run: npm ci
+
+            # The incremental report makes weekly reruns cheap: Stryker only
+            # re-mutates files that changed since the cached run.
+            - name: Restore Stryker incremental cache
+              uses: actions/cache@v4
+              with:
+                  path: reports/stryker-incremental.json
+                  key: stryker-incremental-${{ github.run_id }}
+                  restore-keys: stryker-incremental-
+
+            - name: Run StrykerJS (non-blocking)
+              id: stryker
+              continue-on-error: true
+              run: npx stryker run
+
+            - name: Upload mutation report
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: mutation-report
+                  path: reports/mutation/
+                  retention-days: 30
+
+            - name: Surface non-blocking failure
+              if: steps.stryker.outcome == 'failure'
+              run: echo "::warning::Stryker run failed (non-blocking) — inspect the mutation-report artifact"

@@ -3,6 +3,7 @@ module.exports = [
         ignores: [
             'node_modules/**',
             'coverage/**',
+            'reports/**',
             'assets/**',
             'js/sketch.js',
             'js/vendor/**',

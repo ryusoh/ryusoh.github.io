@@ -22,3 +22,9 @@ tests/js/_*.test.js
 tests/**/*.test.js.instrumented
 tests/**/*.test.js.new
 tests/**/*.test.js.vm
+
+# StrykerJS mutation reports (make mutate-js) — generated, never committed
+reports/
+
+# StrykerJS sandbox temp dir (make mutate-js)
+.stryker-tmp/

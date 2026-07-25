@@ -133,6 +133,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | JS strict type check (whitelist)                   | `make type` / `npx tsc -p jsconfig.json` |
 | Generated-commands freshness check                 | `make sync-check`                        |
 | Dependency-structure gate (no circular imports)    | `make depcheck`                          |
+| Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                         |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run
   `make precommit-fix` before opening the PR.
@@ -148,6 +149,12 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   `.dependency-cruiser.webpack.cjs`, never `options.tsConfig` — the repo has
   typescript v7 and the tsConfig route prints a spurious
   "missing-typescript-transpiler" warning on every run.
+- **Mutation testing is deliberately non-blocking** — `make mutate-js`
+  (StrykerJS, incremental, cache in gitignored `reports/`) measures assertion
+  strength but is **not** in `make lint`/`check`/`precommit` or the CI gate;
+  `thresholds.break` is `null` in `stryker.config.json` and the weekly
+  `.github/workflows/mutation.yml` run is `continue-on-error`. A low kill
+  ratio is a signal to write stronger assertions, never a merge blocker.
 - **Jest runs silent** — `console.log` prints nothing. Before debugging an odd or
   flaky JS test, read `docs/testing-notes.md` — it documents dated jsdom/jest
   gotchas specific to this repo (non-configurable `window.location`, silently
