@@ -142,6 +142,9 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   baselining the legacy violations (any NEW or worsened one fails; shrink the
   baseline with `npx eslint --prune-suppressions`). Never raise the ceiling or
   hand-edit the suppressions file.
+- **Coverage floor (ratchet)** — `make test` fails when whole-suite coverage
+  drops below `coverageThreshold.global` in `jest.config.cjs`. Raise the floor
+  as coverage improves; never lower it.
 - **Dependency-structure gate** — `make lint` also runs `make depcheck`
   (dependency-cruiser): circular imports fail as errors. Rules live in
   `.dependency-cruiser.cjs`. If import aliases are ever introduced
@@ -225,8 +228,10 @@ If your finding belongs to another lane, **skip it** — that lane will get it.
 
 > **Note on enforcement:** cyclomatic complexity is machine-gated — ESLint's
 > `complexity` rule errors above 20, with `eslint-suppressions.json`
-> baselining the legacy violations (see "Complexity ratchet" above). Coverage,
-> however, has **no** Jest `coverageThreshold`, so Testpilot's targets remain
+> baselining the legacy violations (see "Complexity ratchet" above). Coverage
+> has a **whole-suite floor** — the `coverageThreshold.global` ratchet in
+> `jest.config.cjs` (raise it as coverage improves, never lower it) — but no
+> per-diff gate, so Testpilot's targets beyond the floor remain
 > judgment-guided: your real gate there is a green `make precommit-fix` plus
 > the scoped proof your lane requires.
 
