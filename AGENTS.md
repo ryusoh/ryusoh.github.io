@@ -187,7 +187,10 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 - `css/` — stylesheets.
 - `p1/`–`p4/`, `index.html` — static page entries; the `p*` pages are
   image-heavy portfolio galleries.
-- `tests/js/**` — Jest (jsdom) tests. `docs/` — repo knowledge; **read
+- `tests/js/**` — Jest (jsdom) tests. `tests/js/acceptance/**` — the acceptance
+  stream: user-facing behaviours phrased in domain language, exercised only
+  through the public surface (real events in, observable page effects out; no
+  internal hooks, no source rewriting). `docs/` — repo knowledge; **read
   `docs/testing-notes.md` before deep test work.**
 - `scripts/run-npx.sh` — the `make`/CI npx wrapper. `tools/sync_commands.py` —
   skill/command sync (see "Skills and slash commands" below).
