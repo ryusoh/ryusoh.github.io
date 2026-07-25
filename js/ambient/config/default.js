@@ -18,6 +18,9 @@
         );
     }
 
+    /**
+     * @param {Error|unknown} e
+     */
     function logError(e) {
         if (typeof window !== 'undefined' && window?.console?.warn) {
             window.console.warn('Ambient config initialization failed:', e);
