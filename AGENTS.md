@@ -132,6 +132,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Lint JS / CSS individually                         | `make lint-js` / `make lint-css`         |
 | JS strict type check (whitelist)                   | `make type` / `npx tsc -p jsconfig.json` |
 | Generated-commands freshness check                 | `make sync-check`                        |
+| Dependency-structure gate (no circular imports)    | `make depcheck`                          |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run
   `make precommit-fix` before opening the PR.
@@ -140,6 +141,13 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   baselining the legacy violations (any NEW or worsened one fails; shrink the
   baseline with `npx eslint --prune-suppressions`). Never raise the ceiling or
   hand-edit the suppressions file.
+- **Dependency-structure gate** — `make lint` also runs `make depcheck`
+  (dependency-cruiser): circular imports fail as errors. Rules live in
+  `.dependency-cruiser.cjs`. If import aliases are ever introduced
+  (`jsconfig.json` `paths` or an import map), resolve them in
+  `.dependency-cruiser.webpack.cjs`, never `options.tsConfig` — the repo has
+  typescript v7 and the tsConfig route prints a spurious
+  "missing-typescript-transpiler" warning on every run.
 - **Jest runs silent** — `console.log` prints nothing. Before debugging an odd or
   flaky JS test, read `docs/testing-notes.md` — it documents dated jsdom/jest
   gotchas specific to this repo (non-configurable `window.location`, silently

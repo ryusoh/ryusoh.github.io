@@ -74,6 +74,18 @@ repos:
             pass_filenames: false
             stages: [pre-commit, manual]
 
+    # Dependency-structure gate (commit): no circular imports.
+    # Rules: .dependency-cruiser.cjs. Runs via the local devDependency.
+    - repo: local
+      hooks:
+          - id: dependency-cruiser
+            name: dependency-cruiser (JS dependency structure)
+            entry: env FORCE_COLOR=1 ./scripts/run-npx.sh dependency-cruiser js sw.js --config .dependency-cruiser.cjs
+            language: system
+            pass_filenames: false
+            always_run: true
+            stages: [pre-commit, manual]
+
     # JS tests (commit): related tests only
     - repo: local
       hooks:

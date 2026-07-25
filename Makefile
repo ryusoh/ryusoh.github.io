@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-fix type check fix test sync-check
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test sync-check
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -10,7 +10,7 @@ help:
 	@echo "  update-hooks  pre-commit autoupdate for hook repos"
 	@echo "  fmt-check     Run Prettier in check mode"
 	@echo "  fmt           Apply Prettier formatting"
-	@echo "  lint          Run JS/CSS lint (ESLint/Stylelint)"
+	@echo "  lint          Run JS/CSS lint (ESLint/Stylelint) + dependency-structure gate"
 	@echo "  lint-fix      Apply ESLint/Stylelint auto-fixes"
 	@echo "  type          JS strict type check (tsc --checkJs on whitelist)"
 	@echo "  check         Run fmt-check + lint + type (quick CI parity)"
@@ -75,7 +75,13 @@ lint-js:
 lint-css:
 	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --max-warnings=0 --formatter=unix
 
-lint: lint-js lint-css
+lint: lint-js lint-css depcheck
+
+# Dependency-structure gate: no circular imports. Rules: .dependency-cruiser.cjs
+# (alias-resolution stub: .dependency-cruiser.webpack.cjs — see its header for
+# why it's a webpack stub and not options.tsConfig).
+depcheck:
+	@$(NPX) dependency-cruiser js sw.js --config .dependency-cruiser.cjs
 
 # JS strict type check (tsc --checkJs on whitelist; blocking — see
 # docs/js-typing-strategy.md). The whitelist starts small and grows

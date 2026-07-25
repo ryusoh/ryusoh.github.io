@@ -51,6 +51,9 @@ refactor anything already proposed or previously rejected — pick a different t
   refactor. If complexity can only be reduced by changing behaviour, pick a
   different target.
 - **Readability over cleverness** — helpers must clarify intent, not micro-optimize.
+- **No circular imports** — `make depcheck` (dependency-cruiser, rules in
+  `.dependency-cruiser.cjs`) gates cycles as errors. Extractions that move code
+  across module boundaries must keep the import graph acyclic.
 
 ## Proven patterns for this repo
 
