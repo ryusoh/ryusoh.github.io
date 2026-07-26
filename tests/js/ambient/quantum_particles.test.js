@@ -2,10 +2,10 @@
 
 describe('quantum_particles.js', () => {
     beforeAll(() => {
-        window.HTMLCanvasElement.prototype.getContext = jest.fn(() => ({}));
+        window.window.HTMLCanvasElement.prototype.getContext = jest.fn(() => ({}));
     });
     afterAll(() => {
-        delete window.HTMLCanvasElement.prototype.getContext;
+        delete window.window.HTMLCanvasElement.prototype.getContext;
     });
     let originalInnerWidth;
     let originalInnerHeight;
@@ -302,6 +302,7 @@ describe('quantum_particles.js', () => {
 
         it('should not skip when all checks pass', () => {
             window.innerWidth = 1200;
+            window.performance = { now: jest.fn().mockReturnValue(1000) };
             window.matchMedia.mockReturnValue({ matches: false });
             const qp = getQuantumParticles();
             expect(qp.shouldSkipParticles(null, false)).toBe(false);
@@ -374,6 +375,7 @@ describe('quantum_particles.js', () => {
             const qp = getQuantumParticles();
             const mockTHREE = {
                 BufferGeometry: jest.fn().mockImplementation(() => ({
+                    computeBoundingSphere: jest.fn(),
                     setAttribute: jest.fn(),
                     computeBoundingSphere: jest.fn(),
                 })),
@@ -595,14 +597,14 @@ describe('quantum_particles.js extra coverage', () => {
             });
 
             const warnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
-            const originalGetContext = window.HTMLCanvasElement.prototype.getContext;
-            window.HTMLCanvasElement.prototype.getContext = () => {
+            const originalGetContext = window.window.HTMLCanvasElement.prototype.getContext;
+            window.window.HTMLCanvasElement.prototype.getContext = () => {
                 throw new Error('webgl boom');
             };
 
             require('../../../js/ambient/quantum_particles.js');
 
-            window.HTMLCanvasElement.prototype.getContext = originalGetContext;
+            window.window.HTMLCanvasElement.prototype.getContext = originalGetContext;
             expect(window.__AmbientQuantumParticlesLoaded).toBeFalsy(); // Should have skipped setup
             warnMock.mockRestore();
         });
@@ -624,6 +626,128 @@ describe('quantum_particles.js extra coverage 2', () => {
             require('../../../js/ambient/quantum_particles.js');
             expect(window.__AmbientQuantumParticlesLoaded).toBe(true);
             delete window.__AmbientQuantumParticlesLoaded;
+        });
+    });
+});
+
+describe('initParticles complete execution block coverage', () => {
+    it('covers initParticles native execution with THREE mock', async () => {
+        jest.isolateModules(() => {
+            const mockTHREE = {
+                Scene: jest.fn().mockImplementation(() => ({
+                    add: jest.fn(),
+                })),
+                PerspectiveCamera: jest.fn().mockImplementation(() => ({
+                    position: { set: jest.fn(), x: 0, y: 0, z: 0 },
+                    lookAt: jest.fn(),
+                    updateProjectionMatrix: jest.fn(),
+                })),
+                WebGLRenderer: jest.fn().mockImplementation(() => ({
+                    setSize: jest.fn(),
+                    setPixelRatio: jest.fn(),
+                    setClearColor: jest.fn(),
+                    render: jest.fn(),
+                    domElement: document.createElement('canvas'),
+                })),
+                BufferGeometry: jest.fn().mockImplementation(() => ({
+                    setAttribute: jest.fn(),
+                    computeBoundingSphere: jest.fn(),
+                })),
+                Float32BufferAttribute: jest.fn(),
+                BufferAttribute: jest.fn(),
+                ShaderMaterial: jest.fn().mockImplementation(() => ({
+                    uniforms: {
+                        pointer: {
+                            value: {
+                                clone: () => ({
+                                    set: jest.fn(),
+                                    copy: jest.fn(),
+                                    lerp: jest.fn(),
+                                    x: 0.5,
+                                    y: 0.5,
+                                }),
+                            },
+                        },
+                        time: { value: 0 },
+                    },
+                })),
+                Points: jest.fn().mockImplementation(() => ({
+                    rotation: { y: 0, z: 0 },
+                })),
+                Vector2: jest.fn().mockImplementation(() => ({
+                    clone: jest.fn().mockReturnValue({
+                        set: jest.fn(),
+                        copy: jest.fn(),
+                        lerp: jest.fn(),
+                        x: 0.5,
+                        y: 0.5,
+                    }),
+                    set: jest.fn(),
+                })),
+                Color: jest.fn(),
+            };
+
+            // Using dynamic mocking mechanism to stub the module import
+            jest.mock('../../../js/vendor/three.module.min.js', () => mockTHREE, { virtual: true });
+
+            document.body.innerHTML = '';
+
+            // Allow pointermove events
+            window.innerWidth = 1200;
+            const originalCanvasGetContext = window.HTMLCanvasElement.prototype.getContext;
+            window.HTMLCanvasElement.prototype.getContext = jest.fn().mockReturnValue({});
+            window.WebGLRenderingContext = true;
+
+            const qp = require('../../../js/ambient/quantum_particles.js');
+            const initParticles = qp.initParticles;
+
+            let resizeCallback;
+            window.ResizeObserver = class {
+                constructor(cb) {
+                    resizeCallback = cb;
+                }
+                observe() {}
+            };
+
+            let rafCb;
+            const originalRaf = window.requestAnimationFrame;
+            window.requestAnimationFrame = jest.fn((cb) => {
+                rafCb = cb;
+                return 1;
+            });
+
+            // Call it
+            return initParticles('lite').then(() => {
+                // Event dispatchers for coverage
+                window.dispatchEvent(new Event('pointermove', { clientX: 100, clientY: 100 }));
+                window.dispatchEvent(new Event('pointerdown', { clientX: 100, clientY: 100 }));
+                window.dispatchEvent(new Event('pointerup', { clientX: 100, clientY: 100 }));
+                window.dispatchEvent(new Event('pointercancel', { clientX: 100, clientY: 100 }));
+                window.dispatchEvent(new Event('pointerleave', { clientX: 100, clientY: 100 }));
+                window.dispatchEvent(new Event('blur'));
+
+                window.dispatchEvent(new Event('resize'));
+                if (resizeCallback) {
+                    resizeCallback();
+                }
+
+                // Trigger render loop
+                if (rafCb) {
+                    rafCb(100);
+                } // Trigger resize rAF
+                if (rafCb) {
+                    rafCb(200);
+                } // Trigger render rAF
+                if (rafCb) {
+                    const renderCb = rafCb;
+                    renderCb(100);
+                    renderCb(200);
+                }
+
+                window.requestAnimationFrame = originalRaf;
+                window.HTMLCanvasElement.prototype.getContext = originalCanvasGetContext;
+                delete window.ResizeObserver;
+            });
         });
     });
 });
