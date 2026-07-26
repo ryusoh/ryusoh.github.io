@@ -6,6 +6,7 @@
     class AssetPreloader {
         constructor() {
             // Define the image directories that need preloading
+            /** @type {Record<string, string>} */
             this.imageDirectories = {
                 p1: '/assets/img/p1/',
                 p2: '/assets/img/p2/',
@@ -13,6 +14,7 @@
             };
 
             // Define the actual image sets for each portfolio page (these are the specific images referenced in each portfolio)
+            /** @type {Record<string, string[]>} */
             this.assetSets = {
                 p1: [
                     '/assets/img/p1/DSCF4775.jpg',
@@ -74,7 +76,7 @@
 
         /**
          * Preload assets for specific pages
-         * @param {Array} pageKeys - Array of page keys to preload assets for (e.g., ['p2', 'p3'])
+         * @param {string[]} pageKeys - Array of page keys to preload assets for (e.g., ['p2', 'p3'])
          */
         preloadAssets(pageKeys) {
             /**

@@ -38,4 +38,8 @@ interface Window {
     __DefaultConfigForTesting?: {
         init: () => void;
     };
+    /** Asset preloader testing export */
+    __AssetPreloaderForTesting?: {
+        AssetPreloader: unknown;
+    };
 }
