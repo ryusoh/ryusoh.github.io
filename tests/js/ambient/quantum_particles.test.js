@@ -374,10 +374,13 @@ describe('quantum_particles.js', () => {
         it('should create geometry and material properly', () => {
             const qp = getQuantumParticles();
             const mockTHREE = {
-                BufferGeometry: jest.fn().mockImplementation(() => ({ computeBoundingSphere: jest.fn(),
-                    setAttribute: jest.fn(),
-                    computeBoundingSphere: jest.fn(),
-                })),
+                BufferGeometry: jest
+                    .fn()
+                    .mockImplementation(() => ({
+                        computeBoundingSphere: jest.fn(),
+                        setAttribute: jest.fn(),
+                        computeBoundingSphere: jest.fn(),
+                    })),
                 BufferAttribute: jest.fn(),
                 ShaderMaterial: jest.fn(),
                 Points: jest.fn().mockImplementation((geo, mat) => ({ geo, mat })),
@@ -634,38 +637,58 @@ describe('initParticles complete execution block coverage', () => {
         jest.isolateModules(() => {
             const mockTHREE = {
                 Scene: jest.fn().mockImplementation(() => ({
-                    add: jest.fn()
+                    add: jest.fn(),
                 })),
                 PerspectiveCamera: jest.fn().mockImplementation(() => ({
                     position: { set: jest.fn(), x: 0, y: 0, z: 0 },
                     lookAt: jest.fn(),
-                    updateProjectionMatrix: jest.fn()
+                    updateProjectionMatrix: jest.fn(),
                 })),
                 WebGLRenderer: jest.fn().mockImplementation(() => ({
                     setSize: jest.fn(),
                     setPixelRatio: jest.fn(),
                     setClearColor: jest.fn(),
                     render: jest.fn(),
-                    domElement: document.createElement('canvas')
+                    domElement: document.createElement('canvas'),
                 })),
-                BufferGeometry: jest.fn().mockImplementation(() => ({ setAttribute: jest.fn(), computeBoundingSphere: jest.fn() })),
-                Float32BufferAttribute: jest.fn(), BufferAttribute: jest.fn(),
+                BufferGeometry: jest
+                    .fn()
+                    .mockImplementation(() => ({
+                        setAttribute: jest.fn(),
+                        computeBoundingSphere: jest.fn(),
+                    })),
+                Float32BufferAttribute: jest.fn(),
+                BufferAttribute: jest.fn(),
                 ShaderMaterial: jest.fn().mockImplementation(() => ({
                     uniforms: {
-                        pointer: { value: { clone: () => ({ set: jest.fn(), copy: jest.fn(), lerp: jest.fn(), x: 0.5, y: 0.5 }) } },
-                        time: { value: 0 }
-                    }
+                        pointer: {
+                            value: {
+                                clone: () => ({
+                                    set: jest.fn(),
+                                    copy: jest.fn(),
+                                    lerp: jest.fn(),
+                                    x: 0.5,
+                                    y: 0.5,
+                                }),
+                            },
+                        },
+                        time: { value: 0 },
+                    },
                 })),
                 Points: jest.fn().mockImplementation(() => ({
-                    rotation: { y: 0, z: 0 }
+                    rotation: { y: 0, z: 0 },
                 })),
                 Vector2: jest.fn().mockImplementation(() => ({
                     clone: jest.fn().mockReturnValue({
-                        set: jest.fn(), copy: jest.fn(), lerp: jest.fn(), x: 0.5, y: 0.5
+                        set: jest.fn(),
+                        copy: jest.fn(),
+                        lerp: jest.fn(),
+                        x: 0.5,
+                        y: 0.5,
                     }),
-                    set: jest.fn()
+                    set: jest.fn(),
                 })),
-                Color: jest.fn()
+                Color: jest.fn(),
             };
 
             // Using dynamic mocking mechanism to stub the module import
@@ -692,7 +715,10 @@ describe('initParticles complete execution block coverage', () => {
 
             let rafCb;
             const originalRaf = window.requestAnimationFrame;
-            window.requestAnimationFrame = jest.fn((cb) => { rafCb = cb; return 1; });
+            window.requestAnimationFrame = jest.fn((cb) => {
+                rafCb = cb;
+                return 1;
+            });
 
             // Call it
             return initParticles('lite').then(() => {
@@ -705,12 +731,22 @@ describe('initParticles complete execution block coverage', () => {
                 window.dispatchEvent(new Event('blur'));
 
                 window.dispatchEvent(new Event('resize'));
-                if (resizeCallback) {resizeCallback();}
+                if (resizeCallback) {
+                    resizeCallback();
+                }
 
                 // Trigger render loop
-                if (rafCb) {rafCb(100);} // Trigger resize rAF
-                if (rafCb) {rafCb(200);} // Trigger render rAF
-                if (rafCb) { const renderCb = rafCb; renderCb(100); renderCb(200); }
+                if (rafCb) {
+                    rafCb(100);
+                } // Trigger resize rAF
+                if (rafCb) {
+                    rafCb(200);
+                } // Trigger render rAF
+                if (rafCb) {
+                    const renderCb = rafCb;
+                    renderCb(100);
+                    renderCb(200);
+                }
 
                 window.requestAnimationFrame = originalRaf;
                 window.HTMLCanvasElement.prototype.getContext = originalCanvasGetContext;
