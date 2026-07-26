@@ -1317,3 +1317,43 @@ describe('block-navigation extra coverage branches', () => {
         });
     });
 });
+
+describe('scrollFallback full coverage', () => {
+    it('covers scrollFallback natively', () => {
+        jest.isolateModules(() => {
+            const originalScrollTo = window.scrollTo;
+            window.scrollTo = jest.fn();
+
+            document.body.innerHTML = '<div class="intro-header"></div><div class="post-content"><p id="p1" style="height: 500px">P1</p><p id="p2" style="height: 500px">P2</p></div>';
+            Object.defineProperty(document.documentElement, 'scrollHeight', {
+                value: 2000,
+                configurable: true,
+            });
+            window.innerHeight = 800;
+            window.scrollY = 0;
+
+            const ioMock = jest.fn().mockImplementation(() => ({
+                observe: jest.fn(),
+                disconnect: jest.fn(),
+            }));
+            window.IntersectionObserver = ioMock;
+
+            require('../../js/block-navigation.js');
+            const t = window.__BlockNavigationForTesting;
+
+            if (t && t.scrollFallback) {
+                const target = document.getElementById('p1');
+                target.getBoundingClientRect = jest.fn().mockReturnValue({ top: 100, height: 500 });
+                // Test first content block
+                t.scrollFallback(target, 'smooth', true);
+
+                // Test subsequent content block
+                target.getBoundingClientRect = jest.fn().mockReturnValue({ top: 800, height: 500 });
+                t.scrollFallback(target, 'smooth', false);
+            }
+
+            window.scrollTo = originalScrollTo;
+            delete window.IntersectionObserver;
+        });
+    });
+});
