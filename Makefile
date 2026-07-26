@@ -29,17 +29,31 @@ hooks:
 		python3 -m pre_commit install || true; \
 	fi
 
+# Resolve pre-commit once: prefer the `pre-commit` binary (brew/pipx), fall
+# back to `python3 -m pre_commit`. Empty when neither exists — the precommit
+# targets below fail loudly in that case instead of silently skipping every
+# hook (a missing module previously printed an error yet exited 0).
+PRECOMMIT := $(shell command -v pre-commit 2>/dev/null || (python3 -m pre_commit --version >/dev/null 2>&1 && echo "python3 -m pre_commit"))
+
 precommit: hooks sync-check
 	@if [ -f .pre-commit-config.yaml ]; then \
-		PRE_COMMIT_NO_CONCURRENCY=1 python3 -m pre_commit run --all-files --show-diff-on-failure; \
+		if [ -z "$(PRECOMMIT)" ]; then \
+			echo "ERROR: pre-commit is not installed (e.g. brew install pre-commit or pip install pre-commit)."; \
+			exit 1; \
+		fi; \
+		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --show-diff-on-failure; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit."; \
 	fi
 
 precommit-fix: hooks sync-check
 	@if [ -f .pre-commit-config.yaml ]; then \
+		if [ -z "$(PRECOMMIT)" ]; then \
+			echo "ERROR: pre-commit is not installed (e.g. brew install pre-commit or pip install pre-commit)."; \
+			exit 1; \
+		fi; \
 		echo "Running pre-commit auto-fixes..."; \
-		PRE_COMMIT_NO_CONCURRENCY=1 python3 -m pre_commit run --all-files --hook-stage manual || true; \
+		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --hook-stage manual || true; \
 		echo "Staging auto-fixed files..."; \
 		git add -u; \
 	else \

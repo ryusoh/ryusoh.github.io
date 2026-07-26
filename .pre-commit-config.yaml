@@ -86,12 +86,17 @@ repos:
             always_run: true
             stages: [pre-commit, manual]
 
-    # JS tests (commit): related tests only
+    # JS tests (commit): related tests only. Scoped --findRelatedTests coverage
+    # can never meet the whole-suite global thresholds in jest.config.cjs, so
+    # they're disabled here (--coverageThreshold); the full-suite floor gates in
+    # `make test` / CI instead. `set -o pipefail` is load-bearing: without it
+    # the python output filter swallows jest's exit code and real test failures
+    # would pass the hook.
     - repo: local
       hooks:
           - id: jest-related
             name: jest (related tests)
-            entry: bash -c 'env FORCE_COLOR=1 ./scripts/run-npx.sh -y jest --colors --findRelatedTests --passWithNoTests --coverage "$@" 2>&1 | python3 -c "import sys; [sys.stdout.write(line) for line in sys.stdin if \"Ran all test suites\" not in line]"' --
+            entry: bash -c 'set -o pipefail; env FORCE_COLOR=1 ./scripts/run-npx.sh -y jest --colors --findRelatedTests --passWithNoTests --coverage --coverageThreshold="{}" "$@" 2>&1 | python3 -c "import sys; [sys.stdout.write(line) for line in sys.stdin if \"Ran all test suites\" not in line]"' --
             language: system
             types_or: [javascript]
             pass_filenames: true

@@ -9,12 +9,24 @@ or the Jest suite fail. If `$ARGUMENTS` is non-empty, start with that file/test.
 
 **Key gotcha first:** `make precommit-fix` ends with `|| true` and `git add -u`, so it
 **always exits 0** and auto-stages — a clean-looking run can still hide failures. Do not
-trust its exit code. The real signals are:
+trust its exit code. (Exception: it now fails loudly if pre-commit itself is not
+installed — previously a missing `pre_commit` module silently skipped every hook and
+still exited 0.) The real signals are:
 
 - `make check` — format-check + lint (prettier + eslint + stylelint). Deterministic.
 - `make test` — the **full** Jest suite + coverage (`jest --coverage`). This is what
   catches test failures the gate's per-file `--findRelatedTests` hook misses.
 - `make precommit` — the strict, no-`|| true` run of every hook across all files.
+
+**Diagnosing CI pre-commit failures:** read the job log
+(`gh pr checks <N>` → `gh run view --job <id> --log`) and trust only the hook whose
+status line says `Failed` — other hooks may print fatal-looking output yet pass.
+Historically the `jest-related` hook was the worst offender: scoped
+`--findRelatedTests --coverage` runs printed `Jest: Coverage ... does not meet "global"
+threshold` errors while its exit code was swallowed by the output-filter pipe. That is
+fixed — the hook now runs with `--coverageThreshold="{}"` (scoped runs can't meet the
+whole-suite floor; that floor gates in `make test`/CI) and `set -o pipefail`, so a
+non-zero `jest-related` now means a real test failure.
 
 Work through these steps:
 

@@ -17,6 +17,11 @@ pnpm-lock.yaml
 # StrykerJS mutation reports (make mutate-js) — generated HTML/JSON, gitignored.
 reports/
 
+# StrykerJS sandbox copies of the whole repo (make mutate-js) — gitignored;
+# jest/eslint already exclude them, prettier must too or `make fmt-check`
+# fails locally after any mutation run.
+.stryker-tmp/
+
 # Human-maintained persona definitions for the Jules routines (see AGENTS.md,
 # CLAUDE.md). Prose/markdown, not gated — don't let Prettier reformat them.
 .jules/
