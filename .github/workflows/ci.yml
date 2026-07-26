@@ -128,21 +128,27 @@ jobs:
                     echo "No Prettier config found; skipping"
                   fi
 
-            # Full suite with coverage (matches `npm test` / `make test`).
-            # This is the real coverage report — the text table in the log and
-            # coverage-summary.json (consumed by scripts/coverage-rank.js and
-            # uploaded as an artifact). The global coverageThreshold floor in
-            # jest.config.cjs gates here.
+            # Full suite with coverage via `npm test` (single source of truth:
+            # package.json defines `jest --coverage`; do not inline a bare
+            # `npx jest` here — that regression silently dropped the coverage
+            # report once before). This is the real coverage report — the text
+            # table in the log and coverage-summary.json (consumed by
+            # scripts/coverage-rank.js and uploaded as an artifact). The
+            # global coverageThreshold floor in jest.config.cjs gates here.
             - name: Run Jest tests
               run: |
                   if [ -d tests ]; then
-                    npx --yes jest --coverage --coverageReporters=json-summary --coverageReporters=text
+                    npm test -- --coverageReporters=json-summary --coverageReporters=text
                   else
                     echo "No tests found; skipping"
                   fi
 
+            # Regression guard: fail loudly if the coverage report is missing
+            # (e.g. someone removes --coverage from the test command above).
+            - name: Verify coverage report exists
+              run: test -f coverage/coverage-summary.json
+
             - name: Upload coverage summary
-              if: ${{ hashFiles('coverage/coverage-summary.json') != '' }}
               uses: actions/upload-artifact@v4
               with:
                   name: coverage-summary

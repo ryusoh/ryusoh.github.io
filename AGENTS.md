@@ -145,6 +145,13 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 - **Coverage floor (ratchet)** — `make test` fails when whole-suite coverage
   drops below `coverageThreshold.global` in `jest.config.cjs`. Raise the floor
   as coverage improves; never lower it.
+- **CI coverage report is guarded** — web-ci's "Run Jest tests" step runs the
+  full suite via `npm test` (never a bare `npx jest` — that once silently
+  dropped the report), and a "Verify coverage report exists" step fails the
+  build if `coverage/coverage-summary.json` is missing. The `jest-related`
+  pre-commit hook is skipped in CI (`SKIP=jest-related`): scoped
+  `--findRelatedTests --coverage` runs print misleading partial tables
+  (unexecuted files at 0%) and spurious threshold errors.
 - **Dependency-structure gate** — `make lint` also runs `make depcheck`
   (dependency-cruiser): circular imports fail as errors. Rules live in
   `.dependency-cruiser.cjs`. If import aliases are ever introduced
