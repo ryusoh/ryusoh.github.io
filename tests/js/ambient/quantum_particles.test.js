@@ -374,13 +374,11 @@ describe('quantum_particles.js', () => {
         it('should create geometry and material properly', () => {
             const qp = getQuantumParticles();
             const mockTHREE = {
-                BufferGeometry: jest
-                    .fn()
-                    .mockImplementation(() => ({
-                        computeBoundingSphere: jest.fn(),
-                        setAttribute: jest.fn(),
-                        computeBoundingSphere: jest.fn(),
-                    })),
+                BufferGeometry: jest.fn().mockImplementation(() => ({
+                    computeBoundingSphere: jest.fn(),
+                    setAttribute: jest.fn(),
+                    computeBoundingSphere: jest.fn(),
+                })),
                 BufferAttribute: jest.fn(),
                 ShaderMaterial: jest.fn(),
                 Points: jest.fn().mockImplementation((geo, mat) => ({ geo, mat })),
@@ -651,12 +649,10 @@ describe('initParticles complete execution block coverage', () => {
                     render: jest.fn(),
                     domElement: document.createElement('canvas'),
                 })),
-                BufferGeometry: jest
-                    .fn()
-                    .mockImplementation(() => ({
-                        setAttribute: jest.fn(),
-                        computeBoundingSphere: jest.fn(),
-                    })),
+                BufferGeometry: jest.fn().mockImplementation(() => ({
+                    setAttribute: jest.fn(),
+                    computeBoundingSphere: jest.fn(),
+                })),
                 Float32BufferAttribute: jest.fn(),
                 BufferAttribute: jest.fn(),
                 ShaderMaterial: jest.fn().mockImplementation(() => ({
