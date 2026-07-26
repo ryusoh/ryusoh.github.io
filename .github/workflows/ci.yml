@@ -68,9 +68,15 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install pre-commit
 
+            # SKIP=jest-related: the hook runs `jest --findRelatedTests
+            # --coverage` scoped to the files it's handed, which prints a
+            # misleading partial coverage table (unexecuted files at 0%) and
+            # spurious global-threshold errors. The "Run Jest tests" step
+            # below runs the full suite with coverage — that is the real gate
+            # and the real report.
             - name: Run pre-commit
               if: ${{ steps.pc.outputs.present == 'true' }}
-              run: pre-commit run --all-files --show-diff-on-failure
+              run: SKIP=jest-related pre-commit run --all-files --show-diff-on-failure
 
             - name: Skip pre-commit (config not found)
               if: ${{ steps.pc.outputs.present != 'true' }}
@@ -122,10 +128,23 @@ jobs:
                     echo "No Prettier config found; skipping"
                   fi
 
+            # Full suite with coverage (matches `npm test` / `make test`).
+            # This is the real coverage report — the text table in the log and
+            # coverage-summary.json (consumed by scripts/coverage-rank.js and
+            # uploaded as an artifact). The global coverageThreshold floor in
+            # jest.config.cjs gates here.
             - name: Run Jest tests
               run: |
                   if [ -d tests ]; then
-                    npx --yes jest
+                    npx --yes jest --coverage --coverageReporters=json-summary --coverageReporters=text
                   else
                     echo "No tests found; skipping"
                   fi
+
+            - name: Upload coverage summary
+              if: ${{ hashFiles('coverage/coverage-summary.json') != '' }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: coverage-summary
+                  path: coverage/coverage-summary.json
+                  retention-days: 14
