@@ -137,6 +137,10 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run
   `make precommit-fix` before opening the PR.
+- **Workflow action versions** — when bumping a GitHub Actions pin in
+  `.github/workflows/`, verify the major-version tag exists
+  (`gh api repos/<owner>/<repo>/git/refs/tags/v<N>`). Major-version tags are
+  not guaranteed for every action; a missing tag breaks CI.
 - **Complexity ratchet** — `make lint-js` also gates cyclomatic complexity:
   ESLint `complexity` errors above 20 with `eslint-suppressions.json`
   baselining the legacy violations (any NEW or worsened one fails; shrink the
