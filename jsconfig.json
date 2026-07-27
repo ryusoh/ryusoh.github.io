@@ -16,7 +16,8 @@
         "js/scroll-reveal.js",
         "js/load-animations.js",
         "js/ambient/config/default.js",
-        "js/preloader.js"
+        "js/preloader.js",
+        "js/mouse-parallax.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
