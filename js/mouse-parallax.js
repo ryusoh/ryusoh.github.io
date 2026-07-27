@@ -36,7 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * - Why: Calculating coordinates on every resize event blocks the main thread. We only need the final values.
      * - Impact: Eliminates main-thread blocking during resize.
      */
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
     let resizeTimeout;
+    /** @type {number | undefined} */
     let rafId;
     window.addEventListener(
         'resize',
@@ -87,6 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastClientX = -1;
     let lastClientY = -1;
 
+    /**
+     * @param {MouseEvent} e
+     */
     const handleMouseMove = (e) => {
         /**
          * Bolt Optimization:
