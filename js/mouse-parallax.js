@@ -88,6 +88,22 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     let lastClientX = -1;
     let lastClientY = -1;
+    let isTicking = false;
+
+    const updateParallax = () => {
+        // Calculate offset from center (-1 to 1)
+        const diffX = (lastClientX - centerX) / centerX;
+        const diffY = (lastClientY - centerY) / centerY;
+
+        // Apply a subtle parallax translation
+        // Opposite direction of mouse movement
+        setX(-diffX * 15);
+        setY(-diffY * 15);
+        setRotationY(diffX * 5); // subtle 3D rotation
+        setRotationX(-diffY * 5);
+
+        isTicking = false;
+    };
 
     /**
      * @param {MouseEvent} e
@@ -105,16 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
         lastClientX = e.clientX;
         lastClientY = e.clientY;
 
-        // Calculate offset from center (-1 to 1)
-        const diffX = (e.clientX - centerX) / centerX;
-        const diffY = (e.clientY - centerY) / centerY;
-
-        // Apply a subtle parallax translation
-        // Opposite direction of mouse movement
-        setX(-diffX * 15);
-        setY(-diffY * 15);
-        setRotationY(diffX * 5); // subtle 3D rotation
-        setRotationX(-diffY * 5);
+        if (!isTicking) {
+            isTicking = true;
+            requestAnimationFrame(updateParallax);
+        }
     };
 
     if ('IntersectionObserver' in window) {
