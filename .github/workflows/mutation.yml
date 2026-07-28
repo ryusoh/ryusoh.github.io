@@ -30,7 +30,7 @@ jobs:
             # The incremental report makes weekly reruns cheap: Stryker only
             # re-mutates files that changed since the cached run.
             - name: Restore Stryker incremental cache
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: reports/stryker-incremental.json
                   key: stryker-incremental-${{ github.run_id }}
