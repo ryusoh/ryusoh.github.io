@@ -92,6 +92,9 @@ describe('mouse-parallax.js', () => {
         mouseEvent.clientY = 384 + 50; // Offset from center Y
         document.dispatchEvent(mouseEvent);
 
+        // Advance timers to trigger the requestAnimationFrame (which is mocked as setTimeout)
+        jest.advanceTimersByTime(0);
+
         // diffX = 100 / 512 = 0.1953125
         // diffY = 50 / 384 = 0.13020833333333334
 
@@ -112,6 +115,8 @@ describe('mouse-parallax.js', () => {
         mouseEvent2.clientX = 1000 + 100;
         mouseEvent2.clientY = 500 + 50;
         document.dispatchEvent(mouseEvent2);
+
+        jest.advanceTimersByTime(0);
         expect(mockSetterX).toHaveBeenCalledWith(-0.1 * 15);
     });
 
