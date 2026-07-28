@@ -6,6 +6,10 @@
         return;
     }
 
+    /**
+     * @param {string} msg
+     * @param {Error|unknown} [e]
+     */
     function logWarning(msg, e) {
         if (typeof window !== 'undefined' && window?.console?.warn) {
             window.console.warn(msg, e);
@@ -27,6 +31,10 @@
         return;
     }
 
+    /**
+     * @param {string} name
+     * @param {Record<string, unknown>|null} [detail]
+     */
     function dispatchFallbackEvent(name, detail) {
         if (typeof document !== 'undefined' && typeof document.createEvent === 'function') {
             const event = document.createEvent('CustomEvent');
@@ -35,6 +43,10 @@
         }
     }
 
+    /**
+     * @param {string} name
+     * @param {Record<string, unknown>|null} [detail]
+     */
     function emitEvent(name, detail) {
         if (typeof window.dispatchEvent !== 'function') {
             return;
