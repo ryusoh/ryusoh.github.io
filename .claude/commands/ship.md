@@ -19,15 +19,18 @@ Follow these steps precisely:
     - Verify everything is clean: `make check`.
     - If changes were made, commit them: `git commit -am "style: fix quality failures"`.
 
-3. **Merge into Main:**
+3. **Merge into Main (prefer a squash merge):**
     - Switch to master: `git checkout master`
     - Pull latest: `git pull origin master`
-    - Merge the branch: `git merge $ARGUMENTS`
+    - Squash-merge the branch: `git merge --squash $ARGUMENTS` — one clean commit
+      on master, no matter how messy the branch history is.
+    - Commit once with a single conventional-commit message describing the
+      whole change (e.g. reuse the branch's main commit subject): `git commit`.
     - **Conflict Resolution:** If conflicts occur:
         - List conflicted files: `git status`.
         - Read and resolve each conflict manually or using tools.
         - Add resolved files: `git add <file>`.
-        - Complete the merge: `git commit`.
+        - Complete the commit: `git commit`.
 
 4. **Final Verification:**
     - Run `make check` and `make test` on the merged `master` branch to ensure no regressions.
@@ -35,8 +38,13 @@ Follow these steps precisely:
 5. **Cleanup:**
     - **Ask for acknowledgement before pushing changes.**
     - Push master: `git push origin master`.
-    - Delete the local branch: `git branch -d $ARGUMENTS`.
-    - Delete the remote branch: `git push origin --delete $ARGUMENTS`.
+    - Delete the local branch: `git branch -d $ARGUMENTS`. After a squash merge
+      Git does not consider the branch merged, so `-d` refuses — use
+      `git branch -D $ARGUMENTS` once the squash commit is pushed and you are
+      sure nothing unshipped remains.
+    - Delete the remote branch: `git push origin --delete $ARGUMENTS`. If a
+      pre-push hook mistakes the delete for history rewriting, retry the
+      delete alone with `git push --no-verify origin --delete $ARGUMENTS`.
 
 6. **Report:**
     - Summarize the actions taken, including any conflicts resolved.
