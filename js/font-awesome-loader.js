@@ -6,10 +6,13 @@
     class FontAwesomeLoader {
         constructor() {
             this.fontAwesomeLoaded = false;
+            /** @type {number | null} */
             this.checkInterval = null;
             this.maxRetries = 10; // Maximum number of checks
             this.retryCount = 0;
+            /** @type {NodeListOf<HTMLElement> | never[]} */
             this.faIcons = []; // Cache for Font Awesome icon elements
+            /** @type {HTMLElement | null} */
             this.testElement = null;
         }
 
@@ -19,7 +22,9 @@
         init() {
             // Cache the icon elements once during initialization
             // Bolt Optimization: Avoiding Array.from() for DOM collections and memory allocations
-            this.faIcons = document.querySelectorAll('i[class*="fa"]');
+            this.faIcons = /** @type {NodeListOf<HTMLElement>} */ (
+                document.querySelectorAll('i[class*="fa"]')
+            );
 
             // First, check if Font Awesome is already loaded
             if (this.isFontAwesomeLoaded()) {
@@ -168,7 +173,9 @@
                  * - Why: The previous implementation iterated over the DOM NodeList to find a boolean flag, then converted the same NodeList into an Array (causing memory allocation/GC overhead), and iterated it AGAIN using `.find()` to grab the element.
                  * - Impact: Eliminates redundant O(N) main-thread execution time and an unnecessary Array object allocation during the critical page load phase.
                  */
+                /** @type {NodeListOf<HTMLLinkElement>} */
                 const links = document.querySelectorAll('link[rel="stylesheet"]');
+                /** @type {HTMLLinkElement | null} */
                 let faLink = null;
 
                 for (const link of links) {

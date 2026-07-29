@@ -12,6 +12,7 @@ interface Gsap {
 declare const gsap: Gsap;
 
 interface Window {
+    __FontAwesomeLoaderForTesting?: { FontAwesomeLoader: new () => any };
     /** GSAP animation library */
     gsap?: Gsap;
     /** Cursor instances for cleanup */
