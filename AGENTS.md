@@ -18,9 +18,10 @@ and the gate drift-checks it via `make sync-check`.
   directly with the user in a chat session. The project conventions below still
   apply, but the Jules-only **PR/branch/lane restrictions do not**. You may edit
   build files, Makefiles, configs, dependencies, and even `.jules/` persona files
-  when the user explicitly asks. You may commit to `master` or open PRs as
-  directed by the user. Do not invent Jules-style lane boundaries for normal
-  interactive work — if the user asks you to change something, change it.
+  (no explicit permission needed — the user reviews the result; see the editing
+  rules below). You may commit to `master` or open PRs as directed by the
+  user. Do not invent Jules-style lane boundaries for normal interactive
+  work — if the user asks you to change something, change it.
 
 This repo is `ryusoh.github.io`: a static, vanilla-JS/CSS personal site served by
 GitHub Pages. **No framework, no build step, no bundler** — pages load plain
@@ -256,11 +257,11 @@ an unattended run. They are **not logs**.
   append to, modify, or create files under `.jules/`. A PR from a Jules routine
   that changes a `.jules/` file is out of scope and will be closed.
 - **Interactive coding agents** (Claude Code, Kimi, Antigravity, etc.) **may**
-  edit `.jules/` persona files when the user explicitly asks them to fix a
-  harness bug or clarify guidance. The change must still be a single-concern PR
-  or direct commit with a green `make precommit-fix`, and the agent must note in
-  the commit/PR body that the edit is to a persona file. Do not edit `.jules/`
-  without the user’s direction.
+  edit `.jules/` persona files whenever they spot a harness bug or unclear
+  guidance — no explicit user direction needed; the user reviews the result.
+  The change must still be a single-concern PR or direct commit with a green
+  `make precommit-fix`, and the agent must note in the commit/PR body that the
+  edit is to a persona file.
 
 Capture durable learnings in this file or `docs/` instead of leaving the persona
 files as the only source of truth. `AGENTS.md` itself **is** gated, so keep it
