@@ -19,7 +19,8 @@
         "js/ambient/config/default.js",
         "js/preloader.js",
         "js/mouse-parallax.js",
-        "js/font-awesome-loader.js"
+        "js/font-awesome-loader.js",
+        "js/loader/vendorLoader.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
