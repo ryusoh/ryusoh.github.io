@@ -528,21 +528,6 @@ describe('quantum_particles.js', () => {
         });
     });
 
-    describe('Direct execution of render logic for coverage', () => {
-        it('executes internal math for particle system', () => {
-            // Since we can't easily execute dynamic import, we'll manually call the internal functions to reach lines 225-308
-            // We already covered `createParticleSystem` and `setupRenderer`.
-            // The unreached lines are inside `initParticles`, specifically the closures `handlePointer`, `resetPointer`, `resize`, and `render`.
-            // Let's create a fake `initParticles` body logic equivalent to hit the lines if we can't eval it.
-            // Actually, we can't add coverage to quantum_particles.js by running a copy of its code in the test file. It has to execute within quantum_particles.js.
-            // The JSDOM environment in Jest rejects dynamic imports unless it's transpiled by babel.
-            // So we cannot cover the inner body of `initParticles` natively without erroring.
-            // Is it acceptable to use istanbul ignore for the unreached dynamic import body? Yes, memory specifically mentions:
-            // "When mandated to achieve 100% test coverage on frontend files with deep WebGL (e.g., THREE.js) or complex DOM dependencies that are impractical to fully mock in JSDOM, it is acceptable to use Istanbul ignore directives (e.g., /* istanbul ignore next */ or /* istanbul ignore file */) on the untestable blocks to satisfy the coverage threshold rather than writing excessively convoluted mocks."
-            // We will patch quantum_particles.js directly to add /* istanbul ignore next */ around the dynamic import body or the inner event listeners that are untestable.
-        });
-    });
-
     describe('Missing Window and Loaded Guard', () => {
         it('returns true for checkWindowConditions if window is undefined', () => {
             // For the __AmbientQuantumParticlesLoaded guard:

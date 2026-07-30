@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check thinking-check
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -13,6 +13,7 @@ help:
 	@echo "  lint          Run JS/CSS lint (ESLint/Stylelint) + dependency-structure gate"
 	@echo "  lint-fix      Apply ESLint/Stylelint auto-fixes"
 	@echo "  type          JS strict type check (tsc --checkJs on whitelist)"
+	@echo "  thinking-check Stream-of-consciousness scan (comments, abandoned tests)"
 	@echo "  check         Run fmt-check + lint + type (quick CI parity)"
 	@echo "  fix           Run fmt + lint-fix"
 	@echo "  test          Run the full Jest suite with a coverage report"
@@ -104,7 +105,13 @@ depcheck:
 type:
 	@$(NPX) tsc -p jsconfig.json
 
-check: fmt-check lint type sync-check
+# Stream-of-consciousness gate (AGENTS.md non-negotiable #9): deterministic
+# scan of all tracked JS/CSS for thinking-out-loud comments and abandoned
+# it()/test() bodies. Also a blocking pre-commit hook (same script).
+thinking-check:
+	@node scripts/check-thinking-comments.js
+
+check: fmt-check lint type sync-check thinking-check
 
 lint-fix:
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true

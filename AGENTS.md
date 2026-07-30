@@ -61,6 +61,9 @@ rather than assuming a regression.
    committed code: no thinking-out-loud comments ("Wait, ...", "Ah, ..."), no
    abandoned stub test bodies. If an approach fails mid-write, delete the
    attempt — don't commit the trail. Code comments state facts about behaviour.
+   Enforced deterministically by `make thinking-check`
+   (`scripts/check-thinking-comments.js`) over all tracked JS/CSS sources; also
+   a blocking pre-commit hook.
 
 ## You cannot see the rendered page
 
@@ -138,6 +141,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | JS strict type check (whitelist)                   | `make type` / `npx tsc -p jsconfig.json` |
 | Generated-commands freshness check                 | `make sync-check`                        |
 | Dependency-structure gate (no circular imports)    | `make depcheck`                          |
+| Stream-of-consciousness scan (comments, tests)     | `make thinking-check`                    |
 | Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                         |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run

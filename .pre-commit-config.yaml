@@ -86,6 +86,19 @@ repos:
             always_run: true
             stages: [pre-commit, manual]
 
+    # Stream-of-consciousness gate (AGENTS.md non-negotiable #9): deterministic
+    # scan of all tracked JS/CSS for thinking-out-loud comments and abandoned
+    # it()/test() bodies. Whole-tree by design (git ls-files), so always_run.
+    - repo: local
+      hooks:
+          - id: thinking-check
+            name: thinking-check (stream-of-consciousness gate)
+            entry: node scripts/check-thinking-comments.js
+            language: system
+            pass_filenames: false
+            always_run: true
+            stages: [pre-commit, manual]
+
     # JS tests (commit): related tests only. Scoped --findRelatedTests coverage
     # can never meet the whole-suite global thresholds in jest.config.cjs, so
     # they're disabled here (--coverageThreshold); the full-suite floor gates in

@@ -42,9 +42,11 @@ table. Instead:
   error — assert the specific behaviour in each case.
 - Keep your reasoning out of the diff: no stream-of-consciousness comments
   ("Wait, ...", "Ah, ...", "To hit line N, ...") and no abandoned stub test
-  bodies. If a branch turns out uncoverable mid-write, delete the attempt
-  entirely and explain the skip in the PR body. Test comments state facts about
-  behaviour, never your thought process.
+  bodies. This is **machine-enforced** — `make thinking-check`
+  (`scripts/check-thinking-comments.js`, also a blocking pre-commit hook) fails
+  the gate on both. If a branch turns out uncoverable mid-write, delete the
+  attempt entirely and explain the skip in the PR body. Test comments state
+  facts about behaviour, never your thought process.
 
 ## Lane
 
