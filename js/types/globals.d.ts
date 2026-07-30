@@ -43,4 +43,14 @@ interface Window {
     __AssetPreloaderForTesting?: {
         AssetPreloader: unknown;
     };
+    CDNLoader?: {
+        preconnect: (urls: string[]) => void;
+        loadCssWithFallback: (urls: string[]) => void;
+        loadJsWithFallback: (urls: string[]) => void;
+    };
+    __VendorLoaderForTesting?: {
+        init: () => void;
+        handleVendorLoaderError: (e: unknown) => void;
+        logWarning: (msg: string, e?: unknown) => void;
+    };
 }

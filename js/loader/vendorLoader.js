@@ -1,5 +1,9 @@
 /* Load third-party vendor CSS/JS with fallbacks (e.g., Font Awesome) */
 (function () {
+    /**
+     * @param {string} msg
+     * @param {unknown} [e]
+     */
     const logWarning = (msg, e) => {
         if (
             typeof window !== 'undefined' &&
@@ -11,6 +15,9 @@
         }
     };
 
+    /**
+     * @param {unknown} e
+     */
     const handleVendorLoaderError = (e) => {
         logWarning('Vendor loader failed:', e);
         logWarning('Vendor Loader failed:', e);
