@@ -40,6 +40,11 @@ table. Instead:
   fail loudly on a real fault, and must distinguish an expected environmental
   absence (missing global, unavailable WebGL/canvas context) from an actual runtime
   error — assert the specific behaviour in each case.
+- Keep your reasoning out of the diff: no stream-of-consciousness comments
+  ("Wait, ...", "Ah, ...", "To hit line N, ...") and no abandoned stub test
+  bodies. If a branch turns out uncoverable mid-write, delete the attempt
+  entirely and explain the skip in the PR body. Test comments state facts about
+  behaviour, never your thought process.
 
 ## Lane
 

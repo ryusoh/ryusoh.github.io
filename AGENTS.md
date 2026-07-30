@@ -57,6 +57,10 @@ rather than assuming a regression.
    Run `gh pr list --state all --limit 30` (and read the recent ones). A closed PR
    was closed for a reason; an open one already claims that work. Resubmitting
    similar work wastes the run and gets closed. Pick something new.
+9. **No stream-of-consciousness in the diff.** Your reasoning stays out of
+   committed code: no thinking-out-loud comments ("Wait, ...", "Ah, ..."), no
+   abandoned stub test bodies. If an approach fails mid-write, delete the
+   attempt — don't commit the trail. Code comments state facts about behaviour.
 
 ## You cannot see the rendered page
 
