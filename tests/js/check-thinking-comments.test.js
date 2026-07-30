@@ -63,6 +63,24 @@ describe('check-thinking-comments', () => {
                 expect(thinkingInComment(text)).toBe(false);
             }
         });
+
+        test('flags the measured fleet deliberation patterns', () => {
+            // Fixtures assembled from pieces so the banned phrases never
+            // appear whole in this file (the gate scans it too).
+            const flagged = [
+                'Let' + "'s assume the user provides an rgba string",
+                'for simplicity let' + "'s rely on globalAlpha",
+                'If we just use globalAlpha, it might' + ' be easier.',
+                'This is' + ' tricky without a full color parser.',
+            ];
+            for (const text of flagged) {
+                expect(thinkingInComment(text)).toBe(true);
+            }
+            const clean = ['Assume the API returns JSON', 'It lets the caller decide'];
+            for (const text of clean) {
+                expect(thinkingInComment(text)).toBe(false);
+            }
+        });
     });
 
     describe('scanJsComments', () => {

@@ -43,6 +43,9 @@ const THINKING_RE = new RegExp(
         '^how about\\b',
         "^let'?s (?:check|see|try|look)\\b",
         '^let me think\\b',
+        "\\blet'?s (?:assume|rely)\\b",
+        '\\bmight be (?:easier|better|simpler|cleaner)\\b',
+        '^this is (?:tricky|hard|hacky)\\b',
         '\\bto (?:hit|reach) line \\d+', // coverage-chasing notes
     ].join('|'),
     'i'
