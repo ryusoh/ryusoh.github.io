@@ -4,6 +4,7 @@
 
 interface Gsap {
     quickTo: Function;
+    quickSetter: Function;
     set: Function;
     to: Function;
     timeline: (vars?: object) => { to: Function };

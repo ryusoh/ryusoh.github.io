@@ -11,6 +11,7 @@
         "strict": true
     },
     "include": [
+        "js/hover-preview.js",
         "js/service-worker-register.js",
         "js/types/*.d.ts",
         "js/config.js",

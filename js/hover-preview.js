@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Map directories to specific thumbnail previews
     // Ideally we fetch a random one, but for reliability we define a static map
+    /** @type {Record<string, string>} */
     const imgMap = {
         './p1/': 'DSCF0361-2.jpg',
         './p2/': 'A20E2E39-AF83-4FD0-A6F7-3D2243A753DC.JPG', // Based on ls assets/img/p2/
@@ -70,6 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * - Why: The previous implementation ran a continuous 60fps render loop via `requestAnimationFrame` for the entire duration of a hover state, even when the mouse was completely stationary. This forced continuous function execution and wasted CPU/battery. By driving updates strictly from the `mousemove` event, we eliminate idle overhead completely.
      * - Impact: Measurably reduces main-thread CPU usage to near zero during stationary hovers while maintaining perfectly smooth, frame-synchronized tracking during movement.
      */
+    /**
+     * @param {MouseEvent} e
+     */
     const handleMouseMove = (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
@@ -85,18 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
      * - Why: The previous implementation attached individual listeners to every portfolio link. On pages with many links, this allocates unnecessary memory and slows down initialization.
      * - Impact: Measurably reduces memory footprint and initialization time by attaching a single set of listeners to the document body.
      */
+    /**
+     * @param {MouseEvent} e
+     */
     document.body.addEventListener('mouseover', (e) => {
-        const link = e.target.closest('#nav .portfolio-link a');
+        const target = /** @type {Element|null} */ (e.target);
+        const link = target ? target.closest('#nav .portfolio-link a') : null;
         if (!link) {
             return;
         }
 
         // Prevent triggering on child elements to avoid flickering
-        if (e.relatedTarget && link.contains(e.relatedTarget)) {
+        if (e.relatedTarget && link.contains(/** @type {Node} */ (e.relatedTarget))) {
             return;
         }
 
-        const href = link.getAttribute('href');
+        const href = link.getAttribute('href') || '';
         const imgFile = imgMap[href];
 
         if (imgFile) {
@@ -124,14 +132,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    /**
+     * @param {MouseEvent} e
+     */
     document.body.addEventListener('mouseout', (e) => {
-        const link = e.target.closest('#nav .portfolio-link a');
+        const target = /** @type {Element|null} */ (e.target);
+        const link = target ? target.closest('#nav .portfolio-link a') : null;
         if (!link) {
             return;
         }
 
         // Prevent triggering on child elements to avoid flickering
-        if (e.relatedTarget && link.contains(e.relatedTarget)) {
+        if (e.relatedTarget && link.contains(/** @type {Node} */ (e.relatedTarget))) {
             return;
         }
 
