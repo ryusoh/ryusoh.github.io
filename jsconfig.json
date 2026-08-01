@@ -21,7 +21,8 @@
         "js/preloader.js",
         "js/mouse-parallax.js",
         "js/font-awesome-loader.js",
-        "js/loader/vendorLoader.js"
+        "js/loader/vendorLoader.js",
+        "js/magnetic-nav.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
