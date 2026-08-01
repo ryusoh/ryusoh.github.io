@@ -32,7 +32,14 @@ export function initMagneticNav() {
     }
 }
 
+/**
+ * @param {Element} el
+ */
 function setupMagneticElement(el) {
+    if (!window.gsap) {
+        return;
+    }
+
     /**
      * Bolt Optimization:
      * - What: Replace `gsap.to()` inside the `mousemove` listener with `gsap.quickTo()`.
@@ -49,7 +56,10 @@ function setupMagneticElement(el) {
     });
 
     const child = el.querySelector('i, span, img');
-    let setChildX, setChildY;
+    /** @type {Function | undefined} */
+    let setChildX;
+    /** @type {Function | undefined} */
+    let setChildY;
     if (child) {
         setChildX = window.gsap.quickTo(child, 'x', {
             duration: 0.3,
@@ -78,7 +88,11 @@ function setupMagneticElement(el) {
 
     el.addEventListener(
         'mousemove',
+        /** @param {Event} e */
         (e) => {
+            if (!(e instanceof MouseEvent)) {
+                return;
+            }
             // Calculate distance from center to cursor
             const distX = e.clientX - centerX;
             const distY = e.clientY - centerY;
@@ -108,6 +122,9 @@ function setupMagneticElement(el) {
     );
 
     el.addEventListener('mouseleave', () => {
+        if (!window.gsap) {
+            return;
+        }
         // Elastic snap back to origin
         window.gsap.to(el, {
             x: 0,
