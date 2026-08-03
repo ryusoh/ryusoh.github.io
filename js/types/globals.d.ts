@@ -40,6 +40,12 @@ interface Window {
     __DefaultConfigForTesting?: {
         init: () => void;
     };
+    __ImageFallbackForTesting?: {
+        parseFallbacks: (el: HTMLElement) => string[] | null;
+        initFallback: (
+            el: HTMLImageElement & { __fallbackList?: string[]; __fallbackIndex?: number }
+        ) => void;
+    };
     /** Asset preloader testing export */
     __AssetPreloaderForTesting?: {
         AssetPreloader: unknown;

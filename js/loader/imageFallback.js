@@ -1,5 +1,13 @@
 /* Simple <img> fallback: looks for data-fallbacks='["url1","url2",...]' */
+
+/**
+ * @typedef {HTMLImageElement & { __fallbackList?: string[], __fallbackIndex?: number }} HTMLImageElementWithFallback
+ */
 (function () {
+    /**
+     * @param {string} msg
+     * @param {unknown} [e]
+     */
     function logWarning(msg, e) {
         if (typeof window !== 'undefined' && window?.console?.warn) {
             window.console.warn(msg, e);
@@ -7,16 +15,24 @@
     }
 
     try {
+        /**
+         * @param {unknown[]} list
+         * @returns {string[] | null}
+         */
         function sanitizeFallbackList(list) {
+            /** @type {string[]} */
             const sanitizedList = [];
             for (let k = 0; k < list.length; k++) {
                 if (typeof list[k] === 'string') {
-                    sanitizedList.push(list[k]);
+                    sanitizedList.push(/** @type {string} */ (list[k]));
                 }
             }
             return sanitizedList.length > 0 ? sanitizedList : null;
         }
 
+        /**
+         * @param {HTMLElement} el
+         */
         function parseFallbacks(el) {
             const listAttr = el.getAttribute('data-fallbacks');
             if (!listAttr || listAttr.length > 1024) {
@@ -35,6 +51,9 @@
             }
         }
 
+        /**
+         * @param {HTMLImageElementWithFallback} el
+         */
         function initFallback(el) {
             const list = parseFallbacks(el);
             if (!list) {
@@ -53,6 +72,7 @@
             }
         }
 
+        /** @type {NodeListOf<HTMLImageElementWithFallback>} */
         const imgs = document.querySelectorAll('img[data-fallbacks]');
         for (let j = 0; j < imgs.length; j++) {
             initFallback(imgs[j]);
@@ -67,7 +87,7 @@
         document.addEventListener(
             'load',
             function (event) {
-                const el = event.target;
+                const el = /** @type {HTMLImageElementWithFallback} */ (event.target);
                 if (el && el.tagName === 'IMG' && el.hasAttribute('data-fallbacks')) {
                     el.classList.add('is-fallback-ready');
                 }
@@ -78,7 +98,7 @@
         document.addEventListener(
             'error',
             function (event) {
-                const el = event.target;
+                const el = /** @type {HTMLImageElementWithFallback} */ (event.target);
                 if (
                     el &&
                     el.tagName === 'IMG' &&
@@ -86,8 +106,10 @@
                     el.__fallbackList
                 ) {
                     const list = el.__fallbackList;
-                    if (el.__fallbackIndex < list.length) {
-                        el.src = list[el.__fallbackIndex++];
+                    const index = el.__fallbackIndex || 0;
+                    if (index < list.length) {
+                        el.src = list[index];
+                        el.__fallbackIndex = index + 1;
                     }
                 }
             },
