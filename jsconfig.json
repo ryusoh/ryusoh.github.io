@@ -22,7 +22,8 @@
         "js/mouse-parallax.js",
         "js/font-awesome-loader.js",
         "js/loader/vendorLoader.js",
-        "js/magnetic-nav.js"
+        "js/magnetic-nav.js",
+        "js/loader/imageFallback.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
