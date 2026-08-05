@@ -52,8 +52,11 @@ interface Window {
     };
     CDNLoader?: {
         preconnect: (urls: string[]) => void;
-        loadCssWithFallback: (urls: string[]) => void;
-        loadJsWithFallback: (urls: string[]) => void;
+        loadScriptSequential: (
+            urls: string[],
+            attrs?: { defer?: boolean; async?: boolean }
+        ) => Promise<void>;
+        loadCssWithFallback: (urls: string[]) => Promise<void>;
     };
     __VendorLoaderForTesting?: {
         init: () => void;
