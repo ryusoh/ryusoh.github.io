@@ -3,6 +3,10 @@
     if (typeof window !== 'undefined' && window.CDNLoader) {
         return;
     }
+
+    /**
+     * @param {string[]} origins
+     */
     function preconnect(origins) {
         try {
             const fragment = document.createDocumentFragment();
@@ -19,8 +23,15 @@
             console.error('Preconnect failed:', e);
         }
     }
+
+    /**
+     * @param {string[]} urls
+     * @param {{ defer?: boolean, async?: boolean }} [attrs]
+     * @returns {Promise<void>}
+     */
     function loadScriptSequential(urls, attrs) {
         return new Promise(function (resolve, reject) {
+            /** @param {number} i */
             (function next(i) {
                 if (i >= urls.length) {
                     return reject(new Error('all failed: ' + urls.join(', ')));
@@ -44,22 +55,33 @@
             })(0);
         });
     }
+
+    /**
+     * @param {string[]} urls
+     * @returns {Promise<void>}
+     */
     function loadCssWithFallback(urls) {
         return new Promise(function (resolve) {
+            /** @param {number} i */
             (function next(i) {
                 if (i >= urls.length) {
                     const last = urls[urls.length - 1];
                     if (!last) {
                         return resolve();
                     }
+                    /** @type {AbortController | undefined} */
                     let controller;
+                    /** @type {number | undefined} */
                     let timeoutId;
+                    /** @type {RequestInit} */
                     const options = { mode: 'cors' };
                     if (typeof window !== 'undefined' && window.AbortController) {
                         controller = new window.AbortController();
                         options.signal = controller.signal;
-                        timeoutId = setTimeout(function () {
-                            controller.abort();
+                        timeoutId = window.setTimeout(function () {
+                            if (controller) {
+                                controller.abort();
+                            }
                         }, 5000);
                     }
 
@@ -85,7 +107,7 @@
                             resolve();
                         })
                         .finally(function () {
-                            if (timeoutId) {
+                            if (timeoutId !== undefined) {
                                 clearTimeout(timeoutId);
                             }
                         });
