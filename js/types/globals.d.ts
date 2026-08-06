@@ -40,6 +40,16 @@ interface Window {
     __DefaultConfigForTesting?: {
         init: () => void;
     };
+
+    __AmbientLoaderForTesting?: {
+        shouldSkipLoader: () => boolean;
+        loadLegacyAmbient: () => Promise<void>;
+    };
+    AppLogger?: {
+        error: (msg: string, e?: unknown) => void;
+        warn: (msg: string, e?: unknown) => void;
+        info: (msg: string, e?: unknown) => void;
+    };
     __ImageFallbackForTesting?: {
         parseFallbacks: (el: HTMLElement) => string[] | null;
         initFallback: (
