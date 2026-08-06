@@ -1,7 +1,11 @@
 /* Ambient assets loader using CDNLoader (no modules) */
 (function () {
+    /** @type {MediaQueryList | null} */
     let prefersReducedMotionMediaQuery = null;
 
+    /**
+     * @param {{shouldSkipLoader: () => boolean, loadLegacyAmbient: () => Promise<void>}} api
+     */
     function exportTesting(api) {
         if (typeof window !== 'undefined') {
             window.__AmbientLoaderForTesting = api;
@@ -25,19 +29,31 @@
     }
 
     function loadLegacyAmbient() {
+        if (!window.CDNLoader) {
+            return Promise.resolve();
+        }
         return window.CDNLoader.loadScriptSequential(['/js/vendor/sketch.js'])
             .then(function () {
+                if (!window.CDNLoader) {
+                    return Promise.resolve();
+                }
                 return window.CDNLoader.loadScriptSequential(['/js/ambient/config/default.js'], {
                     defer: true,
                 });
             })
             .then(function () {
+                if (!window.CDNLoader) {
+                    return Promise.resolve();
+                }
                 return window.CDNLoader.loadScriptSequential(['/js/ambient/ambient.js'], {
                     defer: true,
                 });
             });
     }
 
+    /**
+     * @param {unknown} e
+     */
     function handleAsyncError(e) {
         if (
             typeof window !== 'undefined' &&
@@ -58,6 +74,9 @@
         return null;
     }
 
+    /**
+     * @param {unknown} e
+     */
     function handleSyncError(e) {
         /* istanbul ignore if */
         if (typeof window === 'undefined') {
@@ -86,14 +105,22 @@
         const pageType = body ? body.getAttribute('data-page-type') : null;
         const useQuantum = pageType === 'home' || pageType === 'project';
 
+        if (!window.CDNLoader) {
+            return;
+        }
         window.CDNLoader.loadCssWithFallback(['/css/ambient/ambient.css'])
             .then(function () {
                 const legacy = loadLegacyAmbient();
                 /* eslint-disable indent */
                 const quantum = useQuantum
-                    ? window.CDNLoader.loadScriptSequential(['/js/ambient/quantum_particles.js'], {
-                          defer: true,
-                      })
+                    ? window.CDNLoader
+                        ? window.CDNLoader.loadScriptSequential(
+                              ['/js/ambient/quantum_particles.js'],
+                              {
+                                  defer: true,
+                              }
+                          )
+                        : Promise.resolve()
                     : Promise.resolve();
                 /* eslint-enable indent */
                 return Promise.all([legacy, quantum]);
