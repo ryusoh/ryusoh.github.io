@@ -77,44 +77,67 @@ function* scanJsEmptyTests(src) {
     }
 }
 
+function parseCommentStart(line, stripped) {
+    if (stripped.startsWith('//') || stripped.startsWith('/*')) {
+        return {
+            rest: stripped.slice(2),
+            isBlock: stripped.startsWith('/*'),
+        };
+    }
+    const match = JS_INLINE_MARKER_RE.exec(line);
+    if (match) {
+        return {
+            rest: line.slice(match.index + match[0].length),
+            isBlock: match[1] === '/*',
+        };
+    }
+    return null;
+}
+
+function handleInBlockLine(stripped, lineno) {
+    const hits = [];
+    const text = stripped.replace(/^\*/, '').trim();
+    if (thinkingInComment(text)) {
+        hits.push({ lineno, text });
+    }
+    return { hits, staysInBlock: !stripped.includes('*/') };
+}
+
+function handleNormalLine(line, stripped, lineno) {
+    const hits = [];
+    let entersBlock = false;
+    const parseResult = parseCommentStart(line, stripped);
+    if (parseResult) {
+        const text = parseResult.rest.replace(/^\*/, '').trim();
+        if (thinkingInComment(text)) {
+            hits.push({ lineno, text });
+        }
+        if (parseResult.isBlock && !parseResult.rest.includes('*/')) {
+            entersBlock = true;
+        }
+    }
+    return { hits, entersBlock };
+}
+
 function* scanJsComments(src) {
     // Line-based with minimal block-comment state; `//` preceded by `:` (URL
     // schemes) or word chars is not treated as a comment start.
     let inBlock = false;
     const lines = src.split('\n');
     for (let i = 0; i < lines.length; i += 1) {
-        const line = lines[i];
-        const stripped = line.replace(/^\s+/, '');
+        const stripped = lines[i].replace(/^\s+/, '');
         if (inBlock) {
-            const text = stripped.replace(/^\*/, '').trim();
-            if (thinkingInComment(text)) {
-                yield { lineno: i + 1, text };
+            const { hits, staysInBlock } = handleInBlockLine(stripped, i + 1);
+            for (const hit of hits) {
+                yield hit;
             }
-            if (stripped.includes('*/')) {
-                inBlock = false;
+            inBlock = staysInBlock;
+        } else {
+            const { hits, entersBlock } = handleNormalLine(lines[i], stripped, i + 1);
+            for (const hit of hits) {
+                yield hit;
             }
-            continue;
-        }
-        if (stripped.startsWith('//') || stripped.startsWith('/*')) {
-            const text = stripped.slice(2).replace(/^\*/, '').trim();
-            if (thinkingInComment(text)) {
-                yield { lineno: i + 1, text };
-            }
-            if (stripped.startsWith('/*') && !stripped.includes('*/')) {
-                inBlock = true;
-            }
-            continue;
-        }
-        const match = JS_INLINE_MARKER_RE.exec(line);
-        if (match) {
-            const rest = line.slice(match.index + match[0].length);
-            const text = rest.replace(/^\*/, '').trim();
-            if (thinkingInComment(text)) {
-                yield { lineno: i + 1, text };
-            }
-            if (match[1] === '/*' && !rest.includes('*/')) {
-                inBlock = true;
-            }
+            inBlock = entersBlock;
         }
     }
 }
