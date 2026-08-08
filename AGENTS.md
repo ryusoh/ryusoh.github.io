@@ -286,3 +286,9 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
 - **Don't write a command or example into docs/code that you haven't actually
   run this session.** Verify it first — don't infer behaviour from a name or a
   `case` label.
+- **The user commits reviewed changes themselves.** The user's work pattern is:
+  back-and-forth in chat → they review the diff in VSCode → they commit it
+  themselves and move on. So if your edits vanish from `git status` between
+  turns, run `git log --oneline -3` FIRST — a fresh user commit containing them
+  means the work was accepted. Don't re-verify, re-explain, or dig into "where
+  did my changes go"; check the log once and continue from HEAD.
