@@ -25,7 +25,8 @@
         "js/magnetic-nav.js",
         "js/loader/cdnFallback.js",
         "js/loader/imageFallback.js",
-        "js/ambient/loader.js"
+        "js/ambient/loader.js",
+        "js/ga.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
