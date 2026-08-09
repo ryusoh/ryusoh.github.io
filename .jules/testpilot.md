@@ -84,6 +84,10 @@ table. Instead:
 
 - `make precommit-fix` green; coverage on each target file increased (state before →
   after per file); zero production-file changes in the diff.
+- Don't rerun a failed gate on an unchanged tree — a red gate over an
+  untouched worktree cannot go green. `node scripts/gate-guard.js` (`snapshot`
+  before the run, `check <hash>` before a retry); unchanged means edit
+  something first (AGENTS.md non-negotiable #1).
 
 ## Commit and pull request
 

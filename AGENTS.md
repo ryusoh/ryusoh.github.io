@@ -40,7 +40,11 @@ rather than assuming a regression.
 
 1. **Open a PR only if `make precommit-fix` is green.** It runs the CI gate —
    Prettier, ESLint, Stylelint, the JS strict type check (`tsc`), and the full
-   Jest suite + coverage — and must exit 0. Red = don't open it.
+   Jest suite + coverage — and must exit 0. Red = don't open it. And don't rerun
+   a red gate on an unchanged tree — a failed gate over an untouched worktree
+   cannot go green, so edit something first. `node scripts/gate-guard.js`
+   enforces this: `snapshot` before the run, `check <hash>` before a retry
+   (exit 1 = unchanged).
 2. **One concern, smallest possible diff.** No drive-by edits, no scope creep.
    Diff size is inversely proportional to approval — keep it tiny.
 3. **Stay in your lane** (see "Lanes" below). If two routines touch the same files,
@@ -223,6 +227,11 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 - **`.agents/skills/<name>/SKILL.md` is canonical** — the open Agent Skills
   format: YAML frontmatter declaring `name` and `description` (used for
   triggering), instructions in the markdown body. Edit skills there.
+- **Progressive disclosure** — only the frontmatter `name` + `description` are
+  always loaded into an agent's context; the body is read on demand once the
+  skill triggers. So the `description` is the only always-loaded surface: write
+  it as a discriminative trigger ("Use when ..."), and don't contort the body to
+  save prompt space — length there is free until the skill fires.
 - **`.claude/commands/<name>.md` is generated** from the skills by
   `tools/sync_commands.py` for Claude Code. Never edit the generated files by
   hand — run `python3 tools/sync_commands.py` after editing a skill, and note
@@ -292,3 +301,12 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
   turns, run `git log --oneline -3` FIRST — a fresh user commit containing them
   means the work was accepted. Don't re-verify, re-explain, or dig into "where
   did my changes go"; check the log once and continue from HEAD.
+- **Concurrent agents sharing one worktree.** When you run parallel subagents
+  (swarms, background agents) in this checkout: stage only files you changed
+  (`git add <specific-files>`, never `git add -A`), never `git stash`,
+  `git reset --hard`, or `git commit --no-verify` — a sibling agent's work may
+  be sitting in the same tree. Keep concurrent agents on disjoint file sets; if
+  a rebase/conflict lands mid-run, resolve only files your task owns. Note that
+  `make precommit-fix` itself ends with `git add -u`, which stages **all**
+  tracked modifications including a sibling's — another reason to keep file
+  sets disjoint.

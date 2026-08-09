@@ -53,6 +53,10 @@ that is the right call.
   nothing). `make precommit-fix` green — full Jest suite still passes,
   coverage un-regressed.
 - If you resolved a TODO that adds behaviour, a test covers the changed lines.
+- Don't rerun a failed gate on an unchanged tree — a red gate over an
+  untouched worktree cannot go green. `node scripts/gate-guard.js` (`snapshot`
+  before the run, `check <hash>` before a retry); unchanged means edit
+  something first (AGENTS.md non-negotiable #1).
 
 ## Commit and pull request
 

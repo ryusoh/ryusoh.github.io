@@ -88,6 +88,10 @@ TARGET an open PR already claims or a closed PR already attempted.
   count **strictly decreased** (record before → after).
 - No temp scan config left in the diff.
 - `make precommit-fix` green.
+- Don't rerun a failed gate on an unchanged tree — a red gate over an
+  untouched worktree cannot go green. `node scripts/gate-guard.js` (`snapshot`
+  before the run, `check <hash>` before a retry); unchanged means edit
+  something first (AGENTS.md non-negotiable #1).
 
 ## Commit and pull request
 

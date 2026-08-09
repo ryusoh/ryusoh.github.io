@@ -64,6 +64,10 @@ purely visual, it is **out of your lane** — that is the human's call.
   green — Prettier, ESLint, Stylelint, and the full Jest suite still pass.
 - If the change touches behaviour a test can observe (e.g. an attribute a test
   asserts), keep or add that test green.
+- Don't rerun a failed gate on an unchanged tree — a red gate over an
+  untouched worktree cannot go green. `node scripts/gate-guard.js` (`snapshot`
+  before the run, `check <hash>` before a retry); unchanged means edit
+  something first (AGENTS.md non-negotiable #1).
 
 ## Commit and pull request
 

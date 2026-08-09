@@ -76,6 +76,10 @@ refactor anything already proposed or previously rejected — pick a different t
   `eslint-suppressions.json` in the PR — the baseline only ratchets down.
 - `make precommit-fix` green — format, lint, full Jest suite, **coverage
   preserved**.
+- Don't rerun a failed gate on an unchanged tree — a red gate over an
+  untouched worktree cannot go green. `node scripts/gate-guard.js` (`snapshot`
+  before the run, `check <hash>` before a retry); unchanged means edit
+  something first (AGENTS.md non-negotiable #1).
 
 ## Commit and pull request
 
