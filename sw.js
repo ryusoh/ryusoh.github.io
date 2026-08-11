@@ -1,4 +1,6 @@
-/* Simple service worker for Ryusoh */
+/* Simple service worker for lyeutsaon.com
+ * The Pages workflow (.github/workflows/pages.yml) stamps CACHE_NAME with the
+ * deploy SHA on every deploy — don't hand-bump it. */
 const CACHE_NAME = 'ryusoh-cache-v2';
 const CORE_ASSETS = [
     '/',
