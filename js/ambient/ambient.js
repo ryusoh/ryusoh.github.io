@@ -305,7 +305,6 @@
         }
 
         s.setup = function () {
-            particles.length = 0;
             const divisor = C.densityDivisor;
             const m = metrics(s);
             const area = Math.max(1, m.width * m.height);
@@ -313,8 +312,21 @@
             if (count < 20) {
                 count = 20;
             }
+
+            /**
+             * Bolt Optimization:
+             * - What: Reuse existing particle objects instead of allocating new ones on every resize.
+             * - Why: The previous implementation cleared the array and allocated hundreds of new objects via \`{}\` every time \`setup()\` was called. On mobile devices where scrolling triggers resize events (due to URL bar movement), this caused frequent memory allocations and GC pauses.
+             * - Impact: Measurably reduces GC pressure and eliminates object allocation overhead during resize events by resizing the array and reusing existing particle objects.
+             */
+            const currentLen = particles.length;
+            particles.length = count;
             for (let i = 0; i < count; i++) {
-                particles.push(resetParticle({}, s, C));
+                if (i < currentLen && particles[i]) {
+                    resetParticle(particles[i], s, C);
+                } else {
+                    particles[i] = resetParticle({}, s, C);
+                }
             }
         };
 
