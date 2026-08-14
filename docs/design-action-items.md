@@ -125,18 +125,18 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 tests` first).
 - **Verify:** `npx jest tests/js/loader`, `make precommit-fix`.
 
-### A04 — `width`/`height`/`decoding` on all ~74 gallery images
+### A04 — `width`/`height`/`decoding` on all ~74 gallery images ✅
 
 - Gain 3 / Effort 2 — ratio 1.5 — no visual surface (kills CLS).
-- **Why:** no `<img>` on p1–p4 carries dimensions or `decoding`; layout shifts
-  are currently masked only by the scroll-reveal flow.
-- **Files:** `p1/index.html` … `p4/index.html`; optionally a one-off script
-  (kept out of the repo or in `scripts/`) that reads each file's true pixel
-  size (e.g. `sips -g pixelWidth -g pixelHeight` on macOS) and rewrites the
-  tags.
-- **Steps:** add `width`, `height`, `decoding="async"` to every gallery
-  `<img>`; keep the existing first-image-eager / rest-`loading="lazy"`
-  pattern.
+- **Why:** no `<img>` on p1–p4 carried dimensions or `decoding`; layout shifts
+  were masked only by the scroll-reveal flow.
+- **Files:** `p1/index.html` … `p4/index.html`. Dimensions were read from the
+  actual image files with macOS `sips` and injected via a one-off script that
+  was not committed.
+- **Done:** added `width`, `height`, `decoding="async"` to every gallery
+  `<img>` while keeping the existing first-image-eager /
+  rest-`loading="lazy"` pattern. Also applied the same attributes to the
+  mobile banner on `index.html`.
 - **Verify:** pages render unchanged (human check), `make precommit-fix`.
 
 ### A05 — Remove dead viewer assets and the `zoom-in` lie (D3: delete)
