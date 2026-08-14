@@ -87,23 +87,7 @@ describe('ambient/loader.js', () => {
         expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
     });
 
-    test('loads ambient CSS only; legacy sketch layer is disabled', async () => {
-        require('../../../js/ambient/loader.js');
-
-        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
-            '/css/ambient/ambient.css',
-        ]);
-
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        expect(mockCDNLoader.loadScriptSequential).not.toHaveBeenCalledWith([
-            '/js/vendor/sketch.js',
-        ]);
-    });
-
-    test('loads quantum particles when pageType is home or project', async () => {
+    test('loads quantum particles on home and project pages', async () => {
         document.body.setAttribute('data-page-type', 'home');
 
         require('../../../js/ambient/loader.js');
@@ -118,7 +102,51 @@ describe('ambient/loader.js', () => {
         );
     });
 
-    test('does not load quantum particles for other page types', async () => {
+    test('loads both quantum and legacy sketch layers on home page', async () => {
+        document.body.setAttribute('data-page-type', 'home');
+
+        require('../../../js/ambient/loader.js');
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(
+            ['/js/ambient/quantum_particles.js'],
+            { defer: true }
+        );
+        expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(['/js/vendor/sketch.js']);
+        expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(
+            ['/js/ambient/config/default.js'],
+            { defer: true }
+        );
+        expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(
+            ['/js/ambient/ambient.js'],
+            { defer: true }
+        );
+    });
+
+    test('loads only quantum particles on project pages', async () => {
+        document.body.setAttribute('data-page-type', 'project');
+
+        require('../../../js/ambient/loader.js');
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(
+            ['/js/ambient/quantum_particles.js'],
+            { defer: true }
+        );
+        expect(mockCDNLoader.loadScriptSequential).not.toHaveBeenCalledWith([
+            '/js/vendor/sketch.js',
+        ]);
+    });
+
+    test('does not load ambient scripts for other page types', async () => {
         document.body.setAttribute('data-page-type', 'about');
 
         require('../../../js/ambient/loader.js');
@@ -131,7 +159,9 @@ describe('ambient/loader.js', () => {
         const loadedQuantum = calls.some((call) =>
             call[0].includes('/js/ambient/quantum_particles.js')
         );
+        const loadedSketch = calls.some((call) => call[0].includes('/js/vendor/sketch.js'));
         expect(loadedQuantum).toBe(false);
+        expect(loadedSketch).toBe(false);
     });
 
     test('ignores synchronous errors during initialization gracefully', () => {

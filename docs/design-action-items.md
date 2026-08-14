@@ -407,13 +407,14 @@ precommit-fix`; manual navigation check in Chrome and Safari.
   `js/ambient/quantum_particles.js`; CSS versions remain the fallback.
 - **Verify:** `make precommit-fix`; visual review; confirm fallback path.
 
-### A25 — Consolidate the two ambient layers
+### A25 — Tiered ambient layers (revised)
 
 - Gain 2 / Effort 1 — ratio 2.0 — VISUAL/perf.
-- **What:** two background effects run simultaneously on desktop — the
-  sketch.js 2D particle drift (`js/ambient/ambient.js`) and the Three.js
-  point cloud (`js/ambient/quantum_particles.js`). Pick one (recommend
-  keeping the WebGL point cloud, which better fits the night/void aesthetic)
-  and gate the other off in `js/ambient/loader.js` config.
+- **What:** instead of consolidating to one layer everywhere, tier them by
+  page type. On the index page (`data-page-type="home"`) load both the
+  sketch.js 2D particle drift and the Three.js point cloud. On project
+  pages (`data-page-type="project"`) load only the WebGL point cloud. All
+  other pages skip ambient. This keeps the landing-page impact maximal
+  without doubling the perf cost on the image-heavy portfolio pages.
 - **Verify:** `npx jest tests/js/ambient`; `make precommit-fix`; visual
   review.

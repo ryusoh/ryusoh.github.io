@@ -104,21 +104,28 @@
         const body = document.body;
         const pageType = body ? body.getAttribute('data-page-type') : null;
         const useQuantum = pageType === 'home' || pageType === 'project';
+        const useLegacy = pageType === 'home';
 
         if (!window.CDNLoader) {
             return;
         }
         window.CDNLoader.loadCssWithFallback(['/css/ambient/ambient.css'])
             .then(function () {
+                const promises = [];
                 if (useQuantum && window.CDNLoader) {
-                    return window.CDNLoader.loadScriptSequential(
-                        ['/js/ambient/quantum_particles.js'],
-                        {
-                            defer: true,
-                        }
+                    promises.push(
+                        window.CDNLoader.loadScriptSequential(
+                            ['/js/ambient/quantum_particles.js'],
+                            {
+                                defer: true,
+                            }
+                        )
                     );
                 }
-                return Promise.resolve();
+                if (useLegacy) {
+                    promises.push(loadLegacyAmbient());
+                }
+                return Promise.all(promises);
             })
             .catch(handleAsyncError);
 
