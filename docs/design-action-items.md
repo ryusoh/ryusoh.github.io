@@ -62,7 +62,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A04 | `width`/`height`/`decoding` on all `<img>`    | 3    | 2      | 1.5   | 1    | no      | done    |
 | A26 | Optimize homepage background images           | 3    | 2      | 1.5   | 1    | no      | done    |
 | A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     | done    |
-| A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     | pending |
+| A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     | done    |
 | A18 | Strobe-flash image reveal                     | 4    | 3      | 1.33  | 3    | yes     | pending |
 | A09 | Hardboiled type system (free tier, per D1)    | 4    | 3      | 1.33  | 2    | yes     | pending |
 | A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      | pending |
@@ -271,17 +271,15 @@ p*/index.html`), and delete `assets/fonts/p22undergroundpro-thin-webfont.woff`.
   so no selector is left fontless.
 - **Verify:** `make precommit-fix`; visual review.
 
-### A11 — CSS grain overlay
+### A11 — CSS grain overlay ✅
 
 - Gain 3 / Effort 2 — ratio 1.5 — VISUAL.
-- **What:** a fixed full-viewport overlay (`pointer-events: none`) with a
-  base64 noise PNG, ~6-step `steps()` position animation, opacity tuned heavy
-  enough to read as film grain on chrome/black areas (not over the photos —
-  or at very low opacity globally). Gate behind the existing
-  reduced-motion pattern (see `js/ambient/loader.js` for the gating idiom)
-  and disable the animation under `prefers-reduced-motion`.
-- **Files:** new rule set in `css/main_style.css` (or a small new
-  `css/grain.css` wired into each page).
+- **What:** created `css/grain.css` with a fixed full-viewport `body::before`
+  overlay (`pointer-events: none`, `z-index: 9999`, opacity `0.06`) using a
+  64×64 grayscale noise PNG inlined as base64 (~5.6 KB). Added a 10-keyframe
+  `grain` animation driven by `background-position` with `steps(6)` timing,
+  and disabled it under `@media (prefers-reduced-motion: reduce)`. Wired the
+  stylesheet into `index.html` and `p1/index.html`–`p4/index.html`.
 - **Verify:** `make precommit-fix`; visual review; confirm the overlay never
   intercepts clicks.
 

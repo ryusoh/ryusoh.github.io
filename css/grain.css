@@ -1,0 +1,56 @@
+/* Film-grain overlay — A11 */
+body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.06;
+    background-image: url('data:image/png;base64,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');
+    background-repeat: repeat;
+    background-position: 0 0;
+    animation: grain 0.5s steps(6) infinite;
+}
+
+@keyframes grain {
+    0%,
+    100% {
+        background-position: 0 0;
+    }
+    10% {
+        background-position: -5% -10%;
+    }
+    20% {
+        background-position: -15% 5%;
+    }
+    30% {
+        background-position: 7% -25%;
+    }
+    40% {
+        background-position: -5% 25%;
+    }
+    50% {
+        background-position: -15% 10%;
+    }
+    60% {
+        background-position: 15% 0%;
+    }
+    70% {
+        background-position: 0% 15%;
+    }
+    80% {
+        background-position: 3% 35%;
+    }
+    90% {
+        background-position: -10% 10%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body::before {
+        animation: none;
+    }
+}
