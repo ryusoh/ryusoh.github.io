@@ -11,6 +11,7 @@
                 p1: '/assets/img/p1/',
                 p2: '/assets/img/p2/',
                 p3: '/assets/img/p3/',
+                p4: '/assets/img/p4/',
             };
 
             // Define the actual image sets for each portfolio page (these are the specific images referenced in each portfolio)
@@ -45,6 +46,7 @@
                     '/assets/img/p2/DSCF8444-3.jpg',
                     '/assets/img/p2/DSCF3433.jpg',
                     '/assets/img/p2/A20E2E39-AF83-4FD0-A6F7-3D2243A753DC.JPG',
+                    '/assets/img/p2/DSCF0883-3.jpg',
                     '/assets/img/p2/DSCF7203-9.jpg',
                     '/assets/img/p2/DSCF8772.jpg',
                     '/assets/img/p2/DSCF3495-2.jpg',
@@ -65,11 +67,37 @@
                     '/assets/img/p3/DSCF0490.JPG',
                     '/assets/img/p3/DSCF4237-2.jpg',
                     '/assets/img/p3/B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG',
+                    '/assets/img/p3/DSCF1113.jpg',
                     '/assets/img/p3/DSCF1137.jpg',
                     '/assets/img/p3/DSCF3579.JPG',
+                    '/assets/img/p3/DSCF3632.JPG',
                     '/assets/img/p3/DSCF7318-3.jpg',
                     '/assets/img/p3/DSCF5759-5.jpg',
                     '/assets/img/p3/DSCF5719-3.jpg',
+                    '/assets/img/p3/DSCF8563-5.jpg',
+                    '/assets/img/p3/IMG_4582.jpg',
+                ],
+                p4: [
+                    '/assets/img/p4/18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg',
+                    '/assets/img/p4/940E2644-C690-41F0-9898-0EFB79C69DC5.jpg',
+                    '/assets/img/p4/DSCF0310-3.jpg',
+                    '/assets/img/p4/DSCF0896-2.jpg',
+                    '/assets/img/p4/DSCF1207-5.jpg',
+                    '/assets/img/p4/DSCF1897-2.jpg',
+                    '/assets/img/p4/DSCF3446-2.jpg',
+                    '/assets/img/p4/DSCF4090.jpg',
+                    '/assets/img/p4/DSCF4110-2.jpg',
+                    '/assets/img/p4/DSCF4250-3.jpg',
+                    '/assets/img/p4/DSCF5453-2.jpg',
+                    '/assets/img/p4/DSCF6250-6.jpg',
+                    '/assets/img/p4/DSCF6872-5.jpg',
+                    '/assets/img/p4/DSCF7212-2.jpg',
+                    '/assets/img/p4/DSCF7352.jpg',
+                    '/assets/img/p4/DSCF8552-6.jpg',
+                    '/assets/img/p4/DSCF8631.jpg',
+                    '/assets/img/p4/DSCF9185.jpg',
+                    '/assets/img/p4/DSCF9642-2.jpg',
+                    '/assets/img/p4/R0001059-4.jpg',
                 ],
             };
         }
@@ -127,7 +155,7 @@
 
         /**
          * Get current page key based on URL
-         * @returns {string} - Current page key (p1, p2, p3, or 'main' for index)
+         * @returns {string} - Current page key (p1, p2, p3, p4, or 'main' for index)
          */
         getCurrentPageKey() {
             const path = window.location.pathname;
@@ -139,6 +167,9 @@
             }
             if (path.includes('/p3/')) {
                 return 'p3';
+            }
+            if (path.includes('/p4/')) {
+                return 'p4';
             }
             if (path === '/' || path.includes('/index.html')) {
                 return 'main';
@@ -154,21 +185,25 @@
 
             switch (currentPage) {
                 case 'p1':
-                    // Preload assets for p2 and p3
-                    this.preloadAssets(['p2', 'p3']);
+                    // Preload assets for p2, p3 and p4
+                    this.preloadAssets(['p2', 'p3', 'p4']);
                     break;
                 case 'p2':
-                    // Preload assets for p1 and p3
-                    this.preloadAssets(['p1', 'p3']);
+                    // Preload assets for p1, p3 and p4
+                    this.preloadAssets(['p1', 'p3', 'p4']);
                     break;
                 case 'p3':
-                    // Preload assets for p1 and p2
-                    this.preloadAssets(['p1', 'p2']);
+                    // Preload assets for p1, p2 and p4
+                    this.preloadAssets(['p1', 'p2', 'p4']);
+                    break;
+                case 'p4':
+                    // Preload assets for p1, p2 and p3
+                    this.preloadAssets(['p1', 'p2', 'p3']);
                     break;
                 case 'main':
                 default:
                     // On main page, preload assets for all portfolio pages
-                    this.preloadAssets(['p1', 'p2', 'p3']);
+                    this.preloadAssets(['p1', 'p2', 'p3', 'p4']);
                     break;
             }
         }

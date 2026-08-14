@@ -57,6 +57,12 @@ describe('AssetPreloader', () => {
         expect(preloader.getCurrentPageKey()).toBe('p3');
     });
 
+    test('getCurrentPageKey should identify p4 correctly', () => {
+        const preloader = new AssetPreloader();
+        context.window.history.pushState({}, '', '/p4/');
+        expect(preloader.getCurrentPageKey()).toBe('p4');
+    });
+
     test('should preload single image with correct link', () => {
         const preloader = new AssetPreloader();
         const imgSrc = '/test.jpg';
@@ -102,7 +108,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4']);
         });
 
         test('should preload assets for remaining portfolio pages on p2', () => {
@@ -112,7 +118,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3', 'p4']);
         });
 
         test('should preload assets for remaining portfolio pages on p3', () => {
@@ -122,7 +128,17 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p4']);
+        });
+
+        test('should preload assets for remaining portfolio pages on p4', () => {
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p4');
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3']);
         });
 
         test('should fallback to main for unknown paths', () => {
@@ -132,7 +148,37 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4']);
+        });
+    });
+
+    describe('asset set completeness regression', () => {
+        test('every image directory has a non-empty asset set', () => {
+            const preloader = new AssetPreloader();
+            const dirs = Object.keys(preloader.imageDirectories);
+            const sets = Object.keys(preloader.assetSets);
+
+            dirs.forEach((key) => {
+                expect(preloader.assetSets[key]).toBeDefined();
+                expect(Array.isArray(preloader.assetSets[key])).toBe(true);
+                expect(preloader.assetSets[key].length).toBeGreaterThan(0);
+            });
+
+            sets.forEach((key) => {
+                expect(preloader.imageDirectories[key]).toBeDefined();
+            });
+        });
+
+        test('asset set counts match actual <img> counts in p1–p4', () => {
+            const preloader = new AssetPreloader();
+            const projectRoot = path.resolve(__dirname, '../..');
+
+            ['p1', 'p2', 'p3', 'p4'].forEach((pageKey) => {
+                const htmlPath = path.join(projectRoot, pageKey, 'index.html');
+                const html = fs.readFileSync(htmlPath, 'utf8');
+                const imgCount = (html.match(/<img\b/g) || []).length;
+                expect(preloader.assetSets[pageKey]).toHaveLength(imgCount);
+            });
         });
     });
 
@@ -202,6 +248,10 @@ describe('coverage helper', () => {
                 p.preloadForCurrentPage();
 
                 window.history.pushState({}, '', '/p3/');
+                p.preloadForCurrentPage();
+
+                window.history.pushState({}, '', '/p4/');
+                p.getCurrentPageKey();
                 p.preloadForCurrentPage();
 
                 window.history.pushState({}, '', '/index.html');
