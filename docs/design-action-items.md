@@ -61,7 +61,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A25 | Tiered ambient layers (index both)            | 2    | 1      | 2.0   | 4    | yes     | done    |
 | A04 | `width`/`height`/`decoding` on all `<img>`    | 3    | 2      | 1.5   | 1    | no      | done    |
 | A26 | Optimize homepage background images           | 3    | 2      | 1.5   | 1    | no      | done    |
-| A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     | pending |
+| A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     | done    |
 | A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     | pending |
 | A18 | Strobe-flash image reveal                     | 4    | 3      | 1.33  | 3    | yes     | pending |
 | A09 | Hardboiled type system (free tier, per D1)    | 4    | 3      | 1.33  | 2    | yes     | pending |
@@ -233,14 +233,18 @@ srcset="…" sizes="…"><source type="image/webp" …><img src="original"
 
 ## Wave 2 — Design system (VISUAL; human review per item)
 
-### A08 — Hardboiled color tokens
+### A08 — Hardboiled color tokens ✅
 
 - Gain 3 / Effort 2 — ratio 1.5 — VISUAL.
-- **What:** define CSS custom properties: true black `#000` background
-  (deliberate for flash photography — do NOT soften it), hard near-white
-  `#f2f2f2` text, one gray tier for metadata, and `#ce2323` red restricted to
-  one job (index numbers / hover). Apply across `css/main_style.css`,
-  `css/style.css`, `css/base.css`.
+- **What:** defined CSS custom properties in `:root` (`--bg-color: #000`,
+  `--text-color: #f2f2f2`, `--text-color-rgb`, `--text-muted: #aaa`,
+  `--text-muted-rgb`, `--accent-color: #ce2323`, `--accent-color-rgb`) and
+  replaced the literal home-page colors in `css/main_style.css` with the
+  tokens. Ran `scripts/apply-color-tokens.js` (now deleted) to do the same
+  across `css/style.css` and `css/base.css`, protecting the `.sr-only-focusable`
+  accessibility block so its literal `#fff/#000` remain unchanged. The
+  `prefers-color-scheme: dark` media query in `css/style.css` now maps to the
+  same tokens.
 - **Verify:** `make lint-css`, `make precommit-fix`; visual review.
 
 ### A09 — Hardboiled type system (D1: free tier)

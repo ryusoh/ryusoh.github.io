@@ -113,7 +113,7 @@ body {
 }
 
 html {
-    background-color: #000;
+    background-color: var(--bg-color);
 }
 
 ol,
@@ -156,7 +156,7 @@ body::after {
     left: 0;
     width: 100%;
     height: 180px;
-    background: #000;
+    background: var(--bg-color);
     pointer-events: none;
     z-index: -1;
 }
@@ -198,7 +198,7 @@ canvas {
     left: 20px;
     top: 0;
     background: rgba(0, 0, 0, 0.9);
-    color: #fff;
+    color: var(--text-color);
     overflow-y: auto;
     font-family:
         'P22UndergroundProThin', 'PingFang SC Light', 'PingFang SC', 'Lantinghei SC Light',
@@ -266,7 +266,7 @@ canvas {
 }
 
 footer a {
-    color: #aaa;
+    color: var(--text-muted);
     opacity: 0.8;
     transition:
         opacity 0.5s var(--brand-ease),
@@ -277,7 +277,7 @@ footer a {
 footer a:hover,
 footer a:focus {
     opacity: 1;
-    color: #fff;
+    color: var(--text-color);
 }
 
 #nav dd > a {
@@ -299,7 +299,7 @@ footer a:focus {
 #nav dd > span {
     /* The label part, e.g., "Portfolio ➢ Color" */
     display: inline-block;
-    color: #aaa;
+    color: var(--text-muted);
     font-weight: 200;
 }
 
@@ -316,8 +316,8 @@ footer {
     width: 100%;
     font-size: 12px;
     text-align: center;
-    color: #fff;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-color);
+    color: rgba(var(--text-color-rgb), 0.8);
     font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
     font-weight: 100;
     letter-spacing: 1px;
@@ -326,7 +326,7 @@ footer {
 @media screen and (min-width: 0px) {
     body {
         overflow-y: auto;
-        background: #111;
+        background: var(--bg-color);
     }
 
     #mimida {
@@ -351,8 +351,8 @@ footer {
 
 @media screen and (min-width: 450px) {
     body {
-        background: #222 url(/assets/img/desktop_background.jpg) center center no-repeat;
-        background: #222
+        background: var(--bg-color) url(/assets/img/desktop_background.jpg) center center no-repeat;
+        background: var(--bg-color)
             image-set(
                 url('/assets/img/desktop_background.avif') type('image/avif'),
                 url('/assets/img/desktop_background.webp') type('image/webp'),
@@ -417,7 +417,7 @@ footer {
 
 #nav .portfolio-link {
     /* Styles for the TD containing the link */
-    border-left: 1px solid rgba(170, 170, 170, 0.25); /* #aaa with 50% opacity */
+    border-left: 1px solid rgba(var(--text-muted-rgb), 0.25); /* muted with 25% opacity */
     padding-left: 0.75em; /* Space between the line and the link text */
     text-align: left; /* Align link text to the left, especially if it wraps */
     font-size: 1.2em; /* Base font size for this cell, links can override */
@@ -427,7 +427,7 @@ footer {
 #nav .portfolio-link a {
     text-decoration: none; /* Removes underline from links by default */
     display: block; /* Allows padding/margin if needed, and better click area */
-    color: white;
+    color: var(--text-color);
     opacity: 0.8; /* Makes the text slightly transparent initially */
     /* font-family: 'Lobster', cursive; */ /* Removed to inherit font from parent */
     font-weight: bold; /* Match the "Portfolio" text weight */
@@ -439,7 +439,7 @@ footer {
 
 #nav .portfolio-link a:hover,
 #nav .portfolio-link a:focus {
-    background-color: rgba(255, 255, 255, 0.1); /* Light semi-transparent box */
+    background-color: rgba(var(--text-color-rgb), 0.1); /* Light semi-transparent box */
     /* Or for a darker box: background-color: rgba(0, 0, 0, 0.2); */
     border-radius: 3px; /* Optional: rounded corners for the box */
     opacity: 1; /* Restore full contrast on hover/focus */
@@ -452,7 +452,7 @@ footer {
 }
 
 .social-icon {
-    color: #aaa;
+    color: var(--text-muted);
 }
 
 .social-icons-container {
@@ -466,12 +466,12 @@ footer {
         color var(--brand-ease) 0.5s;
     justify-content: space-around;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(var(--text-color-rgb), 0.1);
 }
 
 .social-icons-container a {
     display: inline-block;
-    color: #aaa;
+    color: var(--text-muted);
     text-decoration: none;
     transition: color var(--brand-ease) 0.5s;
     margin: 0 5.5px;
@@ -479,7 +479,7 @@ footer {
 
 .social-icons-container a:hover,
 .social-icons-container a:focus {
-    color: #fff;
+    color: var(--text-color);
 }
 
 .social-icons-container .social-icon {
@@ -488,6 +488,15 @@ footer {
 :root {
     --page-transition-color: rgba(0, 0, 0, 0.88);
     --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
+
+    /* Hardboiled color tokens */
+    --bg-color: #000;
+    --text-color: #f2f2f2;
+    --text-color-rgb: 242, 242, 242;
+    --text-muted: #aaa;
+    --text-muted-rgb: 170, 170, 170;
+    --accent-color: #ce2323;
+    --accent-color-rgb: 206, 35, 35;
 }
 
 /* Principle 7: Hide the scaffolding. No scrollbars, native selection styling */
@@ -501,12 +510,12 @@ body::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
 }
 ::selection {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(var(--text-color-rgb), 0.2);
+    color: var(--text-color);
 }
 ::-moz-selection {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(var(--text-color-rgb), 0.2);
+    color: var(--text-color);
 }
 
 /* Accessibility: Screen reader only utility class for skip links */
@@ -539,9 +548,9 @@ body::-webkit-scrollbar {
 
 /* Global focus-visible for accessibility */
 :focus-visible {
-    outline: 2px solid rgba(206, 35, 35, 0.8) !important;
+    outline: 2px solid rgba(var(--accent-color-rgb), 0.8) !important;
     outline-offset: 4px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(var(--text-color-rgb), 0.5);
     border-radius: 2px;
 }
 
