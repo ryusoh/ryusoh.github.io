@@ -53,34 +53,34 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 
 ## Ranked summary
 
-| ID  | Item                                          | Gain | Effort | Ratio | Wave | Visual? |
-| --- | --------------------------------------------- | ---- | ------ | ----- | ---- | ------- |
-| A02 | Font serving: `font-display`, dedupe, preload | 3    | 1      | 3.0   | 1    | no      |
-| A01 | Fix preloader omitting p4                     | 2    | 1      | 2.0   | 1    | no      |
-| A03 | Remove Lobster                                | 2    | 1      | 2.0   | 1    | yes     |
-| A25 | Consolidate ambient layers                    | 2    | 1      | 2.0   | 4    | yes     |
-| A04 | `width`/`height`/`decoding` on all `<img>`    | 3    | 2      | 1.5   | 1    | no      |
-| A26 | Optimize homepage background images           | 3    | 2      | 1.5   | 1    | no      |
-| A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     |
-| A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     |
-| A18 | Strobe-flash image reveal                     | 4    | 3      | 1.33  | 3    | yes     |
-| A09 | Hardboiled type system (free tier, per D1)    | 4    | 3      | 1.33  | 2    | yes     |
-| A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      |
-| A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     |
-| A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      |
-| A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      |
-| A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      |
-| A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     |
-| A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     |
-| A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     |
-| A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     |
-| A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      |
-| A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     |
-| A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     |
-| A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     |
-| A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     |
-| A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     |
-| A22 | WebGL grain + flash post-process (OGL)        | 4    | 5      | 0.8   | 4    | yes     |
+| ID  | Item                                          | Gain | Effort | Ratio | Wave | Visual? | Status  |
+| --- | --------------------------------------------- | ---- | ------ | ----- | ---- | ------- | ------- |
+| A02 | Font serving: `font-display`, dedupe, preload | 3    | 1      | 3.0   | 1    | no      | pending |
+| A01 | Fix preloader omitting p4                     | 2    | 1      | 2.0   | 1    | no      | done    |
+| A03 | Remove Lobster                                | 2    | 1      | 2.0   | 1    | yes     | done    |
+| A25 | Tiered ambient layers (index both)            | 2    | 1      | 2.0   | 4    | yes     | done    |
+| A04 | `width`/`height`/`decoding` on all `<img>`    | 3    | 2      | 1.5   | 1    | no      | done    |
+| A26 | Optimize homepage background images           | 3    | 2      | 1.5   | 1    | no      | done    |
+| A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     | pending |
+| A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     | pending |
+| A18 | Strobe-flash image reveal                     | 4    | 3      | 1.33  | 3    | yes     | pending |
+| A09 | Hardboiled type system (free tier, per D1)    | 4    | 3      | 1.33  | 2    | yes     | pending |
+| A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      | pending |
+| A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     | done    |
+| A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      | done    |
+| A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      | done    |
+| A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      | pending |
+| A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      | pending |
+| A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | pending |
+| A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | pending |
+| A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     | pending |
+| A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     | pending |
+| A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     | pending |
+| A22 | WebGL grain + flash post-process (OGL)        | 4    | 5      | 0.8   | 4    | yes     | pending |
 
 ---
 
