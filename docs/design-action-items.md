@@ -60,6 +60,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A03 | Remove Lobster                                | 2    | 1      | 2.0   | 1    | yes     |
 | A25 | Consolidate ambient layers                    | 2    | 1      | 2.0   | 4    | yes     |
 | A04 | `width`/`height`/`decoding` on all `<img>`    | 3    | 2      | 1.5   | 1    | no      |
+| A26 | Optimize homepage background images           | 3    | 2      | 1.5   | 1    | no      |
 | A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     |
 | A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     |
 | A18 | Strobe-flash image reveal                     | 4    | 3      | 1.33  | 3    | yes     |
@@ -418,3 +419,26 @@ precommit-fix`; manual navigation check in Chrome and Safari.
   without doubling the perf cost on the image-heavy portfolio pages.
 - **Verify:** `npx jest tests/js/ambient`; `make precommit-fix`; visual
   review.
+
+### A26 — Optimize homepage background images ✅
+
+- Gain 3 / Effort 2 — ratio 1.5 — no visual surface.
+- **Why:** `assets/img/desktop_background.jpg` was ~903 KB and
+  `mobile_background.jpg` was ~1.9 MB, both still carried EXIF metadata, and
+  they were loaded via CSS `background-image` so the browser discovered them
+  late. The mobile file in particular was oversized for a background.
+- **Done:**
+    1. Generated AVIF and WebP variants:
+        - `desktop_background.avif` (~384 KB), `desktop_background.webp`
+          (~376 KB).
+        - `mobile_background.avif` (~636 KB), `mobile_background.webp`
+          (~737 KB).
+    2. Served them via CSS `image-set()` in `css/main_style.css`, with the
+       JPEG as the final fallback.
+    3. Added `<link rel="preload" as="image" href="..." media="..." />`
+       in `index.html` for the active JPEG background.
+    4. Stripped EXIF (kept ICC color profile) from the fallback JPEGs using
+       `exiftool -EXIF=`.
+- **Scope:** index/home page only. Done standalone; does not block A06.
+- **Verify:** Lighthouse/Media panel shows the smaller format loading;
+  `make precommit-fix`; visual parity check.

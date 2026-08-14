@@ -331,6 +331,12 @@ footer {
 
     #mimida {
         background: url(/assets/img/mobile_background.jpg) center center no-repeat;
+        background: image-set(
+                url('/assets/img/mobile_background.avif') type('image/avif'),
+                url('/assets/img/mobile_background.webp') type('image/webp'),
+                url('/assets/img/mobile_background.jpg') type('image/jpeg')
+            )
+            center center no-repeat;
         background-size: cover;
     }
 
@@ -346,11 +352,24 @@ footer {
 @media screen and (min-width: 450px) {
     body {
         background: #222 url(/assets/img/desktop_background.jpg) center center no-repeat;
+        background: #222
+            image-set(
+                url('/assets/img/desktop_background.avif') type('image/avif'),
+                url('/assets/img/desktop_background.webp') type('image/webp'),
+                url('/assets/img/desktop_background.jpg') type('image/jpeg')
+            )
+            center center no-repeat;
         background-size: cover;
     }
 
     #mimida {
         background: url(/assets/img/desktop_background.jpg) center center no-repeat;
+        background: image-set(
+                url('/assets/img/desktop_background.avif') type('image/avif'),
+                url('/assets/img/desktop_background.webp') type('image/webp'),
+                url('/assets/img/desktop_background.jpg') type('image/jpeg')
+            )
+            center center no-repeat;
         background-size: cover;
     }
 
