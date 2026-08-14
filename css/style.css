@@ -186,7 +186,7 @@ a:link {
 }
 a img:hover,
 a img:focus {
-    cursor: zoom-in;
+    cursor: default;
 }
 hr.small {
     max-width: 100px;
