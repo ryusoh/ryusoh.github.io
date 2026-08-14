@@ -40,10 +40,13 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 
 ## Owner decisions (resolved 2026-08-14)
 
-- [x] **D1 — Type budget: FREE TIER.** Archivo + Newsreader + Courier Prime
+- [ ] **D1 — Type budget: FREE TIER.** Archivo + Newsreader + Courier Prime
       (all OFL, self-hosted). The paid Knockout/Mercury route is ditched.
-- [x] **D2 — P22 Underground: RETIRE ENTIRELY.** No wordmark exception; remove
-      the font files and every reference.
+      **Reverted 2026-08-14:** owner rejected the Archivo swap as "cheap" on
+      the live site; keeping the existing P22 Underground stack for now.
+- [ ] **D2 — P22 Underground: RETIRE ENTIRELY.** No wordmark exception; remove
+      the font files and every reference. **Reverted 2026-08-14:** P22
+      Underground stays; A09/A10 are parked.
 - [x] **D3 — Dead lightbox assets: DELETE.** `js/viewer.min.js` +
       `css/viewer.min.css` go (A05). Exhibition mode (A21), if kept, is built
       custom or re-vendors stock viewer.js then.
@@ -68,7 +71,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     | done    |
 | A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      | done    |
 | A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      | done    |
-| A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      | pending |
+| A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      | done    |
 | A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     | pending |
@@ -173,7 +176,7 @@ p1 p2 p3 p4 index.html`).
   entirely.
 - **Verify:** `make precommit-fix`.
 
-### A13 — Remove Bootstrap 3 + jQuery + IE shims from project pages
+### A13 — Remove Bootstrap 3 + jQuery + IE shims from project pages ✅
 
 - Gain 3 / Effort 3 — ratio 1.0 — no intended visual change (layout parity
   required), unblocks A12.
@@ -187,8 +190,11 @@ p1 p2 p3 p4 index.html`).
   `max-width` container). Then delete `assets/vendor/bootstrap/` and
   `assets/vendor/jquery/` if nothing else references them (`grep -r bootstrap
 --include='*.html' .` first).
-- **Steps:** first make the pages pixel-parity WITHOUT Bootstrap (this is the
-  parity checkpoint), then delete the vendor dirs.
+- **Done:** Replaced the Bootstrap grid with `.container-narrow` in p1–p4,
+  removed Bootstrap CSS/JS, jQuery, html5shiv, and respond.js tags, and
+  deleted `assets/vendor/bootstrap/` and `assets/vendor/jquery/`. CSS
+  selectors `article .container .row *` were retargeted to
+  `article .container-narrow *`.
 - **Watch out:** re-verify jQuery usage yourself (`grep -rn 'jQuery\|\$(' js
 --include='*.js' | grep -v vendor`) before deleting.
 - **Verify:** `make precommit-fix`; human visual parity check on p1–p4.
