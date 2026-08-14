@@ -63,7 +63,6 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A26 | Optimize homepage background images           | 3    | 2      | 1.5   | 1    | no      | done    |
 | A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     | done    |
 | A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     | done    |
-| A18 | Strobe-flash image reveal                     | 4    | 3      | 1.33  | 3    | yes     | pending |
 | A09 | Hardboiled type system (free tier, per D1)    | 4    | 3      | 1.33  | 2    | yes     | pending |
 | A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      | pending |
 | A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     | done    |
@@ -346,20 +345,6 @@ tests/js/scroll-reveal.test.js`; `make precommit-fix`.
   `load-animations.test.js`, `magnetic-nav.test.js`) — keep the global
   contract intact.
 - **Verify:** those three suites + `make precommit-fix`; visual review.
-
-### A18 — Strobe-flash image reveal (the signature move)
-
-- Gain 4 / Effort 3 — ratio 1.33 — VISUAL, a11y-sensitive.
-- **What:** each gallery image enters with a single ~80–120ms overexposed
-  white pop settling into full contrast (CSS class + `filter: brightness()`
-  spike or a white overlay flash), triggered by the existing
-  `js/scroll-reveal.js` IntersectionObserver flow. One flash per image, never
-  repeating; under `prefers-reduced-motion`, plain fade instead.
-- **Files:** `js/scroll-reveal.js` (or a small sibling module), CSS, tests
-  (`tests/js/scroll-reveal.test.js` — extend; check existing coverage of the
-  reveal path first).
-- **Verify:** `npx jest tests/js/scroll-reveal.test.js`; `make
-precommit-fix`; visual review including reduced-motion mode.
 
 ### A19 — Hard-cut View Transitions
 
