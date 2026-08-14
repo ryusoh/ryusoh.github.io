@@ -23,8 +23,11 @@ describe('vendorLoader.js', () => {
         mockCDNLoader.loadCssWithFallback.mockClear();
         init();
 
-        expect(mockCDNLoader.preconnect).toHaveBeenCalledWith(expect.any(Array));
-        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledTimes(2);
+        expect(mockCDNLoader.preconnect).toHaveBeenCalledWith([]);
+        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledTimes(1);
+        expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
+            '/assets/vendor/font-awesome/css/font-awesome.min.css',
+        ]);
     });
     test('should return early if CDNLoader is missing', () => {
         delete window.CDNLoader;

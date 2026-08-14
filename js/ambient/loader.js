@@ -110,20 +110,15 @@
         }
         window.CDNLoader.loadCssWithFallback(['/css/ambient/ambient.css'])
             .then(function () {
-                const legacy = loadLegacyAmbient();
-                /* eslint-disable indent */
-                const quantum = useQuantum
-                    ? window.CDNLoader
-                        ? window.CDNLoader.loadScriptSequential(
-                              ['/js/ambient/quantum_particles.js'],
-                              {
-                                  defer: true,
-                              }
-                          )
-                        : Promise.resolve()
-                    : Promise.resolve();
-                /* eslint-enable indent */
-                return Promise.all([legacy, quantum]);
+                if (useQuantum && window.CDNLoader) {
+                    return window.CDNLoader.loadScriptSequential(
+                        ['/js/ambient/quantum_particles.js'],
+                        {
+                            defer: true,
+                        }
+                    );
+                }
+                return Promise.resolve();
             })
             .catch(handleAsyncError);
 

@@ -87,7 +87,7 @@ describe('ambient/loader.js', () => {
         expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
     });
 
-    test('loads ambient CSS and legacy scripts correctly', async () => {
+    test('loads ambient CSS only; legacy sketch layer is disabled', async () => {
         require('../../../js/ambient/loader.js');
 
         expect(mockCDNLoader.loadCssWithFallback).toHaveBeenCalledWith([
@@ -98,7 +98,9 @@ describe('ambient/loader.js', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(['/js/vendor/sketch.js']);
+        expect(mockCDNLoader.loadScriptSequential).not.toHaveBeenCalledWith([
+            '/js/vendor/sketch.js',
+        ]);
     });
 
     test('loads quantum particles when pageType is home or project', async () => {

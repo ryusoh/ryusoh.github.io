@@ -29,17 +29,8 @@
                 return;
             }
             const fontAwesome = ['/assets/vendor/font-awesome/css/font-awesome.min.css'];
-            const googleFonts = [
-                'https://fonts.googleapis.com/css2?family=Lobster&display=swap',
-                'https://fonts.bunny.net/css?family=Lobster',
-            ];
-            window.CDNLoader.preconnect([
-                'https://fonts.googleapis.com',
-                'https://fonts.gstatic.com',
-                'https://fonts.bunny.net',
-            ]);
+            window.CDNLoader.preconnect([]);
             window.CDNLoader.loadCssWithFallback(fontAwesome);
-            window.CDNLoader.loadCssWithFallback(googleFonts);
         } catch (e) {
             handleVendorLoaderError(e);
         }
