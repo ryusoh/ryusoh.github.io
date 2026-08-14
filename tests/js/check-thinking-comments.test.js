@@ -141,4 +141,11 @@ describe('check-thinking-comments', () => {
             expect([...findViolations(iterTrackedSources())]).toEqual([]);
         });
     });
+
+    describe('findViolations', () => {
+        test('skips paths that no longer exist on disk instead of throwing', () => {
+            const paths = ['this/file/does/not/exist.js'];
+            expect([...findViolations(paths)]).toEqual([]);
+        });
+    });
 });

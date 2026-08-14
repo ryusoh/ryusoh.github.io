@@ -161,6 +161,11 @@ function iterTrackedSources() {
 
 function* findViolations(paths) {
     for (const path of paths) {
+        // Skip files staged for deletion or otherwise missing from disk; the
+        // gate only needs to scan sources that still exist in the worktree.
+        if (!fs.existsSync(path)) {
+            continue;
+        }
         const src = fs.readFileSync(path, 'utf8');
         for (const { lineno, text } of scanJsComments(src)) {
             yield `${path}:${lineno}: thinking-out-loud comment: // ${text}`;

@@ -150,27 +150,27 @@ tests` first).
 p1 p2 p3 p4 index.html`).
 - **Verify:** `make precommit-fix`.
 
-### A23 — Delete hover-preview (D4)
+### A23 — Delete hover-preview (D4) ✅
 
 - Gain 1 / Effort 1 — ratio 1.0 — no visual surface (it is disabled).
-- **What:** owner decided (D4): delete. Remove `js/hover-preview.js`,
+- **What:** owner decided (D4): delete. Removed `js/hover-preview.js`,
   `tests/js/hover-preview.test.js`, the `enableHoverPreview` flag in
   `js/config.js` (+ `tests/js/config.test.js` expectations), the `<script>`
-  tag(s) loading it in `index.html`, and any related CSS (`grep -rn
-'hover-preview\|enableHoverPreview' . --include='*.js' --include='*.html'
---include='*.css'` first; exclude `.git`). If A24 ships too,
-  `window.PortfolioConfig` may become empty — then delete `js/config.js` and
-  its script tags as well, and note it in the commit.
+  tag(s) loading it in `index.html`, and any related CSS. With A24 also
+  shipping, `window.PortfolioConfig` became empty, so `js/config.js`, its
+  script tag, and `tests/js/config.test.js` were deleted too.
 - **Verify:** `make precommit-fix`.
 
-### A24 — Delete mouse-parallax (D5)
+### A24 — Delete mouse-parallax (D5) ✅
 
 - Gain 1 / Effort 1 — ratio 1.0 — no visual surface (it is disabled).
-- **What:** owner decided (D5): delete. Remove `js/mouse-parallax.js`,
+- **What:** owner decided (D5): delete. Removed `js/mouse-parallax.js`,
   `tests/js/mouse-parallax.test.js`, the `enableMouseParallax` flag in
-  `js/config.js` + `tests/js/config.test.js`, and its `<script>` tag(s).
-  Coordinate with A23: if both ship, `js/config.js` becomes empty and goes
-  too.
+  `js/config.js` + `tests/js/config.test.js`, its `<script>` tag in
+  `index.html`, the `PortfolioConfig` type in `js/types/globals.d.ts`, and
+  both `js/config.js` and `js/mouse-parallax.js` entries from
+  `jsconfig.json`. Since A23 already emptied `js/config.js`, it was deleted
+  entirely.
 - **Verify:** `make precommit-fix`.
 
 ### A13 — Remove Bootstrap 3 + jQuery + IE shims from project pages

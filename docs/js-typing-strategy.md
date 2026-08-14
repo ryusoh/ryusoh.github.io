@@ -18,11 +18,11 @@ migrating to TypeScript, and how the whitelist grows.
 
 ## Status (2026-07-17) — infra bootstrapped
 
-- Whitelist seeded with `js/config.js` (trivial, 0 strict errors).
-- `window.PortfolioConfig` needed an ambient `Window` augmentation —
-  `js/types/globals.d.ts` (type-only, never shipped) declares it. Add further
-  first-party globals there as the whitelist grows into files that assign to
-  `window.*`.
+- Whitelist seeded with small, self-contained first-party files that already
+  pass `tsc --checkJs` with zero strict errors.
+- Files that assign to `window.*` need an ambient `Window` augmentation in
+  `js/types/globals.d.ts` (type-only, never shipped) — add further first-party
+  globals there as the whitelist grows.
 - Everything outside the whitelist is unchecked. Expand it incrementally: add
   a file's path to `include` and bring it to zero strict errors in the same
   change, one file at a time.

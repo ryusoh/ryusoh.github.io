@@ -18,11 +18,6 @@ interface Window {
     gsap?: Gsap;
     /** Cursor instances for cleanup */
     cursorInstances?: { cursor: unknown };
-    /** Global tunables set by js/config.js and read by other page scripts. */
-    PortfolioConfig?: {
-        enableHoverPreview: boolean;
-        enableMouseParallax: boolean;
-    };
     /** Configuration for Ambient */
     AMBIENT_CONFIG?: {
         enabled: boolean;
