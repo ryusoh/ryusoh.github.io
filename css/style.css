@@ -8,12 +8,12 @@
     --page-transition-color: rgba(0, 0, 0, 0.88);
 
     /* Hardboiled color tokens */
-    --bg-color: var(--bg-color);
+    --bg-color: #000;
     --text-color: #f2f2f2;
     --text-color-rgb: 242, 242, 242;
-    --text-muted: var(--text-muted);
+    --text-muted: #aaa;
     --text-muted-rgb: 170, 170, 170;
-    --accent-color: var(--accent-color);
+    --accent-color: #ce2323;
     --accent-color-rgb: 206, 35, 35;
 }
 .background-cover,
@@ -1010,7 +1010,6 @@ td {
 }
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-color: var(--bg-color);
         --font-color: var(--text-color);
         --link-color: #a7dfe4;
         --line-color: #161d27;
