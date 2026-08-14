@@ -1,0 +1,419 @@
+# Design action items — ranked, keep/ditch, delegation-ready
+
+Companion to `docs/design-research.md` (read it first — it contains the _why_;
+this file is the _what_). Hardboiled/tabloid/evidence-file aesthetic on a
+Swiss-precise structure.
+
+## How to use this file
+
+- Every item is independent and checkboxed. **Keep = leave checked, ditch =
+  delete the item (or its whole wave).** Items list their dependencies, so
+  ditching one tells you what else falls.
+- Items are executed in **wave order**; inside a wave, higher ratio first.
+- Each item is sized to be **one self-contained delegation** to an
+  implementation agent.
+
+## Scales
+
+- **Gain** 1–5: 5 = transformative for the premium/hardboiled goal.
+- **Effort** 1–5: 1 = under an hour, 5 = multi-session.
+- **Ratio** = gain ÷ effort. Do high ratios first.
+
+## Standing instructions for the implementing agent (every item)
+
+1. Read `AGENTS.md` first. Its interactive-agent rules apply: work on `master`,
+   do NOT commit unless the user asks, keep diffs single-concern and minimal.
+2. Never hand-edit `js/vendor/**` or `*.min.js`. Adding a _new_ vendored file
+   (downloaded upstream release) is fine; modifying one is not.
+3. Any change to runtime JS behavior must ship a test that fails before and
+   passes after; the repo runs Jest with a coverage ratchet. Existing suites
+   live in `tests/js/` — check for prior coverage before writing new tests
+   (see `docs/testing-notes.md` for jsdom gotchas; `page-transition.test.js`
+   uses a `loadInstrumentedScript()` rewriting pattern).
+4. Verify with `npx jest <scoped test>` while iterating and `make
+precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
+   coverage) before reporting done. Red gate = not done.
+5. Items marked **VISUAL** change what the site looks like; the agent cannot
+   see rendered output. Report objective facts only (DOM attributes, computed
+   styles, passing tests) and state "human visual review required."
+6. Do not invent commands; run what you document.
+
+## Owner decisions (resolved 2026-08-14)
+
+- [x] **D1 — Type budget: FREE TIER.** Archivo + Newsreader + Courier Prime
+      (all OFL, self-hosted). The paid Knockout/Mercury route is ditched.
+- [x] **D2 — P22 Underground: RETIRE ENTIRELY.** No wordmark exception; remove
+      the font files and every reference.
+- [x] **D3 — Dead lightbox assets: DELETE.** `js/viewer.min.js` +
+      `css/viewer.min.css` go (A05). Exhibition mode (A21), if kept, is built
+      custom or re-vendors stock viewer.js then.
+- [x] **D4 — Hover preview: DELETE.** Remove `js/hover-preview.js` and its
+      wiring (A23 became a deletion).
+- [x] **D5 — Mouse parallax: DELETE.** Remove `js/mouse-parallax.js` (A24).
+
+## Ranked summary
+
+| ID  | Item                                          | Gain | Effort | Ratio | Wave | Visual? |
+| --- | --------------------------------------------- | ---- | ------ | ----- | ---- | ------- |
+| A02 | Font serving: `font-display`, dedupe, preload | 3    | 1      | 3.0   | 1    | no      |
+| A01 | Fix preloader omitting p4                     | 2    | 1      | 2.0   | 1    | no      |
+| A03 | Remove Lobster                                | 2    | 1      | 2.0   | 1    | yes     |
+| A25 | Consolidate ambient layers                    | 2    | 1      | 2.0   | 4    | yes     |
+| A04 | `width`/`height`/`decoding` on all `<img>`    | 3    | 2      | 1.5   | 1    | no      |
+| A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     |
+| A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     |
+| A18 | Strobe-flash image reveal                     | 4    | 3      | 1.33  | 3    | yes     |
+| A09 | Hardboiled type system (free tier, per D1)    | 4    | 3      | 1.33  | 2    | yes     |
+| A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      |
+| A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     |
+| A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      |
+| A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      |
+| A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      |
+| A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     |
+| A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     |
+| A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     |
+| A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     |
+| A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      |
+| A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     |
+| A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     |
+| A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     |
+| A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     |
+| A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     |
+| A22 | WebGL grain + flash post-process (OGL)        | 4    | 5      | 0.8   | 4    | yes     |
+
+---
+
+## Wave 1 — Foundation (no visual risk)
+
+### A01 — Fix the preloader's missing p4
+
+- Gain 2 / Effort 1 — ratio 2.0 — no visual surface.
+- **Why:** `js/preloader.js` builds idle-time preload lists from a `pages` map
+  that has keys `p1`, `p2`, `p3` only — p4's ~20 images are never preloaded.
+- **Files:** `js/preloader.js`, `tests/js/preloader.test.js`.
+- **Steps:** add the `p4` entry (`/assets/img/p4/`) with its image list (take
+  the exact `src` values from `p4/index.html`; mind mixed `.jpg`/`.JPG` case —
+  GitHub Pages is case-sensitive). Extend `tests/js/preloader.test.js` to
+  cover the p4 list.
+- **Verify:** `npx jest tests/js/preloader.test.js`, then `make precommit-fix`.
+
+### A02 — Font serving: `font-display`, dedupe, preload
+
+- Gain 3 / Effort 1 — ratio 3.0 — no visual surface.
+- **Why:** P22 Underground is served woff-only, without `font-display` in
+  `css/fonts.css`, and declared under two different family names across
+  `css/fonts.css` and `css/base.css` — flashes of invisible text and doubled
+  @font-face maintenance.
+- **Files:** `css/fonts.css`, `css/base.css`, `index.html`.
+- **Steps:** consolidate to one `@font-face` block with
+  `font-display: swap`; update the duplicate declarations in `css/base.css`
+  (around lines 96–130) to the single family name; add
+  `<link rel="preload" as="font" type="font/woff" crossorigin>` in
+  `index.html`. (Converting to woff2 needs a font tool — note it as a
+  follow-up if no converter is available locally; do not download "converter"
+  binaries from random sites.)
+- **Verify:** `make lint-css`, `make precommit-fix`.
+
+### A03 — Remove Lobster
+
+- Gain 2 / Effort 1 — ratio 2.0 — VISUAL (removes the script display font from
+  the home page).
+- **Why:** a script face is off-concept for hardboiled street photography; it
+  is loaded via `js/loader/vendorLoader.js` with a fonts.bunny.net fallback.
+- **Files:** `js/loader/vendorLoader.js`, possibly `tests/js/loader/` suites
+  referencing it, plus any CSS selecting Lobster (`grep -ri lobster css js
+tests` first).
+- **Verify:** `npx jest tests/js/loader`, `make precommit-fix`.
+
+### A04 — `width`/`height`/`decoding` on all ~74 gallery images
+
+- Gain 3 / Effort 2 — ratio 1.5 — no visual surface (kills CLS).
+- **Why:** no `<img>` on p1–p4 carries dimensions or `decoding`; layout shifts
+  are currently masked only by the scroll-reveal flow.
+- **Files:** `p1/index.html` … `p4/index.html`; optionally a one-off script
+  (kept out of the repo or in `scripts/`) that reads each file's true pixel
+  size (e.g. `sips -g pixelWidth -g pixelHeight` on macOS) and rewrites the
+  tags.
+- **Steps:** add `width`, `height`, `decoding="async"` to every gallery
+  `<img>`; keep the existing first-image-eager / rest-`loading="lazy"`
+  pattern.
+- **Verify:** pages render unchanged (human check), `make precommit-fix`.
+
+### A05 — Remove dead viewer assets and the `zoom-in` lie (D3: delete)
+
+- Gain 1 / Effort 1 — ratio 1.0 — VISUAL (cursor no longer suggests zoom).
+- **Why:** `js/viewer.min.js` + `css/viewer.min.css` are loaded nowhere, while
+  `css/style.css:189` sets `cursor: zoom-in` on images with no lightbox
+  wired. Owner decided (D3): delete both.
+- **Steps:** remove both files and the `zoom-in` rule (or repoint it to
+  `default`); grep to confirm no other references (`grep -rn 'viewer' css js
+p1 p2 p3 p4 index.html`).
+- **Verify:** `make precommit-fix`.
+
+### A23 — Delete hover-preview (D4)
+
+- Gain 1 / Effort 1 — ratio 1.0 — no visual surface (it is disabled).
+- **What:** owner decided (D4): delete. Remove `js/hover-preview.js`,
+  `tests/js/hover-preview.test.js`, the `enableHoverPreview` flag in
+  `js/config.js` (+ `tests/js/config.test.js` expectations), the `<script>`
+  tag(s) loading it in `index.html`, and any related CSS (`grep -rn
+'hover-preview\|enableHoverPreview' . --include='*.js' --include='*.html'
+--include='*.css'` first; exclude `.git`). If A24 ships too,
+  `window.PortfolioConfig` may become empty — then delete `js/config.js` and
+  its script tags as well, and note it in the commit.
+- **Verify:** `make precommit-fix`.
+
+### A24 — Delete mouse-parallax (D5)
+
+- Gain 1 / Effort 1 — ratio 1.0 — no visual surface (it is disabled).
+- **What:** owner decided (D5): delete. Remove `js/mouse-parallax.js`,
+  `tests/js/mouse-parallax.test.js`, the `enableMouseParallax` flag in
+  `js/config.js` + `tests/js/config.test.js`, and its `<script>` tag(s).
+  Coordinate with A23: if both ship, `js/config.js` becomes empty and goes
+  too.
+- **Verify:** `make precommit-fix`.
+
+### A13 — Remove Bootstrap 3 + jQuery + IE shims from project pages
+
+- Gain 3 / Effort 3 — ratio 1.0 — no intended visual change (layout parity
+  required), unblocks A12.
+- **Why:** Bootstrap 3 + jQuery + html5shiv + respond.js (IE8-era, loaded from
+  cdnjs) power only a centered column. Verified: no first-party JS uses
+  jQuery or Bootstrap JS (only the dead `js/viewer.min.js` references
+  jQuery).
+- **Files:** `p1/index.html` … `p4/index.html` (script/link tags and grid
+  classes), `css/style.css` (replace the used grid rules —
+  `col-lg-8 col-lg-offset-2` etc. — with ~50 lines of modern CSS: a centered
+  `max-width` container). Then delete `assets/vendor/bootstrap/` and
+  `assets/vendor/jquery/` if nothing else references them (`grep -r bootstrap
+--include='*.html' .` first).
+- **Steps:** first make the pages pixel-parity WITHOUT Bootstrap (this is the
+  parity checkpoint), then delete the vendor dirs.
+- **Watch out:** re-verify jQuery usage yourself (`grep -rn 'jQuery\|\$(' js
+--include='*.js' | grep -v vendor`) before deleting.
+- **Verify:** `make precommit-fix`; human visual parity check on p1–p4.
+
+### A06 — Responsive image pipeline: AVIF/WebP + `srcset` + `<picture>`
+
+- Gain 5 / Effort 4 — ratio 1.25 — no visual surface, the single biggest
+  quality jump. 129 MB of JPEGs today; p3 alone ~61 MB.
+- **Files:** new `scripts/build-images.mjs` (dev-only; `sharp` added as a
+  devDependency), `p1/index.html` … `p4/index.html`, generated derivatives
+  committed under `assets/img/pX/`. Also regenerate the lists in
+  `js/preloader.js` to preload the right variant, and check `sw.js` caching
+  still matches.
+- **Steps:** 1. `npm i -D sharp`; script walks `assets/img/p{1..4}/*.{jpg,JPG}`, emits
+  `{name}-{768,1280,1920}.avif` and `.webp` (quality ~60/65) next to the
+  originals. 2. Rewrite each `<img>` to `<picture><source type="image/avif"
+srcset="…" sizes="…"><source type="image/webp" …><img src="original"
+…></picture>`, preserving alt/loading/decoding/dimensions from A04. 3. Home backgrounds (`desktop_background.jpg`, `mobile_background.jpg`) get
+  the same treatment via CSS `image-set()`.
+- **Watch out:** keep original files and exact case in names; `sizes` must
+  match the CSS layout (after A13, the container max-width). Do not delete
+  originals — they are the fallback and the source of truth.
+- **Verify:** script output counts match source counts; one page inspected
+  end-to-end by a human; `make precommit-fix`.
+
+### A07 — ThumbHash blur-up placeholders (dep A06)
+
+- Gain 3 / Effort 3 — ratio 1.0 — perceived-performance; near-instant blurred
+  previews while full images stream.
+- **Why:** ~28-byte inline hashes beat empty black rectangles; pairs with the
+  strobe reveal (A18) later — the blur "develops" like a print.
+- **Files:** extend `scripts/build-images.mjs` to emit a hash per image;
+  `p*/index.html` (`data-thumbhash` attributes); new small
+  `js/thumbhash-init.js` decoder (vendor the ~5KB ThumbHash JS from the
+  official repo — new vendored file, unmodified); CSS to swap placeholder →
+  image on load.
+- **Verify:** test the decoder wiring in `tests/js/` (attribute → background
+  style); `make precommit-fix`.
+
+---
+
+## Wave 2 — Design system (VISUAL; human review per item)
+
+### A08 — Hardboiled color tokens
+
+- Gain 3 / Effort 2 — ratio 1.5 — VISUAL.
+- **What:** define CSS custom properties: true black `#000` background
+  (deliberate for flash photography — do NOT soften it), hard near-white
+  `#f2f2f2` text, one gray tier for metadata, and `#ce2323` red restricted to
+  one job (index numbers / hover). Apply across `css/main_style.css`,
+  `css/style.css`, `css/base.css`.
+- **Verify:** `make lint-css`, `make precommit-fix`; visual review.
+
+### A09 — Hardboiled type system (D1: free tier)
+
+- Gain 4 / Effort 3 — ratio 1.33 — VISUAL.
+- **What:** Archivo (display, condensed/expanded cuts), Newsreader (essay
+  body), Courier Prime (EXIF/frame-number evidence voice) — all OFL. Self-host:
+  download woff2 from the official Google Fonts helper of your choice into
+  `assets/fonts/`, declare in `css/fonts.css` with `font-display: swap`,
+  subset if tooling allows. Retire the Open Sans / Noto Serif Google Fonts
+  imports from the project pages.
+- **Where:** Archivo on series titles (`.intro-header`) and the home `h1`;
+  Newsreader for p2's essay; Courier Prime for captions/metadata.
+- **Verify:** `make precommit-fix`; visual review of all five pages.
+
+### A10 — Retire P22 Underground entirely (D2)
+
+- Gain 2 / Effort 2 — ratio 1.0 — VISUAL.
+- **What:** owner decided (D2): no wordmark exception. Remove the
+  `@font-face` block in `css/fonts.css`, every P22 reference in `css/base.css`
+  (lines ~96–130) and elsewhere (`grep -ri 'p22\|underground' css js *.html
+p*/index.html`), and delete `assets/fonts/p22undergroundpro-thin-webfont.woff`.
+  The home `h1` moves to Archivo per A09 — do A10 together with or after A09
+  so no selector is left fontless.
+- **Verify:** `make precommit-fix`; visual review.
+
+### A11 — CSS grain overlay
+
+- Gain 3 / Effort 2 — ratio 1.5 — VISUAL.
+- **What:** a fixed full-viewport overlay (`pointer-events: none`) with a
+  base64 noise PNG, ~6-step `steps()` position animation, opacity tuned heavy
+  enough to read as film grain on chrome/black areas (not over the photos —
+  or at very low opacity globally). Gate behind the existing
+  reduced-motion pattern (see `js/ambient/loader.js` for the gating idiom)
+  and disable the animation under `prefers-reduced-motion`.
+- **Files:** new rule set in `css/main_style.css` (or a small new
+  `css/grain.css` wired into each page).
+- **Verify:** `make precommit-fix`; visual review; confirm the overlay never
+  intercepts clicks.
+
+### A14 — EXIF evidence captions
+
+- Gain 3 / Effort 3 — ratio 1.0 — VISUAL.
+- **What:** stamped case-file captions under/on gallery images: location,
+  date, frame number, camera/film. Source EXIF from the JPEGs at build time
+  (extend `scripts/build-images.mjs` — `sharp` exposes metadata) or hand-write
+  them; style in Courier Prime (A09) per research doc Part 2A. Where EXIF is
+  missing, fall back to frame numbers only — never invent data.
+- **Verify:** `make precommit-fix`; visual review.
+
+### A12 — Tabloid editorial grids for p1–p4 (dep A13)
+
+- Gain 5 / Effort 5 — ratio 1.0 — VISUAL. The core aesthetic payoff.
+- **What:** replace the uniform centered column with the mixed-rhythm grid of
+  research doc Part 2B: full-bleed (100vw) hero frames, inset frames offset
+  left/right at 60–70% width, occasional diptychs; tense tabloid whitespace;
+  p2's essay set as a hardboiled dispatch (~65ch measure, headline-style pull
+  quotes). Give each series its own rhythm.
+- **Approach:** one shared CSS grid system in `css/style.css` (a few modifier
+  classes: `.frame--bleed`, `.frame--inset-left`, `.frame--diptych`, …), then
+  per-page class assignments in the HTML. Do p1 first as the pattern, get
+  human sign-off, then replicate.
+- **Verify:** `make precommit-fix` after each page; visual review per page;
+  confirm `js/block-navigation.js` and `js/scroll-reveal.js` still find their
+  targets (they key off block elements inside `.post-content`).
+
+### A15 — Contact-sheet home/index rework
+
+- Gain 4 / Effort 4 — ratio 1.0 — VISUAL.
+- **What:** bring the contact-sheet/evidence motif to the home nav: frame
+  numbers (`01`–`04`), evidence-tag red used per A08, nav rows styled like
+  contact-sheet strips. Keep the existing structure (`#cont` panel, `#nav`)
+  — this is a restyle, not a rebuild.
+- **Verify:** `make precommit-fix`; visual review.
+
+---
+
+## Wave 3 — Motion (VISUAL; a11y-sensitive)
+
+### A16 — Vendor Lenis and wire smooth scroll
+
+- Gain 3 / Effort 3 — ratio 1.0 — VISUAL (feel).
+- **What:** download the official Lenis build into `js/vendor/` (new file,
+  unmodified), init in a small first-party module, integrate with the existing
+  scroll-reveal IntersectionObservers (Lenis does not break IO, but verify),
+  and gate like the ambient loader (reduced-motion, mobile).
+- **Watch out:** `js/block-navigation.js` smooth-scrolls programmatically —
+  route it through Lenis or confirm native smooth scroll still lands
+  correctly; its test suite (`tests/js/block-navigation.test.js`) must stay
+  green.
+- **Verify:** `npx jest tests/js/block-navigation.test.js
+tests/js/scroll-reveal.test.js`; `make precommit-fix`.
+
+### A17 — GSAP 3.13 upgrade + SplitText headline reveals
+
+- Gain 3 / Effort 3 — ratio 1.0 — VISUAL.
+- **What:** replace `js/vendor/gsap.min.js` with the current 3.13 release
+  (fully free since April 2025, incl. SplitText — download from the official
+  GSAP npm/CDN), add `js/vendor/SplitText.min.js`; masked per-line reveals on
+  series titles. Tests mock `window.gsap` (`tests/js/cursor-init.test.js`,
+  `load-animations.test.js`, `magnetic-nav.test.js`) — keep the global
+  contract intact.
+- **Verify:** those three suites + `make precommit-fix`; visual review.
+
+### A18 — Strobe-flash image reveal (the signature move)
+
+- Gain 4 / Effort 3 — ratio 1.33 — VISUAL, a11y-sensitive.
+- **What:** each gallery image enters with a single ~80–120ms overexposed
+  white pop settling into full contrast (CSS class + `filter: brightness()`
+  spike or a white overlay flash), triggered by the existing
+  `js/scroll-reveal.js` IntersectionObserver flow. One flash per image, never
+  repeating; under `prefers-reduced-motion`, plain fade instead.
+- **Files:** `js/scroll-reveal.js` (or a small sibling module), CSS, tests
+  (`tests/js/scroll-reveal.test.js` — extend; check existing coverage of the
+  reveal path first).
+- **Verify:** `npx jest tests/js/scroll-reveal.test.js`; `make
+precommit-fix`; visual review including reduced-motion mode.
+
+### A19 — Hard-cut View Transitions
+
+- Gain 3 / Effort 3 — ratio 1.0 — VISUAL.
+- **What:** activate the already-present
+  `<meta name="view-transition" content="same-origin">` with CSS
+  `@view-transition` rules for a fast hard cut (~150ms) between pages;
+  simplify `js/page-transition.js`'s `?__pt=1` choreography so it defers to
+  the native API where supported and keeps current behavior as fallback.
+- **Watch out:** `tests/js/page-transition.test.js` is a 100+-test suite with
+  a `loadInstrumentedScript()` rewriting pattern — read it before touching
+  the module; keep the suite green.
+- **Verify:** `npx jest tests/js/page-transition.test.js`; `make
+precommit-fix`; manual navigation check in Chrome and Safari.
+
+### A20 — Viewfinder cursor state
+
+- Gain 3 / Effort 3 — ratio 1.0 — VISUAL.
+- **What:** over gallery images, the difference-blend ring becomes four
+  corner brackets that snap to the image edges ("focus lock"). Inspect
+  `js/vendor/cursor.js` first: if it is effectively repo-maintained (check
+  its header), extend it directly with tests; if it is third-party, implement
+  the bracket state in `js/cursor-init.js` as a wrapper instead.
+- **Verify:** `npx jest tests/js/cursor-init.test.js`; `make precommit-fix`;
+  visual review.
+
+---
+
+## Wave 4 — Signature / optional
+
+### A21 — Exhibition mode (fullscreen viewer; custom build)
+
+- Gain 4 / Effort 5 — ratio 0.8 — VISUAL.
+- **What:** fullscreen slideshow per series: arrow-key/drag navigation (build
+  on `js/block-navigation.js` idioms), EXIF caption (A14), UI auto-hides
+  after ~2s idle, Esc exits. D3 deleted the stock viewer.js assets, so this
+  is a small first-party module (or re-vendor stock viewer.js at that point —
+  it is re-downloadable). If this ships, restore a `zoom-in`-style affordance
+  on gallery images (A05 removed the unwired one).
+- **Verify:** new tests in `tests/js/`; `make precommit-fix`; visual review.
+
+### A22 — WebGL grain + flash post-process via OGL
+
+- Gain 4 / Effort 5 — ratio 0.8 — VISUAL. Phase-4 art-directed upgrade of
+  A11/A18: real-time GLSL grain with controlled grain size/contrast and the
+  strobe exposure-recovery done in a shader. Vendor OGL (~5KB ESM, new file),
+  load via the existing dynamic-`import()` pattern used by
+  `js/ambient/quantum_particles.js`; CSS versions remain the fallback.
+- **Verify:** `make precommit-fix`; visual review; confirm fallback path.
+
+### A25 — Consolidate the two ambient layers
+
+- Gain 2 / Effort 1 — ratio 2.0 — VISUAL/perf.
+- **What:** two background effects run simultaneously on desktop — the
+  sketch.js 2D particle drift (`js/ambient/ambient.js`) and the Three.js
+  point cloud (`js/ambient/quantum_particles.js`). Pick one (recommend
+  keeping the WebGL point cloud, which better fits the night/void aesthetic)
+  and gate the other off in `js/ambient/loader.js` config.
+- **Verify:** `npx jest tests/js/ambient`; `make precommit-fix`; visual
+  review.
