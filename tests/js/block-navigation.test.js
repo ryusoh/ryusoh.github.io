@@ -846,6 +846,27 @@ describe('js/block-navigation.js', () => {
             expect(blocks[1].id).toBe('p1');
             expect(blocks[2].id).toBe('block1');
         });
+
+        test('should treat a blockquote with paragraphs as a single block', () => {
+            // Mirrors p1: each <blockquote> wraps <p> lines between images.
+            // The inner <p> elements must not become separate navigation
+            // targets, or an ArrowDown from the blockquote lands on an
+            // invisible same-position block and requires a second press.
+            context.document.body.innerHTML = `
+                <div class="post-content">
+                    <img id="img1" />
+                    <blockquote id="quote">
+                        <p>The sun goes down</p>
+                        <p>I feel the light betray me</p>
+                    </blockquote>
+                    <img id="img2" />
+                </div>
+            `;
+
+            const blocks = testing.collectBlocks();
+
+            expect(blocks.map((el) => el.id)).toEqual(['img1', 'quote', 'img2']);
+        });
     });
 
     describe('performScroll', () => {

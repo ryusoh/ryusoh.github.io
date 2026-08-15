@@ -154,6 +154,13 @@
             return false;
         }
 
+        // Elements nested inside another matched block (e.g. <p> inside
+        // <blockquote>, <img> inside <figure>) belong to that block and are
+        // not separate navigation targets.
+        if (element.parentElement && element.parentElement.closest(BLOCK_ELEMENT_SELECTOR)) {
+            return false;
+        }
+
         return checkElementMatches(element);
     }
 
