@@ -18,43 +18,7 @@
 .animation {
     animation: bodyshow 0.9s linear;
 }
-@-moz-keyframes bodyshow {
-    0% {
-        top: -60px;
-        opacity: 0;
-    }
-    33% {
-        top: -40px;
-        opacity: 0.2;
-    }
-    66% {
-        top: -20px;
-        opacity: 0.6;
-    }
-    100% {
-        top: 0;
-        opacity: 1;
-    }
-}
 @-webkit-keyframes bodyshow {
-    0% {
-        top: -60px;
-        opacity: 0;
-    }
-    33% {
-        top: -40px;
-        opacity: 0.2;
-    }
-    66% {
-        top: -20px;
-        opacity: 0.6;
-    }
-    100% {
-        top: 0;
-        opacity: 1;
-    }
-}
-@-o-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
