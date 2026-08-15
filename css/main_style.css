@@ -441,7 +441,21 @@ footer {
         cursor: pointer;
     }
 
-    #cont #headline,
+    #headline {
+        display: none !important;
+    }
+
+    .social-icons-container {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 1000;
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+    }
+
     #cont #nav {
         opacity: 0 !important;
         visibility: hidden !important;
@@ -475,8 +489,6 @@ footer {
         pointer-events: auto;
     }
 
-    #cont:hover #headline,
-    #cont:focus-within #headline,
     #cont:hover #nav,
     #cont:focus-within #nav {
         opacity: 1 !important;
@@ -553,34 +565,59 @@ footer {
 }
 
 .social-icons-container {
-    display: inline-flex;
-    border-radius: 8px;
-    padding: 3px 3px;
-    margin-left: 3px;
-    vertical-align: middle;
-    transition:
-        background-color var(--brand-ease) 0.5s,
-        color var(--brand-ease) 0.5s;
-    justify-content: space-around;
-    align-items: center;
-    background-color: rgba(var(--text-color-rgb), 0.1);
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    background-color: rgba(50, 50, 50, 0.4);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    overflow: visible;
+    padding: 3px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
 }
 
 .social-icons-container a {
-    display: inline-block;
-    color: var(--text-muted);
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 4px;
+    background-color: transparent;
+    color: rgba(200, 200, 200, 0.85);
+    cursor: pointer;
+    font-size: 14px;
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    transition:
+        background-color 0.3s ease-in-out,
+        border-radius 0.3s ease-in-out,
+        box-shadow 0.3s ease-in-out;
+    outline: none;
     text-decoration: none;
-    transition: color var(--brand-ease) 0.5s;
-    margin: 0 5.5px;
 }
 
 .social-icons-container a:hover,
 .social-icons-container a:focus {
-    color: var(--text-color);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.social-icons-container a:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: -2px;
+    border-radius: 4px;
 }
 
 .social-icons-container .social-icon {
-    font-size: 16px;
+    font-size: 14px;
 }
 :root {
     --page-transition-color: rgba(0, 0, 0, 0.88);
