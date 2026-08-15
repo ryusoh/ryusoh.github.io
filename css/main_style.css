@@ -542,11 +542,28 @@ footer .mobile-banner.is-visible {
     }
 
     #cont:hover #nav,
-    #cont:focus-within #nav {
+    #cont:focus-within #nav,
+    body:has(.hover-carousel.is-active) #cont #nav,
+    body:has(.hover-carousel:hover) #cont #nav {
         opacity: 1 !important;
         visibility: visible !important;
         transform: translateY(0) !important;
         pointer-events: auto !important;
+    }
+
+    body:has(.hover-carousel.is-active) #cont,
+    body:has(.hover-carousel:hover) #cont {
+        pointer-events: auto;
+    }
+
+    body:has(.hover-carousel.is-active) #cont::before,
+    body:has(.hover-carousel:hover) #cont::before {
+        opacity: 1;
+    }
+
+    body:has(.hover-carousel.is-active) #top-bar-bg,
+    body:has(.hover-carousel:hover) #top-bar-bg {
+        opacity: 0;
     }
 }
 
@@ -967,4 +984,113 @@ html.js-enabled #nav {
 #main h1 {
     transform-style: preserve-3d;
     perspective: 1000px;
+}
+
+/* Hover thumbnail carousel */
+#hover-carousel {
+    position: fixed;
+    left: 360px;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    width: 170px;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.9) 300px,
+        rgba(0, 0, 0, 0) 100%
+    );
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: none;
+    border-right: 1px solid rgba(var(--text-color-rgb), 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition:
+        opacity 0.35s var(--brand-ease),
+        transform 0.35s var(--brand-ease),
+        visibility 0.35s var(--brand-ease);
+    pointer-events: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 20px 10px;
+}
+
+#hover-carousel::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.6) 0%,
+        transparent 5%,
+        transparent 95%,
+        rgba(0, 0, 0, 0.6) 100%
+    );
+}
+
+#hover-carousel.is-active,
+#hover-carousel:hover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.hover-carousel-track {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    will-change: transform;
+}
+
+.hover-carousel-item {
+    display: block;
+    width: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+    text-decoration: none;
+    position: relative;
+    background: rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    transition:
+        transform 0.25s var(--brand-ease),
+        box-shadow 0.25s var(--brand-ease);
+}
+
+.hover-carousel-item:hover,
+.hover-carousel-item:focus {
+    transform: scale(1.03);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+
+.hover-carousel-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: 0.7;
+    transition: opacity 0.25s var(--brand-ease);
+}
+
+.hover-carousel-item:hover img,
+.hover-carousel-item:focus img {
+    opacity: 0.9;
+}
+
+@media screen and (max-width: 449px) {
+    #hover-carousel {
+        display: none !important;
+    }
 }

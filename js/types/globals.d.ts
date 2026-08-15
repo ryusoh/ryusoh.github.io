@@ -81,6 +81,7 @@ interface Window {
         claim: () => Promise<void>;
     };
     __swForTesting?: unknown;
+    __HoverPreviewForTesting?: unknown;
 }
 
 interface ExtendableEvent extends Event {
