@@ -288,6 +288,8 @@ nav {
 .intro-header .site-heading h1,
 .intro-header .page-heading h1 {
     margin-top: 0;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
     font-size: 2em;
     color: var(--accent-color);
 }
@@ -306,6 +308,8 @@ nav {
     }
 }
 .intro-header .post-heading h1 {
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
     font-size: 40px;
     color: var(--text-color);
 }
