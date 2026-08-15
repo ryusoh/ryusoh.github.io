@@ -74,6 +74,37 @@
                 cont.classList.remove('is-expanded');
             }
         });
+
+        // Handle scroll-down dimming and scroll-up/bottom recovery on mobile
+        let lastScrollY = typeof window !== 'undefined' ? window.scrollY || 0 : 0;
+
+        function handleScroll() {
+            if (!isMobile()) {
+                cont.classList.remove('is-scrolled-down');
+                return;
+            }
+
+            const currentScrollY = window.scrollY || 0;
+            const windowHeight = window.innerHeight || 0;
+            const scrollEl = document.documentElement || document.body;
+            const docHeight = scrollEl ? scrollEl.scrollHeight : 0;
+
+            const isNearTop = currentScrollY <= 60;
+            const isNearBottom = docHeight > 0 && currentScrollY + windowHeight >= docHeight - 60;
+            const isScrollingDown = currentScrollY > lastScrollY && currentScrollY > 60;
+
+            if (isNearTop || isNearBottom || currentScrollY < lastScrollY) {
+                // Scrolling up, at top, or reached bottom -> restore 100% opacity
+                cont.classList.remove('is-scrolled-down');
+            } else if (isScrollingDown) {
+                // Scrolling down past threshold -> dim title to 10%
+                cont.classList.add('is-scrolled-down');
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
     }
 
     if (typeof document !== 'undefined') {

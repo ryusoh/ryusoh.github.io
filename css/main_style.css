@@ -645,6 +645,12 @@ footer {
         align-items: center !important;
         margin: 0 !important;
         cursor: pointer !important;
+        transition: opacity 0.35s var(--brand-ease, cubic-bezier(0.65, 0.05, 0, 1)) !important;
+    }
+
+    #cont.is-scrolled-down:not(.is-expanded) #main h1,
+    #cont.is-scrolled-down:not(.is-expanded) h1 {
+        opacity: 0.1 !important;
     }
 
     #headline {

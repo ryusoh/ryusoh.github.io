@@ -437,6 +437,14 @@ body {
         display: flex !important;
         align-items: center !important;
         margin: 0 !important;
+        transition: opacity 0.35s var(--brand-ease, cubic-bezier(0.65, 0.05, 0, 1)) !important;
+    }
+
+    #cont.is-scrolled-down:not(.is-expanded) h1,
+    #cont.is-scrolled-down:not(.is-expanded) h1 a,
+    #cont.is-scrolled-down:not(.is-expanded) .brand-title,
+    #cont.is-scrolled-down:not(.is-expanded) .brand-title a {
+        opacity: 0.1 !important;
     }
 
     #cont #nav {
