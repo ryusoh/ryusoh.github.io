@@ -25,7 +25,8 @@
         "js/loader/imageFallback.js",
         "js/ambient/loader.js",
         "js/ga.js",
-        "js/init.js"
+        "js/init.js",
+        "sw.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }

@@ -11,15 +11,25 @@ const CORE_ASSETS = [
     '/js/ga.js',
 ];
 
+/**
+ * @param {ExtendableEvent} event
+ */
 const installLogic = (event) => {
     event.waitUntil(
         caches
             .open(CACHE_NAME)
             .then((cache) => cache.addAll(CORE_ASSETS))
-            .then(() => self.skipWaiting())
+            .then(() => {
+                if (self.skipWaiting) {
+                    return self.skipWaiting();
+                }
+            })
     );
 };
 
+/**
+ * @param {ExtendableEvent} event
+ */
 const activateLogic = (event) => {
     event.waitUntil(
         caches
@@ -33,16 +43,27 @@ const activateLogic = (event) => {
                     })
                 )
             )
-            .then(() => self.clients.claim())
+            .then(() => {
+                if (self.clients && self.clients.claim) {
+                    return self.clients.claim();
+                }
+            })
     );
 };
 
 // Helper to check if a response is a valid clean response we want to cache
 
+/**
+ * @param {Response} res
+ */
 const isBasicResponse = (res) => {
     return res && res.ok && res.status === 200 && res.type === 'basic';
 };
 
+/**
+ * @param {Response} res
+ * @param {Request} req
+ */
 const isValidResponse = (res, req) => {
     if (!isBasicResponse(res)) {
         return false;
@@ -51,6 +72,10 @@ const isValidResponse = (res, req) => {
     return !isRange;
 };
 
+/**
+ * @param {FetchEvent} event
+ * @param {Request} req
+ */
 const handleFetchCacheFirst = (event, req) => {
     event.respondWith(
         caches.match(req).then((cached) => {
@@ -78,6 +103,10 @@ const handleFetchCacheFirst = (event, req) => {
     );
 };
 
+/**
+ * @param {FetchEvent} event
+ * @param {Request} req
+ */
 const handleFetchNetworkFirst = (event, req) => {
     event.respondWith(
         fetch(req)
@@ -109,11 +138,21 @@ const handleFetchNetworkFirst = (event, req) => {
                         e
                     );
                 }
-                return caches.match(req);
+                const cachedRes = caches.match(req);
+                return cachedRes.then((res) => {
+                    if (res) {
+                        return res;
+                    }
+                    return new Response('', { status: 408, statusText: 'Request Timeout' });
+                });
             })
     );
 };
 
+/**
+ * @param {URL} url
+ * @param {string} dest
+ */
 const isImageOrFontFile = (url, dest) => {
     return (
         dest === 'image' ||
@@ -124,6 +163,10 @@ const isImageOrFontFile = (url, dest) => {
     );
 };
 
+/**
+ * @param {URL} url
+ * @param {string} dest
+ */
 const isImmutableFile = (url, dest) => {
     return (
         isImageOrFontFile(url, dest) ||
@@ -132,6 +175,9 @@ const isImmutableFile = (url, dest) => {
     );
 };
 
+/**
+ * @param {FetchEvent} event
+ */
 const fetchLogic = (event) => {
     const req = event.request;
     if (req.url.length > 2000) {
@@ -160,9 +206,18 @@ const fetchLogic = (event) => {
 };
 
 if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') {
-    self.addEventListener('install', installLogic);
-    self.addEventListener('activate', activateLogic);
-    self.addEventListener('fetch', fetchLogic);
+    self.addEventListener(
+        'install',
+        /** @type {EventListener} */ (/** @type {unknown} */ (installLogic))
+    );
+    self.addEventListener(
+        'activate',
+        /** @type {EventListener} */ (/** @type {unknown} */ (activateLogic))
+    );
+    self.addEventListener(
+        'fetch',
+        /** @type {EventListener} */ (/** @type {unknown} */ (fetchLogic))
+    );
 }
 
 // Expose for testing

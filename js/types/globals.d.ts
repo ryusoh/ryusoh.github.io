@@ -76,6 +76,20 @@ interface Window {
         create?: Function;
         send?: Function;
     };
+    skipWaiting?: () => Promise<void>;
+    clients?: {
+        claim: () => Promise<void>;
+    };
+    __swForTesting?: unknown;
+}
+
+interface ExtendableEvent extends Event {
+    waitUntil(f: Promise<unknown>): void;
+}
+
+interface FetchEvent extends ExtendableEvent {
+    request: Request;
+    respondWith(r: Promise<Response> | Response): void;
 }
 
 declare const process:
