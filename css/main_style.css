@@ -113,7 +113,7 @@ body {
 }
 
 html {
-    background-color: var(--bg-color);
+    background-color: #000;
 }
 
 ol,
@@ -133,6 +133,7 @@ body {
     position: relative;
     z-index: 1;
     min-width: 300px;
+    background-color: #000;
     overflow: hidden;
     font:
         13px/1.4 'PingFang SC Light',
@@ -190,6 +191,7 @@ canvas {
     z-index: 1;
     width: 100%;
     height: 100%;
+    background-color: #000;
 }
 
 #cont {
@@ -223,7 +225,7 @@ canvas {
     font-size: 40px;
     font-weight: 700;
     line-height: 1;
-    opacity: 0.8;
+    opacity: 0.5;
     color: #fff;
     -webkit-text-stroke: 0.5px #000;
     paint-order: stroke fill;
@@ -424,7 +426,7 @@ footer {
             rgba(0, 0, 0, 0) 100%
         );
         opacity: 1;
-        transition: opacity 0.4s var(--brand-ease);
+        transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
         z-index: 2;
     }
