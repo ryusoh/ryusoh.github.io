@@ -649,10 +649,10 @@ body {
         opacity: 1;
     }
 }
-article img,
-.post-content img,
-.article-container img,
-article .container-narrow img {
+article img:not(.mobile-banner),
+.post-content img:not(.mobile-banner),
+.article-container img:not(.mobile-banner),
+article .container-narrow img:not(.mobile-banner) {
     position: relative;
     margin: 16px auto !important;
     max-width: 100% !important;
@@ -661,10 +661,10 @@ article .container-narrow img {
     box-sizing: border-box;
 }
 @media only screen and (max-width: 768px) {
-    article img,
-    .post-content img,
-    .article-container img,
-    article .container-narrow img {
+    article img:not(.mobile-banner),
+    .post-content img:not(.mobile-banner),
+    .article-container img:not(.mobile-banner),
+    article .container-narrow img:not(.mobile-banner) {
         max-width: 100% !important;
         margin: 16px auto !important;
         display: block !important;
@@ -713,7 +713,7 @@ article blockquote p,
 .article-container blockquote p,
 article .container-narrow blockquote p {
     font-family: inherit;
-    font-size: 1em;
+    font-size: 0.9em;
     font-weight: inherit;
     letter-spacing: inherit;
     line-height: 1.8;
@@ -1258,7 +1258,7 @@ article td,
     display: block;
     width: fit-content;
     margin: 0 auto;
-    z-index: 1000;
+    z-index: 1001;
     opacity: 0;
     visibility: hidden;
     transition:
@@ -1288,14 +1288,45 @@ article td,
 }
 
 .project-footer {
-    text-align: center;
-    padding-top: 16px;
-    padding-bottom: 10px;
-    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+    gap: 0px;
+    text-align: center;
+    margin: -20px auto 0;
+    padding-top: 0px;
+    padding-bottom: 10px;
+    pointer-events: none;
+}
+
+.project-footer a {
+    pointer-events: auto;
+}
+
+/* --- Mobile Banner inside article footer (scrolls as a unit with the Instagram icon) --- */
+.project-footer .mobile-banner {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    display: block;
+    height: var(--mobile-banner-height);
+    width: auto;
+    margin: 0 auto;
+    z-index: auto;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    mix-blend-mode: normal;
+    transition:
+        opacity 0.3s var(--brand-ease),
+        visibility 0s linear 0.3s;
+}
+
+.project-footer .mobile-banner.is-visible {
+    opacity: 0.5;
+    visibility: visible;
+    transition-delay: 0s;
 }
 
 /* Hide default focus ring on programmatically focusable elements (like <main>) */

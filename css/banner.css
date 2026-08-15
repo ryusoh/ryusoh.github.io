@@ -1,0 +1,65 @@
+/* Shared mobile banner styles for both the main page and article pages.
+   Loaded by index.html and p1-p4 so the banner always has the same
+   height, size, and position. */
+
+:root {
+    --mobile-banner-height: 30px;
+}
+
+.mobile-banner {
+    pointer-events: none;
+}
+
+@media (min-width: 769px) {
+    .mobile-banner {
+        display: block;
+        position: fixed;
+        bottom: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+        height: var(--mobile-banner-height);
+        width: auto;
+        z-index: 1000;
+        mix-blend-mode: difference;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s var(--brand-ease);
+    }
+
+    .mobile-banner.is-fallback-ready,
+    .mobile-banner.is-visible {
+        opacity: 0.2;
+        visibility: visible;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .mobile-banner {
+        display: block;
+        position: fixed;
+        left: 52%;
+        bottom: 1%;
+        transform: translateX(-50%);
+        height: var(--mobile-banner-height);
+        width: auto;
+        z-index: 2;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 0.3s var(--brand-ease),
+            visibility 0s linear 0.3s;
+    }
+
+    .mobile-banner.is-fallback-ready,
+    .mobile-banner.is-visible {
+        opacity: 0.5;
+        visibility: visible;
+        transition-delay: 0s;
+    }
+}
+
+@supports (bottom: env(safe-area-inset-bottom)) {
+    .mobile-banner {
+        bottom: calc(1% + env(safe-area-inset-bottom));
+    }
+}

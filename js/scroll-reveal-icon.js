@@ -3,6 +3,7 @@
  */
 (function () {
     const icon = document.querySelector('.scroll-reveal-instagram');
+    const banner = document.querySelector('.mobile-banner');
     if (!icon) {
         return;
     }
@@ -18,8 +19,14 @@
             function (entries) {
                 if (entries[0].isIntersecting) {
                     icon.classList.add('is-visible');
+                    if (banner) {
+                        banner.classList.add('is-visible');
+                    }
                 } else {
                     icon.classList.remove('is-visible');
+                    if (banner) {
+                        banner.classList.remove('is-visible');
+                    }
                 }
             },
             { rootMargin: '50px' }
@@ -29,5 +36,8 @@
     } else {
         // Fallback for environments without IntersectionObserver
         icon.classList.add('is-visible');
+        if (banner) {
+            banner.classList.add('is-visible');
+        }
     }
 })();

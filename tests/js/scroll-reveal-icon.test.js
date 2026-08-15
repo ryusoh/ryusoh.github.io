@@ -4,6 +4,7 @@
 
 describe('scroll-reveal-icon.js', () => {
     let iconElement;
+    let bannerElement;
     let observeMock;
     let unobserveMock;
     let observerCallback;
@@ -12,8 +13,9 @@ describe('scroll-reveal-icon.js', () => {
         jest.useFakeTimers();
         jest.resetModules();
         document.documentElement.innerHTML =
-            '<html><body><div class="scroll-reveal-instagram"></div></body></html>';
+            '<html><body><img class="mobile-banner" alt="Banner"><div class="scroll-reveal-instagram"></div></body></html>';
         iconElement = document.querySelector('.scroll-reveal-instagram');
+        bannerElement = document.querySelector('.mobile-banner');
 
         observeMock = jest.fn();
         unobserveMock = jest.fn();
@@ -31,33 +33,37 @@ describe('scroll-reveal-icon.js', () => {
         delete window.IntersectionObserver;
     });
 
-    test('should add "is-visible" class when intersecting', () => {
+    test('should add "is-visible" class to icon and reveal banner when intersecting', () => {
         require('../../js/scroll-reveal-icon.js');
 
         // Ensure observer was created and observe was called
         expect(window.IntersectionObserver).toHaveBeenCalled();
         expect(observeMock).toHaveBeenCalled();
 
-        // Reset class to be sure
+        // Reset classes to be sure
         iconElement.classList.remove('is-visible');
+        bannerElement.classList.remove('is-visible');
 
         // Simulate intersecting
         observerCallback([{ isIntersecting: true, target: iconElement }]);
 
         expect(iconElement.classList.contains('is-visible')).toBe(true);
+        expect(bannerElement.classList.contains('is-visible')).toBe(true);
     });
 
-    test('should remove "is-visible" class when not intersecting', () => {
+    test('should hide both icon and banner when not intersecting', () => {
         require('../../js/scroll-reveal-icon.js');
 
-        // First make it visible
+        // First make them visible
         observerCallback([{ isIntersecting: true, target: iconElement }]);
         expect(iconElement.classList.contains('is-visible')).toBe(true);
+        expect(bannerElement.classList.contains('is-visible')).toBe(true);
 
         // Simulate not intersecting
         observerCallback([{ isIntersecting: false, target: iconElement }]);
 
         expect(iconElement.classList.contains('is-visible')).toBe(false);
+        expect(bannerElement.classList.contains('is-visible')).toBe(false);
     });
 
     test('exits early if icon not found', () => {
@@ -71,5 +77,6 @@ describe('scroll-reveal-icon.js', () => {
         require('../../js/scroll-reveal-icon.js');
 
         expect(iconElement.classList.contains('is-visible')).toBe(true);
+        expect(bannerElement.classList.contains('is-visible')).toBe(true);
     });
 });

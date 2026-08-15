@@ -176,8 +176,11 @@ describe('AssetPreloader', () => {
             ['p1', 'p2', 'p3', 'p4'].forEach((pageKey) => {
                 const htmlPath = path.join(projectRoot, pageKey, 'index.html');
                 const html = fs.readFileSync(htmlPath, 'utf8');
-                const imgCount = (html.match(/<img\b/g) || []).length;
-                expect(preloader.assetSets[pageKey]).toHaveLength(imgCount);
+                // The shared mobile banner is not part of the per-page project asset set.
+                const projectImgCount = (
+                    html.match(/<img\b(?![^>]*class="[^"]*mobile-banner)/g) || []
+                ).length;
+                expect(preloader.assetSets[pageKey]).toHaveLength(projectImgCount);
             });
         });
     });
