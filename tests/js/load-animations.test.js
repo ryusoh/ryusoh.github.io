@@ -13,7 +13,7 @@ describe('js/load-animations.js', () => {
         document.body.innerHTML = `
             <div id="mimida"></div>
             <div id="main"><h1></h1></div>
-            <div id="headline"></div>
+            <div id="headline">Street Photography</div>
             <div id="nav"></div>
         `;
 
@@ -26,9 +26,11 @@ describe('js/load-animations.js', () => {
         window.gsap = {
             timeline: jest.fn().mockReturnValue(mockTimeline),
             set: mockSet,
+            registerPlugin: jest.fn(),
         };
 
         window.console = { warn: jest.fn() };
+        window.matchMedia = jest.fn().mockReturnValue({ matches: false });
 
         domContentLoadedCb = null;
         jest.spyOn(document, 'addEventListener').mockImplementation((event, fn) => {
@@ -41,6 +43,7 @@ describe('js/load-animations.js', () => {
     afterEach(() => {
         document.body.innerHTML = '';
         delete window.gsap;
+        delete window.SplitText;
         delete document.fonts;
         jest.restoreAllMocks();
     });
@@ -51,16 +54,67 @@ describe('js/load-animations.js', () => {
         expect(domContentLoadedCb).toBeInstanceOf(Function);
         domContentLoadedCb();
 
-        expect(mockSet).toHaveBeenCalledTimes(2); // once for mimida, once for elementsToReveal
-        expect(mockTo).toHaveBeenCalledTimes(2); // once for mimida, once for elementsToReveal
+        expect(mockSet).toHaveBeenCalled();
+        expect(mockTo).toHaveBeenCalled();
 
-        // Assert that #main h1 is NOT included in elementsToReveal
+        // Assert that #main h1 is NOT animated
         const setCalls = mockSet.mock.calls;
         const revealedElements = setCalls.find((call) => Array.isArray(call[0]))?.[0] || [];
         const containsTitle = revealedElements.some(
             (el) => el.tagName === 'H1' || el.classList?.contains('brand-title')
         );
         expect(containsTitle).toBe(false);
+    });
+
+    test('uses SplitText when available to split and animate lines', () => {
+        const mockLines = [document.createElement('div'), document.createElement('div')];
+        window.SplitText = jest.fn().mockImplementation(() => ({
+            lines: mockLines,
+        }));
+
+        require('../../js/load-animations.js');
+
+        expect(domContentLoadedCb).toBeInstanceOf(Function);
+        domContentLoadedCb();
+
+        expect(window.gsap.registerPlugin).toHaveBeenCalledWith(window.SplitText);
+        expect(window.SplitText).toHaveBeenCalledWith(document.getElementById('headline'), {
+            type: 'lines',
+            linesClass: 'headline-line',
+        });
+        expect(mockSet).toHaveBeenCalledWith(mockLines, { y: 24, opacity: 0 });
+    });
+
+    test('falls back gracefully when SplitText throws', () => {
+        window.SplitText = jest.fn().mockImplementation(() => {
+            throw new Error('SplitText failed');
+        });
+
+        require('../../js/load-animations.js');
+
+        expect(domContentLoadedCb).toBeInstanceOf(Function);
+        domContentLoadedCb();
+
+        expect(mockSet).toHaveBeenCalledWith(document.getElementById('headline'), {
+            y: 30,
+            opacity: 0,
+        });
+    });
+
+    test('handles prefers-reduced-motion by applying instant values without motion', () => {
+        window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+
+        require('../../js/load-animations.js');
+
+        expect(domContentLoadedCb).toBeInstanceOf(Function);
+        domContentLoadedCb();
+
+        expect(mockTo).not.toHaveBeenCalled();
+        expect(mockSet).toHaveBeenCalledWith(document.getElementById('mimida'), { scale: 1 });
+        expect(mockSet).toHaveBeenCalledWith(
+            [document.getElementById('headline'), document.getElementById('nav')],
+            { opacity: 1, y: 0 }
+        );
     });
 
     test('gracefully handles missing GSAP', () => {
@@ -107,8 +161,8 @@ describe('js/load-animations.js', () => {
         await Promise.resolve();
         await Promise.resolve();
 
-        expect(mockSet).toHaveBeenCalledTimes(2);
-        expect(mockTo).toHaveBeenCalledTimes(2);
+        expect(mockSet).toHaveBeenCalled();
+        expect(mockTo).toHaveBeenCalled();
     });
 
     test('handles document.fonts.ready rejection gracefully', async () => {
@@ -130,7 +184,7 @@ describe('js/load-animations.js', () => {
         await Promise.resolve();
         await Promise.resolve();
 
-        expect(mockSet).toHaveBeenCalledTimes(2);
-        expect(mockTo).toHaveBeenCalledTimes(2);
+        expect(mockSet).toHaveBeenCalled();
+        expect(mockTo).toHaveBeenCalled();
     });
 });

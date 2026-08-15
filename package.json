@@ -23,6 +23,7 @@
         "brace-expansion": "^5.0.9",
         "dependency-cruiser": "^18.1.1",
         "eslint": "^10.8.1",
+        "gsap": "^3.15.0",
         "jest": "^30.4.2",
         "jest-environment-jsdom": "^30.4.1",
         "js-yaml": "^5.2.3",

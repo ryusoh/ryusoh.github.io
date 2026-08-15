@@ -12,7 +12,7 @@ async function generateThumbHashes() {
         const dir = path.join('assets', 'img', page);
         if (!fs.existsSync(dir)) continue;
 
-        const files = fs.readdirSync(dir).filter(f => /\.(jpe?g|JPG)$/i.test(f));
+        const files = fs.readdirSync(dir).filter((f) => /\.(jpe?g|JPG)$/i.test(f));
 
         for (const file of files) {
             const inputPath = path.join(dir, file);
@@ -61,7 +61,7 @@ async function generateThumbHashes() {
     }
 }
 
-generateThumbHashes().catch(err => {
+generateThumbHashes().catch((err) => {
     console.error(err);
     process.exit(1);
 });

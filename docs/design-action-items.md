@@ -71,9 +71,9 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      | done    |
 | A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      | done    |
 | A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     | done    |
-| A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     | done    |
 | A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     | done    |
-| A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     | ditched |
 | A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      | done    |
 | A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | ditched |
 | A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | ditched |
@@ -317,16 +317,19 @@ p1 p2 p3 p4 index.html`).
 tests/js/block-navigation.test.js tests/js/scroll-reveal.test.js`; `make
 precommit-fix`.
 
-### A17 — GSAP 3.13 upgrade + SplitText headline reveals
+### A17 — GSAP 3.15 upgrade + SplitText headline reveals ✅
 
 - Gain 3 / Effort 3 — ratio 1.0 — VISUAL.
-- **What:** replace `js/vendor/gsap.min.js` with the current 3.13 release
-  (fully free since April 2025, incl. SplitText — download from the official
-  GSAP npm/CDN), add `js/vendor/SplitText.min.js`; masked per-line reveals on
-  series titles. Tests mock `window.gsap` (`tests/js/cursor-init.test.js`,
-  `load-animations.test.js`, `magnetic-nav.test.js`) — keep the global
-  contract intact.
-- **Verify:** those three suites + `make precommit-fix`; visual review.
+- **Done:**
+    1. Upgraded `js/vendor/gsap.min.js` to GSAP 3.15.0.
+    2. Vendored official `js/vendor/SplitText.min.js`.
+    3. Enhanced `js/load-animations.js` with per-line masked reveals on `#headline`
+       using SplitText, with `prefers-reduced-motion` compliance.
+    4. Wired SplitText into `index.html` and added `.headline-line` styles to `css/main_style.css`.
+    5. Updated `tests/js/load-animations.test.js` (8 tests passing).
+- **Verify:** `npx jest tests/js/cursor-init.test.js
+tests/js/load-animations.test.js tests/js/magnetic-nav.test.js`; `make
+precommit-fix`.
 
 ### A19 — Hard-cut View Transitions ✅
 
@@ -339,16 +342,9 @@ name="view-transition" content="same-origin">`). 2. Implemented smooth, fast 140
   cursor state tracking in `js/page-transition.js`.
 - **Verify:** `npx jest tests/js/page-transition.test.js`; `make precommit-fix`.
 
-### A20 — Viewfinder cursor state
+### A20 — Viewfinder cursor state (ditched)
 
-- Gain 3 / Effort 3 — ratio 1.0 — VISUAL.
-- **What:** over gallery images, the difference-blend ring becomes four
-  corner brackets that snap to the image edges ("focus lock"). Inspect
-  `js/vendor/cursor.js` first: if it is effectively repo-maintained (check
-  its header), extend it directly with tests; if it is third-party, implement
-  the bracket state in `js/cursor-init.js` as a wrapper instead.
-- **Verify:** `npx jest tests/js/cursor-init.test.js`; `make precommit-fix`;
-  visual review.
+- Ditched per user instruction to prioritize core layout & motion.
 
 ---
 

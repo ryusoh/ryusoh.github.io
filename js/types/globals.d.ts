@@ -8,11 +8,14 @@ interface Gsap {
     set: Function;
     to: Function;
     timeline: (vars?: object) => { to: Function };
+    registerPlugin?: Function;
 }
 
 declare const gsap: Gsap;
+declare const SplitText: any;
 
 interface Window {
+    SplitText?: any;
     __FontAwesomeLoaderForTesting?: { FontAwesomeLoader: new () => any };
     /** GSAP animation library */
     gsap?: Gsap;

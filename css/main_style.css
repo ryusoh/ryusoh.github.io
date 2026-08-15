@@ -978,6 +978,11 @@ html.js-enabled #nav {
     opacity: 0;
 }
 
+.headline-line {
+    display: inline-block;
+    will-change: transform, opacity;
+}
+
 /* Mouse Parallax Base Style */
 #main h1 {
     transform-style: preserve-3d;
