@@ -44,22 +44,26 @@
                 event.stopPropagation();
                 cont.classList.add('is-expanded');
             } else {
-                // 2. Expanded state: single click returns to main page
+                // 2. Expanded state:
                 cont.classList.remove('is-expanded');
 
-                const href = titleLink.getAttribute('href') || '/';
-                const customNavEvent = new CustomEvent('mobile-dock:navigate', {
-                    detail: { url: href },
-                    bubbles: true,
-                });
-                window.dispatchEvent(customNavEvent);
+                const isHome =
+                    document.body && document.body.getAttribute('data-page-type') === 'home';
+                if (!isHome) {
+                    const href = titleLink.getAttribute('href') || '/';
+                    const customNavEvent = new CustomEvent('mobile-dock:navigate', {
+                        detail: { url: href },
+                        bubbles: true,
+                    });
+                    window.dispatchEvent(customNavEvent);
 
-                if (
-                    typeof window.location !== 'undefined' &&
-                    event.isTrusted &&
-                    typeof window.location.assign === 'function'
-                ) {
-                    window.location.assign(href);
+                    if (
+                        typeof window.location !== 'undefined' &&
+                        event.isTrusted &&
+                        typeof window.location.assign === 'function'
+                    ) {
+                        window.location.assign(href);
+                    }
                 }
             }
         });

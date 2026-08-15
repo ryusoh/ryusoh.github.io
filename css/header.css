@@ -392,10 +392,10 @@ body {
     }
 
     #cont.is-expanded {
-        background: rgba(0, 0, 0, 0.98) !important;
+        background: rgba(0, 0, 0, 0.5) !important;
         -webkit-backdrop-filter: blur(25px) !important;
         backdrop-filter: blur(25px) !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
         padding: 0 !important;
         padding-bottom: 24px !important;
         bottom: auto !important;
@@ -409,7 +409,7 @@ body {
         left: 0 !important;
         right: 0 !important;
         height: 120px !important;
-        background: rgba(0, 0, 0, 0.98) !important;
+        background: rgba(0, 0, 0, 0.5) !important;
         pointer-events: none !important;
     }
 

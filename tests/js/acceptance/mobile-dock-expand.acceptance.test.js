@@ -122,7 +122,7 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         expect(clickEvent.defaultPrevented).toBe(false);
     });
 
-    test('TDD: on mobile, top bar background is transparent when not expanded and blur backdrop only applies when is-expanded', () => {
+    test('TDD: on mobile, top bar background is transparent when not expanded and 50% opacity backdrop blur applies when is-expanded', () => {
         const headerCss = fs.readFileSync(path.join(ROOT_DIR, 'css/header.css'), 'utf8');
 
         // #cont on mobile is transparent when not expanded
@@ -131,9 +131,11 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         // #top-bar-bg is hidden on mobile (< 450px)
         expect(headerCss).toMatch(/#top-bar-bg\s*\{[^}]*display:\s*none/);
 
-        // #cont.is-expanded covers safe-area with dark backdrop-filter
+        // #cont.is-expanded covers safe-area with 50% opacity backdrop-filter
         expect(headerCss).toMatch(/#cont\.is-expanded\s*\{[^}]*backdrop-filter/);
-        expect(headerCss).toMatch(/#cont\.is-expanded\s*\{[^}]*background:\s*rgba\(0,\s*0,\s*0/);
+        expect(headerCss).toMatch(
+            /#cont\.is-expanded\s*\{[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*0\.5\)/
+        );
     });
 
     test('TDD: #cont does not shift title vertically when toggling is-expanded state', () => {
@@ -156,5 +158,27 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
 
         expect(mainStyleCss).toMatch(/#main\s*\{[^}]*padding:\s*16px 20px/);
         expect(mainStyleCss).toMatch(/\.social-icons-desktop\s*\{[^}]*top:\s*16px/);
+    });
+
+    test('TDD: css/main_style.css collapses #nav on mobile by default and expands on #cont.is-expanded', () => {
+        const mainStyleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/main_style.css'), 'utf8');
+
+        expect(mainStyleCss).toMatch(/#cont\s+#nav\s*\{[^}]*display:\s*none/);
+        expect(mainStyleCss).toMatch(/#cont\.is-expanded\s+#nav\s*\{[^}]*display:\s*table/);
+    });
+
+    test('TDD: index.html loads js/mobile-dock.js and supports click to expand on mobile homepage', () => {
+        const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+
+        expect(indexHtml).toMatch(/<script\s+defer\s+src="js\/mobile-dock\.js"><\/script>/);
+    });
+
+    test('TDD: on mobile main page, #cont.is-expanded background transparency is 50% (rgba(0, 0, 0, 0.5))', () => {
+        const mainStyleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/main_style.css'), 'utf8');
+
+        // #cont.is-expanded on main page must have 50% opacity background (rgba(0, 0, 0, 0.5))
+        expect(mainStyleCss).toMatch(
+            /#cont\.is-expanded\s*\{[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*0\.5\)/
+        );
     });
 });
