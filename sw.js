@@ -163,7 +163,9 @@ const isImageOrFontFile = (url, dest) => {
         dest === 'font' ||
         url.pathname.endsWith('.png') ||
         url.pathname.endsWith('.jpg') ||
-        url.pathname.endsWith('.jpeg')
+        url.pathname.endsWith('.jpeg') ||
+        url.pathname.endsWith('.webp') ||
+        url.pathname.endsWith('.avif')
     );
 };
 

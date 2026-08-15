@@ -354,6 +354,12 @@ describe('Service Worker', () => {
                 event.request.url = 'http://localhost/test.jpeg';
                 sw.fetchLogic(event);
 
+                event.request.url = 'http://localhost/test.webp';
+                sw.fetchLogic(event);
+
+                event.request.url = 'http://localhost/test.avif';
+                sw.fetchLogic(event);
+
                 event.request.url = 'http://localhost/test.svg';
                 sw.fetchLogic(event);
             });

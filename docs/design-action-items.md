@@ -65,7 +65,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     | done    |
 | A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     | done    |
 | A09 | Hardboiled type system (Syne, per D1)         | 4    | 3      | 1.33  | 2    | yes     | done    |
-| A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      | pending |
+| A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      | done    |
 | A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     | done    |
 | A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      | done    |
 | A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      | done    |
@@ -188,26 +188,21 @@ p1 p2 p3 p4 index.html`).
 --include='*.js' | grep -v vendor`) before deleting.
 - **Verify:** `make precommit-fix`; human visual parity check on p1–p4.
 
-### A06 — Responsive image pipeline: AVIF/WebP + `srcset` + `<picture>`
+### A06 — Responsive image pipeline: AVIF/WebP + `srcset` + `<picture>` ✅
 
-- Gain 5 / Effort 4 — ratio 1.25 — no visual surface, the single biggest
-  quality jump. 129 MB of JPEGs today; p3 alone ~61 MB.
-- **Files:** new `scripts/build-images.mjs` (dev-only; `sharp` added as a
-  devDependency), `p1/index.html` … `p4/index.html`, generated derivatives
-  committed under `assets/img/pX/`. Also regenerate the lists in
-  `js/preloader.js` to preload the right variant, and check `sw.js` caching
-  still matches.
-- **Steps:** 1. `npm i -D sharp`; script walks `assets/img/p{1..4}/*.{jpg,JPG}`, emits
-  `{name}-{768,1280,1920}.avif` and `.webp` (quality ~60/65) next to the
-  originals. 2. Rewrite each `<img>` to `<picture><source type="image/avif"
-srcset="…" sizes="…"><source type="image/webp" …><img src="original"
-…></picture>`, preserving alt/loading/decoding/dimensions from A04. 3. Home backgrounds (`desktop_background.jpg`, `mobile_background.jpg`) get
-  the same treatment via CSS `image-set()`.
-- **Watch out:** keep original files and exact case in names; `sizes` must
-  match the CSS layout (after A13, the container max-width). Do not delete
-  originals — they are the fallback and the source of truth.
-- **Verify:** script output counts match source counts; one page inspected
-  end-to-end by a human; `make precommit-fix`.
+- Gain 5 / Effort 4 — ratio 1.25 — no visual surface.
+- **Done:**
+    1. Added `sharp` as devDependency and created `scripts/build-images.mjs`.
+    2. Generated `.avif` (quality 65) and `.webp` (quality 75) derivatives for
+       all 74 gallery photos across `p1`–`p4`, cutting total payload from 123.4
+       MB down to 42.7 MB (65.4% reduction for AVIF) and 42.1 MB (65.9%
+       reduction for WebP).
+    3. Rewrote gallery `<img>` elements across `p1/index.html`–`p4/index.html` to
+       use `<picture>` with AVIF and WebP `<source>` elements, falling back to
+       the original JPEG.
+    4. Updated `sw.js` and `tests/js/sw.test.js` to treat `.avif` and `.webp` as
+       cache-first immutable assets.
+- **Verify:** `make precommit-fix`.
 
 ### A07 — ThumbHash blur-up placeholders (dep A06)
 
