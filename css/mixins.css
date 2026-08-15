@@ -10,15 +10,15 @@
     -o-background-size: cover;
 }
 .serif {
-    font-family: 'Noto Serif', 'Times New Roman', serif;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .sans-serif {
-    font-family: 'Open Sans', 'Helvetica Neue', 'Nimbus Sans', Helvetica, Arial, sans-serif;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .animation {
     animation: bodyshow 0.9s linear;
 }
-@-moz-keyframes 'bodyshow' {
+@-moz-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -36,7 +36,7 @@
         opacity: 1;
     }
 }
-@-webkit-keyframes 'bodyshow' {
+@-webkit-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -54,7 +54,7 @@
         opacity: 1;
     }
 }
-@-o-keyframes 'bodyshow' {
+@-o-keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;
@@ -72,7 +72,7 @@
         opacity: 1;
     }
 }
-@keyframes 'bodyshow' {
+@keyframes bodyshow {
     0% {
         top: -60px;
         opacity: 0;

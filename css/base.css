@@ -11,10 +11,10 @@
     -o-background-size: cover;
 }
 .serif {
-    font-family: 'Noto Serif', 'Times New Roman', serif;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .sans-serif {
-    font-family: 'Open Sans', 'Helvetica Neue', 'Nimbus Sans', Helvetica, Arial, sans-serif;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .animation,
 .post-preview {
@@ -92,6 +92,36 @@
         opacity: 1;
     }
 }
+@-webkit-keyframes fade-in {
+    0% {
+        top: -60px;
+        opacity: 0;
+    }
+    100% {
+        top: 0;
+        opacity: 1;
+    }
+}
+@-moz-keyframes fade-in {
+    0% {
+        top: -60px;
+        opacity: 0;
+    }
+    100% {
+        top: 0;
+        opacity: 1;
+    }
+}
+@keyframes fade-in {
+    0% {
+        top: -60px;
+        opacity: 0;
+    }
+    100% {
+        top: 0;
+        opacity: 1;
+    }
+}
 @font-face {
     font-family: 'P22 Underground Pro Thin';
     /* Path relative to the CSS directory (e.g., source/css/) */
@@ -100,19 +130,20 @@
 body,
 html {
     width: 100%;
-    font-size: 20px;
+    font-size: 16px;
     color: var(--text-color);
-    font-family: 'P22 Underground Pro Thin', Futura, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    letter-spacing: 2.5px;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     background: var(--bg-color);
 }
 p {
-    letter-spacing: 0.5px;
-    line-height: 1.2;
-    margin: 15px 0;
-    font-family: 'P22 Underground Pro Thin';
-    font-weight: 100;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    margin: 20px 0;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.8em;
 }
 p a {
     text-decoration: underline;
@@ -120,15 +151,19 @@ p a {
 h1,
 h2,
 h3 {
-    font-family: 'P22 Underground Pro Thin';
-    font-weight: 400;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     margin: 32px 0 20px;
 }
 h4,
 h5,
 h6 {
-    font-family: 'P22 Underground Pro Thin';
-    font-weight: 100;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     margin: 20px 0;
 }
 a {

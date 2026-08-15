@@ -136,11 +136,9 @@ body {
     background-color: #000;
     overflow: hidden;
     font:
-        13px/1.4 'PingFang SC Light',
+        13px/1.4 'Syne',
+        'PingFang SC Light',
         'PingFang SC',
-        'Lantinghei SC Light',
-        'Microsoft Yahei',
-        'Hiragino Sans GB',
         'Helvetica Neue',
         Helvetica,
         Arial;
@@ -182,6 +180,21 @@ body::after {
     }
 }
 
+#bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center 0;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
 canvas {
     line-height: 0;
 }
@@ -197,14 +210,13 @@ canvas {
 #cont {
     position: absolute;
     z-index: 3;
+    bottom: 0;
     left: 20px;
     top: 0;
     background: rgba(0, 0, 0, 0.9);
     color: var(--text-color);
     overflow-y: auto;
-    font-family:
-        'P22UndergroundProThin', 'PingFang SC Light', 'PingFang SC', 'Lantinghei SC Light',
-        'Microsoft Yahei', 'Hiragino Sans GB', 'Helvetica Neue', Helvetica, Arial;
+    font-family: 'Syne', 'PingFang SC Light', 'PingFang SC', 'Helvetica Neue', Helvetica, Arial;
     text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
     contain: layout;
 }
@@ -270,8 +282,8 @@ canvas {
     column-gap: 10px; /* Space between the label column and the link column */
     align-items: baseline; /* Aligns the text baselines of the span and a, which is usually best for text */
     padding-top: 10px;
-    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
-    font-weight: 100;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 400;
     letter-spacing: 1px;
 }
 
@@ -295,9 +307,9 @@ footer a:focus {
     border-radius: 2px;
     padding: 1px 4px 2px 4px;
     background: rgba(0, 0, 0, 0.3);
-    font-family: 'P22UndergroundProThin';
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: lightcyan;
-    font-weight: 150;
+    font-weight: 400;
     letter-spacing: 1px;
 }
 
@@ -328,8 +340,8 @@ footer {
     text-align: center;
     color: var(--text-color);
     color: rgba(var(--text-color-rgb), 0.8);
-    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
-    font-weight: 100;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 400;
     letter-spacing: 1px;
 }
 
@@ -521,13 +533,23 @@ footer {
     vertical-align: baseline; /* Aligns the text content at the baseline */
 }
 
+#nav .portfolio-category {
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.6em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-right: 0.8em;
+}
+
 #nav .portfolio-link {
     /* Styles for the TD containing the link */
     border-left: 1px solid rgba(var(--text-muted-rgb), 0.25); /* muted with 25% opacity */
     padding-left: 0.75em; /* Space between the line and the link text */
     text-align: left; /* Align link text to the left, especially if it wraps */
-    font-size: 1.2em; /* Base font size for this cell, links can override */
-    letter-spacing: 1px;
+    font-size: 1em; /* Base font size for this cell, links can override */
+    letter-spacing: 0.08em;
 }
 
 #nav .portfolio-link a {
@@ -536,9 +558,12 @@ footer {
     color: var(--text-color);
     opacity: 0.8; /* Makes the text slightly transparent initially */
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 300;
-    letter-spacing: 0.5px;
-    padding: 0.2em 0.4em 0.6em 0.4em; /* top, right&left, bottom - adjusted for box effect */
+    font-weight: 700;
+    font-size: 2em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.25;
+    padding: 0.25em 0.4em 0.4em 0.4em; /* top, right&left, bottom - adjusted for box effect */
     transition:
         background-color 0.3s var(--brand-ease),
         opacity 0.3s var(--brand-ease); /* Smooth transition for the background and opacity */
@@ -556,9 +581,10 @@ footer {
     display: inline-block;
     vertical-align: middle;
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 2em;
-    letter-spacing: 1.9px;
-    font-weight: 300;
+    font-size: 1.2em;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 @media screen and (max-width: 449px) {
@@ -567,7 +593,8 @@ footer {
     }
 
     #headline {
-        font-size: 1.2em;
+        font-size: 1em;
+        letter-spacing: 0.12em;
     }
 
     .social-icons-desktop {
