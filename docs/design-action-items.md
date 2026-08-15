@@ -74,7 +74,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     | pending |
-| A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      | pending |
+| A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      | done    |
 | A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | pending |
 | A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | pending |
 | A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     | pending |
@@ -204,19 +204,20 @@ p1 p2 p3 p4 index.html`).
        cache-first immutable assets.
 - **Verify:** `make precommit-fix`.
 
-### A07 — ThumbHash blur-up placeholders (dep A06)
+### A07 — ThumbHash blur-up placeholders (dep A06) ✅
 
-- Gain 3 / Effort 3 — ratio 1.0 — perceived-performance; near-instant blurred
-  previews while full images stream.
-- **Why:** ~28-byte inline hashes beat empty black rectangles; pairs with the
-  strobe reveal (A18) later — the blur "develops" like a print.
-- **Files:** extend `scripts/build-images.mjs` to emit a hash per image;
-  `p*/index.html` (`data-thumbhash` attributes); new small
-  `js/thumbhash-init.js` decoder (vendor the ~5KB ThumbHash JS from the
-  official repo — new vendored file, unmodified); CSS to swap placeholder →
-  image on load.
-- **Verify:** test the decoder wiring in `tests/js/` (attribute → background
-  style); `make precommit-fix`.
+- Gain 3 / Effort 3 — ratio 1.0 — perceived-performance.
+- **Done:**
+    1. Generated 28-character ThumbHashes for all 74 gallery photos via
+       `scripts/generate-thumbhashes.mjs` (using `sharp` and `thumbhash`).
+    2. Embedded `data-thumbhash="..."` on all gallery `<img>` tags in
+       `p1/index.html`–`p4/index.html`.
+    3. Vendored official ThumbHash decoder as `js/vendor/thumbhash.js`.
+    4. Created `js/thumbhash-init.js` to decode hashes to smooth PNG data URLs,
+       apply background previews, and seamlessly transition when images finish
+       loading.
+    5. Added unit and integration tests in `tests/js/thumbhash-init.test.js`.
+- **Verify:** `make precommit-fix`.
 
 ---
 

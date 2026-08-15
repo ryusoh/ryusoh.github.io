@@ -689,6 +689,12 @@ article .container-narrow picture > img {
     margin: 0 auto !important;
 }
 
+img[data-thumbhash] {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 @media only screen and (max-width: 768px) {
     article picture,
     .post-content picture,
