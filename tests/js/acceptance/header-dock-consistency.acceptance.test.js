@@ -339,8 +339,9 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
             /\.scroll-reveal-instagram\s*\{[^}]*mix-blend-mode:\s*difference/
         );
 
-        // .project-footer has 10px bottom distance matching main page github icon and narrower top spacing (<= 24px)
+        // .project-footer has 10px bottom distance matching main page github icon and 16px top spacing
+        // (last content element bottom margin is reset so the 16px footer padding equals the 16px image-image gap)
         expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-bottom:\s*10px/);
-        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*(16|20|24)px/);
+        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*16px/);
     });
 });

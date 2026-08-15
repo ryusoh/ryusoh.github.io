@@ -24,9 +24,15 @@ describe('Article project-footer spacing consistency with main page footer', () 
         );
     });
 
-    test('project-footer top gap to the last image is narrower', () => {
+    test('project-footer top gap matches the 16px spacing between adjacent article images', () => {
         const styleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/style.css'), 'utf8');
 
-        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*20px/);
+        // Adjacent images are 16px apart because their 16px vertical margins collapse.
+        // Reset the last content element's bottom margin and let the footer supply the 16px gap.
+        expect(styleCss).toMatch(/article\s+img[\s\S]*?margin:\s*16px\s+auto\s*(!important\s*)?;/);
+        expect(styleCss).toMatch(
+            /\.article-container\s+article\s+\.post-content\s+(?:img|blockquote):last-child[\s\S]*?margin-bottom:\s*0\s*(!important\s*)?;/
+        );
+        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*16px/);
     });
 });
