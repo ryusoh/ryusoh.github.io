@@ -90,7 +90,7 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
             {
                 href: 'mailto:info@lyeutsaon.com',
                 ariaLabel: 'Email Zhuang Liu',
-                iconClass: 'fa fa-envelope-o social-icon',
+                iconClass: 'fa fa-at social-icon',
             },
             {
                 href: 'https://www.linkedin.com/in/zhuangliudev/',
