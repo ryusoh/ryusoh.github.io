@@ -386,7 +386,22 @@ footer {
         right: auto;
         bottom: 0;
         height: 100%;
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #cont #main {
         background: rgba(0, 0, 0, 0.9);
+        flex-shrink: 0;
+    }
+
+    #cont::after {
+        content: '';
+        flex: 1;
+        min-height: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+        pointer-events: none;
     }
 }
 
