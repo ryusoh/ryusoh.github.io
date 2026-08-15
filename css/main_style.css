@@ -374,14 +374,6 @@ footer {
     }
 
     #cont {
-        left: 20px;
-        right: auto;
-        bottom: auto;
-    }
-}
-
-@media screen and (min-width: 1024px) {
-    #cont {
         left: 0;
         right: auto;
         bottom: 0;
