@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
-        // Stagger reveal of main content
+        // Stagger reveal of dynamic content (headline and navigation).
+        // Title (h1 / .brand-title) remains static to preserve the fixed dock illusion.
         const elementsToReveal = [
-            document.querySelector('#main h1'),
             document.getElementById('headline'),
             document.getElementById('nav'),
         ].filter(Boolean); // Only animate elements that exist

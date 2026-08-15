@@ -45,7 +45,7 @@ describe('js/load-animations.js', () => {
         jest.restoreAllMocks();
     });
 
-    test('initializes and reveals elements correctly', () => {
+    test('initializes and reveals elements correctly without animating static title', () => {
         require('../../js/load-animations.js');
 
         expect(domContentLoadedCb).toBeInstanceOf(Function);
@@ -53,6 +53,14 @@ describe('js/load-animations.js', () => {
 
         expect(mockSet).toHaveBeenCalledTimes(2); // once for mimida, once for elementsToReveal
         expect(mockTo).toHaveBeenCalledTimes(2); // once for mimida, once for elementsToReveal
+
+        // Assert that #main h1 is NOT included in elementsToReveal
+        const setCalls = mockSet.mock.calls;
+        const revealedElements = setCalls.find((call) => Array.isArray(call[0]))?.[0] || [];
+        const containsTitle = revealedElements.some(
+            (el) => el.tagName === 'H1' || el.classList?.contains('brand-title')
+        );
+        expect(containsTitle).toBe(false);
     });
 
     test('gracefully handles missing GSAP', () => {

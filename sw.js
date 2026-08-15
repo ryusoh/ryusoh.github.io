@@ -6,8 +6,10 @@ const CORE_ASSETS = [
     '/',
     '/index.html',
     '/css/main_style.css',
+    '/css/header.css',
     '/js/service-worker-register.js',
     '/js/page-transition.js',
+    '/js/mobile-dock.js',
     '/js/ga.js',
 ];
 

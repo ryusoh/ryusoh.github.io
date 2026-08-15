@@ -111,16 +111,37 @@
     /* Path relative to the CSS directory (e.g., source/css/) */
     src: url('../assets/fonts/p22undergroundpro-thin-webfont.woff') format('woff');
 }
+html,
+body,
+body * {
+    touch-action: pan-y !important;
+}
+
 body,
 html {
-    width: 100%;
-    overflow-x: hidden;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: clip !important;
+    overflow-x: hidden !important;
+    position: relative;
     font-size: 16px;
     color: var(--text-color);
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
     background: var(--bg-color);
+}
+
+main,
+article,
+.intro,
+.intro-header,
+.article-container,
+.post-content,
+.project-footer {
+    max-width: 100%;
+    box-sizing: border-box !important;
+    overflow-x: hidden;
 }
 
 html {
@@ -158,7 +179,8 @@ body::after {
         height: calc(180px + env(safe-area-inset-bottom));
     }
 }
-p {
+article p,
+.post-content p {
     letter-spacing: 0.05em;
     line-height: 1.6;
     margin: 20px 0;
@@ -166,21 +188,23 @@ p {
     font-weight: 700;
     font-size: 1.4em;
 }
-p a {
+article p a,
+.post-content p a {
     text-decoration: underline;
 }
-h1,
-h2,
-h3 {
+article h1,
+article h2,
+article h3,
+.intro-header h1 {
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin: 32px 0 20px;
 }
-h4,
-h5,
-h6 {
+article h4,
+article h5,
+article h6 {
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -194,16 +218,16 @@ h6 {
     padding: 0 15px;
     box-sizing: border-box;
 }
-a {
+article a {
     color: var(--accent-color);
 }
-a:hover,
-a:focus {
+article a:hover,
+article a:focus {
     color: #4d4d4d;
     text-decoration: none;
 }
-a:visited,
-a:link {
+article a:visited,
+article a:link {
     color: var(--accent-color);
 }
 a img:hover,
@@ -216,51 +240,7 @@ hr.small {
     border-width: 4px;
     border-color: var(--text-color);
 }
-a.nav-back,
-a.nav-next {
-    position: fixed;
-    top: 10px; /* 20px original position - 10px padding */
-    color: var(--text-color);
-    opacity: 0.5;
-    z-index: 1000;
-    padding: 10px; /* Increase hit area */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-        opacity 0.5s ease,
-        color 0.5s ease;
-}
-
-a.nav-back {
-    view-transition-name: nav-back;
-}
-
-a.nav-next {
-    view-transition-name: nav-next;
-}
-a.nav-back {
-    left: 10px; /* 20px original - 10px padding */
-}
-a.nav-next {
-    right: 10px; /* 20px original - 10px padding */
-}
-a.nav-back:hover,
-a.nav-next:hover,
-a.nav-back:focus,
-a.nav-next:focus {
-    color: var(--accent-color);
-    opacity: 1;
-    outline: none !important;
-    box-shadow: none !important;
-}
-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 3;
-}
+/* Navigation header dock and top-bar-bg styles live in css/header.css (single source of truth) */
 .intro {
     width: 100%;
     height: 100%;
@@ -315,8 +295,10 @@ nav {
 .intro-header .post-heading h1 {
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
-    font-size: 40px;
+    font-size: clamp(24px, 7vw, 40px);
     color: var(--text-color);
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 .intro-header .post-heading .subheading {
     line-height: 1.1;
@@ -324,6 +306,8 @@ nav {
     font-size: 24px;
     margin: 10px 0 10px;
     font-weight: 600;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 @media only screen and (min-width: 768px) {
     .intro-header .post-heading h1 {
@@ -331,6 +315,17 @@ nav {
     }
     .intro-header .post-heading .subheading {
         font-size: 20px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .intro-header {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    .intro-header .post-heading h1 {
+        font-size: clamp(24px, 7vw, 32px);
     }
 }
 .post-preview {
@@ -604,6 +599,8 @@ body {
 .animation,
 .article-container {
     animation: bodyshow 0.9s linear;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 @-moz-keyframes bodyshow {
     0% {
@@ -677,17 +674,25 @@ body {
         opacity: 1;
     }
 }
+article img,
+.post-content img,
+.article-container img,
 article .container-narrow img {
     position: relative;
-    margin: 10px auto;
+    margin: 16px auto !important;
     max-width: 100% !important;
     height: auto;
-    display: inline-block;
-    vertical-align: bottom;
+    display: block !important;
+    box-sizing: border-box;
 }
 @media only screen and (max-width: 768px) {
+    article img,
+    .post-content img,
+    .article-container img,
     article .container-narrow img {
         max-width: 100% !important;
+        margin: 16px auto !important;
+        display: block !important;
     }
 }
 article .container-narrow .video-container {
@@ -707,21 +712,30 @@ article .container-narrow .video-container embed {
     height: 100%;
     margin-top: 0;
 }
+article blockquote,
+.post-content blockquote,
+.article-container blockquote,
 article .container-narrow blockquote {
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 1.8em;
     font-weight: 700;
     letter-spacing: 0.05em;
     padding: 28px 32px;
-    margin: 36px 0;
+    margin: 36px 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     color: var(--text-color);
     background-color: rgba(var(--text-color-rgb), 0.1);
     border-radius: 4px;
     border: none;
-    text-align: left;
+    text-align: left !important;
 }
+article blockquote p,
+.post-content blockquote p,
+.article-container blockquote p,
 article .container-narrow blockquote p {
     font-family: inherit;
     font-size: 1em;
@@ -729,13 +743,20 @@ article .container-narrow blockquote p {
     letter-spacing: inherit;
     line-height: 1.8;
     margin: 10px 0;
+    text-align: left !important;
 }
+article blockquote p:first-child,
+.post-content blockquote p:first-child,
 article .container-narrow blockquote p:first-child {
     margin-top: 0;
 }
+article blockquote p:last-child,
+.post-content blockquote p:last-child,
 article .container-narrow blockquote p:last-child {
     margin-bottom: 0;
 }
+article blockquote footer,
+article blockquote .quote-attribution,
 article .container-narrow blockquote footer,
 article .container-narrow blockquote .quote-attribution {
     border-top: none;
@@ -748,7 +769,7 @@ article .container-narrow blockquote .quote-attribution {
     margin: 16px 0 0;
     padding: 0 !important;
     color: var(--text-muted);
-    text-align: right;
+    text-align: right !important;
 }
 article .container-narrow blockquote footer cite {
     font-style: normal;
@@ -761,20 +782,33 @@ article .container-narrow blockquote footer cite:before {
 }
 
 @media only screen and (max-width: 768px) {
+    article blockquote,
+    .post-content blockquote,
+    .article-container blockquote,
     article .container-narrow blockquote {
         font-size: 1.05em; /* Mobile blockquote text size */
         padding: 18px 20px;
-        margin: 24px 0;
+        margin: 24px 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        text-align: left !important;
     }
 
+    article blockquote p,
+    .post-content blockquote p,
+    .article-container blockquote p,
     article .container-narrow blockquote p {
         line-height: 1.6;
+        text-align: left !important;
     }
 
+    article blockquote footer,
+    article blockquote .quote-attribution,
     article .container-narrow blockquote footer,
     article .container-narrow blockquote .quote-attribution {
         font-size: 0.7em;
         margin: 12px 0 0;
+        text-align: right !important;
     }
 }
 .quote-attribution {
@@ -996,12 +1030,14 @@ a.nav-search:focus {
     max-height: 7.2em;
     font-size: 16px;
 }
-th {
+article th,
+.post-content th {
     text-align: center;
     border: 1px solid #dfe2e5;
     padding: 6px 13px;
 }
-td {
+article td,
+.post-content td {
     border: 1px solid #dfe2e5;
     padding: 6px 13px;
 }
@@ -1083,25 +1119,25 @@ td {
         --link-color: #a7dfe4;
         --line-color: #161d27;
     }
-    a .fa-home,
-    a .fa-chevron-left,
-    a .fa-chevron-right {
+    article a .fa-home,
+    article a .fa-chevron-left,
+    article a .fa-chevron-right {
         color: var(--font-color);
         font-size: large;
     }
-    a:focus .fa-home,
-    a:hover .fa-home,
-    a:focus .fa-chevron-left,
-    a:hover .fa-chevron-left,
-    a:focus .fa-chevron-right,
-    a:hover .fa-chevron-right {
+    article a:focus .fa-home,
+    article a:hover .fa-home,
+    article a:focus .fa-chevron-left,
+    article a:hover .fa-chevron-left,
+    article a:focus .fa-chevron-right,
+    article a:hover .fa-chevron-right {
         color: var(--link-color);
     }
-    a .fa-search {
+    article a .fa-search {
         color: var(--font-color);
     }
-    a:focus .fa-search,
-    a:hover .fa-search {
+    article a:focus .fa-search,
+    article a:hover .fa-search {
         color: var(--link-color);
     }
     body {
@@ -1136,27 +1172,32 @@ td {
     .intro-header .site-heading h1 {
         color: var(--font-color);
     }
-    a,
-    p a,
+    article a,
+    article p a,
+    .post-content a,
     .pagiantion li > a,
     #article-toc-inner .toc-link {
         color: var(--font-color);
         text-decoration: none;
     }
-    a:focus,
-    p a:focus,
+    article a:focus,
+    article p a:focus,
+    .post-content a:focus,
     .pagiantion li > a:focus,
     #article-toc-inner .toc-link:focus,
-    a:hover,
-    p a:hover,
+    article a:hover,
+    article p a:hover,
+    .post-content a:hover,
     .pagiantion li > a:hover,
     #article-toc-inner .toc-link:hover,
-    a:visited,
-    p a:visited,
+    article a:visited,
+    article p a:visited,
+    .post-content a:visited,
     .pagiantion li > a:visited,
     #article-toc-inner .toc-link:visited,
-    a:link,
-    p a:link,
+    article a:link,
+    article p a:link,
+    .post-content a:link,
     .pagiantion li > a:link,
     #article-toc-inner .toc-link:link {
         color: var(--link-color);

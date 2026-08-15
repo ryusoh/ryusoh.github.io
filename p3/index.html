@@ -9,8 +9,13 @@
             http-equiv="Content-Security-Policy"
             content="default-src 'self'; script-src 'self' https://www.google-analytics.com https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://fonts.bunny.net https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.bunny.net https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1, user-scalable=no, minimal-ui"
+        />
         <meta name="theme-color" content="#000000" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="view-transition" content="same-origin" />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta property="og:image" content="../assets/img/og-image.png" />
@@ -63,6 +68,7 @@
         <!-- Custom CSS -->
 
         <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/css/header.css" />
         <link rel="stylesheet" href="../css/cursor.css" />
         <link rel="stylesheet" href="../css/grain.css" />
 
@@ -103,16 +109,74 @@
     <body data-page-type="project">
         <a href="#main" class="sr-only sr-only-focusable">Skip to content</a>
 
-        <!-- Navigation Buttons (Persistent during transitions) -->
-        <!-- prettier-ignore -->
-        <a class="nav-back" aria-keyshortcuts="Escape" href="../" target="_self" data-page-transition data-destination="home" aria-label="Back to home">
-            <i class="fa fa-chevron-left" aria-hidden="true"></i>
-        </a>
-
-        <!-- prettier-ignore -->
-        <a class="nav-next" aria-keyshortcuts="ArrowRight" href="../p4/" target="_self" data-page-transition data-destination="project" aria-label="Next project">
-            <i class="fa fa-chevron-right" aria-hidden="true"></i>
-        </a>
+        <!-- Header Navigation Dock -->
+        <div id="cont">
+            <header id="site-header" class="cont-inner">
+                <h1 class="brand-title">
+                    <!-- prettier-ignore -->
+                    <a href="/" class="nav-back" target="_self" data-page-transition data-destination="home" aria-label="Home">
+                        <span>Zhuang Liu</span>
+                    </a>
+                </h1>
+                <nav aria-label="Portfolio projects">
+                    <table id="nav" role="presentation">
+                        <tbody>
+                            <tr>
+                                <td class="portfolio-link">
+                                    <a href="/p1/" data-page-transition data-destination="project"
+                                        >I Tear Up the Bay When I Come Through</a
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="portfolio-link">
+                                    <a href="/p2/" data-page-transition data-destination="project"
+                                        >I Do Not Care If We Go Down in History as Barbarians</a
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="portfolio-link">
+                                    <a href="/p3/" data-page-transition data-destination="project"
+                                        >Aerobatic Activities</a
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="portfolio-link">
+                                    <a href="/p4/" data-page-transition data-destination="project"
+                                        >Das Gespenst</a
+                                    >
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </nav>
+            </header>
+        </div>
+        <div class="social-icons-container social-icons-desktop">
+            <!-- prettier-ignore -->
+            <a href="https://instagram.com/lyeutsaon" target="_blank" rel="noopener noreferrer"
+                aria-label="Instagram Lyeutsaon (opens in a new tab)">
+                <i class="fa fa-instagram social-icon" aria-hidden="true"></i>
+            </a>
+            <!-- prettier-ignore -->
+            <a href="https://instagram.com/lyeutsaon.misc" target="_blank" rel="noopener noreferrer"
+                aria-label="Instagram Lyeutsaon Misc (opens in a new tab)">
+                <i class="fa fa-instagram social-icon" aria-hidden="true"></i>
+            </a>
+            <!-- prettier-ignore -->
+            <a href="mailto:info@lyeutsaon.com"
+                aria-label="Email Zhuang Liu">
+                <i class="fa fa-envelope-o social-icon" aria-hidden="true"></i>
+            </a>
+            <!-- prettier-ignore -->
+            <a href="https://www.linkedin.com/in/zhuangliudev/" target="_blank" rel="noopener noreferrer"
+                aria-label="LinkedIn Profile (opens in a new tab)">
+                <i class="fa fa-linkedin-square social-icon" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div id="top-bar-bg" aria-hidden="true"></div>
 
         <!-- Content -->
         <main id="main" class="article-container" tabindex="-1">
@@ -332,6 +396,8 @@
         <script defer src="../js/scroll-reveal-icon.js"></script>
         <!-- Scroll-driven content reveal -->
         <script defer src="../js/scroll-reveal.js"></script>
+        <!-- Mobile dock click expand & double-click navigation -->
+        <script defer src="../js/mobile-dock.js"></script>
         <!-- Service Worker -->
         <script defer src="../js/service-worker-register.js"></script>
     </body>

@@ -18,6 +18,8 @@
 .animation,
 .article-container {
     animation: bodyshow 0.9s linear;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 @-webkit-keyframes bodyshow {
     0% {

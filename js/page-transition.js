@@ -415,7 +415,19 @@
         }
 
         document.addEventListener('click', function (event) {
-            const anchor = event.target.closest('a');
+            const path =
+                typeof event.composedPath === 'function' ? event.composedPath() : [event.target];
+            let anchor = null;
+            for (let i = 0; i < path.length; i += 1) {
+                const el = path[i];
+                if (el && el.tagName === 'A') {
+                    anchor = el;
+                    break;
+                }
+            }
+            if (!anchor) {
+                anchor = event.target && event.target.closest ? event.target.closest('a') : null;
+            }
             if (!anchor || !isEligibleAnchor(anchor)) {
                 return;
             }
