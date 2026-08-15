@@ -106,6 +106,15 @@ describe('Service Worker', () => {
         window.fetch = mockFetch;
         window.skipWaiting = mockSelf.skipWaiting;
         window.clients = mockSelf.clients;
+        if (typeof Response === 'undefined') {
+            global.Response = class Response {
+                constructor(body, init) {
+                    this.body = body;
+                    this.status = init && init.status ? init.status : 200;
+                    this.statusText = init && init.statusText ? init.statusText : '';
+                }
+            };
+        }
 
         sw = require('../../sw.js');
     });
@@ -469,6 +478,7 @@ describe('Service Worker', () => {
             test('should gracefully handle missing console during fallback', async () => {
                 mockFetch.mockRejectedValue(new Error('Network offline'));
                 delete mockSelf.console;
+                mockCaches.match.mockResolvedValue(null);
 
                 sw.fetchLogic(event);
                 const respondWithPromise = event.respondWith.mock.calls[0][0];
