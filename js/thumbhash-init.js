@@ -7,11 +7,11 @@
     'use strict';
 
     /**
-     * Applies ThumbHash placeholder to an image element.
-     * @param {HTMLImageElement} img
+     * Applies ThumbHash placeholder to an image or container element.
+     * @param {HTMLElement} el
      * @param {Object} [thumbHashDecoder]
      */
-    function applyThumbHash(img, thumbHashDecoder) {
+    function applyThumbHash(el, thumbHashDecoder) {
         const decoder =
             thumbHashDecoder ||
             (typeof ThumbHash !== 'undefined' ? ThumbHash : null) ||
@@ -20,30 +20,40 @@
                 ? globalThis.ThumbHash
                 : null);
 
-        if (!img || !decoder || typeof img.getAttribute !== 'function') {
+        if (!el || !decoder || typeof el.getAttribute !== 'function') {
             return;
         }
-        const hash = img.getAttribute('data-thumbhash');
-        if (!hash || img.dataset.thumbhashApplied) {
+        const hash = el.getAttribute('data-thumbhash');
+        if (!hash || el.dataset.thumbhashApplied) {
             return;
         }
 
         try {
             const bytes = decoder.base64ToUint8Array(hash);
             const dataUrl = decoder.thumbHashToDataURL(bytes);
-            img.style.backgroundImage = `url("${dataUrl}")`;
-            img.style.backgroundSize = 'cover';
-            img.style.backgroundPosition = 'center';
-            img.dataset.thumbhashApplied = 'true';
+
+            if (el.tagName === 'IMG') {
+                el.style.backgroundImage = `url("${dataUrl}")`;
+                el.style.backgroundSize = 'cover';
+                el.style.backgroundPosition = 'center';
+            } else {
+                el.style.setProperty('--thumbhash', `url("${dataUrl}")`);
+            }
+            el.dataset.thumbhashApplied = 'true';
 
             const onLoaded = function () {
-                img.classList.add('thumbhash-loaded');
+                el.classList.add('thumbhash-loaded');
             };
 
-            if (img.complete && img.naturalWidth > 0) {
-                onLoaded();
+            if (el.tagName === 'IMG') {
+                const img = /** @type {HTMLImageElement} */ (el);
+                if (img.complete && img.naturalWidth > 0) {
+                    onLoaded();
+                } else {
+                    img.addEventListener('load', onLoaded, { once: true });
+                }
             } else {
-                img.addEventListener('load', onLoaded, { once: true });
+                onLoaded();
             }
         } catch {
             // Silently fallback if decoding fails
@@ -51,7 +61,7 @@
     }
 
     /**
-     * Initializes all images matching [data-thumbhash] in the given container or document.
+     * Initializes all elements matching [data-thumbhash] in the given container or document.
      * @param {HTMLElement|Document} [container=document]
      * @param {Object} [thumbHashDecoder]
      */
@@ -61,9 +71,9 @@
             return;
         }
 
-        const images = rootElement.querySelectorAll('img[data-thumbhash]');
-        for (let i = 0; i < images.length; i++) {
-            applyThumbHash(/** @type {HTMLImageElement} */ (images[i]), thumbHashDecoder);
+        const elements = rootElement.querySelectorAll('[data-thumbhash]');
+        for (let i = 0; i < elements.length; i++) {
+            applyThumbHash(/** @type {HTMLElement} */ (elements[i]), thumbHashDecoder);
         }
     }
 

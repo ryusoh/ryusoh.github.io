@@ -33,17 +33,19 @@ describe('ThumbHashInit', () => {
             <div id="test-container">
                 <img id="img1" data-thumbhash="CAgKBYAdUIrKSGR0q4Z2hg7JBgAA" src="/test1.jpg" />
                 <img id="img2" data-thumbhash="DAgOBYAJpXhpmGhkmoeGdwAAAAAA" src="/test2.jpg" />
+                <div id="bg-div" data-thumbhash="CggKBYANd4fMSJaKl6aKlwAAAAAA"></div>
                 <img id="img-no-hash" src="/test3.jpg" />
             </div>
         `;
         container = document.getElementById('test-container');
     });
 
-    test('init() applies background image to all matching images', () => {
+    test('init() applies background image to all matching images and containers', () => {
         ThumbHashInit.init(container);
 
         const img1 = document.getElementById('img1');
         const img2 = document.getElementById('img2');
+        const bgDiv = document.getElementById('bg-div');
         const imgNoHash = document.getElementById('img-no-hash');
 
         expect(img1.style.backgroundImage).toMatch(/^url\("data:image\/png;base64,/);
@@ -52,6 +54,13 @@ describe('ThumbHashInit', () => {
 
         expect(img2.style.backgroundImage).toMatch(/^url\("data:image\/png;base64,/);
         expect(img2.dataset.thumbhashApplied).toBe('true');
+
+        expect(bgDiv.style.getPropertyValue('--thumbhash')).toMatch(
+            /^url\("data:image\/png;base64,/
+        );
+        expect(bgDiv.style.backgroundImage).toBe('');
+        expect(bgDiv.dataset.thumbhashApplied).toBe('true');
+        expect(bgDiv.classList.contains('thumbhash-loaded')).toBe(true);
 
         expect(imgNoHash.style.backgroundImage).toBe('');
     });
