@@ -627,6 +627,14 @@ footer .mobile-banner.is-visible {
     opacity: 1; /* Restore full contrast on hover/focus */
 }
 
+#nav .portfolio-link a[aria-current='page'] {
+    opacity: 0.4;
+    color: var(--text-muted, #aaa);
+    cursor: default;
+    pointer-events: none;
+    background-color: transparent;
+}
+
 #headline {
     display: inline-block;
     vertical-align: middle;

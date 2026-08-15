@@ -305,6 +305,14 @@ body {
     opacity: 1 !important;
 }
 
+#nav .portfolio-link a[aria-current='page'] {
+    opacity: 0.4 !important;
+    color: var(--text-muted, #aaa) !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    background-color: transparent !important;
+}
+
 /* --- Floating Social Icons Dock --- */
 .social-icons-container {
     display: inline-flex !important;
