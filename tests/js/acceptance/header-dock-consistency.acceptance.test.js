@@ -295,4 +295,20 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
             /\.container-narrow\s*\{[^}]*padding:\s*0\s+20px|\.container-narrow\s*\{[^}]*padding-left:\s*20px/
         );
     });
+
+    test('TDD: on article pages, project-footer and scroll-reveal-instagram are unobstructed with no fixed body::after mask and no negative margins', () => {
+        const styleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/style.css'), 'utf8');
+
+        // body::after must not create a fixed obstructing black bar at the bottom
+        expect(styleCss).not.toMatch(/body::after\s*\{[^}]*position:\s*fixed/);
+
+        // .scroll-reveal-instagram must not use negative margin or mix-blend-mode difference that causes obstruction
+        expect(styleCss).not.toMatch(/\.scroll-reveal-instagram\s*\{[^}]*margin:\s*-[0-9]/);
+        expect(styleCss).not.toMatch(
+            /\.scroll-reveal-instagram\s*\{[^}]*mix-blend-mode:\s*difference/
+        );
+
+        // .project-footer has generous bottom padding
+        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-bottom:\s*(40|50|60)/);
+    });
 });
