@@ -103,8 +103,13 @@
 
         const body = document.body;
         const pageType = body ? body.getAttribute('data-page-type') : null;
-        const useQuantum = pageType === 'home' || pageType === 'project';
+        const useQuantum = pageType === 'home';
         const useLegacy = pageType === 'home';
+
+        if (!useQuantum && !useLegacy) {
+            exportTesting({ shouldSkipLoader, loadLegacyAmbient });
+            return;
+        }
 
         if (!window.CDNLoader) {
             return;

@@ -87,7 +87,7 @@ describe('ambient/loader.js', () => {
         expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
     });
 
-    test('loads quantum particles on home and project pages', async () => {
+    test('loads quantum particles on home pages', async () => {
         document.body.setAttribute('data-page-type', 'home');
 
         require('../../../js/ambient/loader.js');
@@ -127,7 +127,7 @@ describe('ambient/loader.js', () => {
         );
     });
 
-    test('loads only quantum particles on project pages', async () => {
+    test('does not load ambient assets for project pages', async () => {
         document.body.setAttribute('data-page-type', 'project');
 
         require('../../../js/ambient/loader.js');
@@ -137,13 +137,8 @@ describe('ambient/loader.js', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        expect(mockCDNLoader.loadScriptSequential).toHaveBeenCalledWith(
-            ['/js/ambient/quantum_particles.js'],
-            { defer: true }
-        );
-        expect(mockCDNLoader.loadScriptSequential).not.toHaveBeenCalledWith([
-            '/js/vendor/sketch.js',
-        ]);
+        expect(mockCDNLoader.loadCssWithFallback).not.toHaveBeenCalled();
+        expect(mockCDNLoader.loadScriptSequential).not.toHaveBeenCalled();
     });
 
     test('does not load ambient scripts for other page types', async () => {
