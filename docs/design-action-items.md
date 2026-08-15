@@ -77,7 +77,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      | done    |
 | A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | ditched |
 | A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | ditched |
-| A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     | pending |
+| A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     | ditched |
 | A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     | done    |
 | A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     | pending |
 | A22 | WebGL grain + flash post-process (OGL)        | 4    | 5      | 0.8   | 4    | yes     | pending |
@@ -290,14 +290,9 @@ p1 p2 p3 p4 index.html`).
   confirm `js/block-navigation.js` and `js/scroll-reveal.js` still find their
   targets (they key off block elements inside `.post-content`).
 
-### A15 — Contact-sheet home/index rework
+### A15 — Contact-sheet home/index rework (ditched)
 
-- Gain 4 / Effort 4 — ratio 1.0 — VISUAL.
-- **What:** bring the contact-sheet/evidence motif to the home nav: frame
-  numbers (`01`–`04`), evidence-tag red used per A08, nav rows styled like
-  contact-sheet strips. Keep the existing structure (`#cont` panel, `#nav`)
-  — this is a restyle, not a rebuild.
-- **Verify:** `make precommit-fix`; visual review.
+- Ditched per user instruction to preserve the clean existing home navigation.
 
 ---
 
