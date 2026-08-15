@@ -77,6 +77,29 @@
 
         // Handle scroll-down dimming and scroll-up/bottom recovery on mobile
         let lastScrollY = typeof window !== 'undefined' ? window.scrollY || 0 : 0;
+        let cachedWindowHeight = 0;
+        let cachedDocHeight = 0;
+
+        function updateDimensions() {
+            if (typeof window !== 'undefined') {
+                cachedWindowHeight = window.innerHeight || 0;
+                const scrollEl = document.documentElement || document.body;
+                cachedDocHeight = scrollEl ? scrollEl.scrollHeight : 0;
+            }
+        }
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('resize', updateDimensions, { passive: true });
+            window.addEventListener('load', updateDimensions);
+
+            // Watch for changes in document height due to lazy-loaded images or DOM modifications
+            if (typeof window.ResizeObserver === 'function') {
+                const observer = new window.ResizeObserver(updateDimensions);
+                observer.observe(document.body);
+            }
+
+            updateDimensions();
+        }
 
         function handleScroll() {
             if (!isMobile()) {
@@ -85,12 +108,9 @@
             }
 
             const currentScrollY = window.scrollY || 0;
-            const windowHeight = window.innerHeight || 0;
-            const scrollEl = document.documentElement || document.body;
-            const docHeight = scrollEl ? scrollEl.scrollHeight : 0;
-
             const isNearTop = currentScrollY <= 60;
-            const isNearBottom = docHeight > 0 && currentScrollY + windowHeight >= docHeight - 60;
+            const isNearBottom =
+                cachedDocHeight > 0 && currentScrollY + cachedWindowHeight >= cachedDocHeight - 60;
             const isScrollingDown = currentScrollY > lastScrollY && currentScrollY > 60;
 
             if (isNearTop || isNearBottom || currentScrollY < lastScrollY) {
