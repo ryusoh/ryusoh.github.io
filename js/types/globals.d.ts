@@ -85,6 +85,10 @@ interface Window {
     };
     __swForTesting?: unknown;
     __HoverPreviewForTesting?: unknown;
+    ThumbHashInit?: {
+        applyThumbHash: (img: HTMLImageElement, decoder?: unknown) => void;
+        init: (container?: HTMLElement | Document, decoder?: unknown) => void;
+    };
 }
 
 interface ExtendableEvent extends Event {

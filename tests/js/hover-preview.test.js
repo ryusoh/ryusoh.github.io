@@ -575,4 +575,39 @@ describe('js/hover-preview.js', () => {
             initHoverPreview();
         }).not.toThrow();
     });
+
+    test('extracts data-thumbhash and calls ThumbHashInit on rendered carousel items', () => {
+        const mockInit = jest.fn();
+        window.ThumbHashInit = { init: mockInit };
+
+        const {
+            parseProjectHtml,
+            renderProjectThumbnails,
+            getTrackEl,
+        } = require('../../js/hover-preview.js');
+
+        const html = `
+            <html><body>
+                <header><h1>Test Project</h1></header>
+                <article>
+                    <img src="/img1.jpg" data-thumbhash="1QcSHQRnh493V4dIh4eXh1UB" alt="1" />
+                    <img src="/img2.jpg" alt="2" />
+                </article>
+            </body></html>
+        `;
+
+        const parsed = parseProjectHtml(html, '/test/');
+        expect(parsed).toBeDefined();
+        expect(parsed.images).toEqual(['/img1.jpg', '/img2.jpg']);
+        expect(parsed.thumbhashes).toEqual(['1QcSHQRnh493V4dIh4eXh1UB', '']);
+
+        renderProjectThumbnails(parsed);
+        const trackEl = getTrackEl();
+        const imgs = trackEl.querySelectorAll('img');
+        expect(imgs[0].getAttribute('data-thumbhash')).toBe('1QcSHQRnh493V4dIh4eXh1UB');
+        expect(imgs[1].getAttribute('data-thumbhash')).toBeNull();
+        expect(mockInit).toHaveBeenCalledWith(trackEl);
+
+        delete window.ThumbHashInit;
+    });
 });

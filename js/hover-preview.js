@@ -8,14 +8,14 @@
     'use strict';
 
     /**
-     * Cache storing parsed project metadata (title, images, url).
-     * @type {Map<string, { url: string, title: string, images: string[] }>}
+     * Cache storing parsed project metadata (title, images, url, thumbhashes).
+     * @type {Map<string, { url: string, title: string, images: string[], thumbhashes?: string[] }>}
      */
     const projectCache = new Map();
 
     /**
      * Cache for active in-flight fetch promises.
-     * @type {Map<string, Promise<{ url: string, title: string, images: string[] } | null>>}
+     * @type {Map<string, Promise<{ url: string, title: string, images: string[], thumbhashes?: string[] } | null>>}
      */
     const fetchPromises = new Map();
 
@@ -65,12 +65,14 @@
      * Parses HTML content of a project page to extract content images and title.
      * @param {string} html
      * @param {string} pageUrl
-     * @returns {{ url: string, title: string, images: string[] } | null}
+     * @returns {{ url: string, title: string, images: string[], thumbhashes?: string[] } | null}
      */
     function parseProjectHtml(html, pageUrl) {
         let title = '';
         /** @type {string[]} */
         const images = [];
+        /** @type {string[]} */
+        const thumbhashes = [];
 
         /* istanbul ignore else */
         if (typeof window !== 'undefined' && typeof window.DOMParser !== 'undefined') {
@@ -96,29 +98,33 @@
                     !images.includes(src)
                 ) {
                     images.push(src);
+                    const hash = img.getAttribute('data-thumbhash');
+                    thumbhashes.push(hash || '');
                 }
             }
         }
 
-        return images.length > 0 ? { url: pageUrl, title: title || 'Project', images } : null;
+        return images.length > 0
+            ? { url: pageUrl, title: title || 'Project', images, thumbhashes }
+            : null;
     }
 
     /**
      * Auto-fetches and extracts project images from the given page URL.
      * @param {string} url
-     * @returns {Promise<{ url: string, title: string, images: string[] } | null>}
+     * @returns {Promise<{ url: string, title: string, images: string[], thumbhashes?: string[] } | null>}
      */
     function fetchProjectImages(url) {
         const normalizedUrl = url.trim();
         if (projectCache.has(normalizedUrl)) {
             return Promise.resolve(
-                /** @type {{ url: string, title: string, images: string[] }} */ (
+                /** @type {{ url: string, title: string, images: string[], thumbhashes?: string[] }} */ (
                     projectCache.get(normalizedUrl)
                 )
             );
         }
         if (fetchPromises.has(normalizedUrl)) {
-            return /** @type {Promise<{ url: string, title: string, images: string[] } | null>} */ (
+            return /** @type {Promise<{ url: string, title: string, images: string[], thumbhashes?: string[] } | null>} */ (
                 fetchPromises.get(normalizedUrl)
             );
         }
@@ -279,7 +285,7 @@
 
     /**
      * Renders thumbnails for a project into the carousel track.
-     * @param {{ url: string, title: string, images: string[] }} data
+     * @param {{ url: string, title: string, images: string[], thumbhashes?: string[] }} data
      */
     function renderProjectThumbnails(data) {
         /* istanbul ignore if */
@@ -293,9 +299,11 @@
 
         // Render duplicate sets to allow seamless infinite vertical drift
         const imagesList = [...data.images, ...data.images];
+        const thumbhashesList = data.thumbhashes ? [...data.thumbhashes, ...data.thumbhashes] : [];
         let html = '';
         for (let i = 0; i < imagesList.length; i++) {
             const src = imagesList[i];
+            const hash = thumbhashesList[i] || '';
             const isEager = i < 4;
             html +=
                 "<a href='" +
@@ -307,7 +315,9 @@
                 "'>" +
                 "<img src='" +
                 src +
-                "' alt='" +
+                "'" +
+                (hash ? " data-thumbhash='" + hash + "'" : '') +
+                " alt='" +
                 data.title +
                 "' loading='" +
                 (isEager ? 'eager' : 'lazy') +
@@ -317,6 +327,16 @@
         trackEl.innerHTML = html;
         scrollPos = 0;
         trackEl.style.transform = 'translate3d(0, 0, 0)';
+
+        // Apply ThumbHash placeholders if ThumbHashInit is available
+        /* istanbul ignore else */
+        if (
+            typeof window !== 'undefined' &&
+            window.ThumbHashInit &&
+            typeof window.ThumbHashInit.init === 'function'
+        ) {
+            window.ThumbHashInit.init(trackEl);
+        }
 
         // Attach smooth fade-in listeners to rendered images
         const imgElements = trackEl.querySelectorAll('img');

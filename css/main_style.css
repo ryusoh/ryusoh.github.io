@@ -1084,7 +1084,14 @@ html.js-enabled #nav {
     border-radius: 2px;
     pointer-events: none;
     opacity: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     transition: opacity 0.3s var(--brand-ease);
+}
+
+.hover-carousel-item img[data-thumbhash] {
+    opacity: 0.35;
 }
 
 .hover-carousel-item img.is-loaded {
