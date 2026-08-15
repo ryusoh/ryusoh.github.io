@@ -46,6 +46,22 @@
     }
 
     /**
+     * Pre-decodes an image off the main thread for instant GPU rendering.
+     * @param {string} src
+     */
+    function prefetchImage(src) {
+        /* istanbul ignore else */
+        if (typeof Image !== 'undefined') {
+            const img = new Image();
+            img.src = src;
+            /* istanbul ignore else */
+            if (typeof img.decode === 'function') {
+                img.decode().catch(() => {});
+            }
+        }
+    }
+
+    /**
      * Parses HTML content of a project page to extract content images and title.
      * @param {string} html
      * @param {string} pageUrl
@@ -129,6 +145,11 @@
                     const projectId = extractProjectId(normalizedUrl);
                     if (projectId) {
                         projectCache.set(projectId, parsed);
+                    }
+                    // Warm up browser & GPU decode cache for first 4 images
+                    const preloadCount = Math.min(parsed.images.length, 4);
+                    for (let i = 0; i < preloadCount; i++) {
+                        prefetchImage(parsed.images[i]);
                     }
                 }
                 return parsed;
@@ -244,14 +265,16 @@
         }
         const halfCount = Math.floor(totalItems / 2);
         let height = 0;
+        const fallbackItemHeight = 110;
         for (let i = 0; i < halfCount; i++) {
             const child = /** @type {HTMLElement} */ (trackEl.children[i]);
             /* istanbul ignore else */
             if (child) {
-                height += child.offsetHeight + 10; // includes 10px gap
+                const itemH = child.offsetHeight > 0 ? child.offsetHeight + 10 : fallbackItemHeight;
+                height += itemH;
             }
         }
-        singleSetHeight = height > 0 ? height : trackEl.scrollHeight / 2;
+        singleSetHeight = height > 0 ? height : halfCount * fallbackItemHeight;
     }
 
     /**
@@ -294,6 +317,23 @@
         trackEl.innerHTML = html;
         scrollPos = 0;
         trackEl.style.transform = 'translate3d(0, 0, 0)';
+
+        // Attach smooth fade-in listeners to rendered images
+        const imgElements = trackEl.querySelectorAll('img');
+        for (let i = 0; i < imgElements.length; i++) {
+            const img = imgElements[i];
+            if (img.complete && img.naturalWidth > 0) {
+                img.classList.add('is-loaded');
+            } else {
+                img.addEventListener(
+                    'load',
+                    () => {
+                        img.classList.add('is-loaded');
+                    },
+                    { once: true }
+                );
+            }
+        }
 
         // Measure once images/DOM is inserted
         measureTrack();
@@ -484,6 +524,7 @@
         projectCache,
         parseProjectHtml,
         fetchProjectImages,
+        prefetchImage,
         isMobileOrTouch,
         extractProjectId,
         initHoverPreview,

@@ -1080,12 +1080,16 @@ html.js-enabled #nav {
     object-fit: cover;
     border-radius: 2px;
     pointer-events: none;
-    opacity: 0.7;
-    transition: opacity 0.25s var(--brand-ease);
+    opacity: 0;
+    transition: opacity 0.3s var(--brand-ease);
 }
 
-.hover-carousel-item:hover img,
-.hover-carousel-item:focus img {
+.hover-carousel-item img.is-loaded {
+    opacity: 0.5;
+}
+
+.hover-carousel-item:hover img.is-loaded,
+.hover-carousel-item:focus img.is-loaded {
     opacity: 0.9;
 }
 

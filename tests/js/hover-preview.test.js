@@ -509,6 +509,56 @@ describe('js/hover-preview.js', () => {
         expect(getCarouselEl().classList.contains('is-active')).toBe(true);
     });
 
+    test('prefetchImage pre-decodes images using Image.decode()', async () => {
+        const { prefetchImage } = require('../../js/hover-preview.js');
+        const mockDecode = jest.fn().mockResolvedValue(undefined);
+        const originalImage = window.Image;
+        // @ts-ignore
+        window.Image = class {
+            constructor() {
+                this.src = '';
+                this.decode = mockDecode;
+            }
+        };
+
+        prefetchImage('/assets/img/p1/DSCF4775.jpg');
+        expect(mockDecode).toHaveBeenCalled();
+
+        window.Image = originalImage;
+    });
+
+    test('renderProjectThumbnails adds is-loaded class on image load event or completion', () => {
+        const { renderProjectThumbnails, getTrackEl } = require('../../js/hover-preview.js');
+        renderProjectThumbnails({
+            url: './p1/',
+            title: 'Test',
+            images: ['/img1.jpg', '/img2.jpg'],
+        });
+
+        const trackEl = getTrackEl();
+        const imgs = trackEl.querySelectorAll('img');
+        expect(imgs.length).toBe(4);
+
+        // Simulate load event
+        imgs[0].dispatchEvent(new Event('load'));
+        expect(imgs[0].classList.contains('is-loaded')).toBe(true);
+
+        // Test with mock complete images
+        jest.spyOn(document, 'createElement').mockImplementationOnce((tagName) => {
+            const el = document.createElementNS('http://www.w3.org/1999/xhtml', tagName);
+            if (tagName === 'img') {
+                Object.defineProperty(el, 'complete', { value: true, configurable: true });
+                Object.defineProperty(el, 'naturalWidth', { value: 100, configurable: true });
+            }
+            return el;
+        });
+        renderProjectThumbnails({
+            url: './p1/',
+            title: 'Test',
+            images: ['/img1.jpg'],
+        });
+    });
+
     test('skips links with no matching project id during init', () => {
         document.body.innerHTML = `
             <div id="cont">
