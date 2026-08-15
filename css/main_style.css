@@ -445,10 +445,12 @@ footer {
         display: none !important;
     }
 
+    /* Mobile social icons live inside #headline; hidden on desktop. */
     .social-icons-mobile {
         display: none !important;
     }
 
+    /* Desktop social icons are fixed at the viewport top-right, not inside #cont. */
     .social-icons-desktop {
         position: fixed;
         top: 22px;
@@ -533,8 +535,9 @@ footer {
     display: block; /* Allows padding/margin if needed, and better click area */
     color: var(--text-color);
     opacity: 0.8; /* Makes the text slightly transparent initially */
-    /* font-family: 'Lobster', cursive; */ /* Removed to inherit font from parent */
-    font-weight: bold; /* Match the "Portfolio" text weight */
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.5px;
     padding: 0.2em 0.4em 0.6em 0.4em; /* top, right&left, bottom - adjusted for box effect */
     transition:
         background-color 0.3s var(--brand-ease),
@@ -552,9 +555,10 @@ footer {
 #headline {
     display: inline-block;
     vertical-align: middle;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 2em;
     letter-spacing: 1.9px;
-    font-weight: lighter;
+    font-weight: 300;
 }
 
 @media screen and (max-width: 449px) {
@@ -575,6 +579,12 @@ footer {
     color: var(--text-muted);
 }
 
+/* Shared base for the two social-icons containers. Desktop uses
+   .social-icons-desktop (fixed at viewport top-right, visible only in the
+   desktop media query). Mobile uses .social-icons-mobile (inline with
+   #headline, visible by default). Do not hide the desktop variant in the base
+   rules: a `display: none` here would override the desktop media query's
+   `display: flex` because the base rules appear later in the cascade. */
 .social-icons-container {
     display: inline-flex;
     vertical-align: middle;
