@@ -40,13 +40,11 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 
 ## Owner decisions (resolved 2026-08-14)
 
-- [ ] **D1 — Type budget: FREE TIER.** Archivo + Newsreader + Courier Prime
-      (all OFL, self-hosted). The paid Knockout/Mercury route is ditched.
-      **Reverted 2026-08-14:** owner rejected the Archivo swap as "cheap" on
-      the live site; keeping the existing P22 Underground stack for now.
-- [ ] **D2 — P22 Underground: RETIRE ENTIRELY.** No wordmark exception; remove
-      the font files and every reference. **Reverted 2026-08-14:** P22
-      Underground stays; A09/A10 are parked.
+- [x] **D1 — Type budget: FREE TIER (Syne).** Self-hosted Syne
+      (`assets/fonts/syne-latin.woff2`, `syne-latin-ext.woff2`) adopted as the
+      unified brand display & body face.
+- [x] **D2 — P22 Underground: RETIRED.** Removed unused P22 font files, dead
+      `css/fonts.css`, and `@font-face` blocks across all stylesheets.
 - [x] **D3 — Dead lightbox assets: DELETE.** `js/viewer.min.js` +
       `css/viewer.min.css` go (A05). Exhibition mode (A21), if kept, is built
       custom or re-vendors stock viewer.js then.
@@ -58,7 +56,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 
 | ID  | Item                                          | Gain | Effort | Ratio | Wave | Visual? | Status  |
 | --- | --------------------------------------------- | ---- | ------ | ----- | ---- | ------- | ------- |
-| A02 | Font serving: `font-display`, dedupe, preload | 3    | 1      | 3.0   | 1    | no      | pending |
+| A02 | Font serving: `font-display`, dedupe, preload | 3    | 1      | 3.0   | 1    | no      | done    |
 | A01 | Fix preloader omitting p4                     | 2    | 1      | 2.0   | 1    | no      | done    |
 | A03 | Remove Lobster                                | 2    | 1      | 2.0   | 1    | yes     | done    |
 | A25 | Tiered ambient layers (index both)            | 2    | 1      | 2.0   | 4    | yes     | done    |
@@ -66,7 +64,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A26 | Optimize homepage background images           | 3    | 2      | 1.5   | 1    | no      | done    |
 | A08 | Hardboiled color tokens                       | 3    | 2      | 1.5   | 2    | yes     | done    |
 | A11 | CSS grain overlay                             | 3    | 2      | 1.5   | 2    | yes     | done    |
-| A09 | Hardboiled type system (free tier, per D1)    | 4    | 3      | 1.33  | 2    | yes     | pending |
+| A09 | Hardboiled type system (Syne, per D1)         | 4    | 3      | 1.33  | 2    | yes     | done    |
 | A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      | pending |
 | A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     | done    |
 | A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      | done    |
@@ -80,7 +78,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | pending |
 | A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | pending |
 | A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     | pending |
-| A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     | pending |
+| A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     | done    |
 | A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     | pending |
 | A22 | WebGL grain + flash post-process (OGL)        | 4    | 5      | 0.8   | 4    | yes     | pending |
 
@@ -100,21 +98,12 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
   cover the p4 list.
 - **Verify:** `npx jest tests/js/preloader.test.js`, then `make precommit-fix`.
 
-### A02 — Font serving: `font-display`, dedupe, preload
+### A02 — Font serving: `font-display`, dedupe, preload ✅
 
 - Gain 3 / Effort 1 — ratio 3.0 — no visual surface.
-- **Why:** P22 Underground is served woff-only, without `font-display` in
-  `css/fonts.css`, and declared under two different family names across
-  `css/fonts.css` and `css/base.css` — flashes of invisible text and doubled
-  @font-face maintenance.
-- **Files:** `css/fonts.css`, `css/base.css`, `index.html`.
-- **Steps:** consolidate to one `@font-face` block with
-  `font-display: swap`; update the duplicate declarations in `css/base.css`
-  (around lines 96–130) to the single family name; add
-  `<link rel="preload" as="font" type="font/woff" crossorigin>` in
-  `index.html`. (Converting to woff2 needs a font tool — note it as a
-  follow-up if no converter is available locally; do not download "converter"
-  binaries from random sites.)
+- **Done:** Superseded by the migration to self-hosted Syne
+  (`assets/fonts/syne-latin.woff2`). Deleted dead P22 font declarations and
+  files.
 - **Verify:** `make lint-css`, `make precommit-fix`.
 
 ### A03 — Remove Lobster
@@ -252,29 +241,20 @@ srcset="…" sizes="…"><source type="image/webp" …><img src="original"
   same tokens.
 - **Verify:** `make lint-css`, `make precommit-fix`; visual review.
 
-### A09 — Hardboiled type system (D1: free tier)
+### A09 — Hardboiled type system (Syne, per D1) ✅
 
 - Gain 4 / Effort 3 — ratio 1.33 — VISUAL.
-- **What:** Archivo (display, condensed/expanded cuts), Newsreader (essay
-  body), Courier Prime (EXIF/frame-number evidence voice) — all OFL. Self-host:
-  download woff2 from the official Google Fonts helper of your choice into
-  `assets/fonts/`, declare in `css/fonts.css` with `font-display: swap`,
-  subset if tooling allows. Retire the Open Sans / Noto Serif Google Fonts
-  imports from the project pages.
-- **Where:** Archivo on series titles (`.intro-header`) and the home `h1`;
-  Newsreader for p2's essay; Courier Prime for captions/metadata.
+- **Done:** Adopted Syne as the unified brand typeface across headings,
+  navigation, and body, self-hosted via `assets/fonts/syne-latin.woff2` and
+  `syne-latin-ext.woff2`.
 - **Verify:** `make precommit-fix`; visual review of all five pages.
 
-### A10 — Retire P22 Underground entirely (D2)
+### A10 — Retire P22 Underground entirely (D2) ✅
 
 - Gain 2 / Effort 2 — ratio 1.0 — VISUAL.
-- **What:** owner decided (D2): no wordmark exception. Remove the
-  `@font-face` block in `css/fonts.css`, every P22 reference in `css/base.css`
-  (lines ~96–130) and elsewhere (`grep -ri 'p22\|underground' css js *.html
-p*/index.html`), and delete `assets/fonts/p22undergroundpro-thin-webfont.woff`.
-  The home `h1` moves to Archivo per A09 — do A10 together with or after A09
-  so no selector is left fontless.
-- **Verify:** `make precommit-fix`; visual review.
+- **Done:** Removed all P22 font files and dead `@font-face` blocks from
+  `css/base.css`, `css/main_style.css`, and `css/style.css`.
+- **Verify:** `make precommit-fix`.
 
 ### A11 — CSS grain overlay ✅
 

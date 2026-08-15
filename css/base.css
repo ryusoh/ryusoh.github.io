@@ -122,11 +122,6 @@
         opacity: 1;
     }
 }
-@font-face {
-    font-family: 'P22 Underground Pro Thin';
-    /* Path relative to the CSS directory (e.g., source/css/) */
-    src: url('../assets/fonts/p22undergroundpro-thin-webfont.woff') format('woff');
-}
 body,
 html {
     width: 100%;
