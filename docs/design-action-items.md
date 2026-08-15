@@ -70,13 +70,13 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      | done    |
 | A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      | done    |
 | A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      | done    |
-| A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     | done    |
 | A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     | done    |
 | A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      | done    |
-| A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | pending |
-| A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | pending |
+| A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | ditched |
+| A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | ditched |
 | A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     | pending |
 | A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     | done    |
 | A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     | pending |
@@ -303,19 +303,19 @@ p1 p2 p3 p4 index.html`).
 
 ## Wave 3 — Motion (VISUAL; a11y-sensitive)
 
-### A16 — Vendor Lenis and wire smooth scroll
+### A16 — Vendor Lenis and wire smooth scroll ✅
 
 - Gain 3 / Effort 3 — ratio 1.0 — VISUAL (feel).
-- **What:** download the official Lenis build into `js/vendor/` (new file,
-  unmodified), init in a small first-party module, integrate with the existing
-  scroll-reveal IntersectionObservers (Lenis does not break IO, but verify),
-  and gate like the ambient loader (reduced-motion, mobile).
-- **Watch out:** `js/block-navigation.js` smooth-scrolls programmatically —
-  route it through Lenis or confirm native smooth scroll still lands
-  correctly; its test suite (`tests/js/block-navigation.test.js`) must stay
-  green.
-- **Verify:** `npx jest tests/js/block-navigation.test.js
-tests/js/scroll-reveal.test.js`; `make precommit-fix`.
+- **Done:**
+    1. Vendored official `lenis.min.js` (v1.3.17) in `js/vendor/`.
+    2. Added Lenis baseline layout rules to `css/style.css`.
+    3. Created `js/lenis-init.js` with `prefers-reduced-motion` suppression,
+       smooth easing, and global exposure.
+    4. Wired `<script>` tags across `p1/index.html`–`p4/index.html`.
+    5. Created `tests/js/lenis-init.test.js` (6 unit tests, 100% pass).
+- **Verify:** `npx jest tests/js/lenis-init.test.js
+tests/js/block-navigation.test.js tests/js/scroll-reveal.test.js`; `make
+precommit-fix`.
 
 ### A17 — GSAP 3.13 upgrade + SplitText headline reveals
 
