@@ -324,7 +324,7 @@ body {
 .social-icons-desktop {
     position: fixed !important;
     top: max(16px, env(safe-area-inset-top, 16px)) !important;
-    right: max(16px, env(safe-area-inset-right, 16px)) !important;
+    right: max(20px, env(safe-area-inset-right, 20px)) !important;
     display: flex !important;
     margin-left: 0 !important;
     pointer-events: auto !important;
@@ -385,7 +385,7 @@ body {
     #cont {
         width: 100% !important;
         max-width: 100% !important;
-        overflow: visible !important;
+        overflow: hidden !important;
         background: transparent !important;
         pointer-events: none !important;
         padding: 0 !important;
@@ -486,10 +486,17 @@ body {
 
     .social-icons-desktop {
         top: 16px !important;
-        right: max(16px, env(safe-area-inset-right, 16px)) !important;
+        right: max(20px, env(safe-area-inset-right, 20px)) !important;
         height: 36px !important;
         display: flex !important;
         align-items: center !important;
         pointer-events: auto !important;
+        transition: opacity 0.35s var(--brand-ease, cubic-bezier(0.65, 0.05, 0, 1)) !important;
+    }
+
+    body.is-scrolled-down:not(:has(#cont.is-expanded)) .social-icons-desktop,
+    #cont.is-scrolled-down:not(.is-expanded) ~ .social-icons-desktop,
+    .is-scrolled-down:not(.is-expanded) .social-icons-desktop {
+        opacity: 0.1 !important;
     }
 }

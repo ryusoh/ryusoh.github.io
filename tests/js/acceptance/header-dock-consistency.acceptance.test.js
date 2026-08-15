@@ -129,7 +129,7 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
         expect(headerCss).toMatch(/#nav\s+\.portfolio-link\s+a[\s\S]*?font-family:[^;]*Syne/);
     });
 
-    test('css/header.css defines static fixed positioning for social dock across desktop and mobile', () => {
+    test('css/header.css defines static fixed positioning for social dock on desktop', () => {
         const headerCss = fs.readFileSync(path.join(ROOT_DIR, 'css/header.css'), 'utf8');
 
         expect(headerCss).toMatch(/\.social-icons-desktop[\s\S]*?position:\s*fixed/);
@@ -137,8 +137,39 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
             /\.social-icons-desktop[\s\S]*?top:\s*max\(16px,\s*env\(safe-area-inset-top,\s*16px\)\)/
         );
         expect(headerCss).toMatch(
-            /\.social-icons-desktop[\s\S]*?right:\s*max\(16px,\s*env\(safe-area-inset-right,\s*16px\)\)/
+            /\.social-icons-desktop[\s\S]*?right:\s*max\(20px,\s*env\(safe-area-inset-right,\s*20px\)\)/
         );
+    });
+
+    test('css/header.css mobile media query matches main page 20px right offset', () => {
+        const headerCss = fs.readFileSync(path.join(ROOT_DIR, 'css/header.css'), 'utf8');
+        const mainStyleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/main_style.css'), 'utf8');
+        const mobileBlock =
+            headerCss.match(/@media screen and \(max-width: 449px\)[\s\S]*?\n\}/)?.[0] || '';
+
+        expect(mobileBlock).toMatch(
+            /\.social-icons-desktop[\s\S]*?right:\s*max\(20px,\s*env\(safe-area-inset-right,\s*20px\)\)/
+        );
+        expect(mainStyleCss).toMatch(
+            /\.social-icons-desktop[\s\S]*?right:\s*max\(20px,\s*env\(safe-area-inset-right,\s*20px\)\)/
+        );
+    });
+
+    test('css/header.css clips the mobile header dock horizontally to prevent left/right scroll', () => {
+        const headerCss = fs.readFileSync(path.join(ROOT_DIR, 'css/header.css'), 'utf8');
+        const mobileBlock =
+            headerCss.match(/@media screen and \(max-width: 449px\)[\s\S]*?\n\}/)?.[0] || '';
+
+        expect(mobileBlock).toMatch(/#cont\s*\{[^}]*overflow(?:-x)?:\s*hidden/);
+        expect(mobileBlock).not.toMatch(/#cont\s*\{[^}]*overflow(?:-x)?:\s*visible/);
+    });
+
+    test('TDD: footer icons on main page and article pages have identical 12px font-size', () => {
+        const mainStyleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/main_style.css'), 'utf8');
+        const styleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/style.css'), 'utf8');
+
+        expect(mainStyleCss).toMatch(/footer\s*\{[^}]*font-size:\s*12px/);
+        expect(styleCss).toMatch(/\.scroll-reveal-instagram\s*\{[^}]*font-size:\s*12px/);
     });
 
     test('no competing article stylesheets override .social-icons-desktop position or coordinates', () => {
@@ -296,7 +327,7 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
         );
     });
 
-    test('TDD: on article pages, project-footer and scroll-reveal-instagram are unobstructed with no fixed body::after mask and no negative margins', () => {
+    test('TDD: on article pages, project-footer has 10px bottom distance matching main page github icon and narrower top padding', () => {
         const styleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/style.css'), 'utf8');
 
         // body::after must not create a fixed obstructing black bar at the bottom
@@ -308,7 +339,8 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
             /\.scroll-reveal-instagram\s*\{[^}]*mix-blend-mode:\s*difference/
         );
 
-        // .project-footer has generous bottom padding
-        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-bottom:\s*(40|50|60)/);
+        // .project-footer has 10px bottom distance matching main page github icon and narrower top spacing (<= 24px)
+        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-bottom:\s*10px/);
+        expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*(16|20|24)px/);
     });
 });

@@ -182,7 +182,7 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         );
     });
 
-    test('TDD: css/header.css and css/main_style.css define 10% opacity for #cont.is-scrolled-down:not(.is-expanded) title', () => {
+    test('TDD: css/header.css and css/main_style.css define 10% opacity for #cont.is-scrolled-down:not(.is-expanded) title and social dock', () => {
         const headerCss = fs.readFileSync(path.join(ROOT_DIR, 'css/header.css'), 'utf8');
         const mainStyleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/main_style.css'), 'utf8');
 
@@ -192,14 +192,33 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         expect(mainStyleCss).toMatch(
             /#cont\.is-scrolled-down:not\(\.is-expanded\)\s+([^{]*)\{[^}]*opacity:\s*0\.1/
         );
+
+        // Social icons container also dims to 0.1
+        expect(headerCss).toMatch(
+            /(\.is-scrolled-down[^{]*\.social-icons-desktop|body\.is-scrolled-down[^{]*\.social-icons-desktop)[^{]*\{[^}]*opacity:\s*0\.1/
+        );
+        expect(mainStyleCss).toMatch(
+            /(\.is-scrolled-down[^{]*\.social-icons-desktop|body\.is-scrolled-down[^{]*\.social-icons-desktop)[^{]*\{[^}]*opacity:\s*0\.1/
+        );
+
+        // Right margin aligns at 20px matching article images
+        expect(headerCss).toMatch(
+            /\.social-icons-desktop\s*\{[^}]*right:\s*max\(20px,\s*env\(safe-area-inset-right,\s*20px\)\)/
+        );
+        expect(mainStyleCss).toMatch(
+            /\.social-icons-desktop\s*\{[^}]*right:\s*max\(20px,\s*env\(safe-area-inset-right,\s*20px\)\)/
+        );
     });
 
-    test('TDD: mobile-dock.js dims title on scroll down and restores opacity on scroll up, top, or bottom reach', () => {
+    test('TDD: mobile-dock.js dims title and social container on scroll down and restores opacity on scroll up, top, or bottom reach', () => {
         document.documentElement.innerHTML = `
             <div id="cont">
                 <header id="site-header">
                     <h1 class="brand-title"><a href="/"><span>Zhuang Liu</span></a></h1>
                 </header>
+            </div>
+            <div class="social-icons-container social-icons-desktop">
+                <a href="https://instagram.com/lyeutsaon"><i class="fa fa-instagram"></i></a>
             </div>
         `;
 
@@ -231,28 +250,35 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         initMobileDock();
 
         const cont = document.getElementById('cont');
+        const socialDock = document.querySelector('.social-icons-desktop');
+        expect(socialDock).toBeTruthy();
 
         // 1. Initial state at top (scrollY = 0) -> not dimmed
         expect(cont.classList.contains('is-scrolled-down')).toBe(false);
+        expect(document.body.classList.contains('is-scrolled-down')).toBe(false);
 
         // 2. Scroll down past threshold (scrollY = 200) -> dimmed
         window.scrollY = 200;
         window.dispatchEvent(new Event('scroll'));
         expect(cont.classList.contains('is-scrolled-down')).toBe(true);
+        expect(document.body.classList.contains('is-scrolled-down')).toBe(true);
 
         // 3. Scroll up (scrollY = 150 < 200) -> restored
         window.scrollY = 150;
         window.dispatchEvent(new Event('scroll'));
         expect(cont.classList.contains('is-scrolled-down')).toBe(false);
+        expect(document.body.classList.contains('is-scrolled-down')).toBe(false);
 
         // 4. Scroll down again -> dimmed
         window.scrollY = 500;
         window.dispatchEvent(new Event('scroll'));
         expect(cont.classList.contains('is-scrolled-down')).toBe(true);
+        expect(document.body.classList.contains('is-scrolled-down')).toBe(true);
 
         // 5. Reach the bottom (scrollY = 2200, window.innerHeight = 800 -> 3000 = scrollHeight) -> restored
         window.scrollY = 2200;
         window.dispatchEvent(new Event('scroll'));
         expect(cont.classList.contains('is-scrolled-down')).toBe(false);
+        expect(document.body.classList.contains('is-scrolled-down')).toBe(false);
     });
 });
