@@ -7,6 +7,8 @@ const CORE_ASSETS = [
     '/index.html',
     '/css/main_style.css',
     '/css/header.css',
+    '/assets/fonts/syne-latin.woff2',
+    '/assets/fonts/syne-latin-ext.woff2',
     '/js/service-worker-register.js',
     '/js/page-transition.js',
     '/js/mobile-dock.js',
