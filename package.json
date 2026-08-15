@@ -10,6 +10,9 @@
         "fmt": "prettier --write . --config .prettierrc.cjs --ignore-path .prettierignore",
         "fmt:check": "prettier -c . --config .prettierrc.cjs --ignore-path .prettierignore",
         "typecheck:js": "tsc -p jsconfig.json",
+        "build:images": "node scripts/build-images.mjs",
+        "build:thumbhashes": "node scripts/generate-thumbhashes.mjs",
+        "build:assets": "node scripts/build-images.mjs && node scripts/generate-thumbhashes.mjs",
         "test": "jest --coverage"
     },
     "devDependencies": {

@@ -147,6 +147,8 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Dependency-structure gate (no circular imports)    | `make depcheck`                          |
 | Stream-of-consciousness scan (comments, tests)     | `make thinking-check`                    |
 | Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                         |
+| Build responsive AVIF/WebP gallery tiers           | `make images`                            |
+| Generate ThumbHash blur-up placeholders            | `make thumbhashes`                       |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; run
   `make precommit-fix` before opening the PR.

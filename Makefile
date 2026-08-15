@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check thinking-check
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check thinking-check images thumbhashes assets
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -18,6 +18,9 @@ help:
 	@echo "  fix           Run fmt + lint-fix"
 	@echo "  test          Run the full Jest suite with a coverage report"
 	@echo "  mutate-js     StrykerJS mutation run (non-blocking; not in any gate)"
+	@echo "  images        Batch build multi-tier AVIF and WebP responsive gallery images"
+	@echo "  thumbhashes   Batch generate 28-char ThumbHash placeholders for gallery images"
+	@echo "  assets        Run images + thumbhashes generation pipeline"
 
 hooks:
 	@if [ ! -f .pre-commit-config.yaml ]; then \
@@ -134,3 +137,12 @@ mutate-js:
 # Full Jest suite + coverage report (fund-style on-demand check).
 test:
 	@$(NPX) jest --coverage
+
+# Responsive image generation & ThumbHash pipeline
+images:
+	@node scripts/build-images.mjs
+
+thumbhashes:
+	@node scripts/generate-thumbhashes.mjs
+
+assets: images thumbhashes
