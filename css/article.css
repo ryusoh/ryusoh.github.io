@@ -136,6 +136,24 @@ article .container .row blockquote footer cite:before {
     color: var(--text-muted);
     padding: 0 0.2em;
 }
+
+@media only screen and (max-width: 768px) {
+    article .container .row blockquote {
+        font-size: 1.2em; /* Mobile blockquote text size */
+        padding: 18px 20px;
+        margin: 24px 0;
+    }
+
+    article .container .row blockquote p {
+        line-height: 1.6;
+    }
+
+    article .container .row blockquote footer,
+    article .container .row blockquote .quote-attribution {
+        font-size: 0.7em;
+        margin: 12px 0 0;
+    }
+}
 article .container .row .pullquote {
     float: right;
     border: none;
