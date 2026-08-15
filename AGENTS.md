@@ -304,12 +304,10 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
 - **Don't revert a CSS value the user has explicitly set** (font size, position,
   spacing) to match a reference or an earlier state unless the user asks. If
   they change it by hand, keep their value.
-- The social icons use two containers: `.social-icons-desktop` (fixed at
-  viewport top-right, shown only in the desktop media query) and
-  `.social-icons-mobile` (inline with `#headline`, shown by default). Never put
-  `display: none` for the desktop variant in the base rules — the base rules
-  appear later in the cascade and would override the desktop media query's
-  `display: flex`.
+- The social icons dock (`.social-icons-desktop`) is fixed at the viewport
+  top-right across both desktop and mobile using safe-area insets. On mobile,
+  `#main h1` has right padding to ensure "Zhuang Liu" never collides with the
+  dock on narrow screens.
 - **Concurrent agents sharing one worktree.** When you run parallel subagents
   (swarms, background agents) in this checkout: stage only files you changed
   (`git add <specific-files>`, never `git add -A`), never `git stash`,

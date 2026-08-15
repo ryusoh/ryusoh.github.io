@@ -237,6 +237,7 @@ canvas {
     font-size: 40px;
     font-weight: 700;
     line-height: 1;
+    white-space: nowrap;
     opacity: 0.5;
     color: #fff;
     -webkit-text-stroke: 0.5px #000;
@@ -465,8 +466,8 @@ footer {
     /* Desktop social icons are fixed at the viewport top-right, not inside #cont. */
     .social-icons-desktop {
         position: fixed;
-        top: 22px;
-        right: 15px;
+        top: max(22px, env(safe-area-inset-top, 22px));
+        right: max(20px, env(safe-area-inset-right, 20px));
         display: flex;
         margin-left: 0;
         pointer-events: auto !important;
@@ -592,13 +593,15 @@ footer {
         max-width: none;
     }
 
-    #headline {
-        font-size: 1em;
-        letter-spacing: 0.12em;
+    #main h1 {
+        font-size: clamp(24px, 7vw, 36px);
+        white-space: nowrap;
+        padding-right: 145px;
+        box-sizing: border-box;
     }
 
-    .social-icons-desktop {
-        display: none;
+    #headline {
+        display: none !important;
     }
 }
 
@@ -606,12 +609,8 @@ footer {
     color: var(--text-muted);
 }
 
-/* Shared base for the two social-icons containers. Desktop uses
-   .social-icons-desktop (fixed at viewport top-right, visible only in the
-   desktop media query). Mobile uses .social-icons-mobile (inline with
-   #headline, visible by default). Do not hide the desktop variant in the base
-   rules: a `display: none` here would override the desktop media query's
-   `display: flex` because the base rules appear later in the cascade. */
+/* Base styling for floating social-icons dock fixed at viewport top-right.
+   Works seamlessly across both desktop and mobile layouts. */
 .social-icons-container {
     display: inline-flex;
     vertical-align: middle;
@@ -622,6 +621,19 @@ footer {
     padding: 3px;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.social-icons-desktop {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top, 16px));
+    right: max(16px, env(safe-area-inset-right, 16px));
+    display: flex;
+    margin-left: 0;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
     z-index: 1000;
 }
 
