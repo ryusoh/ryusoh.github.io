@@ -445,11 +445,16 @@ footer {
         display: none !important;
     }
 
-    .social-icons-container {
+    .social-icons-mobile {
+        display: none !important;
+    }
+
+    .social-icons-desktop {
         position: fixed;
         top: 22px;
         right: 15px;
-        z-index: 1000;
+        display: flex;
+        margin-left: 0;
         pointer-events: auto !important;
         opacity: 1 !important;
         visibility: visible !important;
@@ -545,9 +550,25 @@ footer {
 }
 
 #headline {
+    display: inline-block;
+    vertical-align: middle;
     font-size: 2em;
     letter-spacing: 1.9px;
     font-weight: lighter;
+}
+
+@media screen and (max-width: 449px) {
+    #main {
+        max-width: none;
+    }
+
+    #headline {
+        font-size: 1.2em;
+    }
+
+    .social-icons-desktop {
+        display: none;
+    }
 }
 
 .social-icon {
@@ -555,10 +576,8 @@ footer {
 }
 
 .social-icons-container {
-    position: fixed;
-    top: 22px;
-    right: 15px;
-    display: flex;
+    display: inline-flex;
+    vertical-align: middle;
     background-color: rgba(50, 50, 50, 0.4);
     border-radius: 6px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -607,6 +626,52 @@ footer {
 }
 
 .social-icons-container .social-icon {
+    font-size: 14px;
+}
+
+.social-icons-mobile {
+    align-items: center;
+    justify-content: space-around;
+    margin-left: 3px;
+    background-color: rgba(var(--text-color-rgb), 0.1);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    z-index: auto;
+}
+
+.social-icons-mobile a {
+    width: auto;
+    height: auto;
+    padding: 0;
+    display: inline-block;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--text-muted);
+    font-size: inherit;
+    font-family: inherit;
+    transition: color var(--brand-ease) 0.5s;
+    outline: none;
+    text-decoration: none;
+    margin: 0 5.5px;
+}
+
+.social-icons-mobile a:hover,
+.social-icons-mobile a:focus {
+    background-color: transparent;
+    color: var(--text-color);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.social-icons-mobile a:focus-visible {
+    outline: none;
+    outline-offset: 0;
+    border-radius: 0;
+}
+
+.social-icons-mobile .social-icon {
     font-size: 14px;
 }
 :root {
@@ -712,8 +777,8 @@ body::-webkit-scrollbar {
         left: 52%;
         bottom: 1%;
         transform: translateX(-50%);
-        width: 80vw;
-        max-width: 300px;
+        height: 200px;
+        width: auto;
         z-index: 2;
         opacity: 0;
         visibility: hidden;
