@@ -342,6 +342,9 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
         // .project-footer has 10px bottom distance matching main page github icon and 16px top spacing
         // (last content element bottom margin is reset so the 16px footer padding equals the 16px image-image gap)
         expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-bottom:\s*10px/);
+        expect(styleCss).not.toMatch(
+            /\.project-footer\s*\{[^}]*padding-bottom:\s*calc\(10px\s*\+\s*env\(safe-area-inset-bottom\)\)/
+        );
         expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*16px/);
     });
 });

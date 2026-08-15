@@ -17,9 +17,9 @@ describe('Article project-footer spacing consistency with main page footer', () 
         // Main page GitHub icon is fixed 10px above the viewport bottom.
         expect(mainStyleCss).toMatch(/footer\s*\{[^}]*bottom:\s*10px/);
 
-        // Article Instagram icon should sit the same 10px above the safe-area-aware bottom.
+        // Article Instagram icon should sit the same 10px above the viewport bottom as the main GitHub icon.
         expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-bottom:\s*10px/);
-        expect(styleCss).toMatch(
+        expect(styleCss).not.toMatch(
             /\.project-footer\s*\{[^}]*padding-bottom:\s*calc\(10px\s*\+\s*env\(safe-area-inset-bottom\)\)/
         );
     });

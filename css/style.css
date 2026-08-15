@@ -1298,12 +1298,6 @@ article td,
     gap: 30px;
 }
 
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .project-footer {
-        padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    }
-}
-
 /* Hide default focus ring on programmatically focusable elements (like <main>) */
 [tabindex='-1']:focus {
     outline: none !important;
