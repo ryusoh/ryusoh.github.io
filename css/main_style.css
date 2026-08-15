@@ -382,9 +382,10 @@ footer {
 
 @media screen and (min-width: 1024px) {
     #cont {
-        left: 300px;
+        left: 0;
         right: auto;
-        bottom: auto;
+        bottom: 0;
+        height: 100%;
         background: rgba(0, 0, 0, 0.9);
     }
 }
