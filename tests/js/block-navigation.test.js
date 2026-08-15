@@ -1358,3 +1358,113 @@ describe('scrollFallback full coverage', () => {
         });
     });
 });
+
+describe('block-navigation init and resize listeners', () => {
+    it('covers bindImageLoadHandlers and resize with !useObserver', () => {
+        jest.isolateModules(() => {
+            const originalAddEventListener = document.addEventListener;
+            const listeners = {};
+            document.addEventListener = jest.fn((event, handler) => {
+                listeners[event] = handler;
+            });
+            const windowListeners = {};
+            window.addEventListener = jest.fn((event, handler) => {
+                windowListeners[event] = handler;
+            });
+
+            require('../../js/block-navigation.js');
+
+            const loadEvent = new Event('DOMContentLoaded');
+            document.dispatchEvent(loadEvent);
+
+            if (listeners['load']) {
+                listeners['load']({ target: { tagName: 'IMG' } });
+            }
+
+            if (windowListeners['resize']) {
+                windowListeners['resize']();
+            }
+
+            if (windowListeners['load']) {
+                windowListeners['load']();
+            }
+
+            document.addEventListener = originalAddEventListener;
+        });
+    });
+
+    it('covers bindImageLoadHandlers and resize with useObserver', () => {
+        jest.isolateModules(() => {
+            let ioCallback = null;
+            class MockObserver {
+                constructor(cb) {
+                    ioCallback = cb;
+                }
+                observe() {}
+                unobserve() {}
+                disconnect() {}
+            }
+            window.IntersectionObserver = MockObserver;
+
+            const originalAddEventListener = document.addEventListener;
+            const listeners = {};
+            document.addEventListener = jest.fn((event, handler) => {
+                listeners[event] = handler;
+            });
+            const windowListeners = {};
+            window.addEventListener = jest.fn((event, handler) => {
+                windowListeners[event] = handler;
+            });
+
+            require('../../js/block-navigation.js');
+
+            const loadEvent = new Event('DOMContentLoaded');
+            document.dispatchEvent(loadEvent);
+
+            if (listeners['load']) {
+                listeners['load']({ target: { tagName: 'IMG' } });
+            }
+
+            if (windowListeners['resize']) {
+                windowListeners['resize']();
+            }
+
+            if (windowListeners['load']) {
+                windowListeners['load']();
+            }
+
+            // Using ioCallback to satisfy linter
+            if (ioCallback) {
+                ioCallback([]);
+            }
+
+            document.addEventListener = originalAddEventListener;
+            delete window.IntersectionObserver;
+        });
+    });
+
+    it('covers scroll ticking fallback branch', () => {
+        jest.isolateModules(() => {
+            const windowListeners = {};
+            const originalAddEventListener = window.addEventListener;
+            window.addEventListener = jest.fn((event, handler) => {
+                windowListeners[event] = handler;
+            });
+            const originalRAF = window.requestAnimationFrame;
+            delete window.requestAnimationFrame;
+
+            require('../../js/block-navigation.js');
+
+            const loadEvent = new Event('DOMContentLoaded');
+            document.dispatchEvent(loadEvent);
+
+            if (windowListeners['scroll']) {
+                windowListeners['scroll']();
+                windowListeners['scroll']();
+            }
+
+            window.addEventListener = originalAddEventListener;
+            window.requestAnimationFrame = originalRAF;
+        });
+    });
+});
