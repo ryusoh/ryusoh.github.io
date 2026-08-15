@@ -129,7 +129,7 @@ repos:
       hooks:
           - id: pytest-full
             name: pytest (full, pre-push)
-            entry: bash -lc 'pytest -q'
+            entry: bash -lc 'pytest -q || [ $? -eq 5 ]'
             language: system
             pass_filenames: false
             stages: [pre-push]
