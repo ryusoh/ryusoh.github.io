@@ -115,12 +115,15 @@ html,
 body,
 body * {
     touch-action: pan-y !important;
+    box-sizing: border-box;
 }
 
 body,
 html {
     width: 100% !important;
     max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     overflow-x: clip !important;
     overflow-x: hidden !important;
     position: relative;
@@ -139,7 +142,10 @@ article,
 .article-container,
 .post-content,
 .project-footer {
+    width: 100%;
     max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
     box-sizing: border-box !important;
     overflow-x: hidden;
 }
@@ -215,7 +221,7 @@ article h6 {
     width: 100%;
     max-width: 750px;
     margin: 0 auto;
-    padding: 0 15px;
+    padding: 0 20px;
     box-sizing: border-box;
 }
 article a {

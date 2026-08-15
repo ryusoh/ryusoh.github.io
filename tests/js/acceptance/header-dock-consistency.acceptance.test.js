@@ -283,4 +283,16 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
             /(article blockquote|\.post-content blockquote)[^{]*\{[^}]*margin-left:\s*0/
         );
     });
+
+    test('TDD: on mobile article pages, content container has symmetric 20px padding and zero body margin', () => {
+        const styleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/style.css'), 'utf8');
+
+        // body must have margin: 0
+        expect(styleCss).toMatch(/(body,\s*html|html,\s*body)[^{]*\{[^}]*margin:\s*0/);
+
+        // .container-narrow must have symmetric 20px left/right padding
+        expect(styleCss).toMatch(
+            /\.container-narrow\s*\{[^}]*padding:\s*0\s+20px|\.container-narrow\s*\{[^}]*padding-left:\s*20px/
+        );
+    });
 });
