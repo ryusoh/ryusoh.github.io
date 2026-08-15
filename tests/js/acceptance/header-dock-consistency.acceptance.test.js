@@ -347,4 +347,16 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
         );
         expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*0px/);
     });
+
+    test('TDD: Zhuang Liu brand title enforces normal letter-spacing and text-transform across main and article pages', () => {
+        const headerCss = fs.readFileSync(path.join(ROOT_DIR, 'css/header.css'), 'utf8');
+
+        // Brand title rules in header.css must explicitly enforce normal letter-spacing and no uppercase text-transform
+        expect(headerCss).toMatch(
+            /(#cont\s+h1|#cont\s+\.brand-title)[^{]*\{[^}]*letter-spacing:\s*normal\s*!important/
+        );
+        expect(headerCss).toMatch(
+            /(#cont\s+h1|#cont\s+\.brand-title)[^{]*\{[^}]*text-transform:\s*none\s*!important/
+        );
+    });
 });
