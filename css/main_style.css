@@ -204,7 +204,6 @@ canvas {
         'P22UndergroundProThin', 'PingFang SC Light', 'PingFang SC', 'Lantinghei SC Light',
         'Microsoft Yahei', 'Hiragino Sans GB', 'Helvetica Neue', Helvetica, Arial;
     text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-    opacity: 0.8;
     contain: layout;
 }
 
@@ -216,9 +215,14 @@ canvas {
 
 #main h1 {
     position: relative;
-    font-size: 50px;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 35px;
+    font-weight: 700;
     line-height: 1;
-    opacity: 0.8;
+    opacity: 1;
+    color: #fff;
+    -webkit-text-stroke: 0.5px #000;
+    paint-order: stroke fill;
 }
 
 #main h1 img,
