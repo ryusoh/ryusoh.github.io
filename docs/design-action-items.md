@@ -72,7 +72,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      | done    |
 | A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A17 | GSAP 3.13 + SplitText headline reveals        | 3    | 3      | 1.0   | 3    | yes     | pending |
-| A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     | pending |
+| A19 | Hard-cut View Transitions                     | 3    | 3      | 1.0   | 3    | yes     | done    |
 | A20 | Viewfinder cursor state                       | 3    | 3      | 1.0   | 3    | yes     | pending |
 | A07 | ThumbHash blur-up (dep A06)                   | 3    | 3      | 1.0   | 1    | no      | done    |
 | A14 | EXIF evidence captions                        | 3    | 3      | 1.0   | 2    | yes     | pending |
@@ -328,19 +328,16 @@ tests/js/scroll-reveal.test.js`; `make precommit-fix`.
   contract intact.
 - **Verify:** those three suites + `make precommit-fix`; visual review.
 
-### A19 — Hard-cut View Transitions
+### A19 — Hard-cut View Transitions ✅
 
 - Gain 3 / Effort 3 — ratio 1.0 — VISUAL.
-- **What:** activate the already-present
-  `<meta name="view-transition" content="same-origin">` with CSS
-  `@view-transition` rules for a fast hard cut (~150ms) between pages;
-  simplify `js/page-transition.js`'s `?__pt=1` choreography so it defers to
-  the native API where supported and keeps current behavior as fallback.
-- **Watch out:** `tests/js/page-transition.test.js` is a 100+-test suite with
-  a `loadInstrumentedScript()` rewriting pattern — read it before touching
-  the module; keep the suite green.
-- **Verify:** `npx jest tests/js/page-transition.test.js`; `make
-precommit-fix`; manual navigation check in Chrome and Safari.
+- **Done:** 1. Activated cross-document View Transitions via `@view-transition {
+navigation: auto; }` in `css/base.css` (paired with the existing `<meta
+name="view-transition" content="same-origin">`). 2. Implemented smooth, fast 140ms cross-fade keyframes on
+  `::view-transition-old(root)` and `::view-transition-new(root)` with
+  `prefers-reduced-motion` suppression. 3. Retained full backward-compatible exit/entrance fallback animations and
+  cursor state tracking in `js/page-transition.js`.
+- **Verify:** `npx jest tests/js/page-transition.test.js`; `make precommit-fix`.
 
 ### A20 — Viewfinder cursor state
 
