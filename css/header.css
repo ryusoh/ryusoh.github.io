@@ -145,8 +145,6 @@ body {
     white-space: nowrap !important;
     opacity: 0.5 !important;
     color: #fff !important;
-    -webkit-text-stroke: 0.5px #000 !important;
-    paint-order: stroke fill !important;
     margin: 0 !important;
     padding: 0 !important;
     pointer-events: auto !important;
@@ -167,8 +165,6 @@ body {
     line-height: 1 !important;
     margin: 0 !important;
     padding: 0 !important;
-    -webkit-text-stroke: 0.5px #000 !important;
-    paint-order: stroke fill !important;
 }
 
 #cont h1:hover,

@@ -234,8 +234,6 @@ canvas {
     white-space: nowrap;
     opacity: 0.5;
     color: #fff;
-    -webkit-text-stroke: 0.5px #000;
-    paint-order: stroke fill;
 }
 
 #main h1 img,
