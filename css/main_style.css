@@ -580,8 +580,8 @@ footer {
 }
 
 .social-icons-container a {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     padding: 0;
     display: flex;
     align-items: center;
@@ -606,14 +606,11 @@ footer {
 .social-icons-container a:focus {
     background-color: rgba(0, 0, 0, 0.5);
     color: rgba(255, 255, 255, 0.85);
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .social-icons-container a:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.5);
     outline-offset: -2px;
-    border-radius: 4px;
 }
 
 .social-icons-container .social-icon {
