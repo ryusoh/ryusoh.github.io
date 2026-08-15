@@ -207,6 +207,10 @@ canvas {
     contain: layout;
 }
 
+#top-bar-bg {
+    display: none;
+}
+
 #main {
     padding: 20px 20px 30px 20px;
     max-width: 320px;
@@ -216,10 +220,10 @@ canvas {
 #main h1 {
     position: relative;
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 35px;
+    font-size: 40px;
     font-weight: 700;
     line-height: 1;
-    opacity: 1;
+    opacity: 0.8;
     color: #fff;
     -webkit-text-stroke: 0.5px #000;
     paint-order: stroke fill;
@@ -406,6 +410,25 @@ footer {
         z-index: -1;
     }
 
+    #top-bar-bg {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 80px;
+        background: linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(0, 0, 0, 0.9) 280px,
+            rgba(0, 0, 0, 0) 100%
+        );
+        opacity: 1;
+        transition: opacity 0.4s var(--brand-ease);
+        pointer-events: none;
+        z-index: 2;
+    }
+
     #cont #main {
         background: transparent;
         pointer-events: none;
@@ -436,6 +459,13 @@ footer {
     #cont:hover::before,
     #cont:focus-within::before {
         opacity: 1;
+    }
+
+    #cont:hover + #top-bar-bg,
+    #cont:focus-within + #top-bar-bg,
+    body:has(#cont:hover) #top-bar-bg,
+    body:has(#cont:focus-within) #top-bar-bg {
+        opacity: 0;
     }
 
     #cont:hover #main,
