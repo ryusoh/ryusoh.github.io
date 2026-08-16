@@ -2,7 +2,7 @@
 
 Design specification for automated, deterministic, and AI-assisted generation
 and maintenance of portfolio pages (`p1/`–`p4/`, `p5/`, etc.) from minimal
-markdown and raw photos in an AI-native repository.
+markdown and raw photos in this repository.
 
 ---
 
@@ -272,7 +272,7 @@ Whenever a new global JS effect or stylesheet is added, updated, or removed:
 
 ---
 
-## 6. AI-Native Autonomous Governance (Zero Human Overhead)
+## 6. Autonomous Quality Governance (Zero Human Overhead)
 
 Because this repository is 100% maintained and coded by AI agents, template
 synchronization must happen automatically without requiring manual instructions
@@ -345,7 +345,7 @@ CI pipeline:
 
 ## 7. Agent Skill Interface (`/new-page`)
 
-To create an entirely AI-native workflow, a dedicated agent skill
+To create a frictionless, automated workflow, a dedicated agent skill
 (`.agents/skills/new-page/SKILL.md`) will encapsulate the workflow:
 
 1. **User action**: Drops raw photos into `assets/img/p5/` and provides a prompt

@@ -160,6 +160,14 @@ test_sample.jpg | Synthetic test custom alt caption
             const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
             expect(indexHtml).toContain(`href="./${testPageId}/"`);
 
+            // Verify sibling portfolio pages (e.g. p1) have their navigation dock updated
+            const p1Html = fs.readFileSync(path.join(ROOT_DIR, 'p1', 'index.html'), 'utf8');
+            expect(p1Html).toContain(`href="/${testPageId}/"`);
+
+            // Verify sitemap.xml includes the newly generated page
+            const sitemapXml = fs.readFileSync(path.join(ROOT_DIR, 'sitemap.xml'), 'utf8');
+            expect(sitemapXml).toContain(`https://www.lyeutsaon.com/${testPageId}/`);
+
             // Run validator on the newly generated synthetic page
             const validateOutput = execFileSync('node', [VALIDATE_SCRIPT], {
                 cwd: ROOT_DIR,
