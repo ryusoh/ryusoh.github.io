@@ -64,9 +64,101 @@ article .container .row img {
     height: auto;
     display: inline-block;
 }
+.image-container,
+.post-content .image-container,
+article .image-container {
+    margin: 16px auto !important;
+    padding: 0 !important;
+    line-height: 0;
+    display: block !important;
+}
+
+.image-wrapper {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    vertical-align: middle;
+    line-height: 0;
+}
+.image-wrapper picture,
+.image-wrapper picture > img,
+.image-wrapper img {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    max-width: 100% !important;
+    height: auto;
+    line-height: 0;
+}
+.photo-credit {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    height: 28px;
+    box-sizing: border-box;
+    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(30, 30, 30, 0.75);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 5;
+    pointer-events: auto;
+    user-select: none;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+.photo-credit:hover {
+    background-color: rgba(45, 45, 45, 0.9);
+    color: rgba(255, 255, 255, 1);
+}
+.photo-credit a,
+.photo-credit a:link,
+.photo-credit a:visited,
+.post-content .photo-credit a,
+.post-content .photo-credit a:link,
+.post-content .photo-credit a:visited {
+    color: rgba(255, 255, 255, 0.7) !important;
+    text-decoration: none;
+    font-weight: 600;
+    font-family: inherit;
+    transition:
+        color 0.2s ease,
+        opacity 0.2s ease;
+}
+.photo-credit a:hover,
+.photo-credit a:focus,
+.post-content .photo-credit a:hover,
+.post-content .photo-credit a:focus {
+    color: rgba(255, 255, 255, 1) !important;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    opacity: 0.85;
+}
 @media only screen and (max-width: 768px) {
     article .container .row img {
         max-width: 100% !important;
+    }
+    .photo-credit {
+        bottom: 0;
+        right: 0;
+        font-size: 0.65rem;
+        padding: 3px 8px;
+        height: 24px;
+        border-radius: 5px 0 0 0;
     }
 }
 article .container .row .video-container {

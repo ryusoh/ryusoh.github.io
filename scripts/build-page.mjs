@@ -126,10 +126,57 @@ export async function ensureImageVariants(dir, filename) {
 /**
  * Builds HTML picture element markup for a gallery photo.
  */
-export function buildPictureElement(pageId, filename, altText, meta, isFirst) {
+export function buildPictureElement(pageId, filename, altText, meta, isFirst, credit = null) {
     const loadingAttr = isFirst ? '' : ' loading="lazy"';
     const avifSrcset = `/assets/img/${pageId}/${meta.baseName}-768.avif 768w, /assets/img/${pageId}/${meta.baseName}-1200.avif 1200w, /assets/img/${pageId}/${meta.baseName}.avif 2048w`;
     const webpSrcset = `/assets/img/${pageId}/${meta.baseName}-768.webp 768w, /assets/img/${pageId}/${meta.baseName}-1200.webp 1200w, /assets/img/${pageId}/${meta.baseName}.webp 2048w`;
+
+    let creditHtml = '';
+    if (credit) {
+        const handleMatch = credit.match(/@([a-zA-Z0-9_.]+)/);
+        let formattedCredit = credit;
+        if (handleMatch) {
+            const handle = handleMatch[1];
+            const handleLink = `<a href="https://www.instagram.com/${handle}/" target="_blank" rel="noopener noreferrer">@${handle}</a>`;
+            const cleanCredit = credit.replace(/^[(\s]+/, '').replace(/[)\s]+$/, '');
+            if (/^(by|photo by|photo:)\s+/i.test(cleanCredit)) {
+                formattedCredit = `by ${handleLink}`;
+            } else if (cleanCredit.startsWith('@')) {
+                formattedCredit = `by ${handleLink}`;
+            } else {
+                formattedCredit = cleanCredit.replace(`@${handle}`, handleLink);
+            }
+        }
+        creditHtml = `\n        <span class="photo-credit">${formattedCredit}</span>`;
+    }
+
+    if (creditHtml) {
+        return `<div align="center" class="image-container">
+    <div class="image-wrapper">
+        <picture>
+            <source
+                type="image/avif"
+                srcset="${avifSrcset}"
+                sizes="${SIZES_ATTR}"
+            />
+            <source
+                type="image/webp"
+                srcset="${webpSrcset}"
+                sizes="${SIZES_ATTR}"
+            />
+            <img
+                data-thumbhash="${meta.hashBase64}"
+                style="background-image: url('${meta.dataUrl}'); background-size: cover; background-position: center;"
+                src="/assets/img/${pageId}/${filename}"
+                alt="${altText}"${loadingAttr}
+                width="${meta.width}"
+                height="${meta.height}"
+                decoding="async"
+            />
+        </picture>${creditHtml}
+    </div>
+</div>`;
+    }
 
     return `<div align="center">
     <picture>
@@ -282,12 +329,34 @@ export async function buildPage(pageId) {
             continue;
         }
 
-        // Image line: filename.ext [| custom alt text]
-        const imgMatch = line.match(/^([^\s|]+\.(?:jpe?g|JPG|png|webp|avif))(?:\s*\|\s*(.*))?$/i);
+        // Image line: filename.ext [| custom alt/credit] or filename.ext (by @handle)
+        const imgMatch = line.match(
+            /^([^\s|()]+\.(?:jpe?g|JPG|png|webp|avif))(?:\s*\|\s*(.*)|\s*\((.*?)\))?$/i
+        );
         if (imgMatch) {
             await flushQuote();
             const filename = imgMatch[1].trim();
-            const customAlt = imgMatch[2] ? imgMatch[2].trim() : null;
+            const rawExtra = (imgMatch[2] || imgMatch[3] || '').trim();
+            let customAlt = null;
+            let credit = null;
+
+            if (rawExtra) {
+                if (
+                    rawExtra.startsWith('@') ||
+                    rawExtra.toLowerCase().startsWith('by ') ||
+                    rawExtra.toLowerCase().startsWith('photo by') ||
+                    rawExtra.toLowerCase().startsWith('photo:')
+                ) {
+                    credit = rawExtra;
+                    customAlt = `Self portrait by ${rawExtra
+                        .replace(/^by\s+/i, '')
+                        .replace(/^photo by:?\s+/i, '')
+                        .replace(/^photo:\s+/i, '')}`;
+                } else {
+                    customAlt = rawExtra;
+                }
+            }
+
             imageFilenames.push(filename);
 
             const meta = await ensureImageVariants(imgDir, filename);
@@ -296,7 +365,8 @@ export async function buildPage(pageId) {
                 filename,
                 customAlt || 'Street photography by Zhuang Liu',
                 meta,
-                isFirstImage
+                isFirstImage,
+                credit
             );
             contentBlocks.push(pictureHtml);
             isFirstImage = false;

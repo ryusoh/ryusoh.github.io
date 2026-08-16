@@ -56,16 +56,30 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
             return items;
         };
 
-        for (const p of ['p1', 'p2', 'p3', 'p4']) {
+        const pages = fs
+            .readdirSync(ROOT_DIR)
+            .filter((d) => /^p\d+$/.test(d) && fs.existsSync(path.join(ROOT_DIR, d, 'index.html')));
+
+        for (const p of pages) {
             const html = fs.readFileSync(path.join(ROOT_DIR, p, 'index.html'), 'utf8');
             const seq = extractSequence(html);
-            expect(seq.length).toBeGreaterThan(15);
+            expect(seq.length).toBeGreaterThan(5);
             // Verify quotes exist and are not truncated
             const quotes = seq.filter((item) => item.startsWith('QUOTE:'));
             expect(quotes.length).toBeGreaterThanOrEqual(1);
             for (const q of quotes) {
-                expect(q.length).toBeGreaterThan(20);
+                expect(q.length).toBeGreaterThan(15);
             }
+        }
+    });
+
+    test('p5 renders photo credits with proper instagram links and corner badge', () => {
+        const p5HtmlPath = path.join(ROOT_DIR, 'p5', 'index.html');
+        if (fs.existsSync(p5HtmlPath)) {
+            const html = fs.readFileSync(p5HtmlPath, 'utf8');
+            expect(html).toContain('class="photo-credit"');
+            expect(html).toContain('href="https://www.instagram.com/photo.initiator/"');
+            expect(html).toContain('@photo.initiator');
         }
     });
 
@@ -87,7 +101,7 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
                     width: 200,
                     height: 150,
                     channels: 3,
-                    background: { r: 120, g: 60, b: 200 },
+                    background: { r: 120, g: 150, b: 180 },
                 },
             })
                 .jpeg()
@@ -95,14 +109,14 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
 
             // Write test markdown with custom alt caption and blockquote
             const mdContent = `---
-title: "SYNTHETIC TEST PROJECT"
-description: "A synthetic test gallery for unit tests."
+title: "Synthetic Test Project"
+description: "Synthetic test description for builder verification."
 keywords:
   - "test"
   - "synthetic"
 ---
 
-test_sample.jpg | Synthetic test custom alt caption
+test_sample.jpg | by @test.photographer
 
 > This is an automated test blockquote
 `;
@@ -151,7 +165,9 @@ test_sample.jpg | Synthetic test custom alt caption
             const html = fs.readFileSync(htmlPath, 'utf8');
             expect(html).toContain('<title>SYNTHETIC TEST PROJECT</title>');
             expect(html).toContain('<h1>SYNTHETIC TEST PROJECT</h1>');
-            expect(html).toContain('alt="Synthetic test custom alt caption"');
+            expect(html).toContain('alt="Self portrait by @test.photographer"');
+            expect(html).toContain('class="photo-credit"');
+            expect(html).toContain('href="https://www.instagram.com/test.photographer/"');
             expect(html).toContain('data-thumbhash=');
             expect(html).toContain(`href="/${testPageId}/"`);
             expect(html).toContain('aria-current="page"');

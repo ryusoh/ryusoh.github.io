@@ -12,6 +12,7 @@
                 p2: '/assets/img/p2/',
                 p3: '/assets/img/p3/',
                 p4: '/assets/img/p4/',
+                p5: '/assets/img/p5/',
             };
 
             // Define the actual image sets for each portfolio page (these are the specific images referenced in each portfolio)
@@ -98,6 +99,20 @@
                     '/assets/img/p4/DSCF1207-5.jpg',
                     '/assets/img/p4/DSCF3446-2.jpg',
                     '/assets/img/p4/DSCF0896-2.jpg',
+                ],
+                p5: [
+                    '/assets/img/p5/DSCF9004-3.jpg',
+                    '/assets/img/p5/2025-05-11-0020.JPG',
+                    '/assets/img/p5/DSCF8059.JPG',
+                    '/assets/img/p5/DSCF1557-3.JPG',
+                    '/assets/img/p5/DSCF5407-2.jpg',
+                    '/assets/img/p5/DSCF8149-7.JPG',
+                    '/assets/img/p5/DSCF8231.JPG',
+                    '/assets/img/p5/849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG',
+                    '/assets/img/p5/DSCF0525.jpg',
+                    '/assets/img/p5/DSCF6274.JPG',
+                    '/assets/img/p5/B82B02AB-6E38-440D-9AEA-2407681FD7BA.JPG',
+                    '/assets/img/p5/DSCF9159.jpg',
                 ],
             };
         }
