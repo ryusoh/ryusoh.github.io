@@ -48,7 +48,7 @@ precommit: hooks sync-check
 			echo "ERROR: pre-commit is not installed (e.g. brew install pre-commit or pip install pre-commit)."; \
 			exit 1; \
 		fi; \
-		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --show-diff-on-failure; \
+		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --show-diff-on-failure && npm test; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit."; \
 	fi
@@ -63,6 +63,8 @@ precommit-fix: hooks sync-check
 		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --hook-stage manual || true; \
 		echo "Staging auto-fixed files..."; \
 		git add -u; \
+		echo "Running full Jest suite + coverage floor ratchet (CI parity)..."; \
+		npm test; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
 	fi
