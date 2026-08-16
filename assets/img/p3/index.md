@@ -29,12 +29,8 @@ DSCF3579.JPG
 DSCF7318-3.jpg
 DSCF5759-5.jpg
 
----
-
 > I've been laying
 > <br />
 > Waiting for your next mistake
-
----
 
 DSCF5719-3.jpg
