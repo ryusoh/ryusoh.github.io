@@ -48,7 +48,14 @@
             }
 
             return lenis;
-        } catch {
+        } catch (e) {
+            if (
+                typeof window !== 'undefined' &&
+                window.console &&
+                typeof window.console.warn === 'function'
+            ) {
+                window.console.warn('[LenisInit] Lenis instantiation failed:', e);
+            }
             return null;
         }
     }
