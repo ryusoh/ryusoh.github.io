@@ -104,7 +104,31 @@
             updateDimensions();
         }
 
+        /**
+         * Bolt Optimization:
+         * - What: Gate scroll work behind a `ticking` flag and `requestAnimationFrame`.
+         * - Why: The previous implementation fired synchronous DOM evaluations and class mutations directly within the high-frequency `scroll` event. This forces execution outside the browser's paint cycle, causing layout thrashing.
+         * - Impact: Measurably reduces main thread overhead by decoupling the high-frequency event capture from DOM writes, ensuring class mutations happen safely inside the rAF loop.
+         */
+        let ticking = false;
         function handleScroll() {
+            if (!ticking) {
+                if (
+                    typeof window !== 'undefined' &&
+                    typeof window.requestAnimationFrame === 'function'
+                ) {
+                    window.requestAnimationFrame(() => {
+                        processScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                } else {
+                    processScroll();
+                }
+            }
+        }
+
+        function processScroll() {
             if (!isMobile()) {
                 if (cont) {
                     if (cont) {
