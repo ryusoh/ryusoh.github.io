@@ -698,6 +698,12 @@ article .image-container {
     display: block !important;
 }
 
+.post-content > div[align='center'],
+.post-content .image-container {
+    content-visibility: auto;
+    contain-intrinsic-size: 900px 600px;
+}
+
 .image-wrapper {
     position: relative;
     display: inline-block;
