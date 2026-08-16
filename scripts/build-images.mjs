@@ -50,27 +50,29 @@ async function processImages() {
             const meta = await pipeline.metadata();
 
             // 1. Full-res AVIF & WebP
-            await sharp(inputPath).avif({ quality: 65, effort: 4 }).toFile(avifPath);
-            await sharp(inputPath).webp({ quality: 75, effort: 4 }).toFile(webpPath);
+            await sharp(inputPath)
+                .avif({ quality: 65, effort: 6, chromaSubsampling: '4:2:0' })
+                .toFile(avifPath);
+            await sharp(inputPath).webp({ quality: 75, effort: 6 }).toFile(webpPath);
 
             // 2. 1200w variants (Super Retina / Tablet)
             await sharp(inputPath)
                 .resize({ width: 1200, withoutEnlargement: true })
-                .avif({ quality: 65, effort: 4 })
+                .avif({ quality: 65, effort: 6, chromaSubsampling: '4:2:0' })
                 .toFile(avif1200Path);
             await sharp(inputPath)
                 .resize({ width: 1200, withoutEnlargement: true })
-                .webp({ quality: 75, effort: 4 })
+                .webp({ quality: 75, effort: 6 })
                 .toFile(webp1200Path);
 
             // 3. 768w variants (Mobile 2x)
             await sharp(inputPath)
                 .resize({ width: 768, withoutEnlargement: true })
-                .avif({ quality: 65, effort: 4 })
+                .avif({ quality: 65, effort: 6, chromaSubsampling: '4:2:0' })
                 .toFile(avif768Path);
             await sharp(inputPath)
                 .resize({ width: 768, withoutEnlargement: true })
-                .webp({ quality: 75, effort: 4 })
+                .webp({ quality: 75, effort: 6 })
                 .toFile(webp768Path);
 
             const avifFullStat = fs.statSync(avifPath);
