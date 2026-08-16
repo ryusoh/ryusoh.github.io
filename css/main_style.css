@@ -468,7 +468,7 @@ footer .mobile-banner.is-visible {
 
     #cont #main {
         background: transparent;
-        pointer-events: none;
+        pointer-events: auto;
     }
 
     #cont #main h1 {
@@ -604,6 +604,8 @@ footer .mobile-banner.is-visible {
     text-transform: uppercase;
     line-height: 1.25;
     padding: 0.25em 0.4em 0.4em 0.4em; /* top, right&left, bottom - adjusted for box effect */
+    pointer-events: auto;
+    touch-action: manipulation;
     transition:
         background-color 0.3s var(--brand-ease),
         opacity 0.3s var(--brand-ease); /* Smooth transition for the background and opacity */

@@ -1,9 +1,14 @@
 /* --- Universal Header Navigation Dock for Article Pages (Matches Golden main_style.css ebae986f) --- */
 
 html,
-body,
-body * {
+body {
     touch-action: pan-y !important;
+}
+
+a,
+button,
+[role='button'] {
+    touch-action: manipulation !important;
 }
 
 html,
@@ -124,12 +129,13 @@ body {
     box-sizing: content-box !important;
     margin: 0 auto !important;
     background: transparent !important;
+    pointer-events: auto !important;
 }
 
 @media screen and (min-width: 450px) {
     #cont .cont-inner,
     #cont #site-header {
-        pointer-events: none !important;
+        pointer-events: auto !important;
         box-sizing: content-box !important;
     }
 }
@@ -292,6 +298,8 @@ body {
     border: none !important;
     background: transparent !important;
     background-color: transparent !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
     transition:
         background-color 0.3s var(--brand-ease, cubic-bezier(0.65, 0.05, 0, 1)),
         opacity 0.3s var(--brand-ease, cubic-bezier(0.65, 0.05, 0, 1)) !important;
