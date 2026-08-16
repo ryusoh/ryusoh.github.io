@@ -2,7 +2,7 @@
 
 Design specification for automated, deterministic, and AI-assisted generation
 and maintenance of portfolio pages (`p1/`–`p4/`, `p5/`, etc.) from minimal
-markdown and raw photos.
+markdown and raw photos in an AI-native repository.
 
 ---
 
@@ -50,28 +50,28 @@ To achieve a frictionless, zero-error workflow, the system separates
 **creative editorial authoring** from **deterministic computation**:
 
 ```text
-+-------------------------------------------------------------+
-| 1. Creative Layer (Human or AI Agent)                       |
-|    - Raw photos in assets/img/p5/                           |
++--------------------------------------------------------------+
+| 1. Creative Layer (Human or AI Agent)                        |
+|    - Raw photos in assets/img/p5/                            |
 |    - Editorial content in assets/img/p5/index.md (or prompt) |
-+-------------------------------------------------------------+
-                              |
-                              v
-+-------------------------------------------------------------+
-| 2. Deterministic Engine (scripts/build-page.mjs)            |
-|    - Sharp: reads image dimensions                          |
-|    - Sharp: generates AVIF / WebP tiers (768w, 1200w, full) |
-|    - ThumbHash: computes hash and base64 blur-up            |
-|    - Template: compiles canonical HTML (p5/index.html)      |
-|    - Global Sync: updates nav in index.html & p1..p5        |
-|    - Global Sync: updates js/preloader.js assetSets         |
-+-------------------------------------------------------------+
-                              |
-                              v
-+-------------------------------------------------------------+
-| 3. Quality Gate (CI Parity)                                 |
-|    - make precommit-fix (ESLint, Prettier, Jest tests)      |
-+-------------------------------------------------------------+
++--------------------------------------------------------------+
+                              │
+                              ▼
++--------------------------------------------------------------+
+| 2. Deterministic Engine (scripts/build-page.mjs)             |
+|    - Sharp: reads image dimensions                           |
+|    - Sharp: generates AVIF / WebP tiers (768w, 1200w, full)  |
+|    - ThumbHash: computes hash and base64 blur-up             |
+|    - Template: compiles canonical HTML (p5/index.html)       |
+|    - Global Sync: updates nav in index.html & p1..p5         |
+|    - Global Sync: updates js/preloader.js assetSets          |
++--------------------------------------------------------------+
+                              │
+                              ▼
++--------------------------------------------------------------+
+| 3. Quality Gate (CI Parity)                                  |
+|    - make precommit-fix (ESLint, Prettier, Jest tests)       |
++--------------------------------------------------------------+
 ```
 
 ---
@@ -182,7 +182,7 @@ generator templates or individual pages fall out of sync.
 
 ### 5.1 Component Slot Architecture
 
-Every portfolio page is conceptually decomposed into two distinct layers:
+Every portfolio page is decomposed into two distinct layers:
 
 ```text
 +-------------------------------------------------------------+
@@ -211,29 +211,88 @@ The canonical shell is maintained in a central template
 
 Whenever a new global JS effect or stylesheet is added, updated, or removed:
 
-1. The change is made once in the canonical shell template
+1. The change is made in the canonical shell template
    (`scripts/templates/portfolio-shell.html`).
 2. Running `make sync-pages` (or `node scripts/sync-pages.mjs`) parses every
    existing page (`p1/index.html`–`p<N>/index.html`), extracts each page's
    unique content slots, and re-wraps them in the updated shell.
-3. This eliminates manual copy-pasting across dozens of files and guarantees that
-   `p1` through `p<N>` always share 100% identical script tags, CSS links, and
-   DOM wrappers.
+3. This guarantees that `p1` through `p<N>` always share 100% identical script
+   tags, CSS links, and DOM wrappers.
 
-### 5.3 Automated Drift-Guard Acceptance Gate
+---
 
-To ensure that manual edits do not accidentally introduce drift, an acceptance
-test (`tests/js/acceptance/project-scripts-consistency.acceptance.test.js`) gates
-the CI pipeline:
+## 6. AI-Native Autonomous Governance (Zero Human Overhead)
+
+Because this repository is 100% maintained and coded by AI agents, template
+synchronization must happen automatically without requiring manual instructions
+from the user.
+
+```text
++--------------------------------------------------------------------------+
+| 1. AGENTS.md Rule (Agent Context)                                        |
+|    Tells any agent (Claude, Antigravity, Kimi, Jules) how portfolio      |
+|    pages work: update scripts/templates/portfolio-shell.html and run     |
+|    make sync-pages.                                                      |
++--------------------------------------------------------------------------+
+                                     │
+                                     ▼
++--------------------------------------------------------------------------+
+| 2. make precommit-fix & Drift Gate (Deterministic Guardrail)             |
+|    - make sync-pages is hooked into make precommit-fix.                  |
+|    - If an agent touches a script in p1, make precommit-fix auto-syncs   |
+|      p2..pN and the shell template before allowing a commit.             |
++--------------------------------------------------------------------------+
+                                     │
+                                     ▼
++--------------------------------------------------------------------------+
+| 3. Acceptance Tests (CI Ratchet)                                         |
+|    project-scripts-consistency.acceptance.test.js fails CI if any        |
+|    page's <head> or trailing <script> tags ever diverge.                 |
++--------------------------------------------------------------------------+
+```
+
+### 6.1 AGENTS.md Working Rule
+
+An explicit rule in `AGENTS.md` instructs all coding agents:
+
+> **Portfolio Page Infrastructure (`p1`–`p<N>`):**
+> All portfolio pages share a single canonical template shell
+> (`scripts/templates/portfolio-shell.html`). When adding or modifying global
+> scripts, styles, or header/footer elements on portfolio pages: **always update
+> `scripts/templates/portfolio-shell.html` and run `make sync-pages`**. Never
+> hand-edit the global shell in an individual `p*/index.html` file in isolation.
+
+### 6.2 Pre-Commit Auto-Healer (`make precommit-fix`)
+
+`make sync-pages` is wired directly into `make precommit-fix` and `make check`
+(matching the precedent set by `sync-check` for agent commands):
+
+```makefile
+sync-pages-check:
+    @node scripts/sync-pages.mjs --check
+
+precommit-fix: hooks sync-check sync-pages-check
+```
+
+If an agent adds a new JS effect and runs `make precommit-fix`, the precommit
+harness automatically detects drift, updates all other portfolio pages, and
+stages the updated files.
+
+### 6.3 Automated Drift-Guard Acceptance Gate
+
+An acceptance test
+(`tests/js/acceptance/project-scripts-consistency.acceptance.test.js`) gates the
+CI pipeline:
 
 - Scans all `p*/index.html` files.
-- Asserts that all `<link rel="stylesheet">` tags, head scripts, dock structures,
-  and trailing `<script>` tags match identically across all portfolio pages.
+- Asserts that all `<link rel="stylesheet">` tags, head scripts, dock
+  structures, and trailing `<script>` tags match identically across all
+  portfolio pages.
 - Fails loudly if a script is added to `p1` but omitted in `p2`–`p<N>`.
 
 ---
 
-## 6. Agent Skill Interface (`/new-page`)
+## 7. Agent Skill Interface (`/new-page`)
 
 To create an entirely AI-native workflow, a dedicated agent skill
 (`.agents/skills/new-page/SKILL.md`) will encapsulate the workflow:
@@ -251,7 +310,7 @@ To create an entirely AI-native workflow, a dedicated agent skill
 
 ---
 
-## 7. Required Codebase Generalizations
+## 8. Required Codebase Generalizations
 
 Before adding `p5`, the following hardcoded `p1`–`p4` limits must be
 generalized to dynamic discovery:
