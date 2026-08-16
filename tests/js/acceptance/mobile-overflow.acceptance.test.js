@@ -39,8 +39,11 @@ describe('TDD: Mobile Horizontal Scroll Prevention (No Left-Right Scroll)', () =
         expect(articleCss).toMatch(/max-width:\s*100%/);
     });
 
-    test('TDD: all pages p1-p4 define strict mobile viewport meta tags to prevent zoom-induced horizontal scroll', () => {
-        const pages = ['p1', 'p2', 'p3', 'p4'];
+    test('TDD: all project pages define strict mobile viewport meta tags to prevent zoom-induced horizontal scroll', () => {
+        const pages = fs
+            .readdirSync(ROOT_DIR, { withFileTypes: true })
+            .filter((d) => d.isDirectory() && /^p\d+$/i.test(d.name))
+            .map((d) => d.name);
         for (const page of pages) {
             const html = fs.readFileSync(path.join(ROOT_DIR, page, 'index.html'), 'utf8');
             expect(html).toMatch(

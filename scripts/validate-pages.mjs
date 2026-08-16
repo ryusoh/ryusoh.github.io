@@ -55,12 +55,12 @@ export async function validateAllPages() {
                 .map((m) => m[1].replace(/<[^>]+>/g, '').trim())
                 .filter((line) => line && !line.startsWith('<!--'));
 
+            const cleanHtmlText = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
             for (const quoteLine of mdQuotes) {
-                // Check that significant quote words exist in the rendered HTML
-                const words = quoteLine.split(/\s+/).slice(0, 4).join(' ');
-                if (words && !html.includes(words)) {
+                const cleanLine = quoteLine.replace(/\s+/g, ' ').trim();
+                if (cleanLine && !cleanHtmlText.includes(cleanLine)) {
                     console.error(
-                        `[${page}] Content dropped: markdown text snippet "${words}" missing from rendered HTML.`
+                        `[${page}] Content dropped: markdown text "${cleanLine.slice(0, 50)}..." missing from rendered HTML.`
                     );
                     errorCount++;
                 }
@@ -145,6 +145,26 @@ export async function validateAllPages() {
                 errorCount++;
             }
             isFirstImg = false;
+        }
+    }
+
+    // 5. Validate sitemap.xml
+    const sitemapPath = path.join(ROOT_DIR, 'sitemap.xml');
+    if (!fs.existsSync(sitemapPath)) {
+        console.error('Missing sitemap.xml.');
+        errorCount++;
+    } else {
+        const sitemapContent = fs.readFileSync(sitemapPath, 'utf8');
+        if (!sitemapContent.includes('<loc>https://www.lyeutsaon.com/</loc>')) {
+            console.error('sitemap.xml is missing home root URL.');
+            errorCount++;
+        }
+        for (const page of pages) {
+            const pageUrl = `<loc>https://www.lyeutsaon.com/${page}/</loc>`;
+            if (!sitemapContent.includes(pageUrl)) {
+                console.error(`sitemap.xml is missing page entry: ${pageUrl}`);
+                errorCount++;
+            }
         }
     }
 

@@ -158,7 +158,7 @@ export function buildPictureElement(pageId, filename, altText, meta, isFirst) {
 /**
  * Updates js/preloader.js to include the given project page's images.
  */
-export function updatePreloader(pageId, imageFilenames) {
+export async function updatePreloader(pageId, imageFilenames) {
     const preloaderPath = path.join(ROOT_DIR, 'js', 'preloader.js');
     if (!fs.existsSync(preloaderPath)) return;
 
@@ -187,6 +187,13 @@ export function updatePreloader(pageId, imageFilenames) {
         if (setsBlockRegex.test(content)) {
             content = content.replace(setsBlockRegex, `$1$2\n${assetBlockStr}$3`);
         }
+    }
+
+    try {
+        const options = await prettier.resolveConfig(preloaderPath);
+        content = await prettier.format(content, { ...options, filepath: preloaderPath });
+    } catch {
+        // keep content as-is
     }
 
     fs.writeFileSync(preloaderPath, content, 'utf8');
@@ -379,7 +386,7 @@ export async function buildPage(pageId) {
     await syncSitemap(allPages);
 
     // 6. Update preloader
-    updatePreloader(cleanId, imageFilenames);
+    await updatePreloader(cleanId, imageFilenames);
 
     return {
         htmlPath,

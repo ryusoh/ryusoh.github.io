@@ -71,7 +71,8 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
         });
 
         const golden = structures[0];
-        expect(golden.portLinks).toEqual(['/p1/', '/p2/', '/p3/', '/p4/']);
+        const expectedLinks = getProjectPages().map((p) => `/${p.replace(/\/index\.html$/, '')}/`);
+        expect(golden.portLinks).toEqual(expectedLinks);
 
         structures.forEach((item) => {
             expect(item.hasCont).toBe(true);

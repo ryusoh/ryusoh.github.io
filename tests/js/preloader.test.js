@@ -169,11 +169,11 @@ describe('AssetPreloader', () => {
             });
         });
 
-        test('asset set counts match actual <img> counts in p1–p4', () => {
+        test('asset set counts match actual <img> counts across all project pages', () => {
             const preloader = new AssetPreloader();
             const projectRoot = path.resolve(__dirname, '../..');
 
-            ['p1', 'p2', 'p3', 'p4'].forEach((pageKey) => {
+            Object.keys(preloader.assetSets).forEach((pageKey) => {
                 const htmlPath = path.join(projectRoot, pageKey, 'index.html');
                 const html = fs.readFileSync(htmlPath, 'utf8');
                 // The shared mobile banner is not part of the per-page project asset set.
