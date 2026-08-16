@@ -15,6 +15,7 @@ declare const gsap: Gsap;
 declare const SplitText: any;
 
 interface Window {
+    __MobileDockForTesting?: { initMobileDock: () => void };
     SplitText?: any;
     __FontAwesomeLoaderForTesting?: { FontAwesomeLoader: new () => any };
     /** GSAP animation library */

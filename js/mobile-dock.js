@@ -70,7 +70,10 @@
 
         // Close dropdown when tapping outside
         document.addEventListener('click', function (event) {
-            if (cont.classList.contains('is-expanded') && !cont.contains(event.target)) {
+            if (
+                cont.classList.contains('is-expanded') &&
+                !cont.contains(/** @type {Node} */ (event.target))
+            ) {
                 cont.classList.remove('is-expanded');
             }
         });
@@ -103,7 +106,11 @@
 
         function handleScroll() {
             if (!isMobile()) {
-                cont.classList.remove('is-scrolled-down');
+                if (cont) {
+                    if (cont) {
+                        cont.classList.remove('is-scrolled-down');
+                    }
+                }
                 return;
             }
 
@@ -115,13 +122,21 @@
 
             if (isNearTop || isNearBottom || currentScrollY < lastScrollY) {
                 // Scrolling up, at top, or reached bottom -> restore 100% opacity
-                cont.classList.remove('is-scrolled-down');
+                if (cont) {
+                    if (cont) {
+                        cont.classList.remove('is-scrolled-down');
+                    }
+                }
                 if (document.body) {
                     document.body.classList.remove('is-scrolled-down');
                 }
             } else if (isScrollingDown) {
                 // Scrolling down past threshold -> dim title & social icons to 10%
-                cont.classList.add('is-scrolled-down');
+                if (cont) {
+                    if (cont) {
+                        cont.classList.add('is-scrolled-down');
+                    }
+                }
                 if (document.body) {
                     document.body.classList.add('is-scrolled-down');
                 }
