@@ -1,0 +1,56 @@
+/**
+ * @jest-environment jsdom
+ *
+ * Acceptance test: ThumbHash blur placeholders are baked inline across all
+ * gallery project pages (p1-p4) for instant 0ms Frame-0 rendering without
+ * black box flashes, and homepage background container does not lock to ThumbHash.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const ROOT_DIR = path.resolve(__dirname, '../../../');
+
+describe('ThumbHash consistency across project galleries and homepage', () => {
+    const projectPages = ['p1/index.html', 'p2/index.html', 'p3/index.html', 'p4/index.html'];
+
+    test('every gallery image has data-thumbhash and inline data URL background-image style', () => {
+        projectPages.forEach((pagePath) => {
+            const html = fs.readFileSync(path.join(ROOT_DIR, pagePath), 'utf8');
+            document.body.innerHTML = html;
+
+            const galleryImgs = Array.from(
+                document.querySelectorAll(
+                    'article picture img:not(.mobile-banner), .post-content picture img:not(.mobile-banner)'
+                )
+            );
+
+            expect(galleryImgs.length).toBeGreaterThan(0);
+
+            galleryImgs.forEach((img) => {
+                const thumbhash = img.getAttribute('data-thumbhash');
+                expect(thumbhash).toBeTruthy();
+                expect(thumbhash.length).toBeGreaterThanOrEqual(20);
+
+                const style = img.getAttribute('style') || '';
+                expect(style).toContain("background-image: url('data:image/png;base64,");
+                expect(style).toContain('background-size: cover');
+            });
+        });
+    });
+
+    test('homepage mimida container does not have data-thumbhash attribute', () => {
+        const html = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+        document.body.innerHTML = html;
+
+        const mimida = document.getElementById('mimida');
+        expect(mimida).toBeTruthy();
+        expect(mimida.getAttribute('data-thumbhash')).toBeNull();
+    });
+
+    test('homepage preloads desktop_background without media queries and does not preload mobile_background', () => {
+        const html = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+        expect(html).toContain('href="/assets/img/desktop_background.webp"');
+        expect(html).not.toMatch(/<link[^>]*href="[^"]*mobile_background[^"]*"[^>]*>/);
+    });
+});

@@ -1,12 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { rgbaToThumbHash } from 'thumbhash';
+import { rgbaToThumbHash, thumbHashToDataURL } from 'thumbhash';
 
 const pages = ['p1', 'p2', 'p3', 'p4'];
 
 async function generateThumbHashes() {
     const hashMap = {};
+    const dataUrlMap = {};
 
     for (const page of pages) {
         const dir = path.join('assets', 'img', page);
@@ -25,7 +26,10 @@ async function generateThumbHashes() {
 
             const hash = rgbaToThumbHash(info.width, info.height, data);
             const base64 = Buffer.from(hash).toString('base64');
-            hashMap[`/assets/img/${page}/${file}`] = base64;
+            const dataUrl = thumbHashToDataURL(hash);
+            const srcKey = `/assets/img/${page}/${file}`;
+            hashMap[srcKey] = base64;
+            dataUrlMap[srcKey] = dataUrl;
             console.log(`${file}: ${base64}`);
         }
     }
@@ -36,16 +40,19 @@ async function generateThumbHashes() {
         const htmlPath = path.join(page, 'index.html');
         let html = fs.readFileSync(htmlPath, 'utf8');
 
-        // Inject data-thumbhash into <img> tags
+        // Inject data-thumbhash and inline style into <img> tags
         html = html.replace(/<img\s+([^>]*?src="([^"]+?)"[^>]*?)\s*\/?>/gs, (match, attrs, src) => {
             if (match.includes('mobile-banner')) return match;
             const hash = hashMap[src];
-            if (!hash) return match;
+            const dataUrl = dataUrlMap[src];
+            if (!hash || !dataUrl) return match;
 
-            if (attrs.includes('data-thumbhash=')) {
-                return `<img ${attrs.replace(/data-thumbhash="[^"]*"/, `data-thumbhash="${hash}"`)} />`;
-            }
-            return `<img data-thumbhash="${hash}" ${attrs.trim()} />`;
+            const cleanAttrs = attrs
+                .replace(/\s*data-thumbhash="[^"]*"/g, '')
+                .replace(/\s*style="[^"]*"/g, '')
+                .trim();
+
+            return `<img data-thumbhash="${hash}" style="background-image: url('${dataUrl}'); background-size: cover; background-position: center;" ${cleanAttrs} />`;
         });
 
         // Add script tags for vendor/thumbhash.js and js/thumbhash-init.js if not present
