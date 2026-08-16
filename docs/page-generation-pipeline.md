@@ -1,8 +1,8 @@
-# AI-Native Page Generation Pipeline
+# Page Generation & Template Synchronization Pipeline
 
 Design specification for automated, deterministic, and AI-assisted generation
-of portfolio pages (`p1/`–`p4/`, `p5/`, etc.) from minimal markdown and raw
-photos.
+and maintenance of portfolio pages (`p1/`–`p4/`, `p5/`, etc.) from minimal
+markdown and raw photos.
 
 ---
 
@@ -174,7 +174,66 @@ When a new page `p<N>` is generated:
 
 ---
 
-## 5. Agent Skill Interface (`/new-page`)
+## 5. Frontend Evolution & Preventing Template Drift
+
+A critical challenge in static multi-page sites is **template drift**: when new
+JS effects, styles, analytics, or shaders are added to existing pages, hardcoded
+generator templates or individual pages fall out of sync.
+
+### 5.1 Component Slot Architecture
+
+Every portfolio page is conceptually decomposed into two distinct layers:
+
+```text
++-------------------------------------------------------------+
+| 1. Shared Global Shell (Identical across p1..pN)            |
+|    - <head> (CSP, stylesheets, pre-init loaders)            |
+|    - #cont Header Nav Dock & Social Icons Dock              |
+|    - .project-footer (mobile banner + instagram reveal link)|
+|    - Trailing deferred <script> tags (GSAP, Lenis, SW, etc.)|
++-------------------------------------------------------------+
+| 2. Page-Specific Content (Unique to each page)              |
+|    - Meta title / description / keywords / canonical        |
+|    - <h1> project heading                                   |
+|    - <div class="post-content"> picture blocks & quotes     |
++-------------------------------------------------------------+
+```
+
+The canonical shell is maintained in a central template
+(`scripts/templates/portfolio-shell.html`) with explicit slot boundaries:
+
+- `<!-- SLOT:META -->`
+- `<!-- SLOT:NAV -->`
+- `<!-- SLOT:HEADING -->`
+- `<!-- SLOT:POST_CONTENT -->`
+
+### 5.2 Cross-Page Sync (`make sync-pages`)
+
+Whenever a new global JS effect or stylesheet is added, updated, or removed:
+
+1. The change is made once in the canonical shell template
+   (`scripts/templates/portfolio-shell.html`).
+2. Running `make sync-pages` (or `node scripts/sync-pages.mjs`) parses every
+   existing page (`p1/index.html`–`p<N>/index.html`), extracts each page's
+   unique content slots, and re-wraps them in the updated shell.
+3. This eliminates manual copy-pasting across dozens of files and guarantees that
+   `p1` through `p<N>` always share 100% identical script tags, CSS links, and
+   DOM wrappers.
+
+### 5.3 Automated Drift-Guard Acceptance Gate
+
+To ensure that manual edits do not accidentally introduce drift, an acceptance
+test (`tests/js/acceptance/project-scripts-consistency.acceptance.test.js`) gates
+the CI pipeline:
+
+- Scans all `p*/index.html` files.
+- Asserts that all `<link rel="stylesheet">` tags, head scripts, dock structures,
+  and trailing `<script>` tags match identically across all portfolio pages.
+- Fails loudly if a script is added to `p1` but omitted in `p2`–`p<N>`.
+
+---
+
+## 6. Agent Skill Interface (`/new-page`)
 
 To create an entirely AI-native workflow, a dedicated agent skill
 (`.agents/skills/new-page/SKILL.md`) will encapsulate the workflow:
@@ -192,7 +251,7 @@ To create an entirely AI-native workflow, a dedicated agent skill
 
 ---
 
-## 6. Required Codebase Generalizations
+## 7. Required Codebase Generalizations
 
 Before adding `p5`, the following hardcoded `p1`–`p4` limits must be
 generalized to dynamic discovery:
