@@ -14,12 +14,13 @@ ogImage: "../assets/img/og-image.png"
 DSCF4250-3.jpg
 
 > A hundred and a hundred times
->
+> <br />
 > Have I taken up my lantern
->
+> <br />
 > Seeking
->
+> <br />
 > At high noon
+>
 > <!-- markdownlint-disable-next-line MD033 -->
 > <footer class="quote-attribution"><cite>Mathurin Régnier, Les Satires XIV</cite></footer>
 

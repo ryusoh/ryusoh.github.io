@@ -229,17 +229,33 @@ export async function buildPage(pageId) {
         const rawQuote = currentQuoteLines.join('\n').trim();
         currentQuoteLines = [];
 
-        // If block contains explicit HTML (like <footer...>), preserve it, otherwise wrap paragraphs
-        if (rawQuote.includes('<footer') || rawQuote.includes('<cite') || rawQuote.includes('<p>')) {
-            contentBlocks.push(`<blockquote>\n    ${rawQuote}\n</blockquote>`);
-        } else {
-            const paragraphs = rawQuote
-                .split(/\n\s*\n/)
-                .filter((p) => p.trim())
-                .map((p) => `<p>${p.trim()}</p>`)
-                .join('\n');
-            contentBlocks.push(`<blockquote>\n    ${paragraphs}\n</blockquote>`);
+        // Separate footer / attribution HTML if present
+        let footerHtml = '';
+        let quoteBody = rawQuote;
+
+        const footerMatch = quoteBody.match(
+            /(<!--[\s\S]*?-->\s*)?(<footer[\s\S]*?<\/footer>)/i
+        );
+        if (footerMatch) {
+            footerHtml = footerMatch[2].trim();
+            quoteBody = quoteBody.replace(footerMatch[0], '').trim();
         }
+
+        // Parse paragraphs
+        const paragraphs = quoteBody
+            .split(/\n\s*\n/)
+            .filter((p) => p.trim())
+            .map((p) => {
+                const text = p.trim();
+                if (text.startsWith('<p>') && text.endsWith('</p>')) {
+                    return text;
+                }
+                return `<p>${text}</p>`;
+            })
+            .join('\n');
+
+        const parts = [paragraphs, footerHtml].filter(Boolean);
+        contentBlocks.push(`<blockquote>\n    ${parts.join('\n    ')}\n</blockquote>`);
     }
 
     for (let i = 0; i < lines.length; i++) {
