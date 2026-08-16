@@ -126,7 +126,10 @@ export async function validateAllPages() {
                         const hashBytes = Buffer.from(hashBase64, 'base64');
                         thumbHashToRGBA(hashBytes);
                     } catch (e) {
-                        console.error(`[${page}] Failed to decode ThumbHash for ${src}:`, e.message);
+                        console.error(
+                            `[${page}] Failed to decode ThumbHash for ${src}:`,
+                            e.message
+                        );
                         errorCount++;
                     }
                 }

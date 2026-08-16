@@ -233,9 +233,7 @@ export async function buildPage(pageId) {
         let footerHtml = '';
         let quoteBody = rawQuote;
 
-        const footerMatch = quoteBody.match(
-            /(<!--[\s\S]*?-->\s*)?(<footer[\s\S]*?<\/footer>)/i
-        );
+        const footerMatch = quoteBody.match(/(<!--[\s\S]*?-->\s*)?(<footer[\s\S]*?<\/footer>)/i);
         if (footerMatch) {
             footerHtml = footerMatch[2].trim();
             quoteBody = quoteBody.replace(footerMatch[0], '').trim();

@@ -87,7 +87,12 @@ export function extractPageMarkdown(pageId) {
                 for (const pm of pMatches) {
                     const lines = pm[1]
                         .split(/<br\s*\/?>/i)
-                        .map((l) => l.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim())
+                        .map((l) =>
+                            l
+                                .replace(/<[^>]+>/g, '')
+                                .replace(/\s+/g, ' ')
+                                .trim()
+                        )
                         .filter(Boolean);
                     if (lines.length > 1) {
                         formattedParas.push(lines.join('\n> <br />\n> '));
@@ -96,7 +101,12 @@ export function extractPageMarkdown(pageId) {
                     }
                 }
             } else {
-                formattedParas.push(quoteText.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
+                formattedParas.push(
+                    quoteText
+                        .replace(/<[^>]+>/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                );
             }
 
             let mdQuote = '> ' + formattedParas.join('\n>\n> ');
@@ -140,11 +150,7 @@ export function extractPageMarkdown(pageId) {
     ]);
     const uniqueKeywords = keywordsList.filter((k) => !BASE_KEYWORDS.has(k));
 
-    const frontmatterLines = [
-        '---',
-        `title: "${title}"`,
-        `description: "${description}"`,
-    ];
+    const frontmatterLines = ['---', `title: "${title}"`, `description: "${description}"`];
 
     if (uniqueKeywords.length > 0) {
         frontmatterLines.push('keywords:');
