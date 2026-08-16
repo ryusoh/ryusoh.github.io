@@ -62,6 +62,21 @@
     }
 
     /**
+     * Converts a raw full-resolution image URL to its lightweight 768w responsive thumbnail variant.
+     * @param {string | null | undefined} src
+     * @returns {string | null}
+     */
+    function toThumbnailUrl(src) {
+        if (!src || typeof src !== 'string') {
+            return null;
+        }
+        if (/\/assets\/img\/p\d+\//i.test(src) && !/-768\.(webp|avif)$/i.test(src)) {
+            return src.replace(/\.(jpe?g|png|webp|avif)$/i, '-768.webp');
+        }
+        return src;
+    }
+
+    /**
      * Parses HTML content of a project page to extract content images and title.
      * @param {string} html
      * @param {string} pageUrl
@@ -90,16 +105,14 @@
                 if (img.classList.contains('mobile-banner')) {
                     continue;
                 }
-                const src = img.getAttribute('src');
-                if (
-                    src &&
-                    !src.includes('banner') &&
-                    !src.includes('icon') &&
-                    !images.includes(src)
-                ) {
-                    images.push(src);
-                    const hash = img.getAttribute('data-thumbhash');
-                    thumbhashes.push(hash || '');
+                const rawSrc = img.getAttribute('src');
+                if (rawSrc && !rawSrc.includes('banner') && !rawSrc.includes('icon')) {
+                    const thumbSrc = toThumbnailUrl(rawSrc);
+                    if (thumbSrc && !images.includes(thumbSrc)) {
+                        images.push(thumbSrc);
+                        const hash = img.getAttribute('data-thumbhash');
+                        thumbhashes.push(hash || '');
+                    }
                 }
             }
         }
@@ -542,6 +555,7 @@
 
     const testing = {
         projectCache,
+        toThumbnailUrl,
         parseProjectHtml,
         fetchProjectImages,
         prefetchImage,

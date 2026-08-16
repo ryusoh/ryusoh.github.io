@@ -132,8 +132,8 @@ describe('js/hover-preview.js', () => {
         const data = await fetchProjectImages('./p1/');
         expect(data).toBeDefined();
         expect(data.images).toEqual([
-            '/assets/img/p1/DSCF4775.jpg',
-            '/assets/img/p1/DSCF8974-2.jpg',
+            '/assets/img/p1/DSCF4775-768.webp',
+            '/assets/img/p1/DSCF8974-2-768.webp',
         ]);
         expect(data.images).not.toContain('/assets/banners/banner.png');
         expect(data.title).toContain('I Tear Up the Bay');
@@ -170,6 +170,21 @@ describe('js/hover-preview.js', () => {
         expect(extractProjectId(null)).toBeNull();
         expect(extractProjectId(undefined)).toBeNull();
         expect(extractProjectId('/other/page')).toBeNull();
+    });
+
+    test('toThumbnailUrl converts gallery paths to 768w webp variants', () => {
+        const { toThumbnailUrl } = require('../../js/hover-preview.js');
+        expect(toThumbnailUrl('/assets/img/p1/DSCF4775.jpg')).toBe(
+            '/assets/img/p1/DSCF4775-768.webp'
+        );
+        expect(toThumbnailUrl('/assets/img/p2/PHOTO.JPG')).toBe('/assets/img/p2/PHOTO-768.webp');
+        expect(toThumbnailUrl('/assets/img/p3/sample.png')).toBe('/assets/img/p3/sample-768.webp');
+        expect(toThumbnailUrl('/assets/img/p1/already-768.webp')).toBe(
+            '/assets/img/p1/already-768.webp'
+        );
+        expect(toThumbnailUrl('/other/dir/img.jpg')).toBe('/other/dir/img.jpg');
+        expect(toThumbnailUrl(null)).toBeNull();
+        expect(toThumbnailUrl(undefined)).toBeNull();
     });
 
     test('isMobileOrTouch correctly checks media queries', () => {
@@ -246,7 +261,7 @@ describe('js/hover-preview.js', () => {
         expect(trackEl.children.length).toBeGreaterThan(0);
 
         const firstImg = trackEl.querySelector('img');
-        expect(firstImg.getAttribute('src')).toBe('/assets/img/p1/DSCF4775.jpg');
+        expect(firstImg.getAttribute('src')).toBe('/assets/img/p1/DSCF4775-768.webp');
         expect(firstImg.getAttribute('loading')).toBe('eager');
     });
 
