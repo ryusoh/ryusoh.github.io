@@ -281,14 +281,14 @@ from the user.
 ```text
 +-------------------------------------------------------------------------+
 | 1. AGENTS.md Rule (Agent Context)                                       |
-|    Tells any agent (Claude, Antigravity, Kimi, Jules) how portfolio      |
+|    Tells any agent (Claude, Antigravity, Kimi, Jules) how portfolio     |
 |    pages work: update scripts/templates/portfolio-shell.html and run    |
 |    make sync-pages.                                                     |
 +-------------------------------------------------------------------------+
                                      │
                                      ▼
 +-------------------------------------------------------------------------+
-| 2. make precommit-fix & Drift Gate (Deterministic Guardrail)           |
+| 2. make precommit-fix & Drift Gate (Deterministic Guardrail)            |
 |    - make sync-pages is hooked into make precommit-fix.                 |
 |    - If an agent touches a script in p1, make precommit-fix auto-syncs  |
 |      p2..pN and the shell template before allowing a commit.            |
