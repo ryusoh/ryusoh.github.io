@@ -47,57 +47,68 @@
     }
 
     /**
-     * Bolt Optimization:
-     * - What: Replace synchronous `offsetHeight` read with double `requestAnimationFrame`.
-     * - Why: Forcing a synchronous layout read (`document.body.offsetHeight`) to commit the starting state causes layout thrashing and blocks the main thread during initialization.
-     * - Impact: Measurably reduces main-thread blocking time by allowing the browser to paint the hidden state asynchronously before observing intersection.
+     * @param {Element} el
+     */
+    function revealElement(el) {
+        // Use requestAnimationFrame to ensure the browser paints the hidden
+        // state before adding the visible class. If we don't, cached images
+        // that trigger instantly will batch the styles and skip the animation.
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                el.classList.add('scroll-reveal--visible');
+            });
+        });
+    }
+
+    /**
+     * @param {HTMLImageElement} img
+     */
+    function revealImage(img) {
+        if (img.complete || img.naturalWidth > 0 || img.dataset.loaded === 'true') {
+            revealElement(img);
+            return;
+        }
+        img.classList.add('is-revealing');
+        if (typeof img.decode === 'function') {
+            img.decode()
+                .then(function () {
+                    if (img.classList.contains('is-revealing')) {
+                        img.classList.remove('is-revealing');
+                        revealElement(img);
+                    }
+                })
+                .catch(function () {
+                    // Fallback to load/error event delegation
+                });
+        }
+    }
+
+    /**
+     * @param {Event} event
+     */
+    function handleImageLoadEvent(event) {
+        const el = /** @type {Element} */ (event.target);
+        if (el && el.tagName === 'IMG') {
+            const img = /** @type {HTMLImageElement} */ (el);
+            img.dataset.loaded = 'true';
+            if (img.classList.contains('is-revealing')) {
+                img.classList.remove('is-revealing');
+                revealElement(img);
+            }
+        }
+    }
+
+    // Register capturing event delegation listeners synchronously at startup
+    // so no preloaded or early-cached image load events are ever missed.
+    document.addEventListener('load', handleImageLoadEvent, true);
+    document.addEventListener('error', handleImageLoadEvent, true);
+
+    /**
+     * Double requestAnimationFrame allows the browser to paint the starting
+     * hidden state before observing intersection.
      */
     requestAnimationFrame(function () {
         requestAnimationFrame(function () {
-            /**
-             * @param {Element} el
-             */
-            function revealElement(el) {
-                // Use requestAnimationFrame to ensure the browser paints the hidden
-                // state before adding the visible class. If we don't, cached images
-                // that trigger instantly will batch the styles and skip the animation.
-                requestAnimationFrame(function () {
-                    requestAnimationFrame(function () {
-                        el.classList.add('scroll-reveal--visible');
-                    });
-                });
-            }
-
-            /**
-             * Bolt Optimization:
-             * - What: Replace O(N) individual `load` and `error` event listeners with O(1) document-level event delegation.
-             * - Why: The previous implementation attached individual listeners for every uncompleted image entering the viewport. On image-heavy pages, fast scrolling triggers O(N) listener allocations, increasing memory overhead and initialization time.
-             * - Impact: Measurably reduces memory footprint and main-thread execution time by leveraging O(1) capturing listeners on the document root.
-             *
-             * @param {HTMLImageElement} img
-             */
-            function revealImage(img) {
-                if (img.complete) {
-                    revealElement(img);
-                    return;
-                }
-                img.classList.add('is-revealing');
-            }
-
-            /**
-             * @param {Event} event
-             */
-            function handleImageLoadEvent(event) {
-                const el = /** @type {Element} */ (event.target);
-                if (el && el.tagName === 'IMG' && el.classList.contains('is-revealing')) {
-                    el.classList.remove('is-revealing');
-                    revealElement(el);
-                }
-            }
-
-            document.addEventListener('load', handleImageLoadEvent, true);
-            document.addEventListener('error', handleImageLoadEvent, true);
-
             // Step 3: Observe — elements already in viewport will
             // fire immediately, but the hidden state has been painted
             // so the transition is visible.

@@ -196,6 +196,76 @@ describe('Scroll Reveal', () => {
         expect(img.classList.contains('scroll-reveal--visible')).toBe(false);
     });
 
+    test('should reveal preloaded image even if load event fired before intersection observer callback', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        document.body.innerHTML =
+            '<div class="post-content"><img id="heroImg" src="hero.jpg"/></div>';
+        const img = document.getElementById('heroImg');
+
+        Object.defineProperty(img, 'complete', { value: false, writable: true });
+
+        require('../../js/scroll-reveal.js');
+
+        // Early load event fires (before observer callback)
+        img.dispatchEvent(new Event('load'));
+
+        // Observer callback runs afterwards
+        const observerInstance = intersectionObserverMock.mock.results[0].value;
+        observerInstance.callback([{ isIntersecting: true, target: img }]);
+
+        expect(img.classList.contains('scroll-reveal--visible')).toBe(true);
+        expect(unobserveMock).toHaveBeenCalledWith(img);
+    });
+
+    test('should decode and reveal image via img.decode() promise', async () => {
+        document.body.setAttribute('data-page-type', 'project');
+        document.body.innerHTML =
+            '<div class="post-content"><img id="decodeImg" src="test.jpg"/></div>';
+        const img = document.getElementById('decodeImg');
+
+        Object.defineProperty(img, 'complete', { value: false, writable: true });
+        let resolveDecode;
+        img.decode = jest.fn(
+            () =>
+                new Promise((resolve) => {
+                    resolveDecode = resolve;
+                })
+        );
+
+        require('../../js/scroll-reveal.js');
+
+        const observerInstance = intersectionObserverMock.mock.results[0].value;
+        observerInstance.callback([{ isIntersecting: true, target: img }]);
+
+        expect(img.classList.contains('is-revealing')).toBe(true);
+        expect(img.classList.contains('scroll-reveal--visible')).toBe(false);
+
+        // Resolve decode
+        resolveDecode();
+        await Promise.resolve();
+
+        expect(img.classList.contains('scroll-reveal--visible')).toBe(true);
+        expect(img.classList.contains('is-revealing')).toBe(false);
+    });
+
+    test('should reveal image immediately if naturalWidth > 0', () => {
+        document.body.setAttribute('data-page-type', 'project');
+        document.body.innerHTML =
+            '<div class="post-content"><img id="naturalImg" src="test.jpg"/></div>';
+        const img = document.getElementById('naturalImg');
+
+        Object.defineProperty(img, 'complete', { value: false, writable: false });
+        Object.defineProperty(img, 'naturalWidth', { value: 800, writable: false });
+
+        require('../../js/scroll-reveal.js');
+
+        const observerInstance = intersectionObserverMock.mock.results[0].value;
+        observerInstance.callback([{ isIntersecting: true, target: img }]);
+
+        expect(img.classList.contains('scroll-reveal--visible')).toBe(true);
+        expect(unobserveMock).toHaveBeenCalledWith(img);
+    });
+
     test('should early return if .post-content container is missing', () => {
         document.body.setAttribute('data-page-type', 'project');
         // No .post-content
