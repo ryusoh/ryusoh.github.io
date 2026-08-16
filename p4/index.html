@@ -84,6 +84,15 @@
             crossorigin
         />
         <link
+            rel="preload"
+            as="image"
+            type="image/avif"
+            href="/assets/img/p4/DSCF4250-3-768.avif"
+            imagesrcset="/assets/img/p4/DSCF4250-3-768.avif 768w, /assets/img/p4/DSCF4250-3-1200.avif 1200w, /assets/img/p4/DSCF4250-3.avif 2048w"
+            imagesizes="(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px"
+            fetchpriority="high"
+        />
+        <link
             href="/assets/vendor/font-awesome/css/font-awesome.min.css"
             rel="stylesheet"
             type="text/css"
@@ -101,8 +110,6 @@
         <script defer src="../js/loader/cdnFallback.js"></script>
         <script defer src="../js/loader/vendorLoader.js"></script>
         <script defer src="../js/font-awesome-loader.js"></script>
-        <script src="/js/vendor/thumbhash.js" defer></script>
-        <script src="/js/thumbhash-init.js" defer></script>
     </head>
 
     <body data-page-type="project">
@@ -231,6 +238,7 @@
                                 "
                                 src="/assets/img/p4/DSCF4250-3.jpg"
                                 alt="Street photography by Zhuang Liu"
+                                fetchpriority="high"
                                 width="2048"
                                 height="1365"
                                 decoding="async"

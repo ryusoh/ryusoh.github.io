@@ -73,33 +73,35 @@ export async function ensureImageVariants(dir, filename) {
 
     // Generate tiers if missing
     if (!fs.existsSync(avifPath)) {
-        await sharp(inputPath).avif({ quality: 65, effort: 4 }).toFile(avifPath);
+        await sharp(inputPath)
+            .avif({ quality: 65, effort: 6, chromaSubsampling: '4:2:0' })
+            .toFile(avifPath);
     }
     if (!fs.existsSync(webpPath)) {
-        await sharp(inputPath).webp({ quality: 75, effort: 4 }).toFile(webpPath);
+        await sharp(inputPath).webp({ quality: 75, effort: 6 }).toFile(webpPath);
     }
     if (!fs.existsSync(avif1200Path)) {
         await sharp(inputPath)
             .resize({ width: 1200, withoutEnlargement: true })
-            .avif({ quality: 65, effort: 4 })
+            .avif({ quality: 65, effort: 6, chromaSubsampling: '4:2:0' })
             .toFile(avif1200Path);
     }
     if (!fs.existsSync(webp1200Path)) {
         await sharp(inputPath)
             .resize({ width: 1200, withoutEnlargement: true })
-            .webp({ quality: 75, effort: 4 })
+            .webp({ quality: 75, effort: 6 })
             .toFile(webp1200Path);
     }
     if (!fs.existsSync(avif768Path)) {
         await sharp(inputPath)
             .resize({ width: 768, withoutEnlargement: true })
-            .avif({ quality: 65, effort: 4 })
+            .avif({ quality: 65, effort: 6, chromaSubsampling: '4:2:0' })
             .toFile(avif768Path);
     }
     if (!fs.existsSync(webp768Path)) {
         await sharp(inputPath)
             .resize({ width: 768, withoutEnlargement: true })
-            .webp({ quality: 75, effort: 4 })
+            .webp({ quality: 75, effort: 6 })
             .toFile(webp768Path);
     }
 
@@ -127,7 +129,7 @@ export async function ensureImageVariants(dir, filename) {
  * Builds HTML picture element markup for a gallery photo.
  */
 export function buildPictureElement(pageId, filename, altText, meta, isFirst, credit = null) {
-    const loadingAttr = isFirst ? '' : ' loading="lazy"';
+    const loadingAttr = isFirst ? ' fetchpriority="high"' : ' loading="lazy"';
     const avifSrcset = `/assets/img/${pageId}/${meta.baseName}-768.avif 768w, /assets/img/${pageId}/${meta.baseName}-1200.avif 1200w, /assets/img/${pageId}/${meta.baseName}.avif 2048w`;
     const webpSrcset = `/assets/img/${pageId}/${meta.baseName}-768.webp 768w, /assets/img/${pageId}/${meta.baseName}-1200.webp 1200w, /assets/img/${pageId}/${meta.baseName}.webp 2048w`;
 
@@ -279,6 +281,7 @@ export async function buildPage(pageId) {
     const imageFilenames = [];
     let currentQuoteLines = [];
     let isFirstImage = true;
+    let heroMeta = null;
 
     async function flushQuote() {
         if (currentQuoteLines.length === 0) return;
@@ -360,6 +363,9 @@ export async function buildPage(pageId) {
             imageFilenames.push(filename);
 
             const meta = await ensureImageVariants(imgDir, filename);
+            if (isFirstImage) {
+                heroMeta = meta;
+            }
             const pictureHtml = buildPictureElement(
                 cleanId,
                 filename,
@@ -419,6 +425,18 @@ export async function buildPage(pageId) {
             : `/assets/img/${cleanId}/${frontmatter.ogImage}`
         : '../assets/img/og-image.png';
 
+    const heroPreload = heroMeta
+        ? `<link
+            rel="preload"
+            as="image"
+            type="image/avif"
+            href="/assets/img/${cleanId}/${heroMeta.baseName}-768.avif"
+            imagesrcset="/assets/img/${cleanId}/${heroMeta.baseName}-768.avif 768w, /assets/img/${cleanId}/${heroMeta.baseName}-1200.avif 1200w, /assets/img/${cleanId}/${heroMeta.baseName}.avif 2048w"
+            imagesizes="${SIZES_ATTR}"
+            fetchpriority="high"
+        />`
+        : '';
+
     const pageData = {
         pageTitle,
         description,
@@ -428,6 +446,7 @@ export async function buildPage(pageId) {
         metaDesc,
         ogImage,
         heading,
+        heroPreload,
         postContent,
     };
 

@@ -191,6 +191,33 @@ export function parseExistingPage(page) {
     );
     const postContent = contentMatch ? contentMatch[1].trim() : '';
 
+    // Hero preload link
+    let heroPreload = '';
+    const heroMatch = html.match(
+        /<link\s+rel="preload"\s+as="image"[^>]*type="image\/avif"[^>]*\/?>/i
+    );
+    if (heroMatch) {
+        heroPreload = heroMatch[0].trim();
+    } else {
+        const firstImgMatch = postContent.match(
+            /<img[^>]*src="(\/assets\/img\/[^/]+\/([^"]+?\.(jpe?g|JPG|png|webp|avif)))"/i
+        );
+        if (firstImgMatch) {
+            const pageDir = page;
+            const fullSrc = firstImgMatch[1];
+            const baseName = path.basename(fullSrc, path.extname(fullSrc));
+            heroPreload = `<link
+            rel="preload"
+            as="image"
+            type="image/avif"
+            href="/assets/img/${pageDir}/${baseName}-768.avif"
+            imagesrcset="/assets/img/${pageDir}/${baseName}-768.avif 768w, /assets/img/${pageDir}/${baseName}-1200.avif 1200w, /assets/img/${pageDir}/${baseName}.avif 2048w"
+            imagesizes="(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px"
+            fetchpriority="high"
+        />`;
+        }
+    }
+
     return {
         pageTitle,
         description,
@@ -200,6 +227,7 @@ export function parseExistingPage(page) {
         metaDesc,
         ogImage,
         heading,
+        heroPreload,
         postContent,
     };
 }
@@ -219,6 +247,7 @@ export function renderProjectPage(page, data, pages, template) {
         .replace(/{{META_DESCRIPTION}}/g, data.metaDesc)
         .replace(/{{OG_IMAGE}}/g, data.ogImage)
         .replace(/{{HEADING}}/g, data.heading)
+        .replace(/<!-- SLOT:HERO_PRELOAD -->/g, data.heroPreload || '')
         .replace(/<!-- SLOT:NAV_LINKS -->/g, navRows)
         .replace(/<!-- SLOT:POST_CONTENT -->/g, data.postContent);
 
