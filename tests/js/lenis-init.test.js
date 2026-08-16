@@ -68,8 +68,17 @@ describe('LenisInit', () => {
             throw new Error('Instantiation error');
         });
 
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
         const result = LenisInit.initLenis();
         expect(result).toBeNull();
+
+        expect(consoleSpy).toHaveBeenCalledWith(
+            '[LenisInit] Lenis instantiation failed:',
+            expect.any(Error)
+        );
+
+        consoleSpy.mockRestore();
     });
 
     test('initializes on DOMContentLoaded when document.readyState is loading', () => {
