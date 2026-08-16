@@ -165,7 +165,7 @@
         }
 
         /**
-         * Helper to create a preload link element without appending it
+         * Helper to create a responsive preload link element matching the <picture> source format.
          * @param {string} imgSrc - Image source URL
          * @returns {HTMLElement} - The created link element
          */
@@ -173,7 +173,21 @@
             const link = document.createElement('link');
             link.rel = 'preload';
             link.as = 'image';
-            link.href = imgSrc;
+            if (typeof imgSrc === 'string' && /\/assets\/img\/p\d+\//i.test(imgSrc)) {
+                const base = imgSrc.replace(/\.(jpe?g|png|webp|avif)$/i, '');
+                link.type = 'image/avif';
+                link.setAttribute(
+                    'imagesrcset',
+                    `${base}-768.avif 768w, ${base}-1200.avif 1200w, ${base}.avif 2048w`
+                );
+                link.setAttribute(
+                    'imagesizes',
+                    '(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px'
+                );
+                link.href = `${base}-768.avif`;
+            } else {
+                link.href = imgSrc;
+            }
             return link;
         }
 

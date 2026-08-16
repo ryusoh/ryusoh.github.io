@@ -83,6 +83,23 @@ describe('AssetPreloader', () => {
         expect(addedLink.href).toContain(imgSrc);
     });
 
+    test('should generate responsive AVIF preload link for gallery assets', () => {
+        const preloader = new AssetPreloader();
+        const gallerySrc = '/assets/img/p1/DSCF4775.jpg';
+        const link = preloader.createPreloadLink(gallerySrc);
+
+        expect(link.rel).toBe('preload');
+        expect(link.as).toBe('image');
+        expect(link.type).toBe('image/avif');
+        expect(link.getAttribute('imagesrcset')).toBe(
+            '/assets/img/p1/DSCF4775-768.avif 768w, /assets/img/p1/DSCF4775-1200.avif 1200w, /assets/img/p1/DSCF4775.avif 2048w'
+        );
+        expect(link.getAttribute('imagesizes')).toBe(
+            '(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px'
+        );
+        expect(link.href).toContain('/assets/img/p1/DSCF4775-768.avif');
+    });
+
     test('should append multiple links to head when preloading assets', () => {
         const preloader = new AssetPreloader();
         const headSpy = jest.spyOn(context.document.head, 'appendChild');
