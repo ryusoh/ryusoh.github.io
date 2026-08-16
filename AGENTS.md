@@ -317,6 +317,13 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
   top-right across both desktop and mobile using safe-area insets. On mobile,
   `#main h1` has right padding to ensure "Zhuang Liu" never collides with the
   dock on narrow screens.
+- **Gallery vertical spacing (`--gallery-block-gap`)**: Gallery spacing across
+  images, blockquotes, and content blocks is centralized in `:root` via
+  `--gallery-block-gap` in `css/style.css`. Always keep margins on the outer
+  block containers (`.post-content > div[align='center']`, `.image-container`,
+  `article blockquote`, `.post-content p`) with `0` margin on inner `<picture>`
+  / `<img>` elements so that CSS margin collapsing remains uniform across
+  elements with `content-visibility: auto` containment.
 - **Concurrent agents sharing one worktree.** When you run parallel subagents
   (swarms, background agents) in this checkout: stage only files you changed
   (`git add <specific-files>`, never `git add -A`), never `git stash`,
