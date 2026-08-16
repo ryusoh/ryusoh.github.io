@@ -111,7 +111,7 @@
                     '/assets/img/p5/849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG',
                     '/assets/img/p5/DSCF0525.jpg',
                     '/assets/img/p5/DSCF6274.JPG',
-                    '/assets/img/p5/B82B02AB-6E38-440D-9AEA-2407681FD7BA.JPG',
+                    '/assets/img/p5/IMG760.jpg',
                     '/assets/img/p5/DSCF9159.jpg',
                 ],
             };

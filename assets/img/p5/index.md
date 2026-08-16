@@ -35,5 +35,5 @@ DSCF6274.JPG
 > <br />
 > <footer class="quote-attribution"> <cite>T. S. Eliot</cite> </footer>
 
-B82B02AB-6E38-440D-9AEA-2407681FD7BA.JPG | @photo.initiator
+IMG760.jpg | @photo.initiator
 DSCF9159.jpg
