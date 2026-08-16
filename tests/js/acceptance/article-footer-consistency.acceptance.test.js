@@ -30,10 +30,10 @@ describe('Article project-footer spacing consistency with main page footer', () 
         // Adjacent images are 7px apart because their vertical margins collapse.
         // Reset the last content element's bottom margin; the footer adds no extra top gap (padding-top: 0).
         expect(styleCss).toMatch(
-            /article\s+img[\s\S]*?margin:\s*(?:var\(--gallery-block-gap[^)]*\)|7px)\s+auto\s*(!important\s*)?;/
+            /(?:article\s+img|\.image-container|div\[align=['"]center['"]\])[\s\S]*?margin:\s*(?:var\(--gallery-block-gap[^)]*\)|7px)\s+auto/
         );
         expect(styleCss).toMatch(
-            /\.article-container\s+article\s+\.post-content\s+(?:img|blockquote):last-child[\s\S]*?margin-bottom:\s*0\s*(!important\s*)?;/
+            /\.article-container\s+article\s+\.post-content\s+[\s\S]*?:last-child[\s\S]*?margin-bottom:\s*0\s*(!important\s*)?;/
         );
         expect(styleCss).toMatch(/\.project-footer\s*\{[^}]*padding-top:\s*0/);
     });

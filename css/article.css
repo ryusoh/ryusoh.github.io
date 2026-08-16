@@ -1,5 +1,5 @@
 :root {
-    --gallery-block-gap: 7px;
+    --gallery-block-gap: 10px;
 }
 
 .transition-all {
@@ -70,8 +70,10 @@ article .container .row img {
 }
 .image-container,
 .post-content .image-container,
-article .image-container {
-    margin: var(--gallery-block-gap, 5px) auto !important;
+article .image-container,
+.post-content > div[align='center'],
+article .container .row > div[align='center'] {
+    margin: var(--gallery-block-gap, 7px) auto !important;
     padding: 0 !important;
     line-height: 0;
     display: block !important;

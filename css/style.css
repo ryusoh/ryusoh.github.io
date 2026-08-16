@@ -8,7 +8,7 @@
     --page-transition-color: rgba(0, 0, 0, 0.88);
 
     /* Gallery vertical spacing token — change this single number to fine-tune spacing between all images & blocks */
-    --gallery-block-gap: 7px;
+    --gallery-block-gap: 10px;
 
     /* Hardboiled color tokens */
     --bg-color: #000;
@@ -669,6 +669,14 @@ body {
         opacity: 1;
     }
 }
+.post-content > div[align='center'],
+.post-content .image-container,
+article .image-container {
+    margin: var(--gallery-block-gap, 7px) auto !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
 article picture,
 .post-content picture,
 .article-container picture,
@@ -678,7 +686,7 @@ article img:not(.mobile-banner),
 .article-container img:not(.mobile-banner),
 article .container-narrow img:not(.mobile-banner) {
     position: relative;
-    margin: var(--gallery-block-gap, 5px) auto !important;
+    margin: 0 auto !important;
     max-width: 100% !important;
     height: auto;
     display: block !important;
@@ -688,17 +696,10 @@ article .container-narrow img:not(.mobile-banner) {
 article picture > img,
 .post-content picture > img,
 .article-container picture > img,
-article .container-narrow picture > img {
+article .container-narrow picture > img,
+.post-content > div[align='center'] picture,
+.post-content > div[align='center'] img {
     margin: 0 auto !important;
-}
-
-.image-container,
-.post-content .image-container,
-article .image-container {
-    margin: var(--gallery-block-gap, 5px) auto !important;
-    padding: 0 !important;
-    line-height: 0;
-    display: block !important;
 }
 
 .post-content > div[align='center'],
@@ -819,6 +820,14 @@ img[data-thumbhash] {
 }
 
 @media only screen and (max-width: 768px) {
+    .post-content > div[align='center'],
+    .post-content .image-container,
+    article .image-container {
+        max-width: 100% !important;
+        margin: var(--gallery-block-gap, 7px) auto !important;
+        display: block !important;
+    }
+
     article picture,
     .post-content picture,
     .article-container picture,
@@ -828,14 +837,16 @@ img[data-thumbhash] {
     .article-container img:not(.mobile-banner),
     article .container-narrow img:not(.mobile-banner) {
         max-width: 100% !important;
-        margin: var(--gallery-block-gap, 5px) auto !important;
+        margin: 0 auto !important;
         display: block !important;
     }
 
     article picture > img,
     .post-content picture > img,
     .article-container picture > img,
-    article .container-narrow picture > img {
+    article .container-narrow picture > img,
+    .post-content > div[align='center'] picture,
+    .post-content > div[align='center'] img {
         margin: 0 auto !important;
     }
 }
@@ -1452,6 +1463,9 @@ article td,
 }
 
 .article-container article .post-content img:last-child,
+.article-container article .post-content picture:last-child,
+.article-container article .post-content > div[align='center']:last-child,
+.article-container article .post-content .image-container:last-child,
 .article-container article .post-content blockquote:last-child {
     margin-bottom: 0 !important;
 }

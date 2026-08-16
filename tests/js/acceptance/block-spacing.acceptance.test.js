@@ -19,15 +19,21 @@ describe('Article Image & Block Spacing Acceptance Suite', () => {
     const articleCss = fs.readFileSync(path.join(ROOT_DIR, 'css/article.css'), 'utf8');
 
     test(':root defines a single --gallery-block-gap configuration variable in style.css', () => {
-        expect(styleCss).toMatch(/--gallery-block-gap:\s*7px;/);
+        expect(styleCss).toMatch(/--gallery-block-gap:\s*10px;/);
     });
 
-    test('image and picture vertical margins use --gallery-block-gap in style.css', () => {
+    test('gallery outer image blocks (.image-container and div[align=center]) use --gallery-block-gap margin in style.css', () => {
         expect(styleCss).toMatch(
-            /article\s+img[\s\S]*?margin:\s*var\(--gallery-block-gap[^)]*\)\s+auto\s*(!important\s*)?;/
+            /\.post-content\s*>\s*div\[align=['"]center['"]\][\s\S]*?margin:\s*var\(--gallery-block-gap[^)]*\)\s+auto/
         );
         expect(styleCss).toMatch(
             /\.image-container[\s\S]*?margin:\s*var\(--gallery-block-gap[^)]*\)\s+auto/
+        );
+    });
+
+    test('inner picture elements inside image blocks have 0 margin to prevent double-spacing', () => {
+        expect(styleCss).toMatch(
+            /\.post-content\s*>\s*div\[align=['"]center['"]\]\s+picture[\s\S]*?margin:\s*0/
         );
     });
 
