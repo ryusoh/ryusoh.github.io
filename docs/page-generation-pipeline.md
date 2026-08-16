@@ -402,9 +402,139 @@ follow these phased steps:
 5. Implement automatic `js/preloader.js` asset set registration.
 6. Add `page` target to `Makefile` (`make page ID=p<N>`).
 
-### Phase 5: Agent Skill & Documentation
+### Phase 5: Automated Verification Suite
+
+1. Implement Golden Master roundtrip test verifying zero-drift regression across
+   `p1`–`p4`.
+2. Implement Synthetic Test Page E2E Jest suite.
+3. Implement Asset & DOM Integrity Validator (`scripts/validate-pages.mjs`).
+4. Wire all verification suites into `make test` and `make check`.
+
+### Phase 6: Agent Skill & Governance
 
 1. Create `.agents/skills/new-page/SKILL.md`.
 2. Run `python3 tools/sync_commands.py` to generate `.claude/commands/new-page.md`.
 3. Update `AGENTS.md` working rules with portfolio page infrastructure guidance.
 4. Run full `make precommit-fix` and test suite to verify 100% green gate.
+
+---
+
+## 9. Automated Verification & "Absolute Correctness" Testing Strategy
+
+Because an autonomous agent works without human visual eyes (see `AGENTS.md`
+rule: _"You cannot see the rendered page"_), correctness must be proved
+**mathematically, structurally, and deterministically** across 5 distinct test
+layers:
+
+```text
++-------------------------------------------------------------------------+
+| Layer 1: Golden Master Roundtrip Test (Zero-Drift Regression)           |
+| Regenerate p1..p4 from markdown; assert git diff --exit-code is 0.      |
++-------------------------------------------------------------------------+
+                                     │
+                                     ▼
++-------------------------------------------------------------------------+
+| Layer 2: Ephemeral Synthetic E2E Test (Jest Sandbox)                    |
+| Generate temporary p_test/ from fixture images; verify full lifecycle.  |
++-------------------------------------------------------------------------+
+                                     │
+                                     ▼
++-------------------------------------------------------------------------+
+| Layer 3: Asset & Dimension Integrity Validator (Zero 404s & Zero CLS)   |
+| Verify every file exists on disk; assert image width/height match sharp.|
++-------------------------------------------------------------------------+
+                                     │
+                                     ▼
++-------------------------------------------------------------------------+
+| Layer 4: ThumbHash Digest & Color Math Validation                       |
+| Decode all data-thumbhash strings into RGBA buffers; verify non-null.   |
++-------------------------------------------------------------------------+
+                                     │
+                                     ▼
++-------------------------------------------------------------------------+
+| Layer 5: Headless DOM & Interactive Acceptance Testing (jsdom)          |
+| Mount page in jsdom; dispatch keyboard & scroll events; assert zero errs|
++-------------------------------------------------------------------------+
+```
+
+### 9.1 Layer 1: Golden Master (Zero-Drift) Roundtrip Test
+
+**Purpose**: Mathematically prove that the new generator produces 100% identical
+HTML to the existing hand-crafted pages with zero regressions.
+
+**Mechanism**:
+
+1. Run `node scripts/build-page.mjs p1 && node scripts/build-page.mjs p2 && node scripts/build-page.mjs p3 && node scripts/build-page.mjs p4`.
+2. Execute `git diff --exit-code p1/index.html p2/index.html p3/index.html p4/index.html`.
+3. **Success condition**: The diff must be completely empty (`exit code 0`). If
+   a single closing tag, attribute order, or whitespace collapses, the test fails
+   immediately.
+
+### 9.2 Layer 2: Ephemeral Synthetic E2E Test (`tests/js/page-builder.test.js`)
+
+**Purpose**: Test the full compilation and asset pipeline for a brand new page
+without leaving permanent garbage in git.
+
+**Mechanism**:
+
+1. Create a temporary project directory `p_test/` and `assets/img/p_test/`.
+2. Generate 3 dummy JPG fixture images with known dimensions (e.g. 800x600,
+   1200x800).
+3. Write a synthetic `index.md` with frontmatter, custom pipe alt captions, and
+   blockquotes.
+4. Execute the build engine programmatically.
+5. Assertions:
+    - Generated `p_test/index.html` exists and contains valid HTML structure.
+    - Generated `.avif`, `.webp`, `-768.avif`, `-1200.webp` files exist on disk.
+    - `index.html` `<nav>` table contains the new `p_test` link.
+    - `js/preloader.js` contains the `p_test` image set.
+6. Teardown: Automatically remove `p_test/` and restore `index.html` / `preloader.js`.
+
+### 9.3 Layer 3: Asset & Dimension Integrity Validator (`scripts/validate-pages.mjs`)
+
+**Purpose**: Ensure zero 404 broken images and zero Cumulative Layout Shift (CLS).
+
+**Mechanism** (wired into `make check`):
+
+1. **Disk Existence**: For every `<img src="...">` and `<source srcset="...">`
+   URL across all `p*/index.html` pages, assert that the exact file exists on the
+   filesystem.
+2. **Dimension Fidelity**: Read the underlying source image on disk with `sharp`.
+   Assert:
+   $$\left|\frac{\text{HTML width}}{\text{HTML height}} - \frac{\text{Sharp width}}{\text{Sharp height}}\right| < 0.001$$
+   This guarantees that no image is distorted or causes layout shift during
+   render.
+3. **Responsive Source Syntax**: Verify that every `<picture>` has matching AVIF
+   and WebP `<source>` elements with `768w`, `1200w`, and `2048w` srcset tiers.
+
+### 9.4 Layer 4: ThumbHash Digest & Color Math Validation
+
+**Purpose**: Ensure no corrupted or malformed placeholder blur-ups.
+
+**Mechanism**:
+
+1. Read every `data-thumbhash="..."` string in all HTML files.
+2. Assert string length is exactly 28 base64 characters.
+3. Pass the string to `thumbHashToDataURL` and `thumbHashToRGBA` in `thumbhash`.
+4. Assert:
+    - Decoding does not throw.
+    - The returned data URI matches the inline `style="background-image: url('data:image/png;base64,...')"` exactly.
+
+### 9.5 Layer 5: Headless DOM & Navigation State Acceptance Tests
+
+**Purpose**: Verify runtime accessibility and interactive script contracts.
+
+**Mechanism**:
+
+1. Mount the compiled HTML in Jest (`jsdom`).
+2. Assert strict structural contracts:
+    - Exactly one `<main id="main">` with `tabindex="-1"`.
+    - Exactly one `<h1>` inside `.post-heading`.
+    - The active project has `aria-current="page"` on its own link and no others.
+    - The home link has `aria-label="Home"` and `data-destination="home"`.
+    - Footer contains `.mobile-banner` and `.scroll-reveal-instagram`.
+    - All `<img>` carry `decoding="async"`, and all except the first carry
+      `loading="lazy"`.
+3. Load `block-navigation.js` and `mobile-dock.js` into the DOM and simulate
+   keyboard navigation (`ArrowDown`, `ArrowUp`, `Escape`) to assert zero console
+   errors.
