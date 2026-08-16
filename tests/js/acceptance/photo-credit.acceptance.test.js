@@ -37,11 +37,13 @@ describe('Photo Credit Banner Acceptance Suite', () => {
         );
     });
 
-    test('image-wrapper has 0 margin and image-container has 16px margin for identical vertical spacing', () => {
+    test('image-wrapper has 0 margin and image-container has 7px margin for identical vertical spacing', () => {
         // .image-wrapper inline-block must have margin 0 so it doesn't double margins inside the container
         expect(styleCss).toMatch(/\.image-wrapper\s*\{[\s\S]*?margin:\s*0/);
-        // .image-container block element must have margin: 16px to collapse with adjacent blocks
-        expect(styleCss).toMatch(/\.image-container[\s\S]*?margin:\s*16px\s+auto/);
+        // .image-container block element must have margin: 7px or var(--gallery-block-gap) to collapse with adjacent blocks
+        expect(styleCss).toMatch(
+            /\.image-container[\s\S]*?margin:\s*(?:var\(--gallery-block-gap[^)]*\)|7px)\s+auto/
+        );
     });
 
     test('p5/index.html includes photo-credit element within image-wrapper and image-container', () => {

@@ -7,6 +7,9 @@
     --brand-ease: cubic-bezier(0.65, 0.05, 0, 1);
     --page-transition-color: rgba(0, 0, 0, 0.88);
 
+    /* Gallery vertical spacing token — change this single number to fine-tune spacing between all images & blocks */
+    --gallery-block-gap: 7px;
+
     /* Hardboiled color tokens */
     --bg-color: #000;
     --text-color: #f2f2f2;
@@ -175,7 +178,7 @@ article p,
 .post-content p {
     letter-spacing: 0.05em;
     line-height: 1.6;
-    margin: 20px 0;
+    margin: var(--gallery-block-gap, 5px) 0;
     font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 1.4em;
@@ -192,7 +195,7 @@ article h3,
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin: 32px 0 20px;
+    margin: 16px 0 10px;
 }
 article h4,
 article h5,
@@ -675,7 +678,7 @@ article img:not(.mobile-banner),
 .article-container img:not(.mobile-banner),
 article .container-narrow img:not(.mobile-banner) {
     position: relative;
-    margin: 16px auto !important;
+    margin: var(--gallery-block-gap, 5px) auto !important;
     max-width: 100% !important;
     height: auto;
     display: block !important;
@@ -692,7 +695,7 @@ article .container-narrow picture > img {
 .image-container,
 .post-content .image-container,
 article .image-container {
-    margin: 16px auto !important;
+    margin: var(--gallery-block-gap, 5px) auto !important;
     padding: 0 !important;
     line-height: 0;
     display: block !important;
@@ -825,7 +828,7 @@ img[data-thumbhash] {
     .article-container img:not(.mobile-banner),
     article .container-narrow img:not(.mobile-banner) {
         max-width: 100% !important;
-        margin: 16px auto !important;
+        margin: var(--gallery-block-gap, 5px) auto !important;
         display: block !important;
     }
 
@@ -865,7 +868,7 @@ article .container-narrow blockquote {
     font-weight: 700;
     letter-spacing: 0.05em;
     padding: 28px 32px;
-    margin: 36px 0 !important;
+    margin: var(--gallery-block-gap, 5px) 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     color: var(--text-color);
@@ -929,7 +932,7 @@ article .container-narrow blockquote footer cite:before {
     article .container-narrow blockquote {
         font-size: 1.05em; /* Mobile blockquote text size */
         padding: 18px 20px;
-        margin: 24px 0 !important;
+        margin: var(--gallery-block-gap, 5px) 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
         text-align: left !important;
