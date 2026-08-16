@@ -15,6 +15,7 @@ import {
     renderProjectPage,
     syncIndexNav,
     syncSitemap,
+    syncAllPages,
     formatHtml,
 } from './sync-pages.mjs';
 
@@ -381,9 +382,8 @@ export async function buildPage(pageId) {
     fs.writeFileSync(htmlPath, formattedHtml, 'utf8');
     console.log(`Generated ${htmlPath}`);
 
-    // 5. Update index.html navigation and sitemap.xml
-    await syncIndexNav(allPages);
-    await syncSitemap(allPages);
+    // 5. Update index.html, all project page navigation docks, and sitemap.xml
+    await syncAllPages();
 
     // 6. Update preloader
     await updatePreloader(cleanId, imageFilenames);
