@@ -275,30 +275,36 @@ export async function buildPage(pageId) {
             continue;
         }
 
-        // Blockquote
-        if (line.startsWith('>')) {
-            currentQuoteLines.push(line.replace(/^>\s?/, ''));
-            continue;
-        }
-
         // Image line: filename.ext [| custom alt text]
         const imgMatch = line.match(/^([^\s|]+\.(?:jpe?g|JPG|png|webp|avif))(?:\s*\|\s*(.*))?$/i);
         if (imgMatch) {
             await flushQuote();
-            const filename = imgMatch[1];
-            const altText = imgMatch[2] ? imgMatch[2].trim() : 'Street photography by Zhuang Liu';
+            const filename = imgMatch[1].trim();
+            const customAlt = imgMatch[2] ? imgMatch[2].trim() : null;
             imageFilenames.push(filename);
 
             const meta = await ensureImageVariants(imgDir, filename);
             const pictureHtml = buildPictureElement(
                 cleanId,
                 filename,
-                altText,
+                customAlt || 'Street photography by Zhuang Liu',
                 meta,
                 isFirstImage
             );
-            isFirstImage = false;
             contentBlocks.push(pictureHtml);
+            isFirstImage = false;
+            continue;
+        }
+
+        // Blockquote
+        if (line.startsWith('>')) {
+            currentQuoteLines.push(line.replace(/^>\s?/, ''));
+            continue;
+        }
+
+        // Continuation line inside blockquote
+        if (currentQuoteLines.length > 0) {
+            currentQuoteLines.push(line);
             continue;
         }
 

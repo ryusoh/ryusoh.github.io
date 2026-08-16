@@ -1,13 +1,14 @@
 ---
 title: "DAS GESPENST"
-description: "Das Gespenst - A street photography series by Zhuang Liu capturing shadows, light, and ghosts of urban spaces."
+description: "Das Gespenst - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography."
 keywords:
   - "Zhuang Liu"
   - "Zhuang Liu photographer"
   - "Zhuang Liu photography"
   - "street photography"
-  - "Das Gespenst"
-  - "urban photography"
+  - "West Coast"
+  - "street culture"
+  - "visual ethnography"
 ogImage: "../assets/img/og-image.png"
 ---
 
@@ -21,8 +22,7 @@ DSCF4250-3.jpg
 > <br />
 > At high noon
 >
-> <!-- markdownlint-disable-next-line MD033 -->
-> <footer class="quote-attribution"><cite>Mathurin Régnier, Les Satires XIV</cite></footer>
+> <footer class="quote-attribution"> <cite>Mathurin Régnier, Les Satires XIV</cite> </footer>
 
 DSCF4090.jpg
 DSCF7212-2.jpg

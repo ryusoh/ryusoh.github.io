@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -165,3 +165,13 @@ endif
 
 page:
 	@node scripts/build-page.mjs $(if $(ID),$(ID),$(PAGE_ARGS))
+
+# Extract markdown from an existing portfolio HTML page (supports `make extract p5` or `make extract ID=p5`)
+ifeq (extract,$(firstword $(MAKECMDGOALS)))
+  EXTRACT_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  .PHONY: $(EXTRACT_ARGS)
+  $(eval $(EXTRACT_ARGS):;@true)
+endif
+
+extract:
+	@node scripts/extract-page-markdown.mjs $(if $(ID),$(ID),$(EXTRACT_ARGS))

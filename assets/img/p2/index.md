@@ -1,14 +1,14 @@
 ---
 title: "I DO NOT CARE IF WE GO DOWN IN HISTORY AS BARBARIANS"
-description: "I Do Not Care If We Go Down in History as Barbarians - A street photography series by Zhuang Liu capturing vanity, angst, and street life in the San Francisco Bay Area."
+description: "I Do Not Care If We Go Down in History as Barbarians - A street photography project by Zhuang Liu capturing San Francisco Bay Area's urban reality, culture and zeitgeist."
 keywords:
   - "Zhuang Liu"
   - "Zhuang Liu photographer"
   - "Zhuang Liu photography"
   - "street photography"
   - "San Francisco"
-  - "Bay Area"
-  - "visual ethnography"
+  - "SFBA"
+  - "documentary photography"
 ogImage: "../assets/img/og-image.png"
 ---
 

@@ -60,9 +60,12 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
             const html = fs.readFileSync(path.join(ROOT_DIR, p, 'index.html'), 'utf8');
             const seq = extractSequence(html);
             expect(seq.length).toBeGreaterThan(15);
-            // Verify quotes exist
+            // Verify quotes exist and are not truncated
             const quotes = seq.filter((item) => item.startsWith('QUOTE:'));
             expect(quotes.length).toBeGreaterThanOrEqual(1);
+            for (const q of quotes) {
+                expect(q.length).toBeGreaterThan(20);
+            }
         }
     });
 

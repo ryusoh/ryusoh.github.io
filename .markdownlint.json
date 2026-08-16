@@ -1,6 +1,18 @@
 {
     "MD033": {
-        "allowed_elements": ["a", "img", "br", "details", "summary", "sup", "sub", "div", "em"]
+        "allowed_elements": [
+            "a",
+            "img",
+            "br",
+            "details",
+            "summary",
+            "sup",
+            "sub",
+            "div",
+            "em",
+            "footer",
+            "cite"
+        ]
     },
     "MD041": false,
     "MD013": false,

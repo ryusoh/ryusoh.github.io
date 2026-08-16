@@ -1,13 +1,14 @@
 ---
 title: "AEROBATIC ACTIVITIES"
-description: "Aerobatic Activities - A street photography series by Zhuang Liu capturing energy and motion in urban spaces."
+description: "Aerobatic Activities - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography."
 keywords:
   - "Zhuang Liu"
   - "Zhuang Liu photographer"
   - "Zhuang Liu photography"
   - "street photography"
-  - "Aerobatic Activities"
-  - "urban photography"
+  - "West Coast"
+  - "street culture"
+  - "visual ethnography"
 ogImage: "../assets/img/og-image.png"
 ---
 
@@ -36,7 +37,7 @@ DSCF5759-5.jpg
 ---
 
 > I've been laying
->
+> <br />
 > Waiting for your next mistake
 
 ---
