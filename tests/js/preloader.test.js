@@ -274,6 +274,8 @@ describe('coverage helper', () => {
                 const p = new window.__AssetPreloaderForTesting.AssetPreloader();
                 p.preloadImage('/test');
                 p.preloadAssets(['p1']);
+                p.preloadAssets(['nonexistent', 'empty']);
+                p.preloadAssets([]);
 
                 window.history.pushState({}, '', '/p1/');
                 p.getCurrentPageKey();
@@ -309,18 +311,26 @@ describe('coverage helper', () => {
                     }
                 });
 
+                const origRIC = window.requestIdleCallback;
+                window.requestIdleCallback = jest.fn((cb) => cb());
                 p.init();
                 if (loadCb) {
                     loadCb();
                 }
 
-                const origRIC = window.requestIdleCallback;
                 window.requestIdleCallback = undefined;
                 p.init();
                 if (loadCb) {
                     loadCb();
                 }
                 window.requestIdleCallback = origRIC;
+
+                Object.defineProperty(navigator, 'serviceWorker', {
+                    value: undefined,
+                    configurable: true,
+                });
+                delete navigator.serviceWorker;
+                p.init();
 
                 Object.defineProperty(navigator, 'serviceWorker', {
                     value: originalSW,
