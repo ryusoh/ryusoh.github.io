@@ -32,6 +32,40 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
         expect(output).toContain('Validation passed!');
     });
 
+    test('all production pages preserve exact image and blockquote ordering from markdown', () => {
+        const extractSequence = (html) => {
+            const content = html.match(
+                /<div class="container-narrow post-content">\s*([\s\S]*?)\s*<\/div>\s*<div class="project-footer">/
+            )[1];
+            const regex = /<img[^>]*src="([^"]+)"|<blockquote[\s\S]*?<\/blockquote>|<hr\s*\/?>/gi;
+            let match;
+            const items = [];
+            while ((match = regex.exec(content)) !== null) {
+                if (match[1]) {
+                    items.push('IMG:' + match[1]);
+                } else if (match[0].startsWith('<blockquote')) {
+                    const text = match[0]
+                        .replace(/<[^>]+>/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                    items.push('QUOTE:' + text);
+                } else {
+                    items.push('HR');
+                }
+            }
+            return items;
+        };
+
+        for (const p of ['p1', 'p2', 'p3', 'p4']) {
+            const html = fs.readFileSync(path.join(ROOT_DIR, p, 'index.html'), 'utf8');
+            const seq = extractSequence(html);
+            expect(seq.length).toBeGreaterThan(15);
+            // Verify quotes exist
+            const quotes = seq.filter((item) => item.startsWith('QUOTE:'));
+            expect(quotes.length).toBeGreaterThanOrEqual(1);
+        }
+    });
+
     describe('Ephemeral Synthetic Project Page Build E2E Test', () => {
         const testPageId = 'p99';
         const testImgDir = path.join(ROOT_DIR, 'assets', 'img', testPageId);

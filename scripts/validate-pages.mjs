@@ -43,7 +43,31 @@ export async function validateAllPages() {
             errorCount++;
         }
 
-        // 3. Extract and check all <img> and <source> assets
+        // 3. Check Markdown source parity (ensure no blockquotes or prose are dropped)
+        const mdPaths = [
+            path.join(ROOT_DIR, 'assets', 'img', page, 'index.md'),
+            path.join(ROOT_DIR, page, 'index.md'),
+        ];
+        const mdPath = mdPaths.find((p) => fs.existsSync(p));
+        if (mdPath) {
+            const mdContent = fs.readFileSync(mdPath, 'utf8');
+            const mdQuotes = [...mdContent.matchAll(/^>(.*)$/gm)]
+                .map((m) => m[1].replace(/<[^>]+>/g, '').trim())
+                .filter((line) => line && !line.startsWith('<!--'));
+
+            for (const quoteLine of mdQuotes) {
+                // Check that significant quote words exist in the rendered HTML
+                const words = quoteLine.split(/\s+/).slice(0, 4).join(' ');
+                if (words && !html.includes(words)) {
+                    console.error(
+                        `[${page}] Content dropped: markdown text snippet "${words}" missing from rendered HTML.`
+                    );
+                    errorCount++;
+                }
+            }
+        }
+
+        // 4. Extract and check all <img> and <source> assets
         const imgSrcMatches = [...html.matchAll(/<img\s+([^>]*?)src="([^"]+?)"([^>]*?)\/?>/g)];
         let isFirstImg = true;
 
