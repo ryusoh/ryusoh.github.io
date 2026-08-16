@@ -304,6 +304,75 @@ ${urls.join('\n')}
 }
 
 /**
+ * Synchronizes js/preloader.js assetSets and imageDirectories with discovered project pages.
+ * @param {string[]} pages e.g. ['p1', 'p2', 'p3', 'p4', 'p5']
+ * @param {boolean} checkOnly
+ * @returns {Promise<boolean>} whether preloader drifted
+ */
+export async function syncPreloaderAssets(pages, checkOnly = false) {
+    const preloaderPath = path.join(ROOT_DIR, 'js', 'preloader.js');
+    if (!fs.existsSync(preloaderPath)) return false;
+
+    const currentContent = fs.readFileSync(preloaderPath, 'utf8');
+
+    // Build imageDirectories and assetSets
+    const imageDirectories = {};
+    const assetSets = {};
+
+    for (const page of pages) {
+        imageDirectories[page] = `/assets/img/${page}/`;
+        const htmlPath = path.join(ROOT_DIR, page, 'index.html');
+        if (fs.existsSync(htmlPath)) {
+            const html = fs.readFileSync(htmlPath, 'utf8');
+            const matches = [
+                ...html.matchAll(/<img\b(?![^>]*class="[^"]*mobile-banner)[^>]*\bsrc="([^"]+)"/g),
+            ];
+            assetSets[page] = matches.map((m) => m[1]);
+        }
+    }
+
+    const dirsJson = JSON.stringify(imageDirectories, null, 16)
+        .replace(/^{/, '{\n')
+        .replace(/^ {16}/gm, '                ');
+    const assetsJson = JSON.stringify(assetSets, null, 16)
+        .replace(/^{/, '{\n')
+        .replace(/^ {16}/gm, '                ');
+
+    const dirsRegex = /(this\.imageDirectories\s*=\s*)\{[\s\S]*?\};/;
+    const assetsRegex = /(this\.assetSets\s*=\s*)\{[\s\S]*?\};/;
+
+    let newContent = currentContent;
+    if (dirsRegex.test(newContent)) {
+        newContent = newContent.replace(dirsRegex, `$1${dirsJson};`);
+    }
+    if (assetsRegex.test(newContent)) {
+        newContent = newContent.replace(assetsRegex, `$1${assetsJson};`);
+    }
+
+    let formattedContent = newContent;
+    try {
+        const prettierConfig = (await prettier.resolveConfig(preloaderPath)) || {};
+        formattedContent = await prettier.format(newContent, {
+            ...prettierConfig,
+            filepath: preloaderPath,
+        });
+    } catch {
+        formattedContent = newContent;
+    }
+
+    if (formattedContent.trim() !== currentContent.trim()) {
+        if (checkOnly) {
+            console.error('sync-pages: js/preloader.js asset sets are out of sync.');
+            return true;
+        }
+        fs.writeFileSync(preloaderPath, formattedContent, 'utf8');
+        console.log('Synchronized js/preloader.js');
+        return true;
+    }
+    return false;
+}
+
+/**
  * Synchronizes all project pages and index.html navigation against the canonical template shell.
  * @param {boolean} checkOnly If true, only reports drift without writing files.
  * @returns {Promise<number>} Exit code (0 for success, 1 for drift in check mode).
@@ -364,6 +433,10 @@ export async function syncAllPages(checkOnly = false) {
             }
         }
     }
+
+    // 4. Sync js/preloader.js asset sets
+    const preloaderDrifted = await syncPreloaderAssets(pages, checkOnly);
+    if (preloaderDrifted) drifted = true;
 
     if (checkOnly && drifted) {
         console.error('sync-pages FAIL: Pages are out of sync. Run "make sync-pages" to update.');

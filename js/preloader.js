@@ -121,21 +121,39 @@
          * Preload assets for specific pages
          * @param {string[]} pageKeys - Array of page keys to preload assets for (e.g., ['p2', 'p3'])
          */
+        /**
+         * Preload assets for specific pages
+         * @param {string[]} pageKeys - Array of page keys to preload assets for (e.g., ['p2', 'p3', 'p4', 'p5'])
+         */
         preloadAssets(pageKeys) {
             /**
              * Bolt Optimization:
-             * - What: Create a DocumentFragment to batch DOM inserts.
-             * - Why: Appending nodes one by one to `document.head` inside a loop triggers multiple DOM mutations and potential layout thrashing/recalculations on the main thread.
-             * - Impact: Measurably reduces main-thread blocking time by appending all preloader <link> elements to the actual DOM in a single operation.
+             * - What: Interleave image preloading round-robin across target pages and batch DOM inserts.
+             * - Why: Appending nodes one by one to `document.head` inside a loop triggers multiple DOM mutations.
+             *   Interleaving ensures that the hero / first images of EVERY portfolio page are preloaded first,
+             *   preventing network bandwidth starvation for later pages.
              */
             const fragment = document.createDocumentFragment();
-
+            const pageImageSets = [];
             for (let i = 0; i < pageKeys.length; i++) {
-                const pageKey = pageKeys[i];
-                if (this.assetSets[pageKey]) {
-                    const imgSet = this.assetSets[pageKey];
-                    for (let j = 0; j < imgSet.length; j++) {
-                        const imgSrc = imgSet[j];
+                const key = pageKeys[i];
+                if (this.assetSets[key] && this.assetSets[key].length > 0) {
+                    pageImageSets.push(this.assetSets[key]);
+                }
+            }
+
+            let maxLen = 0;
+            for (let i = 0; i < pageImageSets.length; i++) {
+                if (pageImageSets[i].length > maxLen) {
+                    maxLen = pageImageSets[i].length;
+                }
+            }
+
+            for (let round = 0; round < maxLen; round++) {
+                for (let i = 0; i < pageImageSets.length; i++) {
+                    const imgSet = pageImageSets[i];
+                    if (round < imgSet.length) {
+                        const imgSrc = imgSet[round];
                         const link = this.createPreloadLink(imgSrc);
                         fragment.appendChild(link);
                     }
@@ -170,24 +188,13 @@
 
         /**
          * Get current page key based on URL
-         * @returns {string} - Current page key (p1, p2, p3, p4, or 'main' for index)
+         * @returns {string} - Current page key (p1, p2, p3, p4, p5, or 'main' for index)
          */
         getCurrentPageKey() {
             const path = window.location.pathname;
-            if (path.includes('/p1/')) {
-                return 'p1';
-            }
-            if (path.includes('/p2/')) {
-                return 'p2';
-            }
-            if (path.includes('/p3/')) {
-                return 'p3';
-            }
-            if (path.includes('/p4/')) {
-                return 'p4';
-            }
-            if (path === '/' || path.includes('/index.html')) {
-                return 'main';
+            const match = path.match(/\/(p\d+)(?:\/|$)/i);
+            if (match) {
+                return match[1].toLowerCase();
             }
             return 'main';
         }
@@ -197,29 +204,12 @@
          */
         preloadForCurrentPage() {
             const currentPage = this.getCurrentPageKey();
+            const allPages = Object.keys(this.assetSets);
 
-            switch (currentPage) {
-                case 'p1':
-                    // Preload assets for p2, p3 and p4
-                    this.preloadAssets(['p2', 'p3', 'p4']);
-                    break;
-                case 'p2':
-                    // Preload assets for p1, p3 and p4
-                    this.preloadAssets(['p1', 'p3', 'p4']);
-                    break;
-                case 'p3':
-                    // Preload assets for p1, p2 and p4
-                    this.preloadAssets(['p1', 'p2', 'p4']);
-                    break;
-                case 'p4':
-                    // Preload assets for p1, p2 and p3
-                    this.preloadAssets(['p1', 'p2', 'p3']);
-                    break;
-                case 'main':
-                default:
-                    // On main page, preload assets for all portfolio pages
-                    this.preloadAssets(['p1', 'p2', 'p3', 'p4']);
-                    break;
+            if (currentPage === 'main' || !this.assetSets[currentPage]) {
+                this.preloadAssets(allPages);
+            } else {
+                this.preloadAssets(allPages.filter((p) => p !== currentPage));
             }
         }
 

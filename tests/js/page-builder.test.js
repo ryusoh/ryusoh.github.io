@@ -184,6 +184,10 @@ test_sample.jpg | by @test.photographer
             const sitemapXml = fs.readFileSync(path.join(ROOT_DIR, 'sitemap.xml'), 'utf8');
             expect(sitemapXml).toContain(`https://www.lyeutsaon.com/${testPageId}/`);
 
+            // Verify js/preloader.js asset sets are synchronized with the new page
+            const preloaderJs = fs.readFileSync(path.join(ROOT_DIR, 'js', 'preloader.js'), 'utf8');
+            expect(preloaderJs).toContain(`${testPageId}:`);
+
             // Run validator on the newly generated synthetic page
             const validateOutput = execFileSync('node', [VALIDATE_SCRIPT], {
                 cwd: ROOT_DIR,

@@ -63,6 +63,12 @@ describe('AssetPreloader', () => {
         expect(preloader.getCurrentPageKey()).toBe('p4');
     });
 
+    test('getCurrentPageKey should identify p5 correctly', () => {
+        const preloader = new AssetPreloader();
+        context.window.history.pushState({}, '', '/p5/');
+        expect(preloader.getCurrentPageKey()).toBe('p5');
+    });
+
     test('should preload single image with correct link', () => {
         const preloader = new AssetPreloader();
         const imgSrc = '/test.jpg';
@@ -108,7 +114,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4', 'p5']);
         });
 
         test('should preload assets for remaining portfolio pages on p2', () => {
@@ -118,7 +124,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3', 'p4']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3', 'p4', 'p5']);
         });
 
         test('should preload assets for remaining portfolio pages on p3', () => {
@@ -128,7 +134,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p4']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p4', 'p5']);
         });
 
         test('should preload assets for remaining portfolio pages on p4', () => {
@@ -138,7 +144,17 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p5']);
+        });
+
+        test('should preload assets for remaining portfolio pages on p5', () => {
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p5');
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4']);
         });
 
         test('should fallback to main for unknown paths', () => {
@@ -148,7 +164,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4', 'p5']);
         });
     });
 
@@ -166,6 +182,22 @@ describe('AssetPreloader', () => {
 
             sets.forEach((key) => {
                 expect(preloader.imageDirectories[key]).toBeDefined();
+            });
+        });
+
+        test('all project pages on disk exist in preloader assetSets and directories', () => {
+            const preloader = new AssetPreloader();
+            const projectRoot = path.resolve(__dirname, '../..');
+            const diskPages = fs
+                .readdirSync(projectRoot)
+                .filter(
+                    (d) =>
+                        /^p\d+$/i.test(d) && fs.existsSync(path.join(projectRoot, d, 'index.html'))
+                );
+
+            diskPages.forEach((pageKey) => {
+                expect(preloader.assetSets[pageKey]).toBeDefined();
+                expect(preloader.imageDirectories[pageKey]).toBeDefined();
             });
         });
 
@@ -254,6 +286,10 @@ describe('coverage helper', () => {
                 p.preloadForCurrentPage();
 
                 window.history.pushState({}, '', '/p4/');
+                p.getCurrentPageKey();
+                p.preloadForCurrentPage();
+
+                window.history.pushState({}, '', '/p5/');
                 p.getCurrentPageKey();
                 p.preloadForCurrentPage();
 
