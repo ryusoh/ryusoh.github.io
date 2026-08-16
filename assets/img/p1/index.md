@@ -2,14 +2,9 @@
 title: "I TEAR UP THE BAY WHEN I COME THROUGH"
 description: "I Tear Up The Bay When I Come Through - A street photography series by Zhuang Liu capturing San Francisco Bay Area urban life and light."
 keywords:
-  - "Zhuang Liu"
-  - "Zhuang Liu photographer"
-  - "Zhuang Liu photography"
-  - "street photography"
   - "San Francisco"
   - "Bay Area"
   - "urban photography"
-ogImage: "../assets/img/og-image.png"
 ---
 
 DSCF4775.jpg

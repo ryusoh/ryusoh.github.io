@@ -2,14 +2,9 @@
 title: "DAS GESPENST"
 description: "Das Gespenst - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography."
 keywords:
-  - "Zhuang Liu"
-  - "Zhuang Liu photographer"
-  - "Zhuang Liu photography"
-  - "street photography"
   - "West Coast"
   - "street culture"
   - "visual ethnography"
-ogImage: "../assets/img/og-image.png"
 ---
 
 DSCF4250-3.jpg

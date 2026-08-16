@@ -132,15 +132,25 @@ export function extractPageMarkdown(pageId) {
     }
     flushImages();
 
+    const BASE_KEYWORDS = new Set([
+        'Zhuang Liu',
+        'Zhuang Liu photographer',
+        'Zhuang Liu photography',
+        'street photography',
+    ]);
+    const uniqueKeywords = keywordsList.filter((k) => !BASE_KEYWORDS.has(k));
+
     const frontmatterLines = [
         '---',
         `title: "${title}"`,
         `description: "${description}"`,
-        'keywords:',
-        ...keywordsList.map((k) => `  - "${k}"`),
-        'ogImage: "../assets/img/og-image.png"',
-        '---',
     ];
+
+    if (uniqueKeywords.length > 0) {
+        frontmatterLines.push('keywords:');
+        uniqueKeywords.forEach((k) => frontmatterLines.push(`  - "${k}"`));
+    }
+    frontmatterLines.push('---');
 
     const finalMarkdown = `${frontmatterLines.join('\n')}\n\n${bodyChunks.join('\n\n')}\n`;
     const targetDir = path.join(ROOT_DIR, 'assets', 'img', cleanId);

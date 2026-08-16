@@ -324,15 +324,22 @@ export async function buildPage(pageId) {
     const description =
         frontmatter.description ||
         `${title} - A street photography series by Zhuang Liu capturing West Coast street culture.`;
-    const keywordsList = Array.isArray(frontmatter.keywords)
-        ? frontmatter.keywords
-        : ['Zhuang Liu', 'street photography', 'photography'];
+    const BASE_KEYWORDS = [
+        'Zhuang Liu',
+        'Zhuang Liu photographer',
+        'Zhuang Liu photography',
+        'street photography',
+    ];
+    const extraKeywords = Array.isArray(frontmatter.keywords) ? frontmatter.keywords : [];
+    const keywordsList = Array.from(new Set([...BASE_KEYWORDS, ...extraKeywords]));
     const keywords = keywordsList.join(', ');
     const canonical = `https://www.lyeutsaon.com/${cleanId}/`;
     const metaTitle = `${title} | Zhuang Liu Photography`;
     const metaDesc = description;
     const ogImage = frontmatter.ogImage
-        ? `/assets/img/${cleanId}/${frontmatter.ogImage}`
+        ? frontmatter.ogImage.startsWith('.') || frontmatter.ogImage.startsWith('/')
+            ? frontmatter.ogImage
+            : `/assets/img/${cleanId}/${frontmatter.ogImage}`
         : '../assets/img/og-image.png';
 
     const pageData = {

@@ -20,9 +20,8 @@ Create directory `assets/img/p<N>/` (e.g. `assets/img/p5/`):
 title: 'TITLE OF THE PROJECT'
 description: 'A street photography series by Zhuang Liu capturing ...'
 keywords:
-    - 'Zhuang Liu'
-    - 'street photography'
-ogImage: '../assets/img/og-image.png'
+    - 'San Francisco'
+    - 'urban culture'
 ---
 
 DSCF0001.jpg | Optional custom description
