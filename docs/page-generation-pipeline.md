@@ -50,38 +50,49 @@ To achieve a frictionless, zero-error workflow, the system separates
 **creative editorial authoring** from **deterministic computation**:
 
 ```text
-+--------------------------------------------------------------+
-| 1. Creative Layer (Human or AI Agent)                        |
-|    - Raw photos in assets/img/p5/                            |
-|    - Editorial content in assets/img/p5/index.md (or prompt) |
-+--------------------------------------------------------------+
++-------------------------------------------------------------+
+| 1. Creative Layer (Human or AI Agent)                       |
+|    - Raw photos in assets/img/p5/                           |
+|    - Editorial content in assets/img/p5/index.md or         |
+|      p5/index.md (or generated via AI prompt)               |
++-------------------------------------------------------------+
                               │
                               ▼
-+--------------------------------------------------------------+
-| 2. Deterministic Engine (scripts/build-page.mjs)             |
-|    - Sharp: reads image dimensions                           |
-|    - Sharp: generates AVIF / WebP tiers (768w, 1200w, full)  |
-|    - ThumbHash: computes hash and base64 blur-up             |
-|    - Template: compiles canonical HTML (p5/index.html)       |
-|    - Global Sync: updates nav in index.html & p1..p5         |
-|    - Global Sync: updates js/preloader.js assetSets          |
-+--------------------------------------------------------------+
++-------------------------------------------------------------+
+| 2. Deterministic Engine (scripts/build-page.mjs)            |
+|    - Sharp: reads image dimensions                          |
+|    - Sharp: generates AVIF / WebP tiers (768w, 1200w, full) |
+|    - ThumbHash: computes hash and base64 blur-up            |
+|    - Template: compiles canonical HTML (p5/index.html)      |
+|    - Global Sync: updates nav in index.html & p1..p5        |
+|    - Global Sync: updates js/preloader.js assetSets         |
++-------------------------------------------------------------+
                               │
                               ▼
-+--------------------------------------------------------------+
-| 3. Quality Gate (CI Parity)                                  |
-|    - make precommit-fix (ESLint, Prettier, Jest tests)       |
-+--------------------------------------------------------------+
++-------------------------------------------------------------+
+| 3. Quality Gate (CI Parity)                                 |
+|    - make precommit-fix (ESLint, Prettier, Jest tests)      |
++-------------------------------------------------------------+
 ```
 
 ---
 
-## 3. Specification
+## 3. Content Specification (`index.md`)
 
-### 3.1 Content Source of Truth (`assets/img/p<N>/index.md`)
+### 3.1 File Discovery & Location
+
+The compiler searches for the page source in the following order of
+precedence:
+
+1. `assets/img/p<N>/index.md` (recommended: keeps markdown alongside source
+   photos)
+2. `p<N>/index.md`
+
+### 3.2 Schema & Syntax
 
 The authoring file uses standard YAML frontmatter followed by an interleaved
-sequence of image filenames, blockquotes, and dividers:
+sequence of image filenames, optional custom alt captions, blockquotes, and
+dividers:
 
 ```markdown
 ---
@@ -94,7 +105,7 @@ keywords:
 ogImage: 'DSCF7765.jpg'
 ---
 
-DSCF7765.jpg
+DSCF7765.jpg | A lone skater suspended in twilight over San Francisco asphalt
 
 > The street photography series Aerobatic Activities presents a sophisticated
 > visual ethnography, dedicated to delineating the vibrant choreographies of
@@ -111,10 +122,10 @@ DSCF7186-2.jpg
 
 ---
 
-DSCF5719-3.jpg
+DSCF5719-3.jpg | Neon reflections pooling on rain-slicked pavement
 ```
 
-### 3.2 Parsing Rules
+### 3.3 Parsing Rules
 
 - **Frontmatter**:
     - `title`: Populates `<title>`, `<h1>`, `og:title`, and `twitter:title`.
@@ -123,13 +134,52 @@ DSCF5719-3.jpg
     - `keywords`: Injected as comma-separated meta keywords.
     - `ogImage` (optional): Default OG image for social previews (falls back to
       first photo or site default).
-- **Body Lines**:
-    - Filenames matching `/\.(jpe?g|JPG|png)$/i`: Rendered as responsive
-      `<picture>` blocks containing AVIF/WebP sources, dimensions, ThumbHash,
-      `decoding="async"`, and `alt="Street photography by Zhuang Liu"`. The first
-      photo omits `loading="lazy"`; subsequent photos include `loading="lazy"`.
-    - Markdown Blockquotes (`>`): Rendered as `<blockquote><p>...</p></blockquote>`.
-    - Markdown Horizontal Rules (`---`): Rendered as `<hr />`.
+- **Image Lines**:
+    - Syntax: `<filename> [| <optional custom alt text>]`
+    - Supported extensions: `.jpg`, `.JPG`, `.jpeg`, `.png`, `.webp`, `.avif`.
+    - Alt text fallback: If pipe `|` is omitted, defaults to
+      `"Street photography by Zhuang Liu"`.
+    - Dimensions: Extracted directly from the source image file via `sharp`.
+    - Loading attribute: The first photo omits `loading="lazy"` (for optimal LCP);
+      all subsequent photos include `loading="lazy"`.
+    - Output markup:
+
+        ```html
+        <div align="center">
+            <picture>
+                <source
+                    type="image/avif"
+                    srcset="
+                        /assets/img/p3/DSCF7765-768.avif   768w,
+                        /assets/img/p3/DSCF7765-1200.avif 1200w,
+                        /assets/img/p3/DSCF7765.avif      2048w
+                    "
+                    sizes="(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px"
+                />
+                <source
+                    type="image/webp"
+                    srcset="
+                        /assets/img/p3/DSCF7765-768.webp   768w,
+                        /assets/img/p3/DSCF7765-1200.webp 1200w,
+                        /assets/img/p3/DSCF7765.webp      2048w
+                    "
+                    sizes="(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px"
+                />
+                <img
+                    data-thumbhash="IggKDYJfh5tOU3eId5dnZia0T0Cq"
+                    style="background-image: url('data:image/png;base64,...'); background-size: cover; background-position: center;"
+                    src="/assets/img/p3/DSCF7765.jpg"
+                    alt="A lone skater suspended in twilight over San Francisco asphalt"
+                    width="2048"
+                    height="1365"
+                    decoding="async"
+                />
+            </picture>
+        </div>
+        ```
+
+- **Markdown Blockquotes (`>`)**: Rendered as `<blockquote><p>...</p></blockquote>`.
+- **Markdown Horizontal Rules (`---`)**: Rendered as `<hr />`.
 
 ---
 
@@ -137,31 +187,32 @@ DSCF5719-3.jpg
 
 ### 4.1 Image & Placeholder Generation (`sharp` + `thumbhash`)
 
-For each image listed in `index.md`:
+For each image referenced in `index.md`:
 
 1. Read source image metadata (`width`, `height`).
-2. Generate multi-tier assets:
-    - Full resolution: `.avif` (q65), `.webp` (q75)
-    - 1200w tier: `-1200.avif`, `-1200.webp`
-    - 768w tier: `-768.avif`, `-768.webp`
+2. Generate multi-tier assets if missing or outdated:
+    - Full resolution: `.avif` (q65, effort 4), `.webp` (q75, effort 4)
+    - 1200w tier: `-1200.avif`, `-1200.webp` (resize width 1200 without enlargement)
+    - 768w tier: `-768.avif`, `-768.webp` (resize width 768 without enlargement)
 3. Generate ThumbHash:
-    - Resize to 100x100 box, compute RGBA ThumbHash.
-    - Encode 28-character base64 hash and base64 PNG data-URI background.
+    - Resize to 100x100 box with `{ fit: 'inside' }`, `.ensureAlpha()`, raw RGBA.
+    - Compute ThumbHash binary hash, 28-character base64 hash, and base64 PNG data-URI background.
 
-### 4.2 HTML Templating
+### 4.2 HTML Templating (`scripts/build-page.mjs`)
 
-Compiles `p<N>/index.html` using the canonical portfolio page template:
+Compiles `p<N>/index.html` using the canonical portfolio shell template
+(`scripts/templates/portfolio-shell.html`):
 
 - Inserts sanitized metadata and OpenGraph tags into `<head>`.
-- Injects header dock navigation with `aria-current="page"` for the current page.
-- Renders the post content container with `<picture>` blocks and typography.
+- Injects header dock navigation with `aria-current="page"` on the current project.
+- Renders the post content container with responsive `<picture>` blocks and typography.
 - Injects standard footer banner, Instagram reveal link, and deferred runtime
   scripts (`page-transition.js`, `block-navigation.js`, `lenis-init.js`,
   `cursor-init.js`, etc.).
 
 ### 4.3 Global Multi-Page Navigation Sync
 
-When a new page `p<N>` is generated:
+When a new page `p<N>` is generated or synchronized:
 
 1. Discover all active portfolio pages (`p1`, `p2`, ..., `p<N>`).
 2. Read the project title for each page from its `index.md` or `index.html`.
@@ -228,27 +279,27 @@ synchronization must happen automatically without requiring manual instructions
 from the user.
 
 ```text
-+--------------------------------------------------------------------------+
-| 1. AGENTS.md Rule (Agent Context)                                        |
++-------------------------------------------------------------------------+
+| 1. AGENTS.md Rule (Agent Context)                                       |
 |    Tells any agent (Claude, Antigravity, Kimi, Jules) how portfolio      |
-|    pages work: update scripts/templates/portfolio-shell.html and run     |
-|    make sync-pages.                                                      |
-+--------------------------------------------------------------------------+
+|    pages work: update scripts/templates/portfolio-shell.html and run    |
+|    make sync-pages.                                                     |
++-------------------------------------------------------------------------+
                                      │
                                      ▼
-+--------------------------------------------------------------------------+
-| 2. make precommit-fix & Drift Gate (Deterministic Guardrail)             |
-|    - make sync-pages is hooked into make precommit-fix.                  |
-|    - If an agent touches a script in p1, make precommit-fix auto-syncs   |
-|      p2..pN and the shell template before allowing a commit.             |
-+--------------------------------------------------------------------------+
++-------------------------------------------------------------------------+
+| 2. make precommit-fix & Drift Gate (Deterministic Guardrail)           |
+|    - make sync-pages is hooked into make precommit-fix.                 |
+|    - If an agent touches a script in p1, make precommit-fix auto-syncs  |
+|      p2..pN and the shell template before allowing a commit.            |
++-------------------------------------------------------------------------+
                                      │
                                      ▼
-+--------------------------------------------------------------------------+
-| 3. Acceptance Tests (CI Ratchet)                                         |
-|    project-scripts-consistency.acceptance.test.js fails CI if any        |
-|    page's <head> or trailing <script> tags ever diverge.                 |
-+--------------------------------------------------------------------------+
++-------------------------------------------------------------------------+
+| 3. Acceptance Tests (CI Ratchet)                                        |
+|    project-scripts-consistency.acceptance.test.js fails CI if any       |
+|    page's <head> or trailing <script> tags ever diverge.                |
++-------------------------------------------------------------------------+
 ```
 
 ### 6.1 AGENTS.md Working Rule
@@ -310,16 +361,50 @@ To create an entirely AI-native workflow, a dedicated agent skill
 
 ---
 
-## 8. Required Codebase Generalizations
+## 8. Implementation Roadmap (For Long-Running Goal Task)
 
-Before adding `p5`, the following hardcoded `p1`–`p4` limits must be
-generalized to dynamic discovery:
+When executing the task to build this pipeline, the implementing agent should
+follow these phased steps:
 
-1. **`scripts/build-images.mjs` & `scripts/generate-thumbhashes.mjs`**:
-    - Replace `const pages = ['p1', 'p2', 'p3', 'p4'];` with dynamic directory
-      discovery `fs.readdirSync('assets/img').filter(d => /^p\d+$/.test(d))`.
-2. **`js/hover-preview.js`**:
-    - Update line 44 `href.match(/p[1-4]/i)` to `href.match(/p\d+/i)`.
-3. **Acceptance Tests**:
-    - Update `tests/js/acceptance/article-banner-consistency.acceptance.test.js`
-      and related tests to scan all discovered `p*/index.html` directories.
+### Phase 1: Codebase Generalization & Decoupling
+
+1. Update `scripts/build-images.mjs` and `scripts/generate-thumbhashes.mjs` to
+   dynamically discover all directories matching `assets/img/p*`.
+2. Update `js/hover-preview.js` line 44 to match `/p\d+/i`.
+3. Update `tests/js/acceptance/article-banner-consistency.acceptance.test.js` and
+   all acceptance tests to dynamically discover active `p*/index.html` files.
+
+### Phase 2: Canonical Shell & Synchronizer
+
+1. Create `scripts/templates/portfolio-shell.html` extracted from current
+   `p1/index.html`.
+2. Create `scripts/sync-pages.mjs` (supporting `--check` and `--fix` / default
+   sync mode).
+3. Create `tests/js/acceptance/project-scripts-consistency.acceptance.test.js`.
+4. Add `sync-pages` and `sync-pages-check` targets to `Makefile`, and wire into
+   `make check` / `make precommit-fix`.
+
+### Phase 3: Bootstrap Existing Pages (`p1`, `p2`, `p4`)
+
+1. Create `assets/img/p1/index.md`, `assets/img/p2/index.md`,
+   `assets/img/p4/index.md` extracted from their respective live HTML pages.
+2. Verify that running `make sync-pages` produces a clean zero-drift diff on
+   `p1`–`p4`.
+
+### Phase 4: Page Builder Script (`scripts/build-page.mjs`)
+
+1. Implement markdown parser supporting frontmatter, pipe alt captions, quotes,
+   and horizontal rules.
+2. Implement Sharp/ThumbHash asset pipeline with multi-tier encoding.
+3. Implement HTML assembly using `portfolio-shell.html`.
+4. Implement automatic global navigation injection across `index.html` and
+   `p1..p<N>`.
+5. Implement automatic `js/preloader.js` asset set registration.
+6. Add `page` target to `Makefile` (`make page ID=p<N>`).
+
+### Phase 5: Agent Skill & Documentation
+
+1. Create `.agents/skills/new-page/SKILL.md`.
+2. Run `python3 tools/sync_commands.py` to generate `.claude/commands/new-page.md`.
+3. Update `AGENTS.md` working rules with portfolio page infrastructure guidance.
+4. Run full `make precommit-fix` and test suite to verify 100% green gate.
