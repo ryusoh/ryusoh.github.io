@@ -2,7 +2,21 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
-const pages = ['p1', 'p2', 'p3', 'p4'];
+function getProjectPages() {
+    const assetsDir = path.join('assets', 'img');
+    if (!fs.existsSync(assetsDir)) return ['p1', 'p2', 'p3', 'p4'];
+    return fs
+        .readdirSync(assetsDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory() && /^p\d+$/i.test(d.name))
+        .map((d) => d.name)
+        .sort((a, b) => {
+            const numA = parseInt(a.slice(1), 10);
+            const numB = parseInt(b.slice(1), 10);
+            return numA - numB;
+        });
+}
+
+const pages = getProjectPages();
 const SIZES_ATTR = '(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px';
 
 async function processImages() {

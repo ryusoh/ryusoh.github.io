@@ -10,8 +10,20 @@ const path = require('path');
 
 const ROOT_DIR = path.resolve(__dirname, '../../../');
 
+const getProjectPages = () =>
+    fs
+        .readdirSync(ROOT_DIR, { withFileTypes: true })
+        .filter(
+            (d) =>
+                d.isDirectory() &&
+                /^p\d+$/i.test(d.name) &&
+                fs.existsSync(path.join(ROOT_DIR, d.name, 'index.html'))
+        )
+        .map((d) => `${d.name}/index.html`)
+        .sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
+
 describe('Mobile banner consistency between main page and article pages', () => {
-    const pages = ['p1/index.html', 'p2/index.html', 'p3/index.html', 'p4/index.html'];
+    const pages = getProjectPages();
 
     test('every page loads the shared banner stylesheet', () => {
         ['index.html', ...pages].forEach((pagePath) => {

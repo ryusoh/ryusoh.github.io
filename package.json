@@ -13,7 +13,11 @@
         "build:images": "node scripts/build-images.mjs",
         "build:thumbhashes": "node scripts/generate-thumbhashes.mjs",
         "build:assets": "node scripts/build-images.mjs && node scripts/generate-thumbhashes.mjs",
+        "page": "node scripts/build-page.mjs",
         "test": "jest --coverage"
+    },
+    "bin": {
+        "page": "./scripts/build-page.mjs"
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",

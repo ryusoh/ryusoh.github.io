@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+    <!-- Head tag -->
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self'; script-src 'self' https://www.google-analytics.com https://static.cloudflareinsights.com https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://fonts.bunny.net https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.bunny.net https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+        />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1, user-scalable=no, minimal-ui"
+        />
+        <meta name="theme-color" content="#000000" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="view-transition" content="same-origin" />
+        <meta name="referrer" content="strict-origin-when-cross-origin" />
+        <meta property="og:image" content="{{OG_IMAGE}}" />
+        <meta property="og:image:width" content="1447" />
+        <meta property="og:image:height" content="965" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="{{OG_IMAGE}}" />
+        <link rel="shortcut icon" href="/assets/img/icon-180.png" type="image/png" />
+        <link rel="icon" href="/assets/img/icon-180.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/assets/img/icon-180.png" />
+        <link rel="bookmark" href="/assets/img/icon-180.png" type="image/png" />
+        <link rel="manifest" href="/manifest.json" />
+        <!--Description-->
+
+        <meta name="description" content="{{DESCRIPTION}}" />
+        <meta name="keywords" content="{{KEYWORDS}}" />
+
+        <!--Author-->
+
+        <meta name="author" content="Zhuang Liu" />
+
+        <!-- Canonical URL -->
+        <link rel="canonical" href="{{CANONICAL_URL}}" />
+
+        <!-- Open Graph -->
+        <meta property="og:url" content="{{CANONICAL_URL}}" />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content="{{META_TITLE}}" />
+        <meta property="og:description" content="{{META_DESCRIPTION}}" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:title" content="{{META_TITLE}}" />
+        <meta name="twitter:description" content="{{META_DESCRIPTION}}" />
+
+        <!-- Title -->
+
+        <title>{{PAGE_TITLE}}</title>
+        <!-- Custom CSS -->
+
+        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/css/header.css" />
+        <link rel="stylesheet" href="../css/banner.css" />
+        <link rel="stylesheet" href="../css/cursor.css" />
+        <link rel="stylesheet" href="../css/grain.css" />
+
+        <!-- Custom Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="preload"
+            as="font"
+            type="font/woff2"
+            href="/assets/fonts/syne-latin.woff2"
+            crossorigin
+        />
+        <link
+            href="/assets/vendor/font-awesome/css/font-awesome.min.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <script defer src="../js/loader/cdnFallback.js"></script>
+        <script defer src="../js/loader/vendorLoader.js"></script>
+        <script defer src="../js/font-awesome-loader.js"></script>
+        <script src="/js/vendor/thumbhash.js" defer></script>
+        <script src="/js/thumbhash-init.js" defer></script>
+    </head>
+
+    <body data-page-type="project">
+        <a href="#main" class="sr-only sr-only-focusable">Skip to content</a>
+
+        <!-- Header Navigation Dock -->
+        <div id="cont">
+            <header id="site-header" class="cont-inner">
+                <h1 class="brand-title">
+                    <!-- prettier-ignore -->
+                    <a href="/" class="nav-back" target="_self" data-page-transition data-destination="home" aria-label="Home">
+                        <span>Zhuang Liu</span>
+                    </a>
+                </h1>
+                <nav aria-label="Portfolio projects">
+                    <table id="nav" role="presentation">
+                        <tbody>
+                            <!-- SLOT:NAV_LINKS -->
+                        </tbody>
+                    </table>
+                </nav>
+            </header>
+        </div>
+        <div class="social-icons-container social-icons-desktop">
+            <!-- prettier-ignore -->
+            <a href="https://instagram.com/lyeutsaon" target="_blank" rel="noopener noreferrer"
+                aria-label="Instagram Lyeutsaon (opens in a new tab)">
+                <i class="fa fa-instagram social-icon" aria-hidden="true"></i>
+            </a>
+            <!-- prettier-ignore -->
+            <a href="https://instagram.com/lyeutsaon.misc" target="_blank" rel="noopener noreferrer"
+                aria-label="Instagram Lyeutsaon Misc (opens in a new tab)">
+                <i class="fa fa-instagram social-icon" aria-hidden="true"></i>
+            </a>
+            <!-- prettier-ignore -->
+            <a href="mailto:info@lyeutsaon.com"
+                aria-label="Email Zhuang Liu">
+                <i class="fa fa-at social-icon" aria-hidden="true"></i>
+            </a>
+            <!-- prettier-ignore -->
+            <a href="https://www.linkedin.com/in/zhuangliudev/" target="_blank" rel="noopener noreferrer"
+                aria-label="LinkedIn Profile (opens in a new tab)">
+                <i class="fa fa-linkedin-square social-icon" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div id="top-bar-bg" aria-hidden="true"></div>
+
+        <!-- Content -->
+        <main id="main" class="article-container" tabindex="-1">
+            <!-- Page Header -->
+            <header class="intro-header" data-block-nav="block">
+                <div class="container-narrow">
+                    <div class="post-heading">
+                        <h1>{{HEADING}}</h1>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Post Content -->
+            <article>
+                <div class="container-narrow post-content">
+                    <!-- SLOT:POST_CONTENT -->
+                </div>
+                <div class="project-footer">
+                    <img
+                        class="mobile-banner"
+                        alt="Banner"
+                        aria-hidden="true"
+                        src="/assets/banners/banner.png"
+                        width="640"
+                        height="640"
+                        decoding="async"
+                    />
+                    <a
+                        href="https://instagram.com/lyeutsaon"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="scroll-reveal-instagram"
+                        aria-label="Instagram Lyeutsaon (opens in a new tab)"
+                    >
+                        <i class="fa fa-instagram" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </article>
+        </main>
+
+        <!-- Scripts -->
+        <script type="text/javascript"></script>
+        <script type="module" src="../js/page-transition.js"></script>
+        <script defer src="../js/ambient/loader.js"></script>
+        <script defer src="../js/block-navigation.js"></script>
+        <script defer src="../js/preloader.js"></script>
+
+        <!-- GSAP library -->
+        <script src="../js/vendor/gsap.min.js"></script>
+        <!-- Custom cursor initialization -->
+        <script type="module" src="../js/cursor-init.js"></script>
+        <!-- Scroll reveal icon -->
+        <script defer src="../js/scroll-reveal-icon.js"></script>
+        <!-- Scroll-driven content reveal -->
+        <script defer src="../js/scroll-reveal.js"></script>
+        <!-- Lenis smooth scrolling -->
+        <script defer src="../js/vendor/lenis.min.js"></script>
+        <script defer src="../js/lenis-init.js"></script>
+        <!-- Mobile dock click expand & double-click navigation -->
+        <script defer src="../js/mobile-dock.js"></script>
+        <!-- Service Worker -->
+        <script defer src="../js/service-worker-register.js"></script>
+    </body>
+</html>

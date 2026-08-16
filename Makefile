@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check thinking-check images thumbhashes assets
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -14,13 +14,16 @@ help:
 	@echo "  lint-fix      Apply ESLint/Stylelint auto-fixes"
 	@echo "  type          JS strict type check (tsc --checkJs on whitelist)"
 	@echo "  thinking-check Stream-of-consciousness scan (comments, abandoned tests)"
-	@echo "  check         Run fmt-check + lint + type (quick CI parity)"
-	@echo "  fix           Run fmt + lint-fix"
+	@echo "  sync-pages    Synchronize portfolio pages with portfolio-shell.html template"
+	@echo "  sync-pages-check Check portfolio pages are in sync with shell template"
+	@echo "  check         Run fmt-check + lint + type + sync-check + sync-pages-check"
+	@echo "  fix           Run fmt + lint-fix + sync-pages"
 	@echo "  test          Run the full Jest suite with a coverage report"
 	@echo "  mutate-js     StrykerJS mutation run (non-blocking; not in any gate)"
 	@echo "  images        Batch build multi-tier AVIF and WebP responsive gallery images"
 	@echo "  thumbhashes   Batch generate 28-char ThumbHash placeholders for gallery images"
 	@echo "  assets        Run images + thumbhashes generation pipeline"
+	@echo "  page          Build/generate a portfolio page (e.g. make page ID=p5)"
 
 hooks:
 	@if [ ! -f .pre-commit-config.yaml ]; then \
@@ -114,13 +117,19 @@ type:
 thinking-check:
 	@node scripts/check-thinking-comments.js
 
-check: fmt-check lint type sync-check thinking-check
+sync-pages:
+	@node scripts/sync-pages.mjs
+
+sync-pages-check:
+	@node scripts/sync-pages.mjs --check
+
+check: fmt-check lint type sync-check sync-pages-check thinking-check
 
 lint-fix:
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true
 	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --fix --max-warnings=0 || true
 
-fix: fmt lint-fix
+fix: fmt lint-fix sync-pages
 
 # Mutation testing (NON-BLOCKING — not part of lint/check/precommit).
 # coverageAnalysis is "off" because the repo's jsdom testEnvironment does not
@@ -146,3 +155,13 @@ thumbhashes:
 	@node scripts/generate-thumbhashes.mjs
 
 assets: images thumbhashes
+
+# Build a single portfolio page from markdown (supports `make page p5` or `make page ID=p5`)
+ifeq (page,$(firstword $(MAKECMDGOALS)))
+  PAGE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  .PHONY: $(PAGE_ARGS)
+  $(eval $(PAGE_ARGS):;@true)
+endif
+
+page:
+	@node scripts/build-page.mjs $(if $(ID),$(ID),$(PAGE_ARGS))

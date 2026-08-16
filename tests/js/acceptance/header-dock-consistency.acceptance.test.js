@@ -36,14 +36,20 @@ function renderPageInDoc(htmlRelativePath) {
     return doc;
 }
 
+const getProjectPages = () =>
+    fs
+        .readdirSync(ROOT_DIR, { withFileTypes: true })
+        .filter(
+            (d) =>
+                d.isDirectory() &&
+                /^p\d+$/i.test(d.name) &&
+                fs.existsSync(path.join(ROOT_DIR, d.name, 'index.html'))
+        )
+        .map((d) => `${d.name}/index.html`)
+        .sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
+
 describe('Header Dock & Portfolio Link Style Consistency across Main and Article pages', () => {
-    const pages = [
-        'index.html',
-        'p1/index.html',
-        'p2/index.html',
-        'p3/index.html',
-        'p4/index.html',
-    ];
+    const pages = ['index.html', ...getProjectPages()];
 
     test('all pages contain the identical header markup structure and link targets', () => {
         const structures = pages.map((pagePath) => {

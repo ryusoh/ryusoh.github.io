@@ -41,7 +41,7 @@
         if (!href) {
             return null;
         }
-        const match = href.match(/p[1-4]/i);
+        const match = href.match(/p\d+/i);
         return match ? match[0].toLowerCase() : null;
     }
 

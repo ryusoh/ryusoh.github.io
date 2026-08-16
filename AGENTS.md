@@ -147,6 +147,9 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Dependency-structure gate (no circular imports)    | `make depcheck`                          |
 | Stream-of-consciousness scan (comments, tests)     | `make thinking-check`                    |
 | Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                         |
+| Synchronize portfolio pages from shell template    | `make sync-pages`                        |
+| Check portfolio pages template synchronization     | `make sync-pages-check`                  |
+| Build/compile a portfolio page from markdown       | `make page ID=pN`                        |
 | Build responsive AVIF/WebP gallery tiers           | `make images`                            |
 | Generate ThumbHash blur-up placeholders            | `make thumbhashes`                       |
 
@@ -215,7 +218,11 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   `docs/js-typing-strategy.md` before touching it.
 - `css/` — stylesheets.
 - `p1/`–`p4/`, `index.html` — static page entries; the `p*` pages are
-  image-heavy portfolio galleries.
+  image-heavy portfolio galleries generated from `assets/img/p*/index.md`
+  via canonical template `scripts/templates/portfolio-shell.html`.
+- `scripts/templates/portfolio-shell.html` — canonical shell for all `p*/index.html`
+  galleries. Any added scripts, styles, or header/dock changes must be made
+  here, followed by `make sync-pages`.
 - `tests/js/**` — Jest (jsdom) tests. `tests/js/acceptance/**` — the acceptance
   stream: user-facing behaviours phrased in domain language, exercised only
   through the public surface (real events in, observable page effects out; no
