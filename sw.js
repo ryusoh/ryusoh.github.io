@@ -2,6 +2,7 @@
  * The Pages workflow (.github/workflows/pages.yml) stamps CACHE_NAME with the
  * deploy SHA on every deploy — don't hand-bump it. */
 const CACHE_NAME = 'ryusoh-cache-v2';
+const IMAGE_CACHE_NAME = 'ryusoh-images-v1';
 const CORE_ASSETS = [
     '/',
     '/index.html',
@@ -41,7 +42,7 @@ const activateLogic = (event) => {
             .then((keys) =>
                 Promise.all(
                     keys.map((k) => {
-                        if (k !== CACHE_NAME) {
+                        if (k !== CACHE_NAME && k !== IMAGE_CACHE_NAME) {
                             return caches.delete(k);
                         }
                     })
@@ -81,6 +82,8 @@ const isValidResponse = (res, req) => {
  * @param {Request} req
  */
 const handleFetchCacheFirst = (event, req) => {
+    const isImgOrFont = isImageOrFontFile(new URL(req.url), req.destination);
+    const targetCache = isImgOrFont ? IMAGE_CACHE_NAME : CACHE_NAME;
     event.respondWith(
         caches.match(req).then((cached) => {
             if (cached) {
@@ -89,7 +92,7 @@ const handleFetchCacheFirst = (event, req) => {
             return fetch(req).then((res) => {
                 if (isValidResponse(res, req)) {
                     const resClone = res.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
+                    caches.open(targetCache).then((cache) => {
                         cache.put(req, resClone).catch((e) => {
                             if (
                                 typeof self !== 'undefined' &&
@@ -234,6 +237,7 @@ const testing = {
     activateLogic,
     fetchLogic,
     CACHE_NAME,
+    IMAGE_CACHE_NAME,
     CORE_ASSETS,
     isImmutableFile,
     handleFetchCacheFirst,

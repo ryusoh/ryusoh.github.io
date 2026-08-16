@@ -142,14 +142,15 @@ describe('Service Worker', () => {
         expect(mockSelf.skipWaiting).toHaveBeenCalled();
     });
 
-    test('activateLogic should clean up old caches', async () => {
+    test('activateLogic should clean up old caches while preserving image cache', async () => {
         window.clients = mockSelf.clients;
         const event = { waitUntil: jest.fn() };
-        mockCaches.keys.mockResolvedValue(['old', sw.CACHE_NAME]);
+        mockCaches.keys.mockResolvedValue(['old', sw.CACHE_NAME, sw.IMAGE_CACHE_NAME]);
         sw.activateLogic(event);
         await event.waitUntil.mock.calls[0][0];
         expect(mockCaches.delete).toHaveBeenCalledWith('old');
         expect(mockCaches.delete).not.toHaveBeenCalledWith(sw.CACHE_NAME);
+        expect(mockCaches.delete).not.toHaveBeenCalledWith(sw.IMAGE_CACHE_NAME);
         expect(mockSelf.clients.claim).toHaveBeenCalled();
     });
 
