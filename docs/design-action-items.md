@@ -48,8 +48,9 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 - [x] **D3 — Dead lightbox assets: DELETE.** `js/viewer.min.js` +
       `css/viewer.min.css` go (A05). Exhibition mode (A21), if kept, is built
       custom or re-vendors stock viewer.js then.
-- [x] **D4 — Hover preview: DELETE.** Remove `js/hover-preview.js` and its
-      wiring (A23 became a deletion).
+- [x] **D4 — Hover preview: KEPT & ENHANCED.** Enhanced `js/hover-preview.js`
+      with auto-fetching vertical carousel, infinite drift, and inline ThumbHash
+      blur-up placeholders.
 - [x] **D5 — Mouse parallax: DELETE.** Remove `js/mouse-parallax.js` (A24).
 
 ## Ranked summary
@@ -67,7 +68,7 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A09 | Hardboiled type system (Syne, per D1)         | 4    | 3      | 1.33  | 2    | yes     | done    |
 | A06 | Responsive AVIF/WebP + `<picture>` pipeline   | 5    | 4      | 1.25  | 1    | no      | done    |
 | A05 | Remove dead viewer assets + `zoom-in` (D3)    | 1    | 1      | 1.0   | 1    | yes     | done    |
-| A23 | Delete hover-preview (D4)                     | 1    | 1      | 1.0   | 1    | no      | done    |
+| A23 | Hover-preview carousel + ThumbHash (D4)       | 3    | 2      | 1.5   | 1    | yes     | done    |
 | A24 | Delete mouse-parallax (D5)                    | 1    | 1      | 1.0   | 1    | no      | done    |
 | A13 | Remove Bootstrap 3 + jQuery + IE shims        | 3    | 3      | 1.0   | 1    | no      | done    |
 | A16 | Vendor Lenis, wire smooth scroll              | 3    | 3      | 1.0   | 3    | yes     | done    |
@@ -79,8 +80,8 @@ precommit-fix` (full gate: Prettier, ESLint, Stylelint, `tsc`, Jest +
 | A12 | Tabloid editorial grids, p1–p4                | 5    | 5      | 1.0   | 2    | yes     | ditched |
 | A15 | Contact-sheet home/index rework               | 4    | 4      | 1.0   | 2    | yes     | ditched |
 | A10 | Retire P22 entirely (D2)                      | 2    | 2      | 1.0   | 2    | yes     | done    |
-| A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     | pending |
-| A22 | WebGL grain + flash post-process (OGL)        | 4    | 5      | 0.8   | 4    | yes     | pending |
+| A21 | Exhibition mode (custom build; D3 deleted)    | 4    | 5      | 0.8   | 4    | yes     | ditched |
+| A22 | WebGL grain + flash post-process (OGL)        | 4    | 5      | 0.8   | 4    | yes     | ditched |
 
 ---
 
@@ -142,16 +143,14 @@ tests` first).
 p1 p2 p3 p4 index.html`).
 - **Verify:** `make precommit-fix`.
 
-### A23 — Delete hover-preview (D4) ✅
+### A23 — Hover-preview carousel + ThumbHash (D4) ✅
 
-- Gain 1 / Effort 1 — ratio 1.0 — no visual surface (it is disabled).
-- **What:** owner decided (D4): delete. Removed `js/hover-preview.js`,
-  `tests/js/hover-preview.test.js`, the `enableHoverPreview` flag in
-  `js/config.js` (+ `tests/js/config.test.js` expectations), the `<script>`
-  tag(s) loading it in `index.html`, and any related CSS. With A24 also
-  shipping, `window.PortfolioConfig` became empty, so `js/config.js`, its
-  script tag, and `tests/js/config.test.js` were deleted too.
-- **Verify:** `make precommit-fix`.
+- Gain 3 / Effort 2 — ratio 1.5 — VISUAL.
+- **What:** owner decided (D4): keep and enhance. Re-architected `js/hover-preview.js`
+  to auto-prefetch project galleries on desktop, rendering an infinite vertical
+  drift carousel when hovering or focusing portfolio links, with seamless
+  inline ThumbHash blur-up placeholders.
+- **Verify:** `npx jest tests/js/hover-preview.test.js`; `make precommit-fix`.
 
 ### A24 — Delete mouse-parallax (D5) ✅
 
@@ -345,25 +344,13 @@ name="view-transition" content="same-origin">`). 2. Implemented smooth, fast 140
 
 ## Wave 4 — Signature / optional
 
-### A21 — Exhibition mode (fullscreen viewer; custom build)
+### A21 — Exhibition mode (ditched)
 
-- Gain 4 / Effort 5 — ratio 0.8 — VISUAL.
-- **What:** fullscreen slideshow per series: arrow-key/drag navigation (build
-  on `js/block-navigation.js` idioms), EXIF caption (A14), UI auto-hides
-  after ~2s idle, Esc exits. D3 deleted the stock viewer.js assets, so this
-  is a small first-party module (or re-vendor stock viewer.js at that point —
-  it is re-downloadable). If this ships, restore a `zoom-in`-style affordance
-  on gallery images (A05 removed the unwired one).
-- **Verify:** new tests in `tests/js/`; `make precommit-fix`; visual review.
+- Ditched per user instruction to preserve the clean, editorial scroll-based gallery experience.
 
-### A22 — WebGL grain + flash post-process via OGL
+### A22 — WebGL grain + flash post-process via OGL (ditched)
 
-- Gain 4 / Effort 5 — ratio 0.8 — VISUAL. Phase-4 art-directed upgrade of
-  A11/A18: real-time GLSL grain with controlled grain size/contrast and the
-  strobe exposure-recovery done in a shader. Vendor OGL (~5KB ESM, new file),
-  load via the existing dynamic-`import()` pattern used by
-  `js/ambient/quantum_particles.js`; CSS versions remain the fallback.
-- **Verify:** `make precommit-fix`; visual review; confirm fallback path.
+- Ditched per user instruction; the lightweight CSS grain overlay (A11) provides equivalent visual texture with zero runtime GPU overhead.
 
 ### A25 — Tiered ambient layers (revised)
 
