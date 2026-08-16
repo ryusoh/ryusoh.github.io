@@ -26,7 +26,8 @@
         "js/ambient/loader.js",
         "js/ga.js",
         "js/init.js",
-        "sw.js"
+        "sw.js",
+        "js/mobile-dock.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
