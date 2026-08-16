@@ -243,17 +243,81 @@ export async function formatHtml(html, filepath) {
 }
 
 /**
- * Main sync execution function.
+ * Synchronizes sitemap.xml with all active portfolio pages.
+ * @param {string[]} pages e.g. ['p1', 'p2', 'p3', 'p4']
  * @param {boolean} checkOnly
- * @returns {Promise<number>} exit code (0 for clean, 1 for drift in check mode)
+ * @returns {Promise<boolean>} whether sitemap drifted
+ */
+export async function syncSitemap(pages, checkOnly = false) {
+    const sitemapPath = path.join(ROOT_DIR, 'sitemap.xml');
+    const today = new Date().toISOString().split('T')[0];
+
+    const existingLastmods = new Map();
+    let currentSitemap = '';
+    if (fs.existsSync(sitemapPath)) {
+        currentSitemap = fs.readFileSync(sitemapPath, 'utf8');
+        const urlMatches = [
+            ...currentSitemap.matchAll(
+                /<url>\s*<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g
+            ),
+        ];
+        for (const m of urlMatches) {
+            existingLastmods.set(m[1].trim(), m[2].trim());
+        }
+    }
+
+    const urls = [
+        `    <url>
+        <loc>https://www.lyeutsaon.com/</loc>
+        <lastmod>${existingLastmods.get('https://www.lyeutsaon.com/') || today}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>1.0</priority>
+    </url>`,
+    ];
+
+    for (const page of pages) {
+        const pageLoc = `https://www.lyeutsaon.com/${page}/`;
+        const lastmod = existingLastmods.get(pageLoc) || today;
+        urls.push(`    <url>
+        <loc>${pageLoc}</loc>
+        <lastmod>${lastmod}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>`);
+    }
+
+    const expectedSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('\n')}
+</urlset>\n`;
+
+    if (currentSitemap.trim() !== expectedSitemap.trim()) {
+        if (checkOnly) {
+            console.error('sync-pages: sitemap.xml is out of sync.');
+            return true;
+        } else {
+            fs.writeFileSync(sitemapPath, expectedSitemap, 'utf8');
+            console.log('Synchronized sitemap.xml');
+        }
+    }
+    return false;
+}
+
+/**
+ * Synchronizes all project pages and index.html navigation against the canonical template shell.
+ * @param {boolean} checkOnly If true, only reports drift without writing files.
+ * @returns {Promise<number>} Exit code (0 for success, 1 for drift in check mode).
  */
 export async function syncAllPages(checkOnly = false) {
     const pages = getProjectPages();
     const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
-
     let drifted = false;
 
-    // 1. Sync index.html
+    // 1. Sync sitemap.xml
+    const sitemapDrifted = await syncSitemap(pages, checkOnly);
+    if (sitemapDrifted) drifted = true;
+
+    // 2. Sync index.html navigation table
     const indexPath = path.join(ROOT_DIR, 'index.html');
     if (fs.existsSync(indexPath)) {
         const currentIndexHtml = fs.readFileSync(indexPath, 'utf8');
@@ -278,7 +342,7 @@ export async function syncAllPages(checkOnly = false) {
         }
     }
 
-    // 2. Sync all project pages
+    // 3. Sync all project pages
     for (const page of pages) {
         const htmlPath = path.join(ROOT_DIR, page, 'index.html');
         if (!fs.existsSync(htmlPath)) continue;
