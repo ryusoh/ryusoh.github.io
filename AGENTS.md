@@ -230,6 +230,11 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   `docs/testing-notes.md` before deep test work.**
 - `scripts/run-npx.sh` — the `make`/CI npx wrapper. `tools/sync_commands.py` —
   skill/command sync (see "Skills and slash commands" below).
+- `scripts/` & `tools/` — shared repository tooling (`scripts/gate-guard.js`,
+  `scripts/check-thinking-comments.js`, `scripts/coverage-rank.js`,
+  `tools/sync_commands.py`, page generators). Standalone CLI tools and scripts
+  referenced across agent docs and skills are verified by Jest tests
+  (`tests/js/doc-tool-references.test.js`).
 
 ## Skills and slash commands
 
@@ -252,15 +257,15 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 ## Lanes (keep PRs disjoint to avoid collisions)
 
-| Routine   | Owns                                                                         | Must NOT touch                                            |
-| --------- | ---------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Architect | cyclomatic-complexity / readability refactors (behaviour-preserving)         | error-handling, security, tests, features                 |
-| Sentinel  | security + error-handling (empty catches, client-side DoS, unsafe DOM sinks) | complexity refactors, features                            |
-| Janitor   | dead code, stale deps, real TODOs only                                       | complexity, error-handling (Architect/Sentinel own those) |
-| Bolt      | one measurable performance/efficiency win per run                            | complexity-only refactors, security, dead code, features  |
-| Testpilot | test-only additions/coverage, no prod-code change                            | `js/` prod files, `sw.js`                                 |
-| Palette   | accessibility, UX, semantic HTML/CSS                                         | JS runtime logic, security, tests, performance            |
-| Typist    | JS strict-type annotations (JSDoc) + whitelist expansion, no logic change    | runtime behaviour                                         |
+| Routine   | Owns                                                                         | Must NOT touch                                                                                                                                                                              |
+| --------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Architect | cyclomatic-complexity / readability refactors (behaviour-preserving)         | error-handling, security, tests, features                                                                                                                                                   |
+| Sentinel  | security + error-handling (empty catches, client-side DoS, unsafe DOM sinks) | complexity refactors, features                                                                                                                                                              |
+| Janitor   | dead code, stale deps, real TODOs only                                       | complexity, error-handling (Architect/Sentinel own those); shared tooling and agent infrastructure (`scripts/`, `tools/`, `bin/`, `.agents/`, `.jules/`, `.github/`, root docs, `Makefile`) |
+| Bolt      | one measurable performance/efficiency win per run                            | complexity-only refactors, security, dead code, features                                                                                                                                    |
+| Testpilot | test-only additions/coverage, no prod-code change                            | `js/` prod files, `sw.js`                                                                                                                                                                   |
+| Palette   | accessibility, UX, semantic HTML/CSS                                         | JS runtime logic, security, tests, performance                                                                                                                                              |
+| Typist    | JS strict-type annotations (JSDoc) + whitelist expansion, no logic change    | runtime behaviour                                                                                                                                                                           |
 
 If your finding belongs to another lane, **skip it** — that lane will get it.
 

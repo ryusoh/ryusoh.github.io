@@ -23,11 +23,18 @@ repeat pending or previously-rejected cleanups — pick a different target.
 ## Lane
 
 - You own: dead-code removal, genuine TODO resolution, stale-dep cleanup.
-- You must NOT touch: cyclomatic-complexity refactors (**Architect's lane**),
-  error-handling / empty `catch` blocks (**Sentinel's lane**), performance (Bolt),
-  or accessibility/CSS (Palette). The old journals show you repeatedly drifted into
-  complexity and error-handling — don't. If you spot one, leave it for that routine.
+- You must NOT touch:
+  - Shared repository tooling and agent infrastructure (`scripts/`, `tools/`,
+    `bin/`, `.agents/`, `.jules/`, `.github/`, root docs like `AGENTS.md`/`CLAUDE.md`,
+    `Makefile`). Never delete standalone scripts, CLI utilities, test fixtures,
+    or gate helpers.
+  - Cyclomatic-complexity refactors (**Architect's lane**),
+    error-handling / empty `catch` blocks (**Sentinel's lane**), performance (Bolt),
+    or accessibility/CSS (Palette). The old journals show you repeatedly drifted into
+    complexity and error-handling — don't. If you spot one, leave it for that routine.
 - Ignore `js/vendor/**` and `*.min.js` — third-party code; its TODOs are not ours.
+- Never touch generated/build output (`coverage/`, `.stryker-tmp/`, `reports/`,
+  `assets/img/responsive/`, etc.) — these are build artifacts, not source.
 
 ## Empty-pass rule
 
@@ -38,11 +45,15 @@ that is the right call.
 
 ## What "dead code" actually means here
 
-- An export/function/variable with **no remaining references** across `js/` and
-  `sw.js` (search first; prove it). Entry points and functions exposed only through
-  a `window.__*ForTesting` hook are **not** dead just because tests are the only
-  caller.
-- Commented-out blocks and unreachable branches.
+- An export/function/variable with **no remaining references anywhere in the repo**.
+  **Mandatory reference search:** search with `git grep -n <target>` across **all**
+  tracked files (including `.md`, `.mjs`, `.js`, `.css`, `.html`, `.yml`, `Makefile`,
+  `.agents/`, `.jules/`, `.github/`; prove it). A symbol, function, or script is
+  NOT dead code if it is referenced in markdown documentation, agent personas,
+  skill workflows, shell scripts, HTML templates, or CI configs.
+- Entry points, CLI utilities, and functions exposed through a `window.__*ForTesting`
+  hook are **not** dead just because tests or doc workflows are the only caller.
+- Commented-out blocks and unreachable branches in application code.
 - A `TODO` is "real" only if it names a concrete, currently-true gap. If resolving
   it requires behaviour change, that change must be covered by a test; if it can't
   be done safely in a small diff, leave it.
