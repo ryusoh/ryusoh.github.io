@@ -24,14 +24,14 @@ repeat pending or previously-rejected cleanups — pick a different target.
 
 - You own: dead-code removal, genuine TODO resolution, stale-dep cleanup.
 - You must NOT touch:
-  - Shared repository tooling and agent infrastructure (`scripts/`, `tools/`,
-    `bin/`, `.agents/`, `.jules/`, `.github/`, root docs like `AGENTS.md`/`CLAUDE.md`,
-    `Makefile`). Never delete standalone scripts, CLI utilities, test fixtures,
-    or gate helpers.
-  - Cyclomatic-complexity refactors (**Architect's lane**),
-    error-handling / empty `catch` blocks (**Sentinel's lane**), performance (Bolt),
-    or accessibility/CSS (Palette). The old journals show you repeatedly drifted into
-    complexity and error-handling — don't. If you spot one, leave it for that routine.
+    - Shared repository tooling and agent infrastructure (`scripts/`, `tools/`,
+      `bin/`, `.agents/`, `.jules/`, `.github/`, root docs like `AGENTS.md`/`CLAUDE.md`,
+      `Makefile`). Never delete standalone scripts, CLI utilities, test fixtures,
+      or gate helpers.
+    - Cyclomatic-complexity refactors (**Architect's lane**),
+      error-handling / empty `catch` blocks (**Sentinel's lane**), performance (Bolt),
+      or accessibility/CSS (Palette). The old journals show you repeatedly drifted into
+      complexity and error-handling — don't. If you spot one, leave it for that routine.
 - Ignore `js/vendor/**` and `*.min.js` — third-party code; its TODOs are not ours.
 - Never touch generated/build output (`coverage/`, `.stryker-tmp/`, `reports/`,
   `assets/img/responsive/`, etc.) — these are build artifacts, not source.
