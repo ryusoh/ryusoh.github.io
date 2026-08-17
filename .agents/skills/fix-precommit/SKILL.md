@@ -1,11 +1,11 @@
 ---
 name: fix-precommit
 description: Fix make precommit-fix / quality-gate failures (formatting, lint, Jest) and get the suite green
-argument-hint: [optional: a specific failing file or test name to focus on]
+argument-hint: '[optional: a specific failing file or test name to focus on]'
 ---
 
 Get the commit gate green: fix whatever is making `make precommit-fix`, `make check`,
-or the Jest suite fail. If `$ARGUMENTS` is non-empty, start with that file/test.
+or the Jest suite fail. If `{{args}}` is non-empty, start with that file/test.
 
 **Key gotcha first:** `make precommit-fix` ends with `|| true` and `git add -u`, so it
 **always exits 0** and auto-stages — a clean-looking run can still hide failures. Do not
