@@ -390,7 +390,7 @@ Testing alternative Sharp options on repository images:
 ```text
 +-----------------------------------------------------------------------------------+
 | PRIORITY 1: IMMEDIATE HIGH IMPACT (Zero Architectural Risk)                       |
-| 1. Fix Hover Preview: Extract -768.webp/-768.avif instead of 2048px JPGs           |
+| 1. Fix Hover Preview: Extract -768.webp/-768.avif instead of 2048px JPGs          |
 | 2. Add fetchpriority="high" and LCP <link rel="preload"> to hero images           |
 | 3. Fix Preloader: Preload only hero images in responsive modern format            |
 +-----------------------------------------------------------------------------------+
