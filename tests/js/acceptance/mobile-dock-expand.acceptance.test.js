@@ -34,13 +34,15 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         `;
 
         // Mock matchMedia for mobile (< 450px)
+        const mockAddListener = jest.fn();
+        const mockAddEventListener = jest.fn();
         window.matchMedia = jest.fn().mockImplementation((query) => ({
             matches: query.includes('max-width: 449px'),
             media: query,
             onchange: null,
-            addListener: jest.fn(),
+            addListener: mockAddListener,
             removeListener: jest.fn(),
-            addEventListener: jest.fn(),
+            addEventListener: mockAddEventListener,
             removeEventListener: jest.fn(),
             dispatchEvent: jest.fn(),
         }));
@@ -211,6 +213,7 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
     });
 
     test('TDD: mobile-dock.js dims title and social container on scroll down and restores opacity on scroll up, top, or bottom reach', () => {
+        window.requestAnimationFrame = jest.fn();
         document.documentElement.innerHTML = `
             <div id="cont">
                 <header id="site-header">
@@ -222,13 +225,15 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
             </div>
         `;
 
+        const mockAddListener = jest.fn();
+        const mockAddEventListener = jest.fn();
         window.matchMedia = jest.fn().mockImplementation((query) => ({
             matches: query.includes('max-width: 449px'),
             media: query,
             onchange: null,
-            addListener: jest.fn(),
+            addListener: mockAddListener,
             removeListener: jest.fn(),
-            addEventListener: jest.fn(),
+            addEventListener: mockAddEventListener,
             removeEventListener: jest.fn(),
             dispatchEvent: jest.fn(),
         }));
@@ -260,24 +265,40 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         // 2. Scroll down past threshold (scrollY = 200) -> dimmed
         window.scrollY = 200;
         window.dispatchEvent(new Event('scroll'));
+        if (window.requestAnimationFrame && window.requestAnimationFrame.mock) {
+            window.requestAnimationFrame.mock.calls.forEach((call) => call[0]());
+            window.requestAnimationFrame.mockClear();
+        }
         expect(cont.classList.contains('is-scrolled-down')).toBe(true);
         expect(document.body.classList.contains('is-scrolled-down')).toBe(true);
 
         // 3. Scroll up (scrollY = 150 < 200) -> restored
         window.scrollY = 150;
         window.dispatchEvent(new Event('scroll'));
+        if (window.requestAnimationFrame && window.requestAnimationFrame.mock) {
+            window.requestAnimationFrame.mock.calls.forEach((call) => call[0]());
+            window.requestAnimationFrame.mockClear();
+        }
         expect(cont.classList.contains('is-scrolled-down')).toBe(false);
         expect(document.body.classList.contains('is-scrolled-down')).toBe(false);
 
         // 4. Scroll down again -> dimmed
         window.scrollY = 500;
         window.dispatchEvent(new Event('scroll'));
+        if (window.requestAnimationFrame && window.requestAnimationFrame.mock) {
+            window.requestAnimationFrame.mock.calls.forEach((call) => call[0]());
+            window.requestAnimationFrame.mockClear();
+        }
         expect(cont.classList.contains('is-scrolled-down')).toBe(true);
         expect(document.body.classList.contains('is-scrolled-down')).toBe(true);
 
         // 5. Reach the bottom (scrollY = 2200, window.innerHeight = 800 -> 3000 = scrollHeight) -> restored
         window.scrollY = 2200;
         window.dispatchEvent(new Event('scroll'));
+        if (window.requestAnimationFrame && window.requestAnimationFrame.mock) {
+            window.requestAnimationFrame.mock.calls.forEach((call) => call[0]());
+            window.requestAnimationFrame.mockClear();
+        }
         expect(cont.classList.contains('is-scrolled-down')).toBe(false);
         expect(document.body.classList.contains('is-scrolled-down')).toBe(false);
     });
