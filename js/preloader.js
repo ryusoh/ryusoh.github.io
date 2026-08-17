@@ -66,6 +66,7 @@
                     '/assets/img/p3/8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG',
                     '/assets/img/p3/DSCF5338.JPG',
                     '/assets/img/p3/DSCF0490.JPG',
+                    '/assets/img/p3/R0001972-4.JPG',
                     '/assets/img/p3/DSCF4237-2.jpg',
                     '/assets/img/p3/IMG_4582.jpg',
                     '/assets/img/p3/B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG',
