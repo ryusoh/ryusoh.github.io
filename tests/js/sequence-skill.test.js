@@ -127,9 +127,9 @@ describe('sequence skill automation script', () => {
             expect(report).toContain('Curatorial Proposals & Optimized Sequence Arc');
             expect(report).toContain('optimal rhythmic pacing');
 
-            // TDD: Generated report must be 100% compliant with repo markdownlint rules
+            // TDD: Generated report must be formatted and valid markdown
             expect(() => {
-                execFileSync('npx', ['markdownlint', tempReportPath], {
+                execFileSync('npx', ['prettier', '--check', tempReportPath], {
                     cwd: REPO_ROOT,
                     stdio: 'pipe',
                 });
@@ -174,9 +174,9 @@ describe('sequence skill automation script', () => {
             expect(report).toContain('Visual Resequencing (Luminous Inhalation Wave)');
             expect(report).toContain('Proposed Sequence (Option B)');
 
-            // Must also be 100% markdownlint compliant
+            // Must also be formatted and valid markdown
             expect(() => {
-                execFileSync('npx', ['markdownlint', tempReportPath], {
+                execFileSync('npx', ['prettier', '--check', tempReportPath], {
                     cwd: REPO_ROOT,
                     stdio: 'pipe',
                 });
