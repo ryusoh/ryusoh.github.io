@@ -1,0 +1,86 @@
+{
+  "DSCF9004-3.jpg": {
+    "role": "Act I: The Overture / The Concealed Self",
+    "subject": "Monochrome, high-grain self-portrait of the photographer wearing a white helmet with both hands covering the face.",
+    "meaning": "Anchors the central thesis of the entire essay: a street photographer is an obsessive observer who resists being observed. The physical mask is an opening statement of vulnerability and resistance.",
+    "vector": "Centered, inward-collapsing hand gesture creating a closed psychological container.",
+    "transition": "High-contrast jump from low-key interior grain into bright daylight public space."
+  },
+  "2025-05-11-0020.JPG": {
+    "role": "Act I: Movement / Playful Irony",
+    "subject": "Photographer in daylight holding a 'Chinese for Beginners' textbook over their face outside a building, camera hanging from wrist.",
+    "meaning": "Daytime mirror of Frame #1: the desire to hide transforms from existential concealment into playful, witty street irony.",
+    "vector": "Upward diagonal tilt of the green book breaking the horizontal sidewalk plane.",
+    "transition": "Smooth transition from flat facade into expansive curved optics."
+  },
+  "DSCF8059.JPG": {
+    "role": "Act II: The Convex Street / Expansion of the Self",
+    "subject": "A sunburst traffic mirror capturing a bustling intersection, pedestrians, open sky, and the photographer at the center focal point with camera raised.",
+    "meaning": "The self is no longer hiding; the photographer's reflection expands outward and integrates with the collective flow of the city.",
+    "vector": "Radiating starburst spokes drawing the viewer's eye into the center convex reflection.",
+    "transition": "Harmonic step from outdoor street optics to museum interior glass."
+  },
+  "DSCF1557-3.JPG": {
+    "role": "Act II: Spatial Layering / The Museum Reflection",
+    "subject": "Museum display of giraffe legs with transparent glass reflecting visitors, architectural columns, and exterior daylight.",
+    "meaning": "The street photographer's eye finds accidental surrealism: natural history juxtaposed against contemporary urban glass.",
+    "vector": "Strong vertical columns and animal limbs dividing the frame into three visual planes.",
+    "transition": "Harmonic shift from structured museum glass to fluid, water-streaked glass."
+  },
+  "DSCF5407-2.jpg": {
+    "role": "Act II: The Dissolving Boundary / Rain & Dust",
+    "subject": "Self-portrait through textured, rain-spattered window glass reflecting street pavement and distant skyline towers.",
+    "meaning": "Dissolution of physical barriers. The tactile texture of water and dust merges the photographer's body into the city texture.",
+    "vector": "Diagonal dispersion of raindrops scattering the light.",
+    "transition": "Threshold transition from daytime observation to nocturnal theater."
+  },
+  "DSCF8149-7.JPG": {
+    "role": "Act III: Nocturnal Theater / Yosemite Volta",
+    "subject": "Photographer on a granite boulder at dusk overlooking Yosemite's Half Dome, illuminated by saturated, theatrical red light.",
+    "meaning": "Direct realization of the caesura quote ('By night, it is theater'). Nature's monumental landscape becomes an avant-garde stage.",
+    "vector": "Granite ledge leading the eye diagonally up toward the Half Dome peak.",
+    "transition": "Intense chromatic bridge from natural twilight red to urban punk neon red."
+  },
+  "DSCF8231.JPG": {
+    "role": "Act III: Urban Red / Saturated Subculture",
+    "subject": "Framed bar bathroom mirror covered in dense graffiti tags, stickers, and scrawls, reflecting the photographer taking a mirror selfie.",
+    "meaning": "The camera penetrates underground spaces, turning chaotic street typography and sticker culture into a framing device.",
+    "vector": "Dense multi-layered rectangular frame within a frame.",
+    "transition": "Chiaroscuro breath: stepping out of the dense graffiti bar into expansive night atmosphere."
+  },
+  "DSCF0525.jpg": {
+    "role": "Act III: The Luminous Inhalation / Valley Lights",
+    "subject": "Aerial high-angle nightscape of glowing city lights across a valley floor under falling snow dust.",
+    "meaning": "The vital respiratory reset (L*=57.91). A silent, expansive cosmic breath of fresh air amidst the nocturnal heat.",
+    "vector": "Soft horizontal golden glow anchoring the lower third of the frame.",
+    "transition": "Dramatic counterpoint from serene golden valley to electric strobe energy."
+  },
+  "849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG": {
+    "role": "Act III: Psychedelic Fragment / Strobe Kinetics",
+    "subject": "Multiple-exposure stroboscopic motion blur in electric cobalt blue and magenta neon, showing the photographer's face repeated with a coiled sync cord.",
+    "meaning": "The fragmentation of identity through photographic mechanics. Time and shutter speed become painterly brushstrokes.",
+    "vector": "Horizontal rhythm of repeated facial echoes moving across the frame.",
+    "transition": "Shift from cool neon kinetics to warm tungsten lighting mechanics."
+  },
+  "DSCF6274.JPG": {
+    "role": "Act III: The Lighting Mechanics / Exposed Apparatus",
+    "subject": "Photographer in beanie holding an off-camera flash in one hand connected by a coiled wire to the camera, illuminated by a warm diagonal ceiling beam.",
+    "meaning": "Demystification of the craft. The photographer exposes the wires and flash that fabricate the nocturnal illusion.",
+    "vector": "Striking diagonal tungsten light beam cutting across the ceiling directly into the photographer.",
+    "transition": "Transition from staged mechanics to raw, spontaneous street interaction."
+  },
+  "IMG760.jpg": {
+    "role": "Act IV: The Street Encounter / Visceral Exchange",
+    "subject": "An outstretched hand presenting a religious pamphlet ('DIOS ES AMOR') directly in front of the lens with an SFPD cruiser behind.",
+    "meaning": "The street answers back. The observer is confronted by the human reality of the city—a direct plea for the photographer's soul.",
+    "vector": "Aggressive foreground foreshortening thrusting the pamphlet into the viewer's space.",
+    "transition": "Final contrast from chaotic exterior night street to quiet, private sanctuary."
+  },
+  "DSCF9159.jpg": {
+    "role": "Act IV: The Coda / Private Sanctuary",
+    "subject": "Shot from inside the refrigerator looking out at the photographer eating yogurt with a spoon late at night, glasses askew.",
+    "meaning": "The ultimate anti-heroic resolution. After all the artistic personas, mountain stages, and street encounters, the work concludes on quiet, unadorned humanity.",
+    "vector": "Receding refrigerator shelving wire lines framing the subject in soft kitchen glow.",
+    "transition": "Final contemplative resting point of the entire photo essay."
+  }
+}
