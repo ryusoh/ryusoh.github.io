@@ -173,7 +173,7 @@ $$E(i, j) = w_{\text{chroma}} \cdot \frac{\Delta E_{76}(i, j)}{80} + w_{\text{lu
 
 Where:
 
-- $\Delta E_{76}(i, j) = \sqrt{(\Delta L^*)^2 + (\Delta a^*)^2 + (\Delta b^*)^2}$ is the CIELAB color difference between mean sRGB values under D65 standard illuminant.
+- $\Delta E_{76}(i, j) = \sqrt{(\Delta L^{\ast})^2 + (\Delta a^{\ast})^2 + (\Delta b^{\ast})^2}$ is the CIELAB color difference between mean sRGB values under D65 standard illuminant.
 - $|\Delta L(i, j)|$ is the step delta in luminance across frames.
 - $\Delta \text{Aspect}(i, j)$ represents orientation/aspect ratio shift.
 - $\mathcal{S}_{\text{rhyme}}(i, j)$ is the multi-modal semantic/formal visual rhyme score.
