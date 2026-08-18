@@ -504,7 +504,7 @@ export function escapeXml(unsafe) {
  * @returns {string} Standalone SVG XML string
  */
 /**
- * Generates standalone Figure 1: Photometric Luminance Waveform & Respiratory Rhythm SVG.
+ * Generates standalone Figure 1: Photometric Luminance Waveform & Respiratory Rhythm SVG (IEEE Publication Standard).
  */
 export function generateLuminanceWaveformSvg({
     gallery = {},
@@ -524,13 +524,13 @@ export function generateLuminanceWaveformSvg({
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%">\n`;
     svg += `  <style>\n`;
     svg += `    .paper-bg { fill: #ffffff; }\n`;
-    svg += `    .spine-box { fill: #ffffff; stroke: #111827; stroke-width: 0.8; }\n`;
-    svg += `    .academic-grid { stroke: #e5e7eb; stroke-width: 0.6; stroke-dasharray: 2 2; }\n`;
-    svg += `    .tick-line { stroke: #111827; stroke-width: 0.8; }\n`;
-    svg += `    .fig-heading { fill: #111827; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 12px; font-weight: bold; }\n`;
-    svg += `    .axis-title { fill: #374151; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 10px; font-style: italic; }\n`;
-    svg += `    .tick-label { fill: #374151; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 9px; }\n`;
-    svg += `    .threshold-label { fill: #4b5563; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 8.5px; font-style: italic; }\n`;
+    svg += `    .spine-box { fill: #ffffff; stroke: #0f172a; stroke-width: 0.85; }\n`;
+    svg += `    .academic-grid { stroke: #f1f5f9; stroke-width: 0.6; stroke-dasharray: 2 3; }\n`;
+    svg += `    .tick-line { stroke: #0f172a; stroke-width: 0.85; }\n`;
+    svg += `    .fig-heading { fill: #0f172a; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 12.5px; font-weight: bold; letter-spacing: 0.2px; }\n`;
+    svg += `    .axis-title { fill: #334155; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 10.5px; font-style: italic; }\n`;
+    svg += `    .tick-label { fill: #334155; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 9px; font-variant-numeric: tabular-nums; }\n`;
+    svg += `    .threshold-label { fill: #475569; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 8.5px; font-style: italic; }\n`;
     svg += `  </style>\n\n`;
 
     svg += `  <rect width="${width}" height="${height}" class="paper-bg" />\n\n`;
@@ -540,14 +540,15 @@ export function generateLuminanceWaveformSvg({
     const yZoneInhale = plotBottom - (135 / 255) * plotHeight;
     const yZoneGround = plotBottom - (75 / 255) * plotHeight;
 
+    // Academic publication shaded zones with subtle boundary borders
     svg += `  <rect x="${leftMargin}" y="${plotTop}" width="${plotWidth}" height="${yZoneInhale - plotTop}" fill="#f0f7ff" stroke="none" />\n`;
     svg += `  <rect x="${leftMargin}" y="${yZoneGround}" width="${plotWidth}" height="${plotBottom - yZoneGround}" fill="#f8fafc" stroke="none" />\n`;
 
-    svg += `  <line x1="${leftMargin}" y1="${yZoneInhale}" x2="${rightMargin}" y2="${yZoneInhale}" stroke="#6b7280" stroke-width="0.75" stroke-dasharray="3 3" />\n`;
-    svg += `  <text x="${rightMargin + 8}" y="${yZoneInhale + 3}" class="threshold-label" text-anchor="start">Inhalation (L* ≥ 135)</text>\n`;
+    svg += `  <line x1="${leftMargin}" y1="${yZoneInhale}" x2="${rightMargin}" y2="${yZoneInhale}" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3 3" />\n`;
+    svg += `  <text x="${rightMargin + 8}" y="${yZoneInhale + 3}" class="threshold-label" fill="#2b5c8f" text-anchor="start">Inhalation (L* ≥ 135)</text>\n`;
 
-    svg += `  <line x1="${leftMargin}" y1="${yZoneGround}" x2="${rightMargin}" y2="${yZoneGround}" stroke="#6b7280" stroke-width="0.75" stroke-dasharray="3 3" />\n`;
-    svg += `  <text x="${rightMargin + 8}" y="${yZoneGround + 3}" class="threshold-label" text-anchor="start">Exhalation (L* ≤ 75)</text>\n`;
+    svg += `  <line x1="${leftMargin}" y1="${yZoneGround}" x2="${rightMargin}" y2="${yZoneGround}" stroke="#cbd5e1" stroke-width="0.75" stroke-dasharray="3 3" />\n`;
+    svg += `  <text x="${rightMargin + 8}" y="${yZoneGround + 3}" class="threshold-label" fill="#475569" text-anchor="start">Exhalation (L* ≤ 75)</text>\n`;
 
     svg += `  <text transform="translate(24, ${plotTop + plotHeight / 2}) rotate(-90)" class="axis-title" text-anchor="middle">Luminance L* ∈ [0, 255]</text>\n`;
 
@@ -560,8 +561,9 @@ export function generateLuminanceWaveformSvg({
 
     for (const t of lumTicks) {
         svg += `  <line x1="${leftMargin}" y1="${t.y}" x2="${rightMargin}" y2="${t.y}" class="academic-grid" />\n`;
-        svg += `  <line x1="${leftMargin}" y1="${t.y}" x2="${leftMargin + 4}" y2="${t.y}" class="tick-line" />\n`;
-        svg += `  <line x1="${rightMargin - 4}" y1="${t.y}" x2="${rightMargin}" y2="${t.y}" class="tick-line" />\n`;
+        // Inward tick marks on left and right borders
+        svg += `  <line x1="${leftMargin}" y1="${t.y}" x2="${leftMargin + 4.5}" y2="${t.y}" class="tick-line" />\n`;
+        svg += `  <line x1="${rightMargin - 4.5}" y1="${t.y}" x2="${rightMargin}" y2="${t.y}" class="tick-line" />\n`;
         svg += `  <text x="${leftMargin - 6}" y="${t.y + 3}" class="tick-label" text-anchor="end">${t.val}</text>\n`;
     }
 
@@ -582,7 +584,8 @@ export function generateLuminanceWaveformSvg({
         for (let i = 1; i < f1Coords.length; i++) {
             linePath += ` L ${f1Coords[i].x} ${f1Coords[i].y}`;
         }
-        svg += `  <path d="${linePath}" fill="none" stroke="#1f77b4" stroke-width="1.6" />\n`;
+        // Refined academic slate-navy stroke with subtle 1.4px line weight
+        svg += `  <path d="${linePath}" fill="none" stroke="#2b5c8f" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />\n`;
     }
 
     for (const q of quotes) {
@@ -595,16 +598,17 @@ export function generateLuminanceWaveformSvg({
                 caesuraX = Math.min(rightMargin - 15, f1Coords[afterIdx - 1].x + 15);
             }
             if (caesuraX !== undefined) {
-                // Strictly mathematically contained inside spine box [plotTop, plotBottom]
-                svg += `  <line x1="${caesuraX}" y1="${plotTop}" x2="${caesuraX}" y2="${plotBottom}" stroke="#4b5563" stroke-width="0.75" stroke-dasharray="2 2" />\n`;
-                svg += `  <text x="${caesuraX}" y="${plotTop + 12}" class="threshold-label" text-anchor="middle">Caesura</text>\n`;
+                // Strictly mathematically contained inside spine box [plotTop, plotBottom] with clean label badge
+                svg += `  <line x1="${caesuraX}" y1="${plotTop}" x2="${caesuraX}" y2="${plotBottom}" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />\n`;
+                svg += `  <rect x="${caesuraX - 22}" y="${plotTop + 4}" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />\n`;
+                svg += `  <text x="${caesuraX}" y="${plotTop + 13}" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>\n`;
             }
         }
     }
 
     for (const pt of f1Coords) {
-        svg += `  <circle cx="${pt.x}" cy="${pt.y}" r="3.5" fill="#1f77b4" stroke="#ffffff" stroke-width="1.0" />\n`;
-        svg += `  <line x1="${pt.x}" y1="${plotBottom - 4}" x2="${pt.x}" y2="${plotBottom}" class="tick-line" />\n`;
+        svg += `  <circle cx="${pt.x}" cy="${pt.y}" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />\n`;
+        svg += `  <line x1="${pt.x}" y1="${plotBottom - 4.5}" x2="${pt.x}" y2="${plotBottom}" class="tick-line" />\n`;
         svg += `  <text x="${pt.x}" y="${plotBottom + 14}" class="tick-label" text-anchor="middle">${pt.order}</text>\n`;
     }
 
@@ -614,45 +618,35 @@ export function generateLuminanceWaveformSvg({
 }
 
 /**
- * Generates standalone Figure 2: Hamiltonian Pairwise Transition Tension SVG.
+ * Generates standalone Figure 2: Hamiltonian Pairwise Transition Tension SVG (IEEE Publication Standard).
  */
 export function generateTransitionTensionSvg({ gallery = {}, transitions = [] }) {
     const width = 880;
-    const height = 300;
+    const height = 280;
     const leftMargin = 68;
     const rightMargin = 740;
     const plotWidth = rightMargin - leftMargin; // 672px
-    const plotTop = 44;
-    const plotBottom = 236;
+    const plotTop = 32;
+    const plotBottom = 224;
     const plotHeight = plotBottom - plotTop; // 192px
 
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%">\n`;
     svg += `  <style>\n`;
     svg += `    .paper-bg { fill: #ffffff; }\n`;
-    svg += `    .spine-box { fill: #ffffff; stroke: #111827; stroke-width: 0.8; }\n`;
-    svg += `    .academic-grid { stroke: #e5e7eb; stroke-width: 0.6; stroke-dasharray: 2 2; }\n`;
-    svg += `    .tick-line { stroke: #111827; stroke-width: 0.8; }\n`;
-    svg += `    .fig-heading { fill: #111827; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 12px; font-weight: bold; }\n`;
-    svg += `    .axis-title { fill: #374151; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 10px; font-style: italic; }\n`;
-    svg += `    .tick-label { fill: #374151; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 9px; }\n`;
-    svg += `    .threshold-label { fill: #4b5563; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 8.5px; font-style: italic; }\n`;
-    svg += `    .legend-text { fill: #1f2937; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 9px; }\n`;
+    svg += `    .spine-box { fill: #ffffff; stroke: #0f172a; stroke-width: 0.85; }\n`;
+    svg += `    .academic-grid { stroke: #f1f5f9; stroke-width: 0.6; stroke-dasharray: 2 3; }\n`;
+    svg += `    .tick-line { stroke: #0f172a; stroke-width: 0.85; }\n`;
+    svg += `    .fig-heading { fill: #0f172a; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 12.5px; font-weight: bold; letter-spacing: 0.2px; }\n`;
+    svg += `    .axis-title { fill: #334155; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 10.5px; font-style: italic; }\n`;
+    svg += `    .tick-label { fill: #334155; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 9px; font-variant-numeric: tabular-nums; }\n`;
+    svg += `    .threshold-label { fill: #475569; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 8.5px; font-style: italic; }\n`;
+    svg += `    .legend-text { fill: #1e293b; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 8.5px; }\n`;
     svg += `  </style>\n\n`;
 
     svg += `  <rect width="${width}" height="${height}" class="paper-bg" />\n\n`;
 
-    // Title & Legend placed cleanly above plot spine (guaranteeing zero overlap with bar charts)
-    svg += `  <text x="${leftMargin}" y="22" class="fig-heading">Figure 2: Pairwise Hamiltonian Transition Tension Decomposition</text>\n`;
-    svg += `  <g transform="translate(${rightMargin - 325}, 10)">\n`;
-    svg += `    <rect x="0" y="0" width="325" height="18" fill="#ffffff" stroke="#9ca3af" stroke-width="0.6" rx="1" />\n`;
-    svg += `    <rect x="8" y="5" width="8" height="8" fill="#3b75af" stroke="#222222" stroke-width="0.5" />\n`;
-    svg += `    <text x="20" y="12" class="legend-text">Chromatic ΔE (45%)</text>\n`;
-    svg += `    <rect x="115" y="5" width="8" height="8" fill="#d95f02" stroke="#222222" stroke-width="0.5" />\n`;
-    svg += `    <text x="127" y="12" class="legend-text">Luminance ΔLum (35%)</text>\n`;
-    svg += `    <rect x="225" y="5" width="8" height="8" fill="#1b9e77" stroke="#222222" stroke-width="0.5" />\n`;
-    svg += `    <text x="237" y="12" class="legend-text">Aspect shift (20%)</text>\n`;
-    svg += `  </g>\n\n`;
-
+    // Figure Heading: Clean single line above spine
+    svg += `  <text x="${leftMargin}" y="20" class="fig-heading">Figure 2: Pairwise Hamiltonian Transition Tension Decomposition</text>\n`;
     svg += `  <rect x="${leftMargin}" y="${plotTop}" width="${plotWidth}" height="${plotHeight}" class="spine-box" />\n`;
     svg += `  <text transform="translate(24, ${plotTop + plotHeight / 2}) rotate(-90)" class="axis-title" text-anchor="middle">Transition Tension C(i, i+1) ∈ [0, 100]</text>\n`;
 
@@ -666,7 +660,7 @@ export function generateTransitionTensionSvg({ gallery = {}, transitions = [] })
             val: 50,
             y: yShock,
             dash: true,
-            stroke: '#b91c1c',
+            stroke: '#991b1b',
             label: 'Montage shock (C = 50)',
         },
         {
@@ -689,8 +683,8 @@ export function generateTransitionTensionSvg({ gallery = {}, transitions = [] })
         } else {
             svg += `  <line x1="${leftMargin}" y1="${t.y}" x2="${rightMargin}" y2="${t.y}" class="academic-grid" />\n`;
         }
-        svg += `  <line x1="${leftMargin}" y1="${t.y}" x2="${leftMargin + 4}" y2="${t.y}" class="tick-line" />\n`;
-        svg += `  <line x1="${rightMargin - 4}" y1="${t.y}" x2="${rightMargin}" y2="${t.y}" class="tick-line" />\n`;
+        svg += `  <line x1="${leftMargin}" y1="${t.y}" x2="${leftMargin + 4.5}" y2="${t.y}" class="tick-line" />\n`;
+        svg += `  <line x1="${rightMargin - 4.5}" y1="${t.y}" x2="${rightMargin}" y2="${t.y}" class="tick-line" />\n`;
         svg += `  <text x="${leftMargin - 6}" y="${t.y + 3}" class="tick-label" text-anchor="end">${t.val}</text>\n`;
     }
 
@@ -722,26 +716,39 @@ export function generateTransitionTensionSvg({ gallery = {}, transitions = [] })
 
             if (hChrom > 0) {
                 currentY -= hChrom;
-                svg += `  <rect x="${xLeft}" y="${currentY}" width="${barWidth}" height="${hChrom}" fill="#3b75af" stroke="#222222" stroke-width="0.5" />\n`;
+                svg += `  <rect x="${xLeft}" y="${currentY}" width="${barWidth}" height="${hChrom}" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />\n`;
             }
 
             if (hLum > 0) {
                 currentY -= hLum;
-                svg += `  <rect x="${xLeft}" y="${currentY}" width="${barWidth}" height="${hLum}" fill="#d95f02" stroke="#222222" stroke-width="0.5" />\n`;
+                svg += `  <rect x="${xLeft}" y="${currentY}" width="${barWidth}" height="${hLum}" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />\n`;
             }
 
             if (hAsp > 0) {
                 currentY -= hAsp;
-                svg += `  <rect x="${xLeft}" y="${currentY}" width="${barWidth}" height="${hAsp}" fill="#1b9e77" stroke="#222222" stroke-width="0.5" />\n`;
+                svg += `  <rect x="${xLeft}" y="${currentY}" width="${barWidth}" height="${hAsp}" fill="#2a7e58" stroke="#0f172a" stroke-width="0.5" />\n`;
             }
 
             const topY = Math.max(plotTop - 3, plotBottom - hTotal - 4);
-            svg += `  <text x="${xCenter}" y="${topY}" class="tick-label" text-anchor="middle">${total.toFixed(1)}</text>\n`;
+            svg += `  <text x="${xCenter}" y="${topY}" class="tick-label" font-weight="600" text-anchor="middle">${total.toFixed(1)}</text>\n`;
 
-            svg += `  <line x1="${xCenter}" y1="${plotBottom - 4}" x2="${xCenter}" y2="${plotBottom}" class="tick-line" />\n`;
+            svg += `  <line x1="${xCenter}" y1="${plotBottom - 4.5}" x2="${xCenter}" y2="${plotBottom}" class="tick-line" />\n`;
             svg += `  <text x="${xCenter}" y="${plotBottom + 14}" class="tick-label" text-anchor="middle">${j + 1}→${j + 2}</text>\n`;
         }
     }
+
+    // Publication-grade IEEE Inset Legend in upper-right quadrant inside plot spine
+    const legendX = rightMargin - 148;
+    const legendY = plotTop + 8;
+    svg += `  <g transform="translate(${legendX}, ${legendY})">\n`;
+    svg += `    <rect x="0" y="0" width="140" height="52" fill="#ffffff" fill-opacity="0.92" stroke="#cbd5e1" stroke-width="0.6" rx="2" />\n`;
+    svg += `    <rect x="8" y="7" width="7" height="7" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />\n`;
+    svg += `    <text x="20" y="13.5" class="legend-text">Chromatic ΔE (45%)</text>\n`;
+    svg += `    <rect x="8" y="22" width="7" height="7" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />\n`;
+    svg += `    <text x="20" y="28.5" class="legend-text">Luminance ΔLum (35%)</text>\n`;
+    svg += `    <rect x="8" y="37" width="7" height="7" fill="#2a7e58" stroke="#0f172a" stroke-width="0.5" />\n`;
+    svg += `    <text x="20" y="43.5" class="legend-text">Aspect Shift (20%)</text>\n`;
+    svg += `  </g>\n\n`;
 
     svg += `  <text x="${leftMargin + plotWidth / 2}" y="${plotBottom + 34}" class="axis-title" text-anchor="middle">Pairwise Transition (i → i+1)</text>\n`;
     svg += `</svg>\n`;
@@ -749,7 +756,7 @@ export function generateTransitionTensionSvg({ gallery = {}, transitions = [] })
 }
 
 /**
- * Generates standalone Figure 3: CIELAB Colorimetric Spectrum & Metric Aspect Cadence SVG.
+ * Generates standalone Figure 3: CIELAB Colorimetric Spectrum & Metric Aspect Cadence SVG (IEEE Publication Standard).
  */
 export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
     const width = 880;
@@ -764,12 +771,12 @@ export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%">\n`;
     svg += `  <style>\n`;
     svg += `    .paper-bg { fill: #ffffff; }\n`;
-    svg += `    .spine-box { fill: #ffffff; stroke: #111827; stroke-width: 0.8; }\n`;
-    svg += `    .tick-line { stroke: #111827; stroke-width: 0.8; }\n`;
-    svg += `    .fig-heading { fill: #111827; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 12px; font-weight: bold; }\n`;
-    svg += `    .axis-title { fill: #374151; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 10px; font-style: italic; }\n`;
-    svg += `    .tick-label { fill: #374151; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 9px; }\n`;
-    svg += `    .threshold-label { fill: #4b5563; font-family: "Times New Roman", Times, "Nimbus Roman", "DejaVu Serif", serif; font-size: 8px; font-style: italic; }\n`;
+    svg += `    .spine-box { fill: #ffffff; stroke: #0f172a; stroke-width: 0.85; }\n`;
+    svg += `    .tick-line { stroke: #0f172a; stroke-width: 0.85; }\n`;
+    svg += `    .fig-heading { fill: #0f172a; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 12.5px; font-weight: bold; letter-spacing: 0.2px; }\n`;
+    svg += `    .axis-title { fill: #334155; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 10.5px; font-style: italic; }\n`;
+    svg += `    .tick-label { fill: #334155; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 9px; font-variant-numeric: tabular-nums; }\n`;
+    svg += `    .threshold-label { fill: #475569; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 8.5px; font-style: italic; }\n`;
     svg += `  </style>\n\n`;
 
     svg += `  <rect width="${width}" height="${height}" class="paper-bg" />\n\n`;
@@ -787,7 +794,7 @@ export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
 
         // If slot width is compact (< 55px), display header legend for breath abbreviations
         if (slotWidth < 55) {
-            svg += `  <text x="${rightMargin}" y="17" class="threshold-label" text-anchor="end">Breath: [INH] Inhale | [EXH] Exhale | [GRD] Ground</text>\n`;
+            svg += `  <text x="${rightMargin}" y="17" class="threshold-label" text-anchor="end">Breath: [INH] Inhale · [EXH] Exhale · [GRD] Ground</text>\n`;
         }
 
         for (let i = 0; i < numImages; i++) {
@@ -817,25 +824,29 @@ export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
             }
 
             let breathTag = '[GROUNDING]';
+            let breathColor = '#475569';
             if (a?.breathType === 'Inhalation') {
                 breathTag = slotWidth >= 55 ? '[INHALATION]' : slotWidth >= 28 ? '[INH]' : '[I]';
+                breathColor = '#1d4ed8';
             } else if (a?.breathType === 'Exhalation') {
                 breathTag = slotWidth >= 55 ? '[EXHALATION]' : slotWidth >= 28 ? '[EXH]' : '[E]';
+                breathColor = '#b91c1c';
             } else {
                 breathTag = slotWidth >= 55 ? '[GROUNDING]' : slotWidth >= 28 ? '[GRD]' : '[G]';
+                breathColor = '#475569';
             }
 
-            svg += `  <rect x="${xLeft}" y="${swatchY}" width="${swatchWidth}" height="${swatchHeight}" fill="${hexColor}" stroke="#222222" stroke-width="0.8" />\n`;
+            svg += `  <rect x="${xLeft}" y="${swatchY}" width="${swatchWidth}" height="${swatchHeight}" fill="${hexColor}" stroke="#0f172a" stroke-width="0.75" rx="1.5" />\n`;
 
-            const textFill = rawLabL > 55 ? '#111827' : '#ffffff';
+            const textFill = rawLabL > 55 ? '#0f172a' : '#ffffff';
             svg += `  <text x="${xCenter}" y="${swatchY + 16}" fill="${textFill}" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">${i + 1}</text>\n`;
 
-            svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 13}" class="tick-label" text-anchor="middle">${labLStr}</text>\n`;
+            svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 13}" class="tick-label" font-weight="600" text-anchor="middle">${labLStr}</text>\n`;
             svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 25}" class="threshold-label" text-anchor="middle">${abStr}</text>\n`;
             svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 38}" class="tick-label" font-weight="bold" text-anchor="middle">${aspect} ${orient}</text>\n`;
-            svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 50}" class="threshold-label" font-size="7.5px" text-anchor="middle">${breathTag}</text>\n`;
+            svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 50}" class="threshold-label" fill="${breathColor}" font-size="7.5px" font-weight="bold" text-anchor="middle">${breathTag}</text>\n`;
 
-            svg += `  <line x1="${xCenter}" y1="${boxBottom - 4}" x2="${xCenter}" y2="${boxBottom}" class="tick-line" />\n`;
+            svg += `  <line x1="${xCenter}" y1="${boxBottom - 4.5}" x2="${xCenter}" y2="${boxBottom}" class="tick-line" />\n`;
         }
     }
 
