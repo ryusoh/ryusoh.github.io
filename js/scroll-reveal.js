@@ -77,8 +77,17 @@
                         revealElement(img);
                     }
                 })
-                .catch(function () {
-                    // Fallback to load/error event delegation
+                .catch(function (e) {
+                    if (
+                        typeof window !== 'undefined' &&
+                        window.console &&
+                        typeof window.console.warn === 'function'
+                    ) {
+                        window.console.warn(
+                            '[ScrollReveal] Image decode failed, falling back to event delegation:',
+                            e
+                        );
+                    }
                 });
         }
     }
