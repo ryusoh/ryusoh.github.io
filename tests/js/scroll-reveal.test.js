@@ -285,7 +285,7 @@ describe('Scroll Reveal', () => {
         rejectDecode(testError);
 
         // Wait for next tick so promise handlers resolve
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
         expect(warnSpy).toHaveBeenCalledWith(
             '[ScrollReveal] Image decode failed, falling back to event delegation:',
