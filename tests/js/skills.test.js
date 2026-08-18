@@ -99,4 +99,27 @@ describe('agent skills validation', () => {
             }
         }
     });
+
+    test('all companion scripts in .agents/skills/*/scripts/ have corresponding test suites in tests/js/', () => {
+        const entries = fs.readdirSync(SKILLS_DIR, { withFileTypes: true });
+        const skillDirs = entries.filter((e) => e.isDirectory());
+        const testFiles = fs.readdirSync(path.join(REPO_ROOT, 'tests', 'js'));
+
+        for (const skillDir of skillDirs) {
+            const scriptsDir = path.join(SKILLS_DIR, skillDir.name, 'scripts');
+            if (fs.existsSync(scriptsDir) && fs.statSync(scriptsDir).isDirectory()) {
+                const scripts = fs.readdirSync(scriptsDir).filter((f) => !f.startsWith('.'));
+                for (const script of scripts) {
+                    const baseName = script.replace(/\.[^.]+$/, '');
+                    const hasDedicatedTest = testFiles.some(
+                        (tf) =>
+                            tf.includes(skillDir.name) ||
+                            tf.includes(baseName) ||
+                            tf.includes('skills.test.js')
+                    );
+                    expect(hasDedicatedTest).toBe(true);
+                }
+            }
+        }
+    });
 });
