@@ -248,6 +248,53 @@ describe('Scroll Reveal', () => {
         expect(img.classList.contains('is-revealing')).toBe(false);
     });
 
+    test('should log warning when img.decode() fails', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        document.body.setAttribute('data-page-type', 'project');
+        document.body.innerHTML =
+            '<div class="post-content"><img id="decodeFailImg" src="fail.jpg"/></div>';
+        const img = document.getElementById('decodeFailImg');
+
+        Object.defineProperty(img, 'complete', { value: false, writable: true });
+        let rejectDecode;
+        img.decode = jest.fn(
+            () =>
+                new Promise((_, reject) => {
+                    rejectDecode = reject;
+                })
+        );
+
+        jest.isolateModules(() => {
+            require('../../js/scroll-reveal.js');
+        });
+
+        // Get the inner callback passed to requestAnimationFrame
+        const raf1 = window.requestAnimationFrame.mock.calls[0][0];
+        window.requestAnimationFrame.mockClear();
+        raf1();
+
+        const raf2 = window.requestAnimationFrame.mock.calls[0][0];
+        window.requestAnimationFrame.mockClear();
+        raf2();
+
+        const observerInstance = intersectionObserverMock.mock.results[0].value;
+        observerInstance.callback([{ isIntersecting: true, target: img }]);
+
+        const testError = new Error('Decode failed');
+        rejectDecode(testError);
+
+        // Wait for next tick so promise handlers resolve
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            '[ScrollReveal] Image decode failed, falling back to event delegation:',
+            testError
+        );
+
+        warnSpy.mockRestore();
+    });
+
     test('should reveal image immediately if naturalWidth > 0', () => {
         document.body.setAttribute('data-page-type', 'project');
         document.body.innerHTML =
