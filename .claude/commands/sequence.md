@@ -46,17 +46,23 @@ Simulate a collaborative multi-agent editorial council to resolve narrative tens
 3. **The Respiratory & Slant Rhyme Synthesist**: Balances Rinko Kawauchi's Inhalation ($L \ge 135$) / Exhalation ($L \le 75$) rhythm (preventing visual fatigue) and orchestrates Alex Webb's oblique slant rhymes.
 4. **The Pruning Editor**: Culls redundant duplicates into outtakes and positions poetic blockquotes as musical caesuras (Threshold, Volta, or Meditative rest).
 
-### 4. Deliver the Frontier Curation Plan
+### 4. Deliver the Frontier Curation Plan & Visual Sequence Report
 
-Present the curation plan to the user structured as follows:
+Present the curation plan and generate the dedicated Visual Sequence Report:
 
 1. **Executive Editorial Vision**: The chosen Storytelling Archetype, overarching narrative thesis, and emotional trajectory.
 2. **Respiratory & Rhythm Summary**: Total Inhalations vs. Exhalations, pacing score, and cadence balance.
-3. **Frame-by-Frame Sequence Table**:
+3. **Generate Visual Sequence Report**: Run the companion tool to write a rich visual markdown file (`assets/img/p<N>/sequence-report.md`) with real embedded photographs (`![alt](file:///path/to/img)`), Hamiltonian transition step costs, colorimetry tables, and curatorial rationale:
+
+    ```bash
+    node .agents/skills/sequence/scripts/inspect_gallery.mjs $ARGUMENTS --report
+    ```
+
+4. **Frame-by-Frame Sequence Table**:
     - Sequential Position & Filename
     - Visual Role (Opener, Rhythmic Bridge, Anchor, Climax, Coda)
     - Breath Type & CIELAB Tonal Profile
     - Transition Justification: Formal rhyme, vector continuity, color delta ($\Delta E$), or intentional counterpoint with previous frame.
     - Exact Placement of Poetic Caesuras (Blockquotes) with structural rationale.
-4. **Proposed `index.md` Source**: Complete, publication-ready markdown content.
-5. **Actionable Next Steps**: Provide one-liner commands to write changes and rebuild the gallery with `make page ID=p<N>`.
+5. **Proposed `index.md` Source**: Complete, publication-ready markdown content.
+6. **Actionable Next Steps**: Provide one-liner commands to write changes and rebuild the gallery with `make page ID=p<N>`.

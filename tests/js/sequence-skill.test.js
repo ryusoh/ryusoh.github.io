@@ -80,6 +80,55 @@ describe('sequence skill automation script', () => {
         expect(stdout).toContain('Caesura Interlude');
     });
 
+    test('inspect_gallery --report generates markdown report with embedded images and energy scores', () => {
+        const tempReportPath = path.join(
+            REPO_ROOT,
+            'assets',
+            'img',
+            'p5',
+            'test-sequence-report.md'
+        );
+        try {
+            const stdout = execFileSync(
+                'node',
+                [INSPECT_SCRIPT, 'p5', '--report', tempReportPath],
+                {
+                    cwd: REPO_ROOT,
+                    encoding: 'utf8',
+                }
+            );
+
+            expect(stdout).toContain('Generated Visual Sequence Report for P5');
+            expect(fs.existsSync(tempReportPath)).toBe(true);
+
+            const report = fs.readFileSync(tempReportPath, 'utf8');
+            expect(report).toContain('# Visual Curation & Sequence Report');
+            expect(report).toContain('Hamiltonian Sequence Energy');
+            expect(report).toContain('Respiratory Pacing Score');
+            expect(report).toContain('![DSCF9004-3.jpg](./DSCF9004-3.jpg');
+            expect(report).toContain('Framing & Aspect');
+            expect(report).toContain('Tonality & Breath');
+            expect(report).toContain('Poetic Caesura');
+
+            // TDD: Formats must be clean universal Unicode without raw unparsed LaTeX
+            expect(report).not.toMatch(/\$L\^/);
+            expect(report).not.toMatch(/\$\Delta/);
+            expect(report).not.toMatch(/\$L\*/);
+            expect(report).toContain('CIELAB L*a*b*');
+            expect(report).toContain('ΔE₇₆');
+
+            // TDD: Photo credit must not be used as Curatorial Rationale body
+            expect(report).toContain('Caption / Photo Credit');
+            expect(report).not.toMatch(
+                /\*\*Curatorial Rationale & Montage Dynamic\*\*:\s*@photo\.initiator/
+            );
+        } finally {
+            if (fs.existsSync(tempReportPath)) {
+                fs.unlinkSync(tempReportPath);
+            }
+        }
+    });
+
     test('inspect_gallery fails gracefully for non-existent gallery', () => {
         expect(() => {
             execFileSync('node', [INSPECT_SCRIPT, 'p99999'], {

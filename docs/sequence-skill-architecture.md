@@ -268,16 +268,20 @@ graph TD
 /sequence assets/img/p3/index.md
 ```
 
-### 6.2 Standalone CLI Tool Usage
+### 6.2 Standalone CLI Tool & Visual Report Generation
 
-To inspect any gallery directly from the terminal:
+To inspect any gallery or generate a full Visual Sequence Report directly from the terminal:
 
 ```bash
-# Formatted human-readable visual inspection
+# 1. Formatted human-readable visual inspection
 node .agents/skills/sequence/scripts/inspect_gallery.mjs p5
 
-# Structured JSON output for automated scripting
+# 2. Structured JSON output for automated scripting
 node .agents/skills/sequence/scripts/inspect_gallery.mjs p5 --json
+
+# 3. Generate rich Visual Sequence Report (assets/img/pN/sequence-report.md)
+# Embeds actual photos via file:// links, Hamiltonian step energy costs, and curatorial rationale
+node .agents/skills/sequence/scripts/inspect_gallery.mjs p5 --report
 ```
 
 Sample CLI output:

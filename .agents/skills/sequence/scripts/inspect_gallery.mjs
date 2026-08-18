@@ -87,6 +87,23 @@ export function calculateTransitionCost(imgA, imgB) {
 }
 
 /**
+ * Calculates pairwise transitions across an image sequence.
+ * @param {Array} images
+ */
+export function calculatePairwiseTransitions(images) {
+    const transitions = [];
+    for (let i = 0; i < images.length - 1; i++) {
+        const trans = calculateTransitionCost(images[i], images[i + 1]);
+        transitions.push({
+            from: images[i].filename,
+            to: images[i + 1].filename,
+            ...trans,
+        });
+    }
+    return transitions;
+}
+
+/**
  * Analyzes sequence respiratory rhythm (Kawauchi Inhalation / Exhalation breathing cycles).
  */
 export function analyzeRespiratoryRhythm(images) {
@@ -138,10 +155,22 @@ export function analyzeRespiratoryRhythm(images) {
         });
     }
 
+    let inhalations = 0;
+    let exhalations = 0;
+    let neutrals = 0;
+    for (const s of sequence) {
+        if (s.breath.startsWith('Inhalation')) inhalations++;
+        else if (s.breath.startsWith('Exhalation')) exhalations++;
+        else neutrals++;
+    }
+
     return {
         sequence,
         anomalies,
         rhythmScore: Math.max(0, 100 - anomalies.length * 15),
+        inhalations,
+        exhalations,
+        neutrals,
     };
 }
 
@@ -327,18 +356,14 @@ export async function analyzeImage(imagePath) {
 }
 
 /**
- * Main execution.
+ * Inspects a gallery and computes all metrics.
+ * @param {string} pageArg
  */
-async function main() {
-    const args = process.argv.slice(2);
-    const jsonOutput = args.includes('--json');
-    const targetArg = args.find((a) => !a.startsWith('--')) || 'p5';
-
-    const { pageId, dir, mdPath } = resolveGalleryPath(targetArg);
+export async function inspectGallery(pageArg) {
+    const { pageId, dir, mdPath } = resolveGalleryPath(pageArg);
 
     if (!fs.existsSync(dir)) {
-        console.error(`Gallery directory not found: ${dir}`);
-        process.exit(1);
+        throw new Error(`Gallery directory not found: ${dir}`);
     }
 
     const { frontmatter, entries } = parseGalleryMarkdown(mdPath);
@@ -367,15 +392,7 @@ async function main() {
     }
 
     // Pairwise transition analysis across current sequence
-    const transitions = [];
-    for (let i = 0; i < sequencedImages.length - 1; i++) {
-        const trans = calculateTransitionCost(sequencedImages[i], sequencedImages[i + 1]);
-        transitions.push({
-            from: sequencedImages[i].filename,
-            to: sequencedImages[i + 1].filename,
-            ...trans,
-        });
-    }
+    const transitions = calculatePairwiseTransitions(sequencedImages);
 
     // Respiratory Rhythm (Inhalation / Exhalation)
     const respiratory = analyzeRespiratoryRhythm(sequencedImages);
@@ -417,6 +434,198 @@ async function main() {
         quotes,
         outtakes,
     };
+
+    return outputData;
+}
+
+/**
+ * Generates a rich Markdown Visual Curation Report with embedded real images,
+ * aesthetic/narrative rationale, and computed Hamiltonian metrics.
+ *
+ * @param {string} pageId - e.g. 'p5'
+ * @param {object} [options] - custom options: outputPath, sequenceOverride, commentaryMap, archetype
+ * @returns {Promise<{ reportContent: string, outputPath: string }>}
+ */
+export async function generateVisualReport(pageId, options = {}) {
+    const defaultOutPath = path.join(REPO_ROOT, 'assets', 'img', pageId, 'sequence-report.md');
+    const {
+        outputPath = defaultOutPath,
+        sequenceOverride = null,
+        commentaryMap = {},
+        archetype = 'Polyphonic Street Symphony / Lyrical Arc',
+    } = options;
+
+    const data = await inspectGallery(pageId);
+    let images = data.images;
+    if (sequenceOverride && Array.isArray(sequenceOverride)) {
+        const imgMap = new Map(images.map((img) => [img.filename, img]));
+        images = sequenceOverride
+            .map((item, idx) => {
+                const fname = typeof item === 'string' ? item : item.filename;
+                const base = imgMap.get(fname);
+                if (!base) return null;
+                return {
+                    ...base,
+                    sequenceOrder: idx + 1,
+                    customCommentary: item.commentary || null,
+                };
+            })
+            .filter(Boolean);
+    }
+
+    const transitions = calculatePairwiseTransitions(images);
+    const respiratory = analyzeRespiratoryRhythm(images);
+    const totalHamiltonianEnergy = transitions.reduce((sum, t) => sum + t.totalCost, 0);
+    const avgHamiltonianEnergy =
+        transitions.length > 0
+            ? Number((totalHamiltonianEnergy / transitions.length).toFixed(1))
+            : 0;
+
+    let md = `# Visual Curation & Sequence Report: ${data.gallery.title || pageId.toUpperCase()}\n\n`;
+    md += `> **Curation Archetype**: ${archetype}  \n`;
+    md += `> **Hamiltonian Sequence Energy**: \`${totalHamiltonianEnergy.toFixed(1)}\` (Avg Step Cost: \`${avgHamiltonianEnergy}\`)  \n`;
+    md += `> **Respiratory Pacing Score**: \`${respiratory.rhythmScore}/100\` (${respiratory.inhalations} Inhalations, ${respiratory.exhalations} Exhalations, ${respiratory.neutrals} Grounding)  \n\n`;
+
+    md += `## 1. Executive Curatorial Architecture\n\n`;
+    md += `This report visually illustrates the recommended image sequence for **${pageId}**, embedding high-resolution photographs directly in markdown alongside technical colorimetry (CIELAB L*a*b*, ΔE₇₆), respiratory pacing waveforms, and multi-agent aesthetic rationale.\n\n`;
+
+    if (respiratory.anomalies.length > 0) {
+        md += `### ⚠️ Respiratory Rhythm Alerts\n\n`;
+        for (const anom of respiratory.anomalies) {
+            md += `- **Frame #${anom.index} (${anom.filename})** — *${anom.type}*: ${anom.detail}\n`;
+        }
+        md += `\n`;
+    }
+
+    md += `## 2. Visual Sequence Journey\n\n`;
+
+    for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        const a = img.analysis;
+        const imgAbsPath = path.join(REPO_ROOT, 'assets', 'img', pageId, img.filename);
+        const relImgPath = path.relative(path.dirname(outputPath), imgAbsPath);
+        const imgEmbedUrl = relImgPath.startsWith('.') ? relImgPath : `./${relImgPath}`;
+
+        md += `### [${i + 1}/${images.length}] ${img.filename}\n\n`;
+        md += `![${img.alt || img.caption || img.filename}](${imgEmbedUrl})\n\n`;
+
+        if (a) {
+            const nextTrans = i < transitions.length ? transitions[i] : null;
+            md += `| Attribute | Value |\n`;
+            md += `| :--- | :--- |\n`;
+            md += `| **Framing & Aspect** | \`${a.orientation.toUpperCase()}\` · \`${a.width}×${a.height}\` (Aspect: \`${a.aspectRatio}\`) |\n`;
+            md += `| **Tonality & Breath** | \`L*=${a.lab.L}\` — **${a.breathType}** (CIELAB: \`${a.lab.L}, ${a.lab.a}, ${a.lab.b}\`) |\n`;
+            if (img.caption) {
+                md += `| **Caption / Photo Credit** | \`${img.caption}\` |\n`;
+            }
+            if (nextTrans) {
+                md += `| **Transition to #${i + 2} (${nextTrans.to})** | \`ΔE₇₆: ${nextTrans.deltaE}\` (Color) · \`ΔLum: ${nextTrans.deltaLum}\` · **Step Cost: \`${nextTrans.totalCost}\`** |\n`;
+            }
+            md += `\n`;
+        }
+
+        const commentary = img.customCommentary || commentaryMap[img.filename];
+        if (commentary) {
+            md += `**Curatorial Rationale & Montage Dynamic**:\n${commentary}\n\n`;
+        } else if (a) {
+            const nextTrans = i < transitions.length ? transitions[i] : null;
+            const pacingRole =
+                i === 0
+                    ? 'Act I: The Overture / Sequence Opener'
+                    : i === images.length - 1
+                      ? 'Act IV: Coda / Sequence Resolution'
+                      : `Sequence Movement (Frame #${i + 1})`;
+            const breathDesc =
+                a.luminance >= 135
+                    ? 'Luminous inhalation providing expansive perceptual breathing space.'
+                    : a.luminance <= 75
+                      ? 'Low-key exhalation grounding the viewer with chiaroscuro mass.'
+                      : 'Neutral midpoint maintaining narrative continuity.';
+            const transDesc = nextTrans
+                ? `${nextTrans.deltaLum > 40 ? 'High-contrast tonal step' : 'Harmonic chromatic transition'} with step cost of ${nextTrans.totalCost}.`
+                : 'Final contemplative resting frame.';
+
+            md += `**Curatorial Rationale & Montage Dynamic**:\n- *Pacing Role*: ${pacingRole}\n- *Tonal Dynamic*: ${breathDesc}\n- *Transition*: ${transDesc}\n\n`;
+        }
+
+        // Insert caesura quote if present
+        const matchingQuotes = data.quotes.filter((q) => q.afterImageIndex === img.sequenceOrder);
+        for (const q of matchingQuotes) {
+            md += `> 💬 **[Poetic Caesura / Musical Rest]**  \n`;
+            md += `> *"${q.content.replace(/\n/g, ' ')}"*  \n`;
+            if (q.author) md += `> — **${q.author}**  \n`;
+            md += `\n`;
+        }
+
+        md += `---\n\n`;
+    }
+
+    if (data.outtakes && data.outtakes.length > 0) {
+        md += `## 3. Unsequenced Candidates & Outtakes (${data.outtakes.length})\n\n`;
+        for (const out of data.outtakes) {
+            const a = out.analysis;
+            const imgAbsPath = path.join(REPO_ROOT, 'assets', 'img', pageId, out.filename);
+            const relImgPath = path.relative(path.dirname(outputPath), imgAbsPath);
+            const imgEmbedUrl = relImgPath.startsWith('.') ? relImgPath : `./${relImgPath}`;
+            md += `#### ✕ ${out.filename}\n\n`;
+            md += `![${out.filename}](${imgEmbedUrl})\n\n`;
+            if (a) {
+                md += `- **Metrics**: \`${a.orientation.toUpperCase()}\` · \`${a.width}×${a.height}\` · \`L*=${a.lab.L}\` (${a.breathType})\n`;
+            }
+            md += `- **Curatorial Exclusion Rationale**: Excluded to maintain narrative tension, prevent chromatic friction, or avoid eye-vector redundancy.\n\n`;
+        }
+    }
+
+    if (outputPath) {
+        fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+        fs.writeFileSync(outputPath, md, 'utf8');
+    }
+
+    return {
+        reportContent: md,
+        outputPath,
+    };
+}
+
+async function main() {
+    const args = process.argv.slice(2);
+    const pageArg = args.find((a) => !a.startsWith('--'));
+    const jsonOutput = args.includes('--json');
+    const reportOutput = args.includes('--report');
+    const reportPathIndex = args.indexOf('--report') + 1;
+    const customReportPath =
+        reportPathIndex > 0 && args[reportPathIndex] && !args[reportPathIndex].startsWith('--')
+            ? args[reportPathIndex]
+            : null;
+
+    if (!pageArg) {
+        console.error('Usage: node inspect_gallery.mjs <pageId> [--json] [--report [outputPath]]');
+        process.exit(1);
+    }
+
+    const { pageId, dir, mdPath } = resolveGalleryPath(pageArg);
+    if (!fs.existsSync(dir)) {
+        console.error(`Gallery directory not found: ${dir}`);
+        process.exit(1);
+    }
+
+    if (reportOutput) {
+        const result = await generateVisualReport(pageId, {
+            outputPath: customReportPath || undefined,
+        });
+        console.log(`\n✅ Generated Visual Sequence Report for ${pageId.toUpperCase()}:`);
+        console.log(`   ${result.outputPath}\n`);
+        return;
+    }
+
+    const outputData = await inspectGallery(pageId);
+    const {
+        images: sequencedImages,
+        quotes,
+        outtakes,
+        transitions,
+        respiratoryRhythm: respiratory,
+    } = outputData;
 
     if (jsonOutput) {
         console.log(JSON.stringify(outputData, null, 2));
