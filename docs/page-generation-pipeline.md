@@ -343,21 +343,12 @@ CI pipeline:
 
 ---
 
-## 7. Agent Skill Interface (`/new-page`)
+## 7. Agent Skill Interfaces (`/new-page` & `/sequence`)
 
-To create a frictionless, automated workflow, a dedicated agent skill
-(`.agents/skills/new-page/SKILL.md`) will encapsulate the workflow:
+To create a frictionless, automated workflow, two companion agent skills encapsulate gallery creation and curation:
 
-1. **User action**: Drops raw photos into `assets/img/p5/` and provides a prompt
-   (e.g., _"Create p5 with title 'Night Vectors' and an intro about Tokyo street
-   lights"_).
-2. **Agent execution**:
-    - Inspects the images in `assets/img/p5/`.
-    - Writes `assets/img/p5/index.md` (curating the photo sequence, writing SEO
-      tags and poetic quotes).
-    - Executes `make page ID=p5` (or `node scripts/build-page.mjs p5`).
-    - Runs `make precommit-fix` and verifies the test suite.
-    - Reports the generated page diff and confirmation to the user.
+1. **`/new-page`** ([`.agents/skills/new-page/SKILL.md`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/new-page/SKILL.md)): Creates new portfolio pages (`pN`), generates responsive image tiers (`make images`), builds thumbhashes (`make thumbhashes`), and compiles production HTML from `portfolio-shell.html`.
+2. **`/sequence`** ([`.agents/skills/sequence/SKILL.md`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/SKILL.md)): Multimodal visual director and photobook curator that analyzes raw image compositions, extracts CIELAB $\Delta E$ and respiratory rhythms via `inspect_gallery.mjs`, and curates optimal narrative order across 5 storytelling archetypes. See [`docs/sequence-skill-architecture.md`](file:///Users/lz/dev/ryusoh.github.io/docs/sequence-skill-architecture.md).
 
 ---
 
