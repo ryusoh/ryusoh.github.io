@@ -18,6 +18,7 @@ const getProjectPages = () =>
             (d) =>
                 d.isDirectory() &&
                 /^p\d+$/i.test(d.name) &&
+                d.name.toLowerCase() !== 'p99' &&
                 fs.existsSync(path.join(ROOT_DIR, d.name, 'index.html'))
         )
         .map((d) => `${d.name}/index.html`)

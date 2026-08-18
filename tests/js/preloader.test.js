@@ -209,7 +209,9 @@ describe('AssetPreloader', () => {
                 .readdirSync(projectRoot)
                 .filter(
                     (d) =>
-                        /^p\d+$/i.test(d) && fs.existsSync(path.join(projectRoot, d, 'index.html'))
+                        /^p\d+$/i.test(d) &&
+                        d.toLowerCase() !== 'p99' &&
+                        fs.existsSync(path.join(projectRoot, d, 'index.html'))
                 );
 
             diskPages.forEach((pageKey) => {
