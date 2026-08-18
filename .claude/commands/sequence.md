@@ -31,6 +31,8 @@ Read the existing markdown file (e.g. `assets/img/p<N>/index.md`) to extract:
 
 For each image file discovered in the gallery, use `view_file` on the image path (e.g. `assets/img/p<N>/<filename>`) to execute a 3-pass perceptual evaluation:
 
+> **Image Inspection Tip**: Call `view_file` on images in batches of 2–3 frames at a time to prevent API stream timeouts (SSE EOF) on large, uncompressed high-resolution photographs.
+
 - **Pass 1 (Macro Layout & Saliency)**: Horizon lines, diagonal vectors, spatial mass distribution, planar compression, foreground/background layering.
 - **Pass 2 (Micro Gaze & Gestures)**: Subject eye-contact vector, facial tension, textual signage, reflective artifacts, camera visibility.
 - **Pass 3 (Diptych Collision & After-Image)**: The perceptual aftertaste when scrolling from image $N$ to image $N+1$ (chromatic contrast $\Delta E$, luminance breathing, kinetic momentum).
@@ -50,7 +52,7 @@ Simulate a collaborative multi-agent editorial council to resolve narrative tens
 
 Present the curation plan and generate the dedicated Visual Sequence Report:
 
-1. **Executive Editorial Vision**: The chosen Storytelling Archetype, overarching narrative thesis, and emotional trajectory.
+1. **Executive Editorial Vision**: The chosen Storytelling Archetype, overarching narrative thesis, emotional trajectory, and unambiguous **Sequence Verdict** (state clearly whether the existing order is _Validated & Affirmed as Optimal_ or _Resequenced & Optimized_).
 2. **Respiratory & Rhythm Summary**: Total Inhalations vs. Exhalations, pacing score, and cadence balance.
 3. **Generate Rich Visual Sequence Report**: The skill must NOT produce a purely mechanical report with dry boilerplate placeholders. Combine the computational colorimetry with your multimodal Visual CoT analysis (subject matter, thematic meaning, gaze vectors, and narrative role) by generating a commentary JSON or map and generating `assets/img/p<N>/sequence-report.md`:
 

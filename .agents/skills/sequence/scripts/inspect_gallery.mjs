@@ -508,6 +508,7 @@ export async function generateVisualReport(pageId, options = {}) {
 
     let md = `# Visual Curation & Sequence Report: ${data.gallery.title || pageId.toUpperCase()}\n\n`;
     md += `> **Curation Archetype**: ${archetype}\n>\n`;
+    md += `> **Sequence Status**: ${sequenceOverride ? 'Resequenced Proposal (Optimized)' : respiratory.anomalies.length > 0 ? 'Resequencing Recommended (Cadence Anomalies Detected)' : 'Validated (Existing sequence affirmed as optimal)'}\n>\n`;
     md += `> **Hamiltonian Sequence Energy**: \`${totalHamiltonianEnergy.toFixed(1)}\` (Avg Step Cost: \`${avgHamiltonianEnergy}\`)\n>\n`;
     md += `> **Respiratory Pacing Score**: \`${respiratory.rhythmScore}/100\` (${respiratory.inhalations} Inhalations, ${respiratory.exhalations} Exhalations, ${respiratory.neutrals} Grounding)\n\n`;
 
@@ -636,13 +637,32 @@ export async function generateVisualReport(pageId, options = {}) {
             (q) => q.afterImageIndex === img.sequenceOrder
         );
         for (const q of matchingQuotes) {
-            const cleanQuote = (q.content || '')
-                .replace(/<[^>]*>/g, ' ')
-                .replace(/\n/g, ' ')
-                .trim();
+            let quoteText = q.content || '';
+            let citeAuthor = q.author || '';
+
+            // Extract <cite>...</cite> or <footer class="...">...</footer>
+            const citeMatch = quoteText.match(/<cite>([\s\S]*?)<\/cite>/i);
+            if (citeMatch) {
+                citeAuthor = citeMatch[1].replace(/<[^>]*>/g, '').trim();
+                quoteText = quoteText
+                    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+                    .replace(/<cite>[\s\S]*?<\/cite>/gi, '');
+            }
+
+            // Split into lines on <br />, clean html tags and whitespace
+            const quoteLines = quoteText
+                .replace(/<br\s*\/?>/gi, '\n')
+                .split(/\r?\n/)
+                .map((l) => l.replace(/<[^>]*>/g, '').trim())
+                .filter(Boolean);
+
             md += `> 💬 **[Poetic Caesura / Musical Rest]**\n>\n`;
-            md += `> *"${cleanQuote.replace(/^"|"$/g, '')}"*\n`;
-            if (q.author) md += `>\n> — **${q.author}**\n`;
+            for (const line of quoteLines) {
+                md += `> *${line}*\n`;
+            }
+            if (citeAuthor) {
+                md += `>\n> — **${citeAuthor}**\n`;
+            }
             md += `\n`;
         }
 

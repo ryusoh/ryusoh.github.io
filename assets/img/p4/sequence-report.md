@@ -2,6 +2,8 @@
 
 > **Curation Archetype**: Polyphonic Street Symphony / Lyrical Arc
 >
+> **Sequence Status**: Validated (Existing sequence affirmed as optimal)
+>
 > **Hamiltonian Sequence Energy**: `260.9` (Avg Step Cost: `13.7`)
 >
 > **Respiratory Pacing Score**: `100/100` (3 Inhalations, 2 Exhalations, 15 Grounding)
@@ -32,7 +34,12 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 > 💬 **[Poetic Caesura / Musical Rest]**
 >
-> *"A hundred and a hundred times   Have I taken up my lantern   Seeking   At high noon     Mathurin Régnier, Les Satires XIV"*
+> *A hundred and a hundred times*
+> *Have I taken up my lantern*
+> *Seeking*
+> *At high noon*
+>
+> — **Mathurin Régnier, Les Satires XIV**
 
 ---
 
