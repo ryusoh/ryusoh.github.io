@@ -74,7 +74,9 @@ export function calculateTransitionCost(imgA, imgB) {
 
     const dE = deltaE(a.lab, b.lab);
     const dLum = Math.abs(a.luminance - b.luminance);
-    const dAspect = Math.abs(Number(a.aspectRatio) - Number(b.aspectRatio));
+    const aAspect = Number(a.aspectRatio) || 1.0;
+    const bAspect = Number(b.aspectRatio) || 1.0;
+    const dAspect = Math.abs(aAspect - bAspect);
 
     // Weighted cost normalized into 0-100 score
     const chromaticCost = Math.min(100, (dE / 80) * 100);
@@ -551,13 +553,62 @@ export async function generateVisualReport(pageId, options = {}) {
             md += `\n`;
         }
 
+        const nextTrans = i < transitions.length ? transitions[i] : null;
+        const dynamicPacingRole =
+            i === 0
+                ? 'Act I: The Overture / Sequence Opener'
+                : i === images.length - 1
+                  ? 'Act IV: Coda / Sequence Resolution'
+                  : i < images.length / 3
+                    ? `Act II: Narrative Development (Frame #${i + 1})`
+                    : i < (2 * images.length) / 3
+                      ? `Act III: Climactic Movement (Frame #${i + 1})`
+                      : `Act IV: Resolution Movement (Frame #${i + 1})`;
+
+        const dynamicTransDesc = nextTrans
+            ? `${nextTrans.deltaLum > 40 ? 'High-contrast tonal step' : 'Harmonic chromatic transition'} with step cost of ${nextTrans.totalCost}.`
+            : 'Final contemplative resting frame.';
+
         const commentary = img.customCommentary || finalCommentaryMap[img.filename];
         if (commentary) {
             if (typeof commentary === 'string') {
                 md += `**Curatorial Rationale & Montage Dynamic**:\n\n${commentary.trim()}\n\n`;
             } else if (typeof commentary === 'object') {
                 md += `**Curatorial Rationale & Montage Dynamic**:\n\n`;
-                if (commentary.role) md += `- *Pacing Role*: ${commentary.role}\n`;
+                // Adapt pacing role dynamically if sequence position shifted
+                let effectiveRole = commentary.role || dynamicPacingRole;
+                if (
+                    i === 0 &&
+                    !effectiveRole.includes('Overture') &&
+                    !effectiveRole.includes('Opener')
+                ) {
+                    const cleanRoleName = effectiveRole
+                        .replace(/^Act\s+[IVX]+:\s*/i, '')
+                        .replace(/Frame\s*#?\d+/i, '')
+                        .trim();
+                    effectiveRole = `Act I: The Overture / ${cleanRoleName || 'Sequence Opener'}`;
+                } else if (
+                    i === images.length - 1 &&
+                    !effectiveRole.includes('Coda') &&
+                    !effectiveRole.includes('Resolution')
+                ) {
+                    const cleanRoleName = effectiveRole
+                        .replace(/^Act\s+[IVX]+:\s*/i, '')
+                        .replace(/Frame\s*#?\d+/i, '')
+                        .trim();
+                    effectiveRole = `Act IV: Coda / ${cleanRoleName || 'Sequence Resolution'}`;
+                } else if (
+                    i > 0 &&
+                    i < images.length - 1 &&
+                    (effectiveRole.includes('Overture') || effectiveRole.includes('Coda'))
+                ) {
+                    const cleanRoleName = effectiveRole
+                        .replace(/Act\s+[IVX]+:\s*(The Overture|Coda)\s*\/?\s*/gi, '')
+                        .trim();
+                    effectiveRole = `${dynamicPacingRole}${cleanRoleName ? ` (${cleanRoleName})` : ''}`;
+                }
+
+                md += `- *Pacing Role*: ${effectiveRole}\n`;
                 if (commentary.subject || commentary.content) {
                     md += `- *Visual Subject & Content*: ${commentary.subject || commentary.content}\n`;
                 }
@@ -567,29 +618,17 @@ export async function generateVisualReport(pageId, options = {}) {
                 if (commentary.vector || commentary.vectors) {
                     md += `- *Composition & Gaze Vectors*: ${commentary.vector || commentary.vectors}\n`;
                 }
-                if (commentary.transition)
-                    md += `- *Transition Dynamic*: ${commentary.transition}\n`;
-                md += `\n`;
+                md += `- *Transition Dynamic*: ${commentary.transition || dynamicTransDesc}\n\n`;
             }
         } else if (a) {
-            const nextTrans = i < transitions.length ? transitions[i] : null;
-            const pacingRole =
-                i === 0
-                    ? 'Act I: The Overture / Sequence Opener'
-                    : i === images.length - 1
-                      ? 'Act IV: Coda / Sequence Resolution'
-                      : `Sequence Movement (Frame #${i + 1})`;
             const breathDesc =
                 a.luminance >= 135
                     ? 'Luminous inhalation providing expansive perceptual breathing space.'
                     : a.luminance <= 75
                       ? 'Low-key exhalation grounding the viewer with chiaroscuro mass.'
                       : 'Neutral midpoint maintaining narrative continuity.';
-            const transDesc = nextTrans
-                ? `${nextTrans.deltaLum > 40 ? 'High-contrast tonal step' : 'Harmonic chromatic transition'} with step cost of ${nextTrans.totalCost}.`
-                : 'Final contemplative resting frame.';
 
-            md += `**Curatorial Rationale & Montage Dynamic**:\n\n- *Pacing Role*: ${pacingRole}\n- *Tonal Dynamic*: ${breathDesc}\n- *Transition*: ${transDesc}\n\n`;
+            md += `**Curatorial Rationale & Montage Dynamic**:\n\n- *Pacing Role*: ${dynamicPacingRole}\n- *Tonal Dynamic*: ${breathDesc}\n- *Transition*: ${dynamicTransDesc}\n\n`;
         }
 
         // Insert caesura quote if present

@@ -255,6 +255,134 @@ describe('sequence skill automation script', () => {
         }).toThrow();
     });
 
+    test('inspect_gallery dynamically adapts pacing role when sequence order shifts while preserving intrinsic commentary', () => {
+        const tempReportPath = path.join(
+            REPO_ROOT,
+            'assets',
+            'img',
+            'p5',
+            'test-dynamic-role-report.md'
+        );
+
+        try {
+            // Reorder: Move DSCF9159.jpg (originally Frame 12 Coda) to Frame 1 Opener,
+            // and DSCF9004-3.jpg (originally Frame 1 Opener) to Frame 12 Coda.
+            const reorderedSequence = [
+                'DSCF9159.jpg',
+                '2025-05-11-0020.JPG',
+                'DSCF8059.JPG',
+                'DSCF1557-3.JPG',
+                'DSCF5407-2.jpg',
+                'DSCF8149-7.JPG',
+                'DSCF8231.JPG',
+                'DSCF0525.jpg',
+                '849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG',
+                'DSCF6274.JPG',
+                'IMG760.jpg',
+                'DSCF9004-3.jpg',
+            ];
+
+            const script = `
+                import { generateVisualReport } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+                await generateVisualReport('p5', {
+                    outputPath: ${JSON.stringify(tempReportPath)},
+                    sequenceOverride: ${JSON.stringify(reorderedSequence)}
+                });
+            `;
+
+            execFileSync('node', ['--input-type=module', '-e', script], {
+                cwd: REPO_ROOT,
+                encoding: 'utf8',
+            });
+
+            expect(fs.existsSync(tempReportPath)).toBe(true);
+            const report = fs.readFileSync(tempReportPath, 'utf8');
+
+            // DSCF9159 at Frame 1 should now have an Overture role (adapted dynamically)
+            // while preserving its intrinsic visual subject and meaning
+            expect(report).toMatch(
+                /### \[1\/12\] DSCF9159\.jpg[\s\S]*?- \*Pacing Role\*: Act I: The Overture/
+            );
+            expect(report).toContain('eating yogurt with a spoon late at night');
+            expect(report).toContain('quiet, unadorned humanity');
+
+            // DSCF9004-3 at Frame 12 should now have a Coda role (adapted dynamically)
+            // while preserving its intrinsic visual subject
+            expect(report).toMatch(
+                /### \[12\/12\] DSCF9004-3\.jpg[\s\S]*?- \*Pacing Role\*: Act IV: Coda/
+            );
+            expect(report).toContain('white helmet with both hands covering the face');
+        } finally {
+            if (fs.existsSync(tempReportPath)) {
+                fs.unlinkSync(tempReportPath);
+            }
+        }
+    });
+
+    test('inspect_gallery helper functions calculate exact colorimetry and respiratory math', () => {
+        const testCode = `
+            import { calculateTransitionCost, calculatePairwiseTransitions, analyzeRespiratoryRhythm, deltaE, rgbToLab, parseGalleryMarkdown } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+
+            // 1. DeltaE exact calculation
+            const lab1 = { L: 50, a: 10, b: 20 };
+            const lab2 = { L: 54, a: 13, b: 20 };
+            // sqrt((4)^2 + (3)^2 + 0) = 5.0
+            const de = deltaE(lab1, lab2);
+            if (Math.abs(de - 5.0) > 0.01) throw new Error(\`deltaE mismatch: expected 5.0, got \${de}\`);
+
+            // 2. RGB to LAB conversion
+            const whiteLab = rgbToLab(255, 255, 255);
+            if (Math.abs(whiteLab.L - 100) > 1.0) throw new Error(\`whiteLab L mismatch: expected ~100, got \${whiteLab.L}\`);
+
+            const blackLab = rgbToLab(0, 0, 0);
+            if (Math.abs(blackLab.L - 0) > 1.0) throw new Error(\`blackLab L mismatch: expected ~0, got \${blackLab.L}\`);
+
+            // 3. calculateTransitionCost with chromatic, luminance and aspect ratio delta
+            const imgA = { filename: 'a.jpg', analysis: { aspectRatio: '1.50', orientation: 'landscape', luminance: 100, lab: { L: 50, a: 0, b: 0 } } };
+            const imgB = { filename: 'b.jpg', analysis: { aspectRatio: '1.50', orientation: 'landscape', luminance: 50, lab: { L: 50, a: 0, b: 0 } } };
+            const cost = calculateTransitionCost(imgA, imgB);
+            // ΔE = 0, ΔLum = 50 -> lumStepCost = (50/255)*100 = 19.6078 -> totalCost = 19.6078 * 0.35 = 6.9
+            if (cost.totalCost !== 6.9 || cost.deltaLum !== 50 || cost.deltaE !== 0) {
+                throw new Error(\`calculateTransitionCost mismatch: expected 6.9, got \${cost.totalCost}\`);
+            }
+
+            // 4. analyzeRespiratoryRhythm detection
+            const darkSeries = [
+                { filename: '1.jpg', analysis: { luminance: 40, breathType: 'Exhalation' } },
+                { filename: '2.jpg', analysis: { luminance: 45, breathType: 'Exhalation' } },
+                { filename: '3.jpg', analysis: { luminance: 50, breathType: 'Exhalation' } },
+            ];
+            const respDark = analyzeRespiratoryRhythm(darkSeries);
+            if (respDark.anomalies.length !== 1 || respDark.anomalies[0].type !== 'Suffocating Weight') {
+                throw new Error('Failed to detect Suffocating Weight anomaly');
+            }
+            if (respDark.rhythmScore !== 85) throw new Error(\`rhythmScore mismatch: expected 85, got \${respDark.rhythmScore}\`);
+
+            const brightSeries = [
+                { filename: '1.jpg', analysis: { luminance: 160, breathType: 'Inhalation' } },
+                { filename: '2.jpg', analysis: { luminance: 170, breathType: 'Inhalation' } },
+                { filename: '3.jpg', analysis: { luminance: 180, breathType: 'Inhalation' } },
+            ];
+            const respBright = analyzeRespiratoryRhythm(brightSeries);
+            if (respBright.anomalies.length !== 1 || respBright.anomalies[0].type !== 'Hyperventilation') {
+                throw new Error('Failed to detect Hyperventilation anomaly');
+            }
+
+            // 5. parseGalleryMarkdown edge case with non-existent path
+            const emptyMd = parseGalleryMarkdown('/tmp/nonexistent-file.md');
+            if (emptyMd.entries.length !== 0) throw new Error('empty markdown parse failed');
+
+            console.log('EXACT_MATH_PASSED');
+        `;
+
+        const stdout = execFileSync('node', ['--input-type=module', '-e', testCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+
+        expect(stdout).toContain('EXACT_MATH_PASSED');
+    });
+
     test('inspect_gallery helper functions handle edge cases and null inputs safely', () => {
         const testCode = `
             import { calculateTransitionCost, calculatePairwiseTransitions, analyzeRespiratoryRhythm, deltaE } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';

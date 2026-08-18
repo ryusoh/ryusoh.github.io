@@ -361,6 +361,23 @@ graph TD
     - **Incremental Merging**: When new photos or outtakes are introduced into `index.md`, the skill preserves existing critiques and generates commentary entries only for the newly added frames.
     - **Full Re-curation**: Passing a new commentary file (`--commentary <path>`) allows testing alternative curatorial voices (e.g. a minimalist Japanese photobook perspective vs. a kinetic American street perspective).
 
+### 6.5 The Intrinsic vs. Relational Commentary Model & Boundary Dynamics
+
+In photobook montage (Eisenstein, Jason Eskenazi, Alex Webb), moving even a single image across a sequence boundary alters its narrative role:
+
+| Dimension               | Attribute Type | Examples                                                                                        | Behavior on Sequence Reordering                                                                                           |
+| :---------------------- | :------------- | :---------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| **Intrinsic Invariant** | Image-bound    | `Visual Subject & Content`, `Thematic Meaning`, `Compositional Gaze Vector`                     | **100% Preserved**: Stored in `commentary.json`. The physical contents of the photo do not change when reordered.         |
+| **Relational Dynamic**  | Sequence-bound | `Pacing Role` (Overture vs Coda), `Transition Dynamic` (Neighbor Step Cost), `Respiratory Role` | **Dynamically Re-evaluated**: Calculated live based on position index $i$, surrounding neighbors, and caesura boundaries. |
+
+#### Caesura & Section Boundary Crossings
+
+When an image is shifted across a **Poetic Caesura (Blockquote)** (e.g. moving from before _"By night, it is theater"_ to after it):
+
+1. Its environmental context shifts (e.g. from _Daytime Solitary Observation_ to _Nocturnal Staged Spectacle_).
+2. The engine tracks quote placement relative to `sequenceOrder` and recalculates the contextual step transitions.
+3. The `/sequence` agent re-synthesizes the surrounding narrative commentary to reflect the new dramatic progression.
+
 ---
 
 ## 7. Primary Sources & Authoritative Citations
