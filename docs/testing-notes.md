@@ -3,6 +3,15 @@
 Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
 
+## 2026-08-18 — Parallel Jest worker collisions: Synthetic project fixtures & shared disk state mutation
+
+**Problem:** In CI or multi-worker runs (`jest --coverage --maxWorkers=N`), tests execute concurrently across separate worker processes. If an E2E test (e.g. `tests/js/page-builder.test.js`) generates a synthetic portfolio directory (`p99/`, `assets/img/p99/`) or runs a compiler that modifies shared repo files (`index.html`, `p1/index.html`, `js/preloader.js`) on disk, parallel acceptance tests (`mobile-overflow.acceptance.test.js`, `thumbhash-consistency.acceptance.test.js`, `header-dock-consistency.acceptance.test.js`) will discover `p99` mid-build or mid-teardown, throwing `ENOENT: no such file or directory, open '.../p99/index.html'` or asserting against temporarily polluted `index.html` navigation links.
+
+**Fix:**
+
+1. **Isolate build tests**: Support a `--no-sync` or test option (e.g. `buildPage(id, { syncGlobal: false })`) so synthetic builder tests never mutate shared repository files (`index.html`, `p1/index.html`, `sitemap.xml`, `js/preloader.js`) on disk. Test navigation sync and preloader synchronization via pure in-memory unit tests.
+2. **Harden page discovery helpers**: All repository page discovery functions in acceptance tests (`getProjectPages()`) must explicitly ignore synthetic test pages (`d.name.toLowerCase() !== 'p99'`) and verify `fs.existsSync(path.join(ROOT_DIR, d.name, 'index.html'))` before attempting file reads.
+
 ## 2026-07-17 — A failing `expect` mid-callback skips cleanup and leaks corrupted globals to later tests
 
 **Problem:** A test that mutates a shared jsdom global (`window.history`,
