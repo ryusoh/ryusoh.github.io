@@ -40,14 +40,17 @@ Consult the reference guide for deep principles:
 
 - Read `.agents/skills/sequence/references/principles.md` for sequencing grammar and transition dynamics.
 
-### 3. Architect the Four-Movement Story Arc
+### 3. Select Storytelling Archetype & Architect Narrative Movements
 
-Organize the photographs into a cinematic, 3 to 4 movement narrative arc:
+Analyze the collection's theme and visual character to select or synthesize the appropriate storytelling archetype (detailed in `.agents/skills/sequence/references/principles.md`):
 
-- **Act I: The Threshold / The Overture**: An enigmatic, questioning opener that establishes the premise, visual grammar, and atmospheric mood.
-- **Act II: The Friction / The Layered Core**: Building momentum through rhythmic alternations of visual weight, formal rhymes, and energetic street choreography.
-- **Act III: The Departure / The Nocturnal Theater**: Stepping into surrealism, nocturnal abstraction, saturated neon, or intense psychological exploration.
-- **Act IV: The Resonant Coda**: An intimate, quiet, or lingering conclusion (an ellipsis `...`) that leaves an indelible aftertaste.
+1. **The Polyphonic Choreography** (e.g. `p3`): High kinetic energy, multi-subject layering, vector and chromatic counterpoints.
+2. **The Humanist / Social Manifesto** (e.g. `p2`): Heavy emotional gravity, character gaze vs. societal friction.
+3. **The Lyrical / Rhapsodic Odyssey** (e.g. `p1`): Multi-movement dramatic crescendo across light temperature shifts.
+4. **The Chiaroscuro / Spectral Search** (e.g. `p4`): High-noon harsh shadows, nocturnal silhouettes, existential isolation.
+5. **The Meta-Reflective / Confessional Arc** (e.g. `p5`): Observer paradox, day observation vs. night theater, domestic coda.
+
+Organize the photographs into a cinematic 3 to 5 movement narrative arc tailored to the chosen archetype.
 
 ### 4. Optimize Transitions & Quote Caesuras
 

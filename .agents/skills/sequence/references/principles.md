@@ -1,33 +1,45 @@
 # Masterclass in Photobook Editing, Street Photography & Visual Sequencing
 
-Sequencing is the invisible art that transforms a collection of strong individual frames into a cohesive, transcendent visual narrative. In the lineage of Robert Frank (_The Americans_), Henri Cartier-Bresson (_The Decisive Moment_), Alex Webb (_The Suffering of Light_), Daido Moriyama (_Farewell Photography_), and Jason Eskenazi (_By the Duck Pond_), sequencing is musical composition with light, geometry, and psychology.
+Sequencing is the invisible art that transforms a collection of strong individual frames into a cohesive, transcendent visual narrative. In the lineage of Robert Frank (_The Americans_), Henri Cartier-Bresson (_The Decisive Moment_), Alex Webb (_The Suffering of Light_), Daido Moriyama (_Farewell Photography_), Jason Eskenazi (_By the Duck Pond_), and Todd Hido (_House Hunting_), sequencing is musical composition with light, geometry, and psychology.
 
-## 1. The Four-Movement Narrative Architecture
+## 1. The Five Storytelling Archetypes
 
-A masterful visual sequence does not operate chronologically. It moves emotionally, rhythmically, and conceptually through distinct movements:
+Different photographic series possess distinct conceptual DNA. A master editor selects or synthesizes the storytelling archetype that unlocks the work's inherent emotional power:
 
-### Movement I: The Threshold (The Hook & Overture)
+### Archetype 1: The Polyphonic Choreography (Alex Webb, Garry Winogrand)
 
-- **Purpose**: Establish tone, visual grammar, and emotional tension.
-- **The Opener**: Must not necessarily be the loudest image, but the most inviting, enigmatic, or questioning. It poses a riddle that the rest of the work explores.
-- **Atmosphere**: Sets the color palette, texture, and psychological distance.
+- **Conceptual DNA**: Complex street choreographies, multi-subject layering, cultural tapestries, and fugitive urban rhythms.
+- **Pacing Dynamic**: Fast, syncopated, high kinetic energy.
+- **Diptych / Pair Logic**: Visual vector counterpoints, formal rhymes, geometric framing echoes, bold chromatic leaps.
+- **Best Suited For**: Vibrant street ethnography, market dances, cultural celebrations (e.g. `p3`).
 
-### Movement II: The Friction & Layered Core (The Body)
+### Archetype 2: The Humanist / Social Manifesto (Robert Frank, Daido Moriyama)
 
-- **Purpose**: Elevate visual complexity, dynamic counterpoints, and rhythmic pacing.
-- **Tension & Release**: Alternate between dense, layered, multi-subject street choreography and quiet, minimalist, contemplative frames.
-- **Pacing Rhythm**: Avoid consecutive frames of identical visual weight (three chaotic wide shots in a row causes visual fatigue; three empty frames causes boredom).
+- **Conceptual DNA**: Raw existential reality, socio-cultural critique, marginalized voices, moral and psychological friction.
+- **Pacing Dynamic**: Deliberate, grounded, heavy emotional gravity.
+- **Diptych / Pair Logic**: Intimate character gaze $\rightarrow$ societal detritus $\rightarrow$ collective isolation.
+- **Best Suited For**: Gritty documentary series, urban alienation, political or counter-cultural manifestos (e.g. `p2`).
 
-### Movement III: The Nocturnal / Surreal Pivot (The Departure)
+### Archetype 3: The Lyrical / Rhapsodic Odyssey (Trent Parke, Philip-Lorca diCorcia)
 
-- **Purpose**: A shift in perceptual reality — stepping from external observation into internal psychological theater.
-- **Light & Texture**: Hard flash, chiaroscuro, neon saturation, stroboscopic motion blur, reflections, grimy glass, and surreal doubles.
-- **Emotional Stakes**: Vulnerability, isolation, ecstasy, or alienation.
+- **Conceptual DNA**: Multi-act thematic journeys, soaring musical crescendos, dramatic shifts in illumination from daylight to blinding flash and release.
+- **Pacing Dynamic**: Four or five distinct movements with rising dramatic tension.
+- **Diptych / Pair Logic**: Color temperature shifts (Golden Sunlight $\rightarrow$ Blinding White Flash $\rightarrow$ Apocalyptic Ember $\rightarrow$ Cathartic Dusk).
+- **Best Suited For**: Epic urban light essays, poetic/lyrical narratives (e.g. `p1`).
 
-### Movement IV: The Resonant Coda (The Exit)
+### Archetype 4: The Chiaroscuro / Spectral Search (Todd Hido, Saul Leiter)
 
-- **Purpose**: Leave an indelible emotional afterglow.
-- **The Closer**: Must not be a dead end or abrupt punctuation. It should act as an ellipsis (...) — an intimate confession, quiet departure, or poetic lingering note that invites the viewer to re-experience the journey.
+- **Conceptual DNA**: Shadows, high-noon silhouettes, nocturnal phantoms, existential searching, atmospheric mystery.
+- **Pacing Dynamic**: Contemplative, measured, deep shadow intervals.
+- **Diptych / Pair Logic**: Specular sun slash $\rightarrow$ silhouette obscurity $\rightarrow$ nocturnal mist.
+- **Best Suited For**: Noir series, quiet solitude, spectral street explorations (e.g. `p4`).
+
+### Archetype 5: The Meta-Reflective / Confessional Arc (Lee Friedlander, Brassaï)
+
+- **Conceptual DNA**: The observer's paradox, optical reflections, day observation vs. nocturnal theater, self-effacing irony.
+- **Pacing Dynamic**: Playful camouflage $\rightarrow$ optical geometry $\rightarrow$ theatrical flash $\rightarrow$ intimate vulnerability.
+- **Diptych / Pair Logic**: Obstruction / hiding $\rightarrow$ convex mirror $\rightarrow$ off-camera flash craft $\rightarrow$ domestic reality.
+- **Best Suited For**: Self-portraits, behind-the-scenes diaries, photographer's memoirs (e.g. `p5`).
 
 ## 2. Micro-Sequencing: The Dialogue Between Adjacent Frames
 
