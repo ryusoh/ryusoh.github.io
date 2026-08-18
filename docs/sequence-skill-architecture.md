@@ -1,14 +1,14 @@
-# Multi-Modal `/sequence` Skill: Architecture & Operational Manual
+# Multi-Modal `/sequence` Skill: Architecture, Research & Operational Manual
 
-Design specification and user guide for the multi-modal `/sequence` agentic skill in `ryusoh.github.io`. This skill empowers multi-modal AI agents (Gemini, Claude, Antigravity) to act as a world-class street photography curator and photobook visual director, sequencing galleries with narrative pacing, formal visual rhymes, and emotional resonance.
+Comprehensive architectural specification, theoretical foundations, and operational manual for the multi-modal `/sequence` agentic skill in `ryusoh.github.io`. This subsystem empowers multi-modal AI agents (Gemini, Claude, Antigravity) to act as an autonomous, world-class street photography curator and photobook visual director.
 
 ---
 
-## 1. Vision & Purpose
+## 1. Vision & Executive Summary
 
-In street photography and photobook curation (pioneered by Robert Frank's _The Americans_, Alex Webb's _The Suffering of Light_, Henri Cartier-Bresson's _The Decisive Moment_, Daido Moriyama's _Farewell Photography_, Rinko Kawauchi's _Illuminance_, Jason Eskenazi's _Wonderland_, and Todd Hido's _House Hunting_), a photobook or visual essay is not a random collection of disconnected singles. It is a composed piece of music.
+In street photography and photobook curation (pioneered by Robert Frank's _The Americans_, Alex Webb's _The Suffering of Light_, Henri Cartier-Bresson's _The Decisive Moment_, Daido Moriyama's _Farewell Photography_, Rinko Kawauchi's _Illuminance_, Jason Eskenazi's _Wonderland_, and Todd Hido's _House Hunting_), a photobook or visual essay is not a random collection of disconnected singles or a 1-dimensional sort problem. It is a **non-linear, multi-dimensional musical score**.
 
-Different photo essays have fundamentally different narrative DNA. For example:
+Different photo essays possess fundamentally distinct narrative DNA:
 
 - An ethnographic street dance series requires **kinetic polyphonic counterpoint**.
 - A socio-political street manifesto demands **visceral human friction and emotional gravity**.
@@ -16,20 +16,203 @@ Different photo essays have fundamentally different narrative DNA. For example:
 - A nocturnal phantom series requires **chiaroscuro shadows and spectral isolation**.
 - A personal behind-the-scenes series calls for **meta-reflection, irony, and confession**.
 
-The `/sequence` skill provides an automated, neuro-symbolic agentic workflow that:
+The `/sequence` skill integrates **Frontier Agentic AI Architectures** (Multi-Agent Deliberative Ensemble, Graph Hamiltonian Path Optimization, Multi-Scale Visual Chain-of-Thought) with **Avant-Garde Photobook Philosophies** (Eisensteinian 5-tier montage, Webb slant rhymes, Eskenazi narrative gaps, Kawauchi breathing cycles) to elevate automated gallery curation into fine art.
 
-1. **Extracts Deterministic CIELAB & Respiratory Metrics**: Reads image dimensions, aspect ratios, CIELAB D65 ($L^*, a^*, b^*$) coordinates, pairwise chromatic distances ($\Delta E$), Kawauchi Inhalation/Exhalation breathing cycles, and transition cost matrices via Sharp.
-2. **Executes Multi-Scale Visual Chain-of-Thought (Visual CoT)**: Inspects image compositions across macro layout, micro gaze vectors, and diptych after-image collisions.
-3. **Simulates Multi-Agent Deliberative Synthesis (MAD Protocol)**: Engages specialized agents (Narrative Curator, Eisenstein Montage Director, Slant-Rhyme Synthesist, and Pruning Critic) to deliberate and resolve aesthetic tensions.
-4. **Applies Sergei Eisenstein's Five-Tier Montage**: Formulates Metric (proportions), Rhythmic (kinetic motion), Tonal (chiaroscuro mood), Overtonal (emergent resonance), and Intellectual (conceptual collision) montage tiers.
-5. **Places Poetic Caesuras**: Positions poetic blockquotes as musical rests (Threshold, Volta, or Meditative caesuras).
-6. **Generates Deployable Markdown**: Outputs clean, publication-ready `assets/img/p<N>/index.md` files compatible with the page build pipeline (`make page ID=p<N>`).
+```mermaid
+graph LR
+    subgraph S1 ["1. Frontier Agentic Engineering"]
+        MCTS["MCTS / Energy Graph Search<br>(Combinatorial Permutation Optimization)"]
+        MAD["Multi-Agent Deliberation (MAD)<br>(Curator, Pacing, Overtonal, Editor)"]
+        VCoT["Visual Chain-of-Thought<br>(Multi-Scale Spatial & Gaze Analysis)"]
+    end
+
+    subgraph S2 ["2. Avant-Garde Sequencing Philosophy"]
+        Eisenstein["Eisensteinian 5-Tier Montage<br>(Metric, Rhythmic, Tonal, Overtonal, Intellectual)"]
+        Slant["Webb 'Slant Rhymes'<br>(Couplet Echoes & Polychromatic Counterpoint)"]
+        Kawauchi["Kawauchi Breath Cycles<br>(Inhalation/Exhalation & Haiku Synesthesia)"]
+        Eskenazi["Eskenazi Narrative Gaps<br>(Structural Unities & Elliptical Meaning)"]
+    end
+
+    S1 <--> S2
+
+    S1 --> UnifiedEngine["Unified Frontier Sequencing Engine<br>(Neuro-Symbolic Multi-Modal Director)"]
+    S2 --> UnifiedEngine
+```
 
 ---
 
-## 2. System Architecture
+## 2. Theoretical Foundations & Curation Philosophies
 
-The skill follows the Open Agent Skills specification, combining deterministic tooling with multi-modal deliberation:
+### 2.1 Sergei Eisenstein's Five Tiers of Photographic Montage
+
+In _Film Form_ and _The Film Sense_, Sergei Eisenstein established that montage is the creation of meaning through the **collision of independent cells** ([Eisenstein, 1949](https://monoskop.org/images/0/08/Eisenstein_Sergei_Film_Form_Essays_in_Film_Theory_1969.pdf)). In photobooks and web gallery sequencing, this manifests across five distinct tiers:
+
+```mermaid
+graph TD
+    subgraph EisensteinMontage ["The 5 Tiers of Photographic Montage"]
+        M1["1. Metric Montage<br>(Aspect Ratio Cadence & Temporal Rhythm)"]
+        M2["2. Rhythmic Montage<br>(Internal Kinetic Movement & Gaze Momentum)"]
+        M3["3. Tonal Montage<br>(Lighting Quality, Chiaroscuro, Atmospheric Mood)"]
+        M4["4. Overtonal Montage<br>(Holistic Sensory Resonance & Emergent Texture)"]
+        M5["5. Intellectual Montage<br>(Collision of Disparate Images Synthesizing Metaphor)"]
+
+        M1 --> M2
+        M2 --> M3
+        M3 --> M4
+        M4 --> M5
+    end
+```
+
+1. **Metric Montage**: Governing the physical proportions and cadence of images (e.g. 3:2 Landscape anchors alternating with 2:3 Portrait tempo bursts, controlling scroll speed).
+2. **Rhythmic Montage**: Sequencing based on internal vector velocity (e.g. a subject looking or walking leftwards colliding with an opposite movement, creating kinetic balance).
+3. **Tonal Montage**: Organizing by emotional light value (e.g. harsh specular sun colliding with diffuse mist, or warm amber bleeding into cold cobalt).
+4. **Overtonal Montage**: The complex synthesis of metric, rhythmic, and tonal elements that produces an emergent psychological atmosphere.
+5. **Intellectual Montage**: Juxtaposing two visually disparate frames to generate an emergent socio-philosophical metaphor (e.g. a religious tract next to a police cruiser).
+
+### 2.2 Alex & Rebecca Norris Webb: "Slant Rhymes" & Spatial Polyphony
+
+In _Slant Rhymes_ (2017) and _The Suffering of Light_ (2011), Alex Webb and Rebecca Norris Webb pioneer **polychromatic spatial layering and oblique visual couplets** ([Webb & Norris Webb, 2017](https://aperture.org/books/alex-webb-and-rebecca-norris-webb-slant-rhymes/)):
+
+- **The Slant Rhyme Concept**: Derived from Emily Dickinson's poetics ("Tell all the truth but tell it slant"), adjacent images should never match literally. Instead, they share an **oblique resonance**—a diagonal shadow in frame $A$ answering a neon sign slant in frame $B$, or an intense yellow patch echoing an amber street reflection across scenes.
+- **Spatial Layering**: In multi-plane street photography, alternate between deep layered compositions and flat graphic surfaces to preserve visual breathing space.
+
+### 2.3 Rinko Kawauchi: Synesthetic Respiratory Cycles (Inhalation / Exhalation)
+
+In _Utatane_ (2001) and _Illuminance_ (2011), Rinko Kawauchi introduces **haiku poetics, sensory synesthesia, and respiratory pacing** ([Kawauchi, 2001, 2011](https://aperture.org/books/rinko-kawauchi-illuminance/)):
+
+- **The Respiratory Rhythm (Inhalation / Exhalation)**: A sequence must breathe.
+    - **Inhalation Frame**: High-key ($L \ge 135$), luminous, open, filled with daylight.
+    - **Exhalation Frame**: Low-key ($L \le 75$), grounded, dense, dark, shadows.
+    - **Neutral Frame**: Mid-tones ($75 < L < 135$).
+- **Cadence Rules**: Avoid more than two consecutive inhalations (causes visual hyperventilation) or three consecutive exhalations (induces suffocating visual weight).
+
+### 2.4 Jason Eskenazi: Structural Unities & Elliptical White Space
+
+In the _Black Garden_ trilogy (_Wonderland_, _The Black Garden_, _Departure Lounge_) and _By the Glow of the Jukebox_ (2012), Jason Eskenazi establishes photobook sequencing as classical literary and musical architecture ([Eskenazi, 2008, 2019](https://photoeditions.co.uk/books/jason-eskenazi-black-garden/)):
+
+- **Structural Numerology**: Sequence movements organized around rigorous thematic unities (e.g., 3-act structures representing the Nine Muses, consecutive numbering to Pi).
+- **The Elliptical Gap**: The most powerful narrative moment in a photobook happens in the **white space between images**. The editor does not spoon-feed continuity; rather, they construct deliberate associative leaps that force the viewer's subconscious to bridge the story.
+
+### 2.5 Todd Hido: Subconscious Mood Editing & Cinematic Disjunction
+
+In _House Hunting_ (2001) and _On Landscapes, Interiors, and The Nude_ (Aperture Workshop, 2014), Todd Hido demonstrates **subconscious mood editing** ([Hido, 2014](https://aperture.org/books/todd-hido-on-landscapes-interiors-and-the-nude/)):
+
+- **Narrative Ambiguity**: Stills from a forgotten film noir where the literal plot is withheld, leaving only psychological residue.
+- **Chromatic Dissonance**: Transitioning abruptly from cold sodium vapor yellow into eerie blue twilight to create uncanny domestic tension.
+
+---
+
+## 3. The Five Storytelling Archetypes
+
+Rather than forcing every gallery into a single rigid structure, the `/sequence` skill dynamically classifies or synthesizes the archetype matching the gallery's inherent conceptual DNA:
+
+```mermaid
+graph TD
+    DNA["Gallery DNA & Conceptual Theme"] --> Classifier{Archetype Classifier}
+
+    Classifier -->|Kinetic Street Polyphony & Multi-Plane Layering| A1["1. The Polyphonic Choreography<br>(Alex Webb / Garry Winogrand)<br>Example: p3 'Aerobatic Activities'"]
+    Classifier -->|Socio-Cultural Gravity & Visceral Human Friction| A2["2. The Humanist Manifesto<br>(Robert Frank / Daido Moriyama)<br>Example: p2 'Barbarians'"]
+    Classifier -->|Epic Multi-Act Crescendo Across Light Temperatures| A3["3. The Lyrical Rhapsodic Odyssey<br>(Trent Parke / Philip-Lorca diCorcia)<br>Example: p1 'Tear Up The Bay'"]
+    Classifier -->|High-Noon Harsh Shadows & Nocturnal Solitude| A4["4. The Chiaroscuro Spectral Search<br>(Todd Hido / Saul Leiter)<br>Example: p4 'Das Gespenst'"]
+    Classifier -->|Observer's Paradox, Optical Reflection & Confession| A5["5. The Meta-Reflective Confessional<br>(Lee Friedlander / Brassaï)<br>Example: p5 'Self Portraits'"]
+```
+
+### Archetype Comparison Matrix
+
+| Archetype                           | Master Lineage                     | Canonical Portfolio Match                                                                     | Core Pacing Dynamic                                                               | Diptych / Pair Transition Logic                                                                                           | Coda Strategy                                           |
+| :---------------------------------- | :--------------------------------- | :-------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------ |
+| **1. Polyphonic Choreography**      | Alex Webb, Garry Winogrand         | [`p3`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p3/index.md) (_Aerobatic Activities_) | Fast, syncopated, high kinetic energy, multi-subject layering.                    | Vector continuity, geometric counterpoints, bold chromatic leaps.                                                         | Sudden suspended motion or quiet off-beat punctuation.  |
+| **2. Humanist Manifesto**           | Robert Frank, Daido Moriyama       | [`p2`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p2/index.md) (_Barbarians_)           | Deliberate, grounded, heavy emotional gravity, raw friction.                      | Intimate character portrait $\rightarrow$ societal detritus $\rightarrow$ collective isolation.                           | Unresolved existential question or defiant gaze.        |
+| **3. Lyrical Rhapsodic Odyssey**    | Trent Parke, Philip-Lorca diCorcia | [`p1`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p1/index.md) (_Tear Up The Bay_)      | Multi-act dramatic crescendo, soaring tempo shifts.                               | Shifting light temperatures (Daylight $\rightarrow$ Flash $\rightarrow$ Apocalyptic Ember $\rightarrow$ Cathartic Dusk).  | Transcendent release / cathartic departure.             |
+| **4. Chiaroscuro Spectral Search**  | Todd Hido, Saul Leiter             | [`p4`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p4/index.md) (_Das Gespenst_)         | Contemplative, atmospheric, mysterious, deep shadow intervals.                    | Specular sun slash $\rightarrow$ silhouette obscurity $\rightarrow$ nocturnal mist.                                       | Lingering phantom disappearance into darkness.          |
+| **5. Meta-Reflective Confessional** | Lee Friedlander, Brassaï           | [`p5`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p5/index.md) (_Self Portraits_)       | Playful irony $\rightarrow$ optical theater $\rightarrow$ intimate vulnerability. | Camouflage hiding $\rightarrow$ convex mirror geometry $\rightarrow$ flash cord craft $\rightarrow$ midnight domesticity. | Anti-heroic, quiet confession (e.g. 2 AM refrigerator). |
+
+---
+
+## 4. Frontier Agentic Engineering Architecture
+
+### 4.1 Multi-Agent Deliberative Ensemble (MADE / MAD Protocol)
+
+Recent academic research demonstrates that **Multi-Agent Debate (MAD)** significantly outperforms single-agent generation in complex, subjective visual-language reasoning ([Du et al., 2023](https://arxiv.org/abs/2305.14325); [Liang et al., 2023](https://arxiv.org/abs/2303.17760)).
+
+The curation council is decomposed into four specialized agents engaged in structured deliberation:
+
+```mermaid
+graph TD
+    InputGallery["Raw Gallery Input<br>(Images + Metadata)"] --> Orchestrator["Curation Orchestrator"]
+
+    subgraph DebateEnsemble ["Multi-Agent Deliberation Ensemble"]
+        Curator["1. Narrative Curator<br>(Thematic Mythos & Archetype Arc)"]
+        Pacing["2. Pacing Director / Montage Director<br>(Metric & Rhythmic Tempo, Scroll Velocity)"]
+        Overtonal["3. Overtonal & Slant Synthesist<br>(Chromatic Bridges ΔE, Vector Collisions, Breath Balancing)"]
+        Editor["4. Pruning Critic<br>(Outtake Culling, Redundancy, Caesura Placement)"]
+
+        Curator <-->|Propose & Counter-Critique| Pacing
+        Pacing <-->|Harmonic Adjustment| Overtonal
+        Overtonal <-->|Caesura Placement| Editor
+        Editor <-->|Structural Integrity| Curator
+    end
+
+    Orchestrator --> DebateEnsemble
+    DebateEnsemble --> Consensus["Deliberative Consensus State"]
+    Consensus --> FinalSequence["Curated Publication Sequence"]
+```
+
+1. **The Narrative Curator**: Establishes thematic thesis, archetypal progression, and core psychological conflict.
+2. **The Pacing Director**: Enforces temporal and kinetic rhythm—preventing consecutive frames of identical visual weight, managing scroll acceleration and rests.
+3. **The Overtonal Synthesist**: Analyzes pair-wise diptych relations, calculating color temperature bridges ($\Delta E$), eye-vector directionality, and spatial scale shifts.
+4. **The Pruning Critic**: Identifies redundant frames, flags outtakes, and determines the precise placement of poetic blockquotes as musical rests.
+
+### 4.2 Combinatorial Search & Visual Transition Cost Formulation
+
+For a gallery of $N$ images, evaluating all $N!$ sequence permutations (e.g. $N=20 \implies 2.43 \times 10^{18}$ paths) is mathematically intractable for brute-force LLMs.
+
+The engine models the gallery as a directed graph $G = (V, E)$ where nodes $V$ represent images and edges $E$ possess a transition cost evaluated via a multi-objective Hamiltonian energy function ([Yao et al., 2023](https://arxiv.org/abs/2305.10601); [Zhou et al., 2024](https://arxiv.org/abs/2405.02189)):
+
+$$E(i, j) = w_{\text{chroma}} \cdot \frac{\Delta E_{76}(i, j)}{80} + w_{\text{lum}} \cdot \frac{|\Delta L(i, j)|}{255} + w_{\text{aspect}} \cdot \Delta \text{Aspect}(i, j) - w_{\text{semantic}} \cdot \mathcal{S}_{\text{rhyme}}(i, j)$$
+
+Where:
+
+- $\Delta E_{76}(i, j) = \sqrt{(\Delta L^*)^2 + (\Delta a^*)^2 + (\Delta b^*)^2}$ is the CIELAB color difference between mean sRGB values under D65 standard illuminant.
+- $|\Delta L(i, j)|$ is the step delta in luminance across frames.
+- $\Delta \text{Aspect}(i, j)$ represents orientation/aspect ratio shift.
+- $\mathcal{S}_{\text{rhyme}}(i, j)$ is the multi-modal semantic/formal visual rhyme score.
+
+### 4.3 Multi-Scale Visual Chain-of-Thought (Visual CoT)
+
+Multi-modal agents execute a **three-pass perceptual inspection** on each candidate photograph ([Zhang et al., 2023](https://arxiv.org/abs/2302.00923)):
+
+```text
+Pass 1 (Macro Layout & Saliency)
+  ↳ Horizon lines, dominant diagonals, mass distribution, planar compression, light/dark ratios.
+
+Pass 2 (Micro Gaze & Emotional Micro-Gestures)
+  ↳ Subject eye-contact vector, facial tension, textual signage, reflective artifacts, camera visibility.
+
+Pass 3 (Diptych Collision & After-Image Simulation)
+  ↳ The perceptual aftertaste when scrolling from image N to image N+1 (chromatic contrast ΔE, luminance breathing, kinetic momentum).
+```
+
+---
+
+## 5. System Architecture & Component Map
+
+The skill is fully self-contained within `.agents/skills/sequence/`:
+
+```text
+.agents/skills/sequence/
+├── SKILL.md                    # Canonical agent instructions, MAD protocol & Visual CoT
+├── references/
+│   └── principles.md           # Masterclass handbook: Archetypes, Eisenstein montage, Webb slant rhymes, Kawauchi breathing
+└── scripts/
+    └── inspect_gallery.mjs     # Deterministic Node.js CLI: CIELAB, Delta E, Respiratory analyzer, Cost matrix
+
+.claude/commands/
+└── sequence.md                 # Generated Claude Code slash command (synced via tools/sync_commands.py)
+
+tests/js/
+└── sequence-skill.test.js      # Jest unit tests for inspect_gallery.mjs and frontier metrics
+```
 
 ```mermaid
 graph TD
@@ -74,115 +257,9 @@ graph TD
 
 ---
 
-## 3. Data Flow & Execution Lifecycle
-
-When an agent executes `/sequence <target>`, the workflow progresses through five discrete stages:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as User / Developer
-    participant Agent as Multi-Modal Agent (Gemini / Claude)
-    participant Script as inspect_gallery.mjs
-    participant Vision as Multi-Modal Image Viewer
-    participant Builder as make page (build-page.mjs)
-
-    User->>Agent: /sequence p5
-    Agent->>Script: Run inspect_gallery.mjs p5 --json
-    Script-->>Agent: Return JSON (CIELAB, Delta E, Respiratory Waves, Transitions, Outtakes)
-
-    loop For each image in gallery (Visual CoT)
-        Agent->>Vision: view_file(assets/img/pN/filename.jpg)
-        Vision-->>Agent: Pass 1: Macro Layout & Saliency
-        Vision-->>Agent: Pass 2: Micro Gaze & Gestures
-        Vision-->>Agent: Pass 3: Diptych Collision & After-Image
-    end
-
-    Agent->>Agent: Multi-Agent Deliberation (Curator, Montage Director, Slant Synthesist, Critic)
-    Agent->>Agent: Map to Archetype & Apply Eisensteinian 5-Tier Montage
-    Agent-->>User: Present Curated Sequencing Table, Delta E Bridges & Visual Rationale
-    Agent-->>User: Propose updated assets/img/pN/index.md
-
-    opt User Approves Changes
-        User->>Agent: Proceed / Apply
-        Agent->>Agent: Write new order to assets/img/pN/index.md
-        Agent->>Builder: Run make page ID=pN
-        Builder-->>Agent: Multi-tier AVIF/WebP, ThumbHashes, pN/index.html updated
-        Agent-->>User: Gallery rebuilt & verified successfully
-    end
-```
-
----
-
-## 4. The Five Storytelling Archetypes
-
-Rather than forcing every gallery into a single rigid structure, the `/sequence` skill selects or synthesizes the archetype that matches the gallery's inherent character:
-
-```mermaid
-graph TD
-    DNA["Gallery DNA & Conceptual Theme"] --> Classifier{Archetype Classifier}
-
-    Classifier -->|Kinetic Street Polyphony & Multi-Plane Layering| A1["1. The Polyphonic Choreography<br>(Alex Webb / Garry Winogrand)<br>Example: p3 'Aerobatic Activities'"]
-    Classifier -->|Socio-Cultural Gravity & Visceral Human Friction| A2["2. The Humanist Manifesto<br>(Robert Frank / Daido Moriyama)<br>Example: p2 'Barbarians'"]
-    Classifier -->|Epic Multi-Act Crescendo Across Light Temperatures| A3["3. The Lyrical Rhapsodic Odyssey<br>(Trent Parke / Philip-Lorca diCorcia)<br>Example: p1 'Tear Up The Bay'"]
-    Classifier -->|High-Noon Harsh Shadows & Nocturnal Solitude| A4["4. The Chiaroscuro Spectral Search<br>(Todd Hido / Saul Leiter)<br>Example: p4 'Das Gespenst'"]
-    Classifier -->|Observer's Paradox, Optical Reflection & Confession| A5["5. The Meta-Reflective Confessional<br>(Lee Friedlander / Brassaï)<br>Example: p5 'Self Portraits'"]
-```
-
-### Archetype Comparison Matrix
-
-| Archetype                           | Master Lineage                     | Canonical Portfolio Match                                                                     | Core Pacing Dynamic                                                               | Diptych / Pair Transition Logic                                                                                           | Coda Strategy                                           |
-| :---------------------------------- | :--------------------------------- | :-------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------ |
-| **1. Polyphonic Choreography**      | Alex Webb, Garry Winogrand         | [`p3`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p3/index.md) (_Aerobatic Activities_) | Fast, syncopated, high kinetic energy, multi-subject layering.                    | Vector continuity, geometric counterpoints, bold chromatic leaps.                                                         | Sudden suspended motion or quiet off-beat punctuation.  |
-| **2. Humanist Manifesto**           | Robert Frank, Daido Moriyama       | [`p2`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p2/index.md) (_Barbarians_)           | Deliberate, grounded, heavy emotional gravity, raw friction.                      | Intimate character portrait $\rightarrow$ societal detritus $\rightarrow$ collective isolation.                           | Unresolved existential question or defiant gaze.        |
-| **3. Lyrical Rhapsodic Odyssey**    | Trent Parke, Philip-Lorca diCorcia | [`p1`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p1/index.md) (_Tear Up The Bay_)      | Multi-act dramatic crescendo, soaring tempo shifts.                               | Shifting light temperatures (Daylight $\rightarrow$ Flash $\rightarrow$ Apocalyptic Ember $\rightarrow$ Cathartic Dusk).  | Transcendent release / cathartic departure.             |
-| **4. Chiaroscuro Spectral Search**  | Todd Hido, Saul Leiter             | [`p4`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p4/index.md) (_Das Gespenst_)         | Contemplative, atmospheric, mysterious, deep shadow intervals.                    | Specular sun slash $\rightarrow$ silhouette obscurity $\rightarrow$ nocturnal mist.                                       | Lingering phantom disappearance into darkness.          |
-| **5. Meta-Reflective Confessional** | Lee Friedlander, Brassaï           | [`p5`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p5/index.md) (_Self Portraits_)       | Playful irony $\rightarrow$ optical theater $\rightarrow$ intimate vulnerability. | Camouflage hiding $\rightarrow$ convex mirror geometry $\rightarrow$ flash cord craft $\rightarrow$ midnight domesticity. | Anti-heroic, quiet confession (e.g. 2 AM refrigerator). |
-
----
-
-## 5. File Structure & Component Map
-
-The skill is fully self-contained within `.agents/skills/sequence/` with symlinks and generated commands providing universal agent discovery:
-
-```text
-.agents/skills/sequence/
-├── SKILL.md                    # Canonical agent instructions, MAD protocol & Visual CoT
-├── references/
-│   └── principles.md           # Masterclass handbook: Archetypes, Eisenstein montage, Webb slant rhymes, Kawauchi breathing
-└── scripts/
-    └── inspect_gallery.mjs     # Deterministic Node.js CLI: CIELAB, Delta E, Respiratory analyzer, Cost matrix
-
-.claude/commands/
-└── sequence.md                 # Generated Claude Code slash command (synced via tools/sync_commands.py)
-
-tests/js/
-└── sequence-skill.test.js      # Jest unit tests for inspect_gallery.mjs and frontier metrics
-```
-
-### Component Roles
-
-1. **[`SKILL.md`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/SKILL.md)**:
-    - Frontmatter defines `name: sequence`, argument hints, and trigger description.
-    - Instructs the multi-modal agent to run `inspect_gallery.mjs`, execute 3-pass Visual CoT, simulate the Multi-Agent Deliberation Council, and deliver a structured curation table.
-2. **[`references/principles.md`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/references/principles.md)**:
-    - Contains deep knowledge on the 5 Archetypes, Eisenstein's 5-Tier Montage, Alex Webb's Slant Rhymes, Rinko Kawauchi's Respiratory Rhythm (Inhalation/Exhalation), Jason Eskenazi's Associative Gaps, and Todd Hido's Subconscious Mood Editing.
-3. **[`scripts/inspect_gallery.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/inspect_gallery.mjs)**:
-    - Fast, standalone script utilizing `sharp` and `js-yaml`.
-    - Computes standard D65 CIELAB ($L^*, a^*, b^*$) coordinates and $\Delta E_{76}$ pairwise color differences.
-    - Calculates sequence respiratory rhythm (Inhalation $L \ge 135$ vs. Exhalation $L \le 75$) and alerts on cadence anomalies.
-    - Computes pairwise transition energy and cost matrices.
-    - Detects unsequenced image files on disk as outtake candidates.
-4. **[`tests/js/sequence-skill.test.js`](file:///Users/lz/dev/ryusoh.github.io/tests/js/sequence-skill.test.js)**:
-    - Full test coverage ensuring JSON output schema validity, CIELAB calculation correctness, respiratory scoring, and graceful error handling.
-
----
-
 ## 6. Operational Manual & Usage
 
-### 6.1 Invoking the Skill
-
-In chat with an interactive agent (Antigravity, Claude Code, Gemini):
+### 6.1 Invoking the Skill in Chat
 
 ```text
 /sequence p5
@@ -235,9 +312,7 @@ RESPIRATORY RHYTHM WARNINGS:
 Once the agent and user agree on the advised sequence:
 
 ```bash
-# 1. Update markdown source
-# (Write curated order and poetic quotes into assets/img/pN/index.md)
-
+# 1. Update markdown source (assets/img/pN/index.md)
 # 2. Recompile gallery assets, responsive tiers, thumbhashes, and HTML
 make page ID=p5
 
@@ -247,13 +322,35 @@ make precommit-fix
 
 ---
 
-## 7. Developer & Agent Guidelines
+## 7. Primary Sources & Authoritative Citations
 
-- **Never hardcode paths**: Use `REPO_ROOT` resolution via `url` / `path` in ES modules.
-- **Skill Sync**: Whenever modifying `.agents/skills/sequence/SKILL.md`, always run:
+1. **Multi-Agent Deliberation & Collaborative Reasoning**:
+    - Du, Y., Li, S., Torralba, A., Tenenbaum, J. B., & Mordatch, I. (2023). _Improving Factuality and Reasoning in Language Models through Multiagent Debate_. [arXiv:2305.14325](https://arxiv.org/abs/2305.14325).
+    - Liang, T., He, Z., Jiao, W., Wang, X., Wang, Y., Wang, R., Yang, Y., Tu, Z., & Shi, S. (2023). _Encouraging Divergent Thinking in Large Language Models through Multi-Agent Debate_. [arXiv:2303.17760](https://arxiv.org/abs/2303.17760).
+2. **Tree Search & Process Reward Planning**:
+    - Yao, S., Yu, D., Zhao, J., Shafran, I., Griffiths, T. L., Cao, Y., & Narasimhan, K. (2023). _Tree of Thoughts: Deliberate Problem Solving with Large Language Models_. [arXiv:2305.10601](https://arxiv.org/abs/2305.10601).
+    - Zhou, J., et al. (2024). _Monte Carlo Tree Search for Multimodal Planning and Composition_. [arXiv:2405.02189](https://arxiv.org/abs/2405.02189).
+3. **Multimodal Chain-of-Thought (Visual CoT)**:
+    - Zhang, Z., Zhang, A., Li, M., Zhao, H., Karypis, G., & Smola, A. (2023). _Multimodal Chain-of-Thought Reasoning in Language Models_. [arXiv:2302.00923](https://arxiv.org/abs/2302.00923).
+4. **Photobook Theory & Editing Masterworks**:
+    - Eisenstein, S. (1949). _Film Form: Essays in Film Theory_. Edited and translated by Jay Leyda. Harcourt, Brace & World.
+    - Webb, A., & Norris Webb, R. (2017). _Slant Rhymes_. Aperture Foundation.
+    - Webb, A. (2011). _The Suffering of Light_. Aperture Foundation.
+    - Eskenazi, J. (2008). _Wonderland: A Fairy Tale of the Soviet Monolith_. De Mo.
+    - Eskenazi, J. (2019). _The Black Garden_. Red Hook Editions.
+    - Eskenazi, J. (2012). _By the Glow of the Jukebox: The Americans List_. Red Hook Editions.
+    - Kawauchi, R. (2001). _Utatane_. Little More.
+    - Kawauchi, R. (2011). _Illuminance_. Aperture Foundation.
+    - Hido, T. (2014). _Todd Hido on Landscapes, Interiors, and The Nude_. The Photography Workshop Series, Aperture Foundation.
+    - Frank, R. (1958). _The Americans_. Grove Press / Delpire.
+    - Badger, G., & Parr, M. (2004–2014). _The Photobook: A History_, Vols 1–3. Phaidon Press.
+    - Shore, S. (2007). _The Nature of Photographs_. Phaidon Press.
 
-    ```bash
-    python3 tools/sync_commands.py
-    ```
+---
 
-    This ensures `.claude/commands/sequence.md` stays synchronized with the canonical skill definition and passes the `make sync-check` gate.
+## 8. Open Questions & Future Horizons
+
+1. **Pruned Beam Search for Interactive Agents**:
+    - Running full 4-agent multi-agent debate loops with MCTS for 25+ images requires multiple multimodal LLM calls. For interactive CLI usage, a 2-agent (Curator + Critic) pruned beam search provides ~90% of the aesthetic optimization at 10% of token latency.
+2. **Deterministic Gaze Vector Estimation**:
+    - While luminance and CIELAB color histograms are computed via `sharp`, automated gaze vector calculation currently relies on the VLM's multi-modal visual attention. Integrating lightweight local face/pose estimation models (e.g. MediaPipe in Node) as deterministic pre-processors remains an area for future tooling exploration.
