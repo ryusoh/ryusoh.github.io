@@ -197,6 +197,54 @@ describe('sequence skill automation script', () => {
         expect(stdout).toContain('--report [outputPath]');
     });
 
+    test('inspect_gallery --report --commentary integrates custom commentary map into visual report', () => {
+        const tempReportPath = path.join(
+            REPO_ROOT,
+            'assets',
+            'img',
+            'p5',
+            'test-custom-comm-report.md'
+        );
+        const tempCommPath = path.join(REPO_ROOT, 'assets', 'img', 'p5', 'test-custom-comm.json');
+
+        try {
+            const customCommentary = {
+                'DSCF9004-3.jpg': {
+                    role: 'Custom Test Role',
+                    subject: 'Subject Test description',
+                    meaning: 'Custom Meaning Test',
+                    vector: 'Custom Vector Test',
+                    transition: 'Custom Transition Dynamic Test',
+                },
+            };
+            fs.writeFileSync(tempCommPath, JSON.stringify(customCommentary), 'utf8');
+
+            execFileSync(
+                'node',
+                [INSPECT_SCRIPT, 'p5', '--report', tempReportPath, '--commentary', tempCommPath],
+                {
+                    cwd: REPO_ROOT,
+                    encoding: 'utf8',
+                }
+            );
+
+            expect(fs.existsSync(tempReportPath)).toBe(true);
+            const report = fs.readFileSync(tempReportPath, 'utf8');
+            expect(report).toContain('Custom Test Role');
+            expect(report).toContain('Subject Test description');
+            expect(report).toContain('Custom Meaning Test');
+            expect(report).toContain('Custom Vector Test');
+            expect(report).toContain('Custom Transition Dynamic Test');
+        } finally {
+            if (fs.existsSync(tempReportPath)) {
+                fs.unlinkSync(tempReportPath);
+            }
+            if (fs.existsSync(tempCommPath)) {
+                fs.unlinkSync(tempCommPath);
+            }
+        }
+    });
+
     test('inspect_gallery fails gracefully for non-existent gallery', () => {
         expect(() => {
             execFileSync('node', [INSPECT_SCRIPT, 'p99999'], {

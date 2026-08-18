@@ -324,6 +324,43 @@ make page ID=p5
 make precommit-fix
 ```
 
+### 6.4 Report Lifecycle, Idempotency & Future AI Upgrades
+
+The `/sequence` architecture enforces a strict **Dual-Layer Separation** between deterministic mathematical physics and non-deterministic multimodal artistic reasoning:
+
+```mermaid
+graph TD
+    subgraph Layer1 ["Layer 1: Deterministic Computational Engine"]
+        Sharp["Sharp Pixel Extraction<br>(Dimensions, Aspect, sRGB Means)"]
+        Colorimetry["CIELAB L*a*b* & ΔE₇₆ Conversions<br>(Exact Metric Physics)"]
+        Hamiltonian["Hamiltonian Graph Energy & Step Cost<br>(Deterministic Math)"]
+        Cadence["Kawauchi Run-Length Cadence Scanner<br>(Deterministic Inhalation/Exhalation)"]
+    end
+
+    subgraph Layer2 ["Layer 2: Multimodal Curatorial Intelligence (AI)"]
+        VCoT["Visual Chain-of-Thought (view_file)<br>(Subject Matter, Gaze Vectors, Gestures)"]
+        Narrative["Thematic & Semiotic Dialogue<br>(Photobook Narrative Arc)"]
+        JSON["commentary.json (Structured Storage)<br>(Pacing Role, Meaning, Vectors, Dynamics)"]
+    end
+
+    Layer1 --> ReportGenerator["Report Generator (inspect_gallery.mjs)"]
+    Layer2 --> ReportGenerator
+    ReportGenerator --> VisualReport["assets/img/pN/sequence-report.md"]
+```
+
+#### 1. Idempotency & Re-running with Existing Artifacts
+
+- When running `inspect_gallery.mjs <pageId> --report` with existing `commentary.json` and `sequence-report.md` on disk, the operation is **100% idempotent**.
+- The script reads the stored `commentary.json`, calculates live technical metrics based on the current order in `index.md`, and safely regenerates `sequence-report.md`.
+- If the user re-orders images in `index.md` (e.g. applying a recommended breath interlude), re-running the skill updates the energy scores and step transitions while seamlessly preserving the established image critiques.
+
+#### 2. Upgrading with Newer / More Capable Future AI Models
+
+- Because the non-deterministic artistic critiques are decoupled into [`commentary.json`](file:///Users/lz/dev/ryusoh.github.io/assets/img/p5/commentary.json), future multi-modal AI models can re-evaluate the gallery without breaking mathematical invariants:
+    - **In-place Enrichment**: A new model can re-examine photos via `view_file` to produce deeper semiotic readings, higher-resolution gaze vector maps, or updated cultural context.
+    - **Incremental Merging**: When new photos or outtakes are introduced into `index.md`, the skill preserves existing critiques and generates commentary entries only for the newly added frames.
+    - **Full Re-curation**: Passing a new commentary file (`--commentary <path>`) allows testing alternative curatorial voices (e.g. a minimalist Japanese photobook perspective vs. a kinetic American street perspective).
+
 ---
 
 ## 7. Primary Sources & Authoritative Citations
