@@ -253,9 +253,10 @@ export async function updatePreloader(pageId, imageFilenames) {
  * Builds a single portfolio page from markdown.
  * @param {string} pageId e.g. 'p5'
  */
-export async function buildPage(pageId) {
-    const cleanId = pageId.toLowerCase().trim();
-    console.log(`\nBuilding portfolio page ${cleanId}...`);
+export async function buildPage(pageId, options = {}) {
+    const { syncGlobal = true } = options;
+    const cleanId = String(pageId).toLowerCase().trim();
+    console.log(`Building portfolio page ${cleanId}...`);
 
     // 1. Locate markdown
     const mdPaths = [
@@ -472,10 +473,10 @@ export async function buildPage(pageId) {
     console.log(`Generated ${htmlPath}`);
 
     // 5. Update index.html, all project page navigation docks, and sitemap.xml
-    await syncAllPages();
-
-    // 6. Update preloader
-    await updatePreloader(cleanId, imageFilenames);
+    if (syncGlobal) {
+        await syncAllPages();
+        await updatePreloader(cleanId, imageFilenames);
+    }
 
     return {
         htmlPath,
@@ -485,13 +486,16 @@ export async function buildPage(pageId) {
 
 // Direct CLI invocation
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    const pageId = process.argv[2];
+    const args = process.argv.slice(2);
+    const noSync = args.includes('--no-sync');
+    const pageId = args.find((a) => !a.startsWith('--'));
+
     if (!pageId) {
-        console.error('Usage: node scripts/build-page.mjs <pageId> (e.g. p5)');
+        console.error('Usage: node scripts/build-page.mjs <pageId> [--no-sync] (e.g. p5)');
         process.exit(1);
     }
 
-    buildPage(pageId)
+    buildPage(pageId, { syncGlobal: !noSync })
         .then(() => {
             console.log('Build completed successfully.');
             process.exit(0);

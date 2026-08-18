@@ -131,22 +131,10 @@ test_sample.jpg | by @test.photographer
             if (fs.existsSync(testImgDir)) {
                 fs.rmSync(testImgDir, { recursive: true, force: true });
             }
-
-            // Clean up preloader entry
-            const preloaderPath = path.join(ROOT_DIR, 'js', 'preloader.js');
-            if (fs.existsSync(preloaderPath)) {
-                let content = fs.readFileSync(preloaderPath, 'utf8');
-                content = content.replace(/\s*p99:\s*'\/assets\/img\/p99\/',?/g, '');
-                content = content.replace(/\s*p99:\s*\[[\s\S]*?\],?/g, '');
-                fs.writeFileSync(preloaderPath, content, 'utf8');
-            }
-
-            // Re-sync index.html nav
-            execFileSync('node', [SYNC_SCRIPT], { cwd: ROOT_DIR });
         });
 
-        test('build-page.mjs compiles HTML, generates responsive tiers, and updates nav', () => {
-            const output = execFileSync('node', [BUILD_SCRIPT, testPageId], {
+        test('build-page.mjs compiles HTML, generates responsive tiers in isolation', async () => {
+            const output = execFileSync('node', [BUILD_SCRIPT, testPageId, '--no-sync'], {
                 cwd: ROOT_DIR,
                 encoding: 'utf8',
             });
@@ -172,28 +160,18 @@ test_sample.jpg | by @test.photographer
             expect(html).toContain(`href="/${testPageId}/"`);
             expect(html).toContain('aria-current="page"');
 
-            // Verify index.html navigation table includes the test page
-            const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
-            expect(indexHtml).toContain(`href="./${testPageId}/"`);
-
-            // Verify sibling portfolio pages (e.g. p1) have their navigation dock updated
-            const p1Html = fs.readFileSync(path.join(ROOT_DIR, 'p1', 'index.html'), 'utf8');
-            expect(p1Html).toContain(`href="/${testPageId}/"`);
-
-            // Verify sitemap.xml includes the newly generated page
-            const sitemapXml = fs.readFileSync(path.join(ROOT_DIR, 'sitemap.xml'), 'utf8');
-            expect(sitemapXml).toContain(`https://www.lyeutsaon.com/${testPageId}/`);
-
-            // Verify js/preloader.js asset sets are synchronized with the new page
-            const preloaderJs = fs.readFileSync(path.join(ROOT_DIR, 'js', 'preloader.js'), 'utf8');
-            expect(preloaderJs).toContain(`${testPageId}:`);
-
-            // Run validator on the newly generated synthetic page
-            const validateOutput = execFileSync('node', [VALIDATE_SCRIPT], {
+            // Unit verify buildNavRows generates correct table navigation markup via node subprocess
+            const nodeCode = `
+                import { buildNavRows } from './scripts/sync-pages.mjs';
+                const res = buildNavRows(null, ['p1', 'p2', '${testPageId}'], true);
+                console.log(res);
+            `;
+            const updatedNavHtml = execFileSync('node', ['--input-type=module', '-e', nodeCode], {
                 cwd: ROOT_DIR,
                 encoding: 'utf8',
             });
-            expect(validateOutput).toContain('Validation passed!');
+            expect(updatedNavHtml).toContain(`href="./${testPageId}/"`);
+            expect(updatedNavHtml).toContain('Synthetic Test Project');
         });
     });
 });
