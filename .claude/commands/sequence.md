@@ -52,11 +52,13 @@ Present the curation plan and generate the dedicated Visual Sequence Report:
 
 1. **Executive Editorial Vision**: The chosen Storytelling Archetype, overarching narrative thesis, and emotional trajectory.
 2. **Respiratory & Rhythm Summary**: Total Inhalations vs. Exhalations, pacing score, and cadence balance.
-3. **Generate Visual Sequence Report**: Run the companion tool to write a rich visual markdown file (`assets/img/p<N>/sequence-report.md`) with real embedded photographs (`![alt](file:///path/to/img)`), Hamiltonian transition step costs, colorimetry tables, and curatorial rationale:
+3. **Generate Rich Visual Sequence Report**: The skill must NOT produce a purely mechanical report with dry boilerplate placeholders. Combine the computational colorimetry with your multimodal Visual CoT analysis (subject matter, thematic meaning, gaze vectors, and narrative role) by generating a commentary JSON or map and generating `assets/img/p<N>/sequence-report.md`:
 
     ```bash
-    node .agents/skills/sequence/scripts/inspect_gallery.mjs $ARGUMENTS --report
+    node .agents/skills/sequence/scripts/inspect_gallery.mjs $ARGUMENTS --report --commentary <path/to/commentary.json>
     ```
+
+    The generated report must directly embed high-resolution photographs via relative links, step energy costs, and the deep artistic critiques synthesized in Steps 2 and 3.
 
 4. **Frame-by-Frame Sequence Table**:
     - Sequential Position & Filename

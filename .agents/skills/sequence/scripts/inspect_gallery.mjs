@@ -467,6 +467,19 @@ export async function generateVisualReport(pageId, options = {}) {
 
     const data = await inspectGallery(pageId);
     let images = data.images;
+    let finalCommentaryMap =
+        commentaryMap && Object.keys(commentaryMap).length > 0 ? commentaryMap : {};
+    if (Object.keys(finalCommentaryMap).length === 0) {
+        const defaultCommPath = path.join(REPO_ROOT, 'assets', 'img', pageId, 'commentary.json');
+        if (fs.existsSync(defaultCommPath)) {
+            try {
+                finalCommentaryMap = JSON.parse(fs.readFileSync(defaultCommPath, 'utf8'));
+            } catch {
+                finalCommentaryMap = {};
+            }
+        }
+    }
+
     if (sequenceOverride && Array.isArray(sequenceOverride)) {
         const imgMap = new Map(images.map((img) => [img.filename, img]));
         images = sequenceOverride
@@ -538,9 +551,26 @@ export async function generateVisualReport(pageId, options = {}) {
             md += `\n`;
         }
 
-        const commentary = img.customCommentary || commentaryMap[img.filename];
+        const commentary = img.customCommentary || finalCommentaryMap[img.filename];
         if (commentary) {
-            md += `**Curatorial Rationale & Montage Dynamic**:\n${commentary}\n\n`;
+            if (typeof commentary === 'string') {
+                md += `**Curatorial Rationale & Montage Dynamic**:\n\n${commentary.trim()}\n\n`;
+            } else if (typeof commentary === 'object') {
+                md += `**Curatorial Rationale & Montage Dynamic**:\n\n`;
+                if (commentary.role) md += `- *Pacing Role*: ${commentary.role}\n`;
+                if (commentary.subject || commentary.content) {
+                    md += `- *Visual Subject & Content*: ${commentary.subject || commentary.content}\n`;
+                }
+                if (commentary.meaning || commentary.thematicMeaning) {
+                    md += `- *Thematic Meaning*: ${commentary.meaning || commentary.thematicMeaning}\n`;
+                }
+                if (commentary.vector || commentary.vectors) {
+                    md += `- *Composition & Gaze Vectors*: ${commentary.vector || commentary.vectors}\n`;
+                }
+                if (commentary.transition)
+                    md += `- *Transition Dynamic*: ${commentary.transition}\n`;
+                md += `\n`;
+            }
         } else if (a) {
             const nextTrans = i < transitions.length ? transitions[i] : null;
             const pacingRole =
@@ -703,6 +733,19 @@ Options:
             ? args[reportPathIndex]
             : null;
 
+    const commIdx = args.indexOf('--commentary') + 1;
+    let commentaryMap = {};
+    if (commIdx > 0 && args[commIdx] && !args[commIdx].startsWith('--')) {
+        const commPath = path.resolve(REPO_ROOT, args[commIdx]);
+        if (fs.existsSync(commPath)) {
+            try {
+                commentaryMap = JSON.parse(fs.readFileSync(commPath, 'utf8'));
+            } catch (err) {
+                console.error(`Failed to parse commentary file: ${commPath}`, err);
+            }
+        }
+    }
+
     const { pageId, dir, mdPath } = resolveGalleryPath(pageArg);
     if (!fs.existsSync(dir)) {
         console.error(`Gallery directory not found: ${dir}`);
@@ -712,6 +755,7 @@ Options:
     if (reportOutput) {
         const result = await generateVisualReport(pageId, {
             outputPath: customReportPath || undefined,
+            commentaryMap,
         });
         console.log(`\n✅ Generated Visual Sequence Report for ${pageId.toUpperCase()}:`);
         console.log(`   ${result.outputPath}\n`);
