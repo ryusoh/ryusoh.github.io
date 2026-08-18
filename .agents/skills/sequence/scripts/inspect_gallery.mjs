@@ -11,10 +11,144 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../../../..');
 
 /**
- * Resolves gallery path from arguments.
- * Accepts: "p5", "5", "assets/img/p5", "assets/img/p5/index.md", etc.
+ * Converts sRGB [0-255] to CIELAB { L, a, b } (D65 illuminant).
  */
-function resolveGalleryPath(arg) {
+export function rgbToLab(r, g, b) {
+    // 1. Convert to linear sRGB
+    let rLinear = r / 255;
+    let gLinear = g / 255;
+    let bLinear = b / 255;
+
+    rLinear = rLinear > 0.04045 ? Math.pow((rLinear + 0.055) / 1.055, 2.4) : rLinear / 12.92;
+    gLinear = gLinear > 0.04045 ? Math.pow((gLinear + 0.055) / 1.055, 2.4) : gLinear / 12.92;
+    bLinear = bLinear > 0.04045 ? Math.pow((bLinear + 0.055) / 1.055, 2.4) : bLinear / 12.92;
+
+    // 2. Convert to XYZ (D65 standard)
+    let x = (rLinear * 0.4124 + gLinear * 0.3576 + bLinear * 0.1805) / 0.95047;
+    let y = (rLinear * 0.2126 + gLinear * 0.7152 + bLinear * 0.0722) / 1.0;
+    let z = (rLinear * 0.0193 + gLinear * 0.1192 + bLinear * 0.9505) / 1.08883;
+
+    // 3. Convert XYZ to CIELAB
+    const f = (val) => (val > 0.008856 ? Math.cbrt(val) : 7.787 * val + 16 / 116);
+    const fx = f(x);
+    const fy = f(y);
+    const fz = f(z);
+
+    const L = Math.max(0, 116 * fy - 16);
+    const a = 500 * (fx - fy);
+    const bLab = 200 * (fy - fz);
+
+    return {
+        L: Number(L.toFixed(2)),
+        a: Number(a.toFixed(2)),
+        b: Number(bLab.toFixed(2)),
+    };
+}
+
+/**
+ * Computes CIELAB Delta E (CIE76 color difference).
+ */
+export function deltaE(lab1, lab2) {
+    if (!lab1 || !lab2) return 0;
+    const dL = lab1.L - lab2.L;
+    const da = lab1.a - lab2.a;
+    const db = lab1.b - lab2.b;
+    return Number(Math.sqrt(dL * dL + da * da + db * db).toFixed(2));
+}
+
+/**
+ * Calculates pairwise transition cost between two images.
+ * Evaluates chromatic bridge (Delta E), luminance contrast step, and aspect ratio shift.
+ */
+export function calculateTransitionCost(imgA, imgB) {
+    if (!imgA || !imgB || !imgA.analysis || !imgB.analysis) return 0;
+    const a = imgA.analysis;
+    const b = imgB.analysis;
+
+    const dE = deltaE(a.lab, b.lab);
+    const dLum = Math.abs(a.luminance - b.luminance);
+    const dAspect = Math.abs(Number(a.aspectRatio) - Number(b.aspectRatio));
+
+    // Weighted cost normalized into 0-100 score
+    const chromaticCost = Math.min(100, (dE / 80) * 100);
+    const lumStepCost = (dLum / 255) * 100;
+    const aspectCost = Math.min(100, (dAspect / 1.0) * 100);
+
+    const totalCost = Number(
+        (chromaticCost * 0.45 + lumStepCost * 0.35 + aspectCost * 0.2).toFixed(1)
+    );
+
+    return {
+        totalCost,
+        deltaE: dE,
+        deltaLum: dLum,
+        deltaAspect: Number(dAspect.toFixed(2)),
+    };
+}
+
+/**
+ * Analyzes sequence respiratory rhythm (Kawauchi Inhalation / Exhalation breathing cycles).
+ */
+export function analyzeRespiratoryRhythm(images) {
+    const sequence = [];
+    let consecutiveInhalations = 0;
+    let consecutiveExhalations = 0;
+    const anomalies = [];
+
+    for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        const lum = img.analysis?.luminance ?? 128;
+        let breath = 'Neutral (Grounding)';
+
+        if (lum >= 135) {
+            breath = 'Inhalation (Luminous/Expansive)';
+            consecutiveInhalations++;
+            consecutiveExhalations = 0;
+        } else if (lum <= 75) {
+            breath = 'Exhalation (Low-key/Dense)';
+            consecutiveExhalations++;
+            consecutiveInhalations = 0;
+        } else {
+            consecutiveInhalations = 0;
+            consecutiveExhalations = 0;
+        }
+
+        if (consecutiveInhalations >= 3) {
+            anomalies.push({
+                index: i + 1,
+                filename: img.filename,
+                type: 'Hyperventilation',
+                detail: `${consecutiveInhalations} consecutive high-key inhalation frames—consider a darker grounding anchor.`,
+            });
+        }
+        if (consecutiveExhalations >= 3) {
+            anomalies.push({
+                index: i + 1,
+                filename: img.filename,
+                type: 'Suffocating Weight',
+                detail: `${consecutiveExhalations} consecutive low-key exhalation frames—consider an open luminous interlude.`,
+            });
+        }
+
+        sequence.push({
+            order: i + 1,
+            filename: img.filename,
+            luminance: lum,
+            breath,
+        });
+    }
+
+    return {
+        sequence,
+        anomalies,
+        rhythmScore: Math.max(0, 100 - anomalies.length * 15),
+    };
+}
+
+/**
+ * Resolves gallery path from arguments.
+ */
+export function resolveGalleryPath(arg) {
     if (!arg) {
         throw new Error(
             'Please provide a gallery identifier or path (e.g. "p5" or "assets/img/p5/index.md").'
@@ -55,7 +189,6 @@ function resolveGalleryPath(arg) {
         };
     }
 
-    // Default fallback attempt
     const pageId = clean.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
     return {
         pageId,
@@ -67,9 +200,9 @@ function resolveGalleryPath(arg) {
 /**
  * Parse index.md to extract frontmatter, items (images, quotes), and layout structure.
  */
-function parseGalleryMarkdown(mdPath) {
+export function parseGalleryMarkdown(mdPath) {
     if (!fs.existsSync(mdPath)) {
-        return { frontmatter: {}, entries: [], rawQuotes: [] };
+        return { frontmatter: {}, entries: [] };
     }
 
     const content = fs.readFileSync(mdPath, 'utf8');
@@ -109,7 +242,6 @@ function parseGalleryMarkdown(mdPath) {
             continue;
         }
 
-        // Image line: e.g. "DSCF0001.jpg | caption"
         const [filename, ...captionParts] = trimmed.split('|');
         const cleanFilename = filename.trim();
         const caption = captionParts.join('|').trim();
@@ -134,9 +266,9 @@ function parseGalleryMarkdown(mdPath) {
 }
 
 /**
- * Extract image metadata and color / luminance analysis.
+ * Extract image metadata, color histogram, CIELAB coordinates, and luminance.
  */
-async function analyzeImage(imagePath) {
+export async function analyzeImage(imagePath) {
     if (!fs.existsSync(imagePath)) {
         return null;
     }
@@ -153,17 +285,23 @@ async function analyzeImage(imagePath) {
         if (width > height * 1.05) orientation = 'landscape';
         else if (height > width * 1.05) orientation = 'portrait';
 
-        // Luminance calculation: standard Rec. 709 weights
         const [rStat, gStat, bStat] = stats.channels;
-        const avgR = rStat ? rStat.mean : 128;
-        const avgG = gStat ? gStat.mean : 128;
-        const avgB = bStat ? bStat.mean : 128;
+        const avgR = rStat ? Math.round(rStat.mean) : 128;
+        const avgG = gStat ? Math.round(gStat.mean) : 128;
+        const avgB = bStat ? Math.round(bStat.mean) : 128;
         const luminance = Math.round(0.2126 * avgR + 0.7152 * avgG + 0.0722 * avgB);
 
-        // Tonal & temperature character
+        const lab = rgbToLab(avgR, avgG, avgB);
+
         let tonalKey = 'mid-tone';
-        if (luminance < 70) tonalKey = 'low-key (dark/moody)';
-        else if (luminance > 165) tonalKey = 'high-key (bright/airy)';
+        let breathType = 'Neutral';
+        if (luminance < 75) {
+            tonalKey = 'low-key (dark/moody)';
+            breathType = 'Exhalation';
+        } else if (luminance > 135) {
+            tonalKey = 'high-key (bright/airy)';
+            breathType = 'Inhalation';
+        }
 
         let temp = 'neutral';
         if (avgR > avgB + 15) temp = 'warm / golden / amber';
@@ -178,8 +316,10 @@ async function analyzeImage(imagePath) {
             format: metadata.format,
             luminance,
             tonalKey,
+            breathType,
             colorTemperature: temp,
-            avgRGB: [Math.round(avgR), Math.round(avgG), Math.round(avgB)],
+            avgRGB: [avgR, avgG, avgB],
+            lab,
         };
     } catch {
         return null;
@@ -203,7 +343,6 @@ async function main() {
 
     const { frontmatter, entries } = parseGalleryMarkdown(mdPath);
 
-    // Analyze images referenced in markdown
     const sequencedImages = [];
     const quotes = [];
     let sequenceIndex = 1;
@@ -226,6 +365,20 @@ async function main() {
             });
         }
     }
+
+    // Pairwise transition analysis across current sequence
+    const transitions = [];
+    for (let i = 0; i < sequencedImages.length - 1; i++) {
+        const trans = calculateTransitionCost(sequencedImages[i], sequencedImages[i + 1]);
+        transitions.push({
+            from: sequencedImages[i].filename,
+            to: sequencedImages[i + 1].filename,
+            ...trans,
+        });
+    }
+
+    // Respiratory Rhythm (Inhalation / Exhalation)
+    const respiratory = analyzeRespiratoryRhythm(sequencedImages);
 
     // Scan directory for all image files to detect unreferenced outtakes
     const allFiles = fs.readdirSync(dir);
@@ -258,6 +411,8 @@ async function main() {
             totalOuttakes: outtakes.length,
             totalQuotes: quotes.length,
         },
+        respiratoryRhythm: respiratory,
+        transitions,
         images: sequencedImages,
         quotes,
         outtakes,
@@ -268,10 +423,10 @@ async function main() {
         return;
     }
 
-    // Human-readable formatted terminal output
+    // Formatted CLI report
     console.log(`\n======================================================================`);
     console.log(
-        `  GALLERY SEQUENCE INSPECTION: ${pageId.toUpperCase()} - "${outputData.gallery.title}"`
+        `  FRONTIER GALLERY SEQUENCE INSPECTION: ${pageId.toUpperCase()} - "${outputData.gallery.title}"`
     );
     console.log(`======================================================================`);
     console.log(`Directory:   ${outputData.gallery.directory}`);
@@ -280,10 +435,14 @@ async function main() {
         `Images:      ${outputData.gallery.totalImages} active | ${outtakes.length} outtakes`
     );
     console.log(`Quotes:      ${quotes.length} interludes`);
+    console.log(
+        `Respiratory: Rhythm Score: ${respiratory.rhythmScore}/100 (${respiratory.anomalies.length} cadence warnings)`
+    );
     console.log(`----------------------------------------------------------------------\n`);
 
-    console.log(`CURRENT SEQUENCE ORDER & VISUAL SIGNATURES:`);
-    for (const img of sequencedImages) {
+    console.log(`CURRENT SEQUENCE ORDER, CIELAB TONALITY & RESPIRATORY BREATH:`);
+    for (let i = 0; i < sequencedImages.length; i++) {
+        const img = sequencedImages[i];
         const a = img.analysis;
         if (!img.exists) {
             console.log(
@@ -294,24 +453,41 @@ async function main() {
 
         const orientBadge = a.orientation.toUpperCase().padEnd(9, ' ');
         const dimStr = `${a.width}x${a.height} (${a.aspectRatio})`.padEnd(17, ' ');
-        const lumStr = `Lum: ${String(a.luminance).padStart(3, ' ')} (${a.tonalKey})`.padEnd(
-            28,
-            ' '
-        );
-        const tempStr = `Temp: ${a.colorTemperature}`;
+        const breathBadge = `[${a.breathType}]`.padEnd(13, ' ');
+        const lumStr = `Lum: ${String(a.luminance).padStart(3, ' ')}`.padEnd(9, ' ');
+        const labStr = `Lab: (${a.lab.L}, ${a.lab.a}, ${a.lab.b})`.padEnd(25, ' ');
 
         console.log(
-            ` [${String(img.sequenceOrder).padStart(2, ' ')}] ${img.filename.padEnd(28, ' ')} | ${orientBadge} | ${dimStr} | ${lumStr} | ${tempStr}`
+            ` [${String(img.sequenceOrder).padStart(2, ' ')}] ${img.filename.padEnd(28, ' ')} | ${orientBadge} | ${dimStr} | ${breathBadge} | ${lumStr} | ${labStr}`
         );
+
         if (img.caption) {
             console.log(`      ↳ Caption: ${img.caption}`);
+        }
+
+        // Print transition delta to next image
+        if (i < transitions.length) {
+            const t = transitions[i];
+            console.log(
+                `      ↳ ⚡ Transition to #${i + 2}: ΔE: ${t.deltaE} (Color) | ΔLum: ${t.deltaLum} | Cost: ${t.totalCost}`
+            );
         }
 
         // Print quotes that appear after this image
         const matchingQuotes = quotes.filter((q) => q.afterImageIndex === img.sequenceOrder);
         for (const q of matchingQuotes) {
             const preview = q.content.replace(/\n/g, ' / ').slice(0, 75);
-            console.log(`      📜 [Interlude Quote]: "${preview}..."`);
+            console.log(`      📜 [Caesura Interlude]: "${preview}..."`);
+        }
+    }
+
+    if (respiratory.anomalies.length > 0) {
+        console.log(`\n----------------------------------------------------------------------`);
+        console.log(`RESPIRATORY RHYTHM WARNINGS:`);
+        for (const anom of respiratory.anomalies) {
+            console.log(
+                ` ⚠️ [Frame #${anom.index} - ${anom.filename}] ${anom.type}: ${anom.detail}`
+            );
         }
     }
 
@@ -322,7 +498,7 @@ async function main() {
             const a = out.analysis;
             if (a) {
                 console.log(
-                    ` • ${out.filename.padEnd(28, ' ')} | ${a.orientation.toUpperCase()} | ${a.width}x${a.height} | Lum: ${a.luminance} (${a.tonalKey})`
+                    ` • ${out.filename.padEnd(28, ' ')} | ${a.orientation.toUpperCase()} | ${a.width}x${a.height} | Lum: ${a.luminance} (${a.breathType})`
                 );
             } else {
                 console.log(` • ${out.filename}`);
@@ -332,7 +508,9 @@ async function main() {
     console.log(`\n======================================================================\n`);
 }
 
-main().catch((err) => {
-    console.error('Error inspecting gallery:', err);
-    process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    main().catch((err) => {
+        console.error('Error inspecting gallery:', err);
+        process.exit(1);
+    });
+}

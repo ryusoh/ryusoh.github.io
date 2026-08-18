@@ -23,7 +23,7 @@ describe('sequence skill automation script', () => {
         expect(fs.existsSync(INSPECT_SCRIPT)).toBe(true);
     });
 
-    test('inspect_gallery parses p5 gallery and returns structured JSON', () => {
+    test('inspect_gallery parses p5 gallery and returns structured JSON with frontier metrics', () => {
         const stdout = execFileSync('node', [INSPECT_SCRIPT, 'p5', '--json'], {
             cwd: REPO_ROOT,
             encoding: 'utf8',
@@ -36,16 +36,32 @@ describe('sequence skill automation script', () => {
         expect(data.gallery.totalImages).toBe(12);
         expect(data.gallery.totalQuotes).toBe(3);
 
+        // Frontier respiratory rhythm
+        expect(data).toHaveProperty('respiratoryRhythm');
+        expect(typeof data.respiratoryRhythm.rhythmScore).toBe('number');
+        expect(Array.isArray(data.respiratoryRhythm.sequence)).toBe(true);
+
+        // Frontier pairwise transitions
+        expect(data).toHaveProperty('transitions');
+        expect(data.transitions.length).toBe(11);
+        expect(data.transitions[0]).toHaveProperty('deltaE');
+        expect(data.transitions[0]).toHaveProperty('deltaLum');
+        expect(data.transitions[0]).toHaveProperty('totalCost');
+
+        // Images array
         expect(Array.isArray(data.images)).toBe(true);
         expect(data.images.length).toBe(12);
 
-        // Check first image analysis
+        // Check image analysis fields
         const firstImg = data.images[0];
         expect(firstImg.filename).toBe('DSCF9004-3.jpg');
         expect(firstImg.exists).toBe(true);
         expect(firstImg.analysis.aspectRatio).toBe('1.50');
         expect(firstImg.analysis.orientation).toBe('landscape');
         expect(typeof firstImg.analysis.luminance).toBe('number');
+        expect(firstImg.analysis).toHaveProperty('lab');
+        expect(typeof firstImg.analysis.lab.L).toBe('number');
+        expect(firstImg.analysis).toHaveProperty('breathType');
 
         // Check quotes
         expect(Array.isArray(data.quotes)).toBe(true);
@@ -58,9 +74,10 @@ describe('sequence skill automation script', () => {
             encoding: 'utf8',
         });
 
-        expect(stdout).toContain('GALLERY SEQUENCE INSPECTION: P5');
+        expect(stdout).toContain('FRONTIER GALLERY SEQUENCE INSPECTION: P5');
         expect(stdout).toContain('DSCF9004-3.jpg');
-        expect(stdout).toContain('Interlude Quote');
+        expect(stdout).toContain('Transition to #2');
+        expect(stdout).toContain('Caesura Interlude');
     });
 
     test('inspect_gallery fails gracefully for non-existent gallery', () => {

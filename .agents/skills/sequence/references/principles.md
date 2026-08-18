@@ -1,6 +1,6 @@
 # Masterclass in Photobook Editing, Street Photography & Visual Sequencing
 
-Sequencing is the invisible art that transforms a collection of strong individual frames into a cohesive, transcendent visual narrative. In the lineage of Robert Frank (_The Americans_), Henri Cartier-Bresson (_The Decisive Moment_), Alex Webb (_The Suffering of Light_), Daido Moriyama (_Farewell Photography_), Jason Eskenazi (_By the Duck Pond_), and Todd Hido (_House Hunting_), sequencing is musical composition with light, geometry, and psychology.
+Sequencing is the invisible art that transforms a collection of strong individual frames into a cohesive, transcendent visual narrative. In the lineage of Robert Frank (_The Americans_), Henri Cartier-Bresson (_The Decisive Moment_), Alex Webb (_The Suffering of Light_), Daido Moriyama (_Farewell Photography_), Jason Eskenazi (_By the Glow of the Jukebox_), Rinko Kawauchi (_Illuminance_), and Todd Hido (_House Hunting_), sequencing is musical composition with light, geometry, and psychology.
 
 ## 1. The Five Storytelling Archetypes
 
@@ -41,34 +41,41 @@ Different photographic series possess distinct conceptual DNA. A master editor s
 - **Diptych / Pair Logic**: Obstruction / hiding $\rightarrow$ convex mirror $\rightarrow$ off-camera flash craft $\rightarrow$ domestic reality.
 - **Best Suited For**: Self-portraits, behind-the-scenes diaries, photographer's memoirs (e.g. `p5`).
 
-## 2. Micro-Sequencing: The Dialogue Between Adjacent Frames
+## 2. Sergei Eisenstein's Five Tiers of Montage
 
-In both a two-page photobook spread and a vertical web scroll, images are never viewed in a vacuum. Every image inherits the emotional wake of the preceding image and sets up the next:
+In still photography and web photobooks, Eisensteinian montage dictates the collision between consecutive frames:
 
-1. **Formal & Geometric Echoes**:
-    - Vector continuity: A strong diagonal in frame A leading the eye toward the subject focal point in frame B.
-    - Structural rhymes: Circular shapes (convex mirrors, dials, helmets) responding to circular light sources or organic forms.
-    - Frames-within-frames echoing across successive scenes.
+1. **Metric Montage**: Governing the physical proportions and cadence of images (e.g. 3:2 Landscape anchors alternating with 2:3 Portrait tempo bursts, controlling scroll speed).
+2. **Rhythmic Montage**: Sequencing based on internal vector velocity (e.g. a subject looking or walking leftwards colliding with an opposite movement, creating kinetic balance).
+3. **Tonal Montage**: Organizing by emotional light value (e.g. harsh specular sun colliding with diffuse mist, or warm amber bleeding into cold cobalt).
+4. **Overtonal Montage**: The complex synthesis of metric, rhythmic, and tonal elements that produces an emergent psychological atmosphere.
+5. **Intellectual Montage**: Juxtaposing two visually disparate frames to generate an emergent socio-philosophical metaphor (e.g. a religious tract next to a police cruiser).
 
-2. **Harmonic Color Bridges**:
-    - Chromatic transitions: Shifting organically (e.g. warm golden dusk $\rightarrow$ crimson twilight $\rightarrow$ deep neon red $\rightarrow$ cobalt cyan $\rightarrow$ muted monochrome).
-    - A single vibrant accent color in a subdued frame picking up the primary color of the subsequent frame.
+## 3. Advanced Curation Mechanics
 
-3. **Spatial Scale & Perspective Modulation**:
-    - Wide environmental vista paired with tight, visceral macro/close-up.
-    - External public street perspective paired with intimate behind-the-scenes private perspective.
+### A. Alex & Rebecca Webb's "Slant Rhymes"
 
-4. **Gaze & Kinetic Momentum**:
-    - Gaze direction: A subject looking rightwards guides the viewer smoothly down to the next image.
-    - Direct confrontation (subject looking down the barrel of the lens) demands high focus; place it at dramatic climax points rather than back-to-back.
+- Adjacent images should never match literally. Instead, they share an **oblique resonance**—a diagonal shadow in frame $A$ answering a neon sign slant in frame $B$, or an intense yellow patch echoing an amber street reflection across scenes.
+- In multi-plane street photography, alternate between deep layered compositions and flat graphic surfaces to preserve visual breathing space.
 
-## 3. Text and Poetic Caesuras (The Musical Rest)
+### B. Rinko Kawauchi's Respiratory Rhythm (Inhalation / Exhalation)
 
-Poetic blockquotes and text fragments are not decorative captions — they are breathing spaces and conceptual pivots:
+- A sequence must breathe.
+- **Inhalation Frame**: High-key ($L \ge 135$), luminous, open, filled with daylight.
+- **Exhalation Frame**: Low-key ($L \le 75$), grounded, dense, dark, shadows.
+- Avoid more than two consecutive inhalations (causes visual hyperventilation) or three consecutive exhalations (induces visual fatigue).
 
-- **The Threshold Proverb**: Placed right after the opener or establishing act, it articulates the psychological premise of the series.
-- **The Mid-Movement Pivot**: Acts as a volta (turn) separating two distinct phases (e.g. Day observation $\rightarrow$ Night theater).
-- **The Meditative Breath**: Placed before the climactic sequence or coda, slowing down the viewer's scrolling tempo to prepare them for quiet contemplation.
+### C. Jason Eskenazi's Elliptical White Space
+
+- The primary storytelling power occurs in the **associative white space between images**.
+- Do not spoon-feed literal transitions; construct associative leaps that invite the viewer's subconscious to complete the narrative arch.
+
+### D. Poetic Blockquotes as Musical Caesuras
+
+- Poetic blockquotes are not decorative captions—they are musical rests in a score.
+- **Threshold Caesura**: Placed after the opener to articulate the psychological premise.
+- **Volta Caesura**: Placed at the dramatic turning point between major movements (e.g. Day observation $\rightarrow$ Night theater).
+- **Meditative Caesura**: Placed before the coda to slow the scrolling tempo.
 
 ## 4. The Editor's Golden Rule
 
