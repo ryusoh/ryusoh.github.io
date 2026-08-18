@@ -122,11 +122,28 @@ describe('sequence skill automation script', () => {
             expect(report).not.toMatch(
                 /\*\*Curatorial Rationale & Montage Dynamic\*\*:\s*@photo\.initiator/
             );
+
+            // TDD: Generated report must be 100% compliant with repo markdownlint rules
+            expect(() => {
+                execFileSync('npx', ['markdownlint', tempReportPath], {
+                    cwd: REPO_ROOT,
+                    stdio: 'pipe',
+                });
+            }).not.toThrow();
         } finally {
             if (fs.existsSync(tempReportPath)) {
                 fs.unlinkSync(tempReportPath);
             }
         }
+    });
+
+    test('inspect_gallery supports --help flag cleanly', () => {
+        const stdout = execFileSync('node', [INSPECT_SCRIPT, '--help'], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+        expect(stdout).toContain('Usage: node inspect_gallery.mjs <pageId>');
+        expect(stdout).toContain('--report [outputPath]');
     });
 
     test('inspect_gallery fails gracefully for non-existent gallery', () => {
@@ -137,5 +154,35 @@ describe('sequence skill automation script', () => {
                 stdio: ['pipe', 'pipe', 'pipe'],
             });
         }).toThrow();
+    });
+
+    test('inspect_gallery helper functions handle edge cases and null inputs safely', () => {
+        const testCode = `
+            import { calculateTransitionCost, calculatePairwiseTransitions, analyzeRespiratoryRhythm, deltaE } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+
+            if (deltaE(null, null) !== 0) throw new Error('deltaE null failed');
+            if (deltaE({ L: 50, a: 0, b: 0 }, null) !== 0) throw new Error('deltaE single null failed');
+
+            const safeCost = calculateTransitionCost(null, { analysis: null });
+            if (safeCost.totalCost !== 0 || safeCost.deltaE !== 0) throw new Error('calculateTransitionCost null failed');
+
+            const emptyTrans = calculatePairwiseTransitions([]);
+            if (!Array.isArray(emptyTrans) || emptyTrans.length !== 0) throw new Error('empty transitions failed');
+
+            const singleTrans = calculatePairwiseTransitions([{ filename: 'a.jpg' }]);
+            if (!Array.isArray(singleTrans) || singleTrans.length !== 0) throw new Error('single transitions failed');
+
+            const emptyResp = analyzeRespiratoryRhythm([]);
+            if (emptyResp.rhythmScore !== 100 || emptyResp.anomalies.length !== 0) throw new Error('empty respiratory failed');
+
+            console.log('EDGE_CASES_PASSED');
+        `;
+
+        const stdout = execFileSync('node', ['--input-type=module', '-e', testCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+
+        expect(stdout).toContain('EDGE_CASES_PASSED');
     });
 });
