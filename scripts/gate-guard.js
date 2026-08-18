@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 
 function git(repo, args) {
-    return execFileSync('git', args, { cwd: repo });
+    return execFileSync('git', args, { cwd: repo, stdio: ['pipe', 'pipe', 'pipe'] });
 }
 
 /** Return a hash of the worktree: status, tracked diff, untracked contents. */

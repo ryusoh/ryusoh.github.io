@@ -78,6 +78,7 @@ describe('coverage-rank', () => {
             execFileSync('node', [SCRIPT, '--summary', '-', ...args], {
                 input: JSON.stringify(SUMMARY),
                 encoding: 'utf8',
+                stdio: ['pipe', 'pipe', 'pipe'],
             });
 
         // The script reads from a file path; feed it a temp file via a fixture summary.
@@ -105,6 +106,7 @@ describe('coverage-rank', () => {
             try {
                 execFileSync('node', [SCRIPT, '--summary', 'does-not-exist.json'], {
                     encoding: 'utf8',
+                    stdio: ['pipe', 'pipe', 'pipe'],
                 });
             } catch (error) {
                 code = error.status;

@@ -93,6 +93,7 @@ describe('ga.js bootstrap', () => {
 
         // Remove window.console.warn
         const originalWarn = window.console.warn;
+        const stderrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
         // Use Object.defineProperty to ensure it's set even if it's normally read-only
         Object.defineProperty(window.console, 'warn', {
@@ -101,18 +102,21 @@ describe('ga.js bootstrap', () => {
             configurable: true,
         });
 
-        jest.resetModules();
-        expect(() => {
-            require('../../js/ga.js');
-        }).not.toThrow();
-
-        // Restore
-        Object.defineProperty(window.console, 'warn', {
-            value: originalWarn,
-            writable: true,
-            configurable: true,
-        });
-        delete window.ga;
+        try {
+            jest.resetModules();
+            expect(() => {
+                require('../../js/ga.js');
+            }).not.toThrow();
+        } finally {
+            stderrSpy.mockRestore();
+            // Restore
+            Object.defineProperty(window.console, 'warn', {
+                value: originalWarn,
+                writable: true,
+                configurable: true,
+            });
+            delete window.ga;
+        }
     });
 
     test('should do nothing if window.ga is not a function', () => {
