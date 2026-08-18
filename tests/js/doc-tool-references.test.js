@@ -13,9 +13,9 @@ const path = require('path');
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
 
-// Regex pattern to extract scripts/, tools/, or bin/ script paths from markdown text
+// Regex pattern to extract scripts/, tools/, bin/, or skill-scoped script paths from markdown text
 const SCRIPT_REF_PATTERN =
-    /(?:node\s+|python3\s+|bash\s+|sh\s+|`|\b)((?:scripts|tools|bin)\/[a-zA-Z0-9_\-/\.]+\.(?:js|mjs|cjs|py|sh|html|json|ya?ml))/g;
+    /(?:^|[\s`"'])((?:\.agents\/skills\/[a-zA-Z0-9_-]+\/)?(?:scripts|tools|bin)\/[a-zA-Z0-9_\-/\.]+\.(?:js|mjs|cjs|py|sh|html|json|ya?ml))/g;
 
 function collectMarkdownFiles(dir) {
     const results = [];
