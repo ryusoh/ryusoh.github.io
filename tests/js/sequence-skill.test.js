@@ -596,7 +596,10 @@ describe('sequence skill automation script', () => {
             const f3 = fs.readFileSync(expectedColorimetryPath, 'utf8');
 
             expect(f1).toContain('Figure 1: Photometric Luminance Waveform');
+            expect(f1).toContain('stroke="#2b5c8f"');
             expect(f2).toContain('Figure 2: Pairwise Hamiltonian Transition Tension');
+            expect(f2).toContain('Chromatic ΔE (45%)');
+            expect(f2).toContain('Montage shock (C = 50)');
             expect(f3).toContain('Figure 3: Colorimetric CIELAB Spectrum');
 
             // Strictly no emojis in SVGs or Report
@@ -610,5 +613,45 @@ describe('sequence skill automation script', () => {
                 fs.unlinkSync(tempReportPath);
             }
         }
+    });
+
+    test('generateColorimetrySpectrumSvg adaptively abbreviates dense sequences to avoid label overlap', () => {
+        const denseImages = Array.from({ length: 20 }, (_, idx) => ({
+            filename: `photo_${idx + 1}.jpg`,
+            analysis: {
+                luminance: 40 + idx * 5,
+                lab: { L: 35 + idx * 3, a: -5.2, b: 12.8 },
+                orientation: 'land',
+                aspectRatio: '1.50',
+                breathType:
+                    idx % 3 === 0 ? 'Inhalation' : idx % 3 === 1 ? 'Exhalation' : 'Grounding',
+                avgRGB: [80, 90, 100],
+            },
+        }));
+
+        const denseTestCode = `
+            import { generateColorimetrySpectrumSvg } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+            const svg = generateColorimetrySpectrumSvg({
+                gallery: { pageId: 'p4', title: 'Dense Gallery' },
+                images: ${JSON.stringify(denseImages)},
+            });
+            if (!svg.includes('[INH]') || !svg.includes('[EXH]') || !svg.includes('[GRD]')) {
+                throw new Error('Adaptive 3-letter abbreviations missing');
+            }
+            if (!svg.includes('Breath: [INH] Inhale · [EXH] Exhale · [GRD] Ground')) {
+                throw new Error('Header abbreviation legend missing');
+            }
+            // CIELAB a, b should be rounded to integers to prevent horizontal collision
+            if (!svg.includes('(-5, 13)')) {
+                throw new Error('Integer CIELAB rounding missing');
+            }
+            console.log('DENSE_SVG_PASSED');
+        `;
+
+        const stdout = execFileSync('node', ['--input-type=module', '-e', denseTestCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+        expect(stdout).toContain('DENSE_SVG_PASSED');
     });
 });

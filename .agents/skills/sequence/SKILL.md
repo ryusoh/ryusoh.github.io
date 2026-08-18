@@ -71,3 +71,26 @@ Present the curation plan and generate the dedicated Visual Sequence Report:
     - Exact Placement of Poetic Caesuras (Blockquotes) with structural rationale.
 5. **Proposed `index.md` Source**: Complete, publication-ready markdown content.
 6. **Actionable Next Steps**: Provide one-liner commands to write changes and rebuild the gallery with `make page ID=p<N>`.
+
+### Academic Visual Graphics Standard (IEEE / Nature Calibration)
+
+When generating SVG dashboards and visual reports, strictly adhere to IEEE / Nature publication standards:
+
+1. **Modular 3-Figure Architecture (1 Graphic Per File)**:
+    - `sequence-waveform.svg`: Figure 1 — Photometric Luminance Waveform $L^*(t) \in [0, 255]$ with shaded Inhalation/Exhalation zones and bounding-box-clamped poetic caesuras.
+    - `sequence-transitions.svg`: Figure 2 — Pairwise Hamiltonian Transition Tension Decomposition ($\Delta E$, $\Delta\text{Lum}$, $\Delta\text{Aspect}$) with inset legend card inside the upper-right spine.
+    - `sequence-colorimetry.svg`: Figure 3 — CIELAB Colorimetric Spectrum ($L^*, a^*, b^*$) with elongated $92\text{px}$ swatches and metric aspect cadence.
+2. **Academic Typography & Inward Ticks**:
+    - Serif font stack for titles, equations, and axis labels: `"Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif`.
+    - Tabular sans-serif for numbers: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif` (`font-variant-numeric: tabular-nums`).
+    - Razor-sharp spines (`0.85px`, `#0f172a`), inward ticks (`4.5px`, `#0f172a`), subtle grid (`#f1f5f9`).
+3. **Muted ColorBrewer / Nature Palettes**:
+    - Waveform / Chromatic tension ($\Delta E$): Academic Slate Navy (`#2b5c8f`).
+    - Luminance step ($\Delta\text{Lum}$): Sienna Ochre (`#c25925`).
+    - Aspect ratio shift ($\Delta\text{Aspect}$): Forest Jade (`#2a7e58`).
+    - Montage shock threshold ($C=50$): Crimson (`#991b1b`).
+    - Harmonic baseline threshold ($C=25$): Forest (`#15803d`).
+4. **Collision-Free Adaptive Geometry**:
+    - Figure 2 uses an Inset Legend inside the upper-right spine ($x \in [592, 732], y \in [40, 92]$), leaving the figure title clean and uncrowded.
+    - Figure 3 dynamically shortens breath tags when column slot width $< 55\text{px}$ (`[INH]`, `[EXH]`, `[GRD]`) and rounds CIELAB $(a^*, b^*)$ coordinates to integers to prevent label overlapping on dense galleries ($N \ge 16$).
+    - Zero emojis anywhere in graphics or formal reports.
