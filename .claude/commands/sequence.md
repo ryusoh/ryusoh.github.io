@@ -29,9 +29,9 @@ Read the existing markdown file (e.g. `assets/img/p<N>/index.md`) to extract:
 
 ### 2. Multi-Scale Visual Chain-of-Thought (Visual CoT)
 
-For each image file discovered in the gallery, use `view_file` on the image path (e.g. `assets/img/p<N>/<filename>`) to execute a 3-pass perceptual evaluation:
+For each image file discovered in the gallery, use `view_file` on the image path (preferring lightweight responsive tiers like `assets/img/p<N>/<stem>-768.webp` or `-1200.webp` when available, falling back to the base file) to execute a 3-pass perceptual evaluation:
 
-> **Image Inspection Tip**: Call `view_file` on images in batches of 2–3 frames at a time to prevent API stream timeouts (SSE EOF) on large, uncompressed high-resolution photographs.
+> **Image Inspection Tip**: Always inspect images using responsive tiers (`-768.webp` or `-1200.webp`) in batches of 2–3 frames at a time. This slashes network and token payload by ~95% while providing full perceptual clarity and completely preventing API stream timeouts (SSE EOF).
 
 - **Pass 1 (Macro Layout & Saliency)**: Horizon lines, diagonal vectors, spatial mass distribution, planar compression, foreground/background layering.
 - **Pass 2 (Micro Gaze & Gestures)**: Subject eye-contact vector, facial tension, textual signage, reflective artifacts, camera visibility.

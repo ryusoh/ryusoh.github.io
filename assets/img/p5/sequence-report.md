@@ -2,6 +2,8 @@
 
 > **Curation Archetype**: Polyphonic Street Symphony / Lyrical Arc
 >
+> **Sequence Status**: Validated (Existing sequence affirmed as optimal)
+>
 > **Hamiltonian Sequence Energy**: `318.1` (Avg Step Cost: `28.9`)
 >
 > **Respiratory Pacing Score**: `100/100` (3 Inhalations, 5 Exhalations, 4 Grounding)
@@ -14,7 +16,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [1/12] DSCF9004-3.jpg
 
-![DSCF9004-3.jpg](./DSCF9004-3.jpg)
+![DSCF9004-3.jpg](./DSCF9004-3-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -32,13 +34,14 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 > 💬 **[Poetic Caesura / Musical Rest]**
 >
-> *"A street photographer is an obsessive spectator who hates being looked at.  To turn the lens on oneself is either an accident of reflection or a mild confession."*
+> *A street photographer is an obsessive spectator who hates being looked at.*
+> *To turn the lens on oneself is either an accident of reflection or a mild confession.*
 
 ---
 
 ### [2/12] 2025-05-11-0020.JPG
 
-![@photo.initiator](./2025-05-11-0020.JPG)
+![@photo.initiator](./2025-05-11-0020-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -59,7 +62,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [3/12] DSCF8059.JPG
 
-![DSCF8059.JPG](./DSCF8059.JPG)
+![DSCF8059.JPG](./DSCF8059-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -79,7 +82,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [4/12] DSCF1557-3.JPG
 
-![DSCF1557-3.JPG](./DSCF1557-3.JPG)
+![DSCF1557-3.JPG](./DSCF1557-3-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -99,7 +102,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [5/12] DSCF5407-2.jpg
 
-![DSCF5407-2.jpg](./DSCF5407-2.jpg)
+![DSCF5407-2.jpg](./DSCF5407-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -117,13 +120,14 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 > 💬 **[Poetic Caesura / Musical Rest]**
 >
-> *"Photography by day is observation;   By night, it is theater."*
+> *Photography by day is observation;*
+> *By night, it is theater.*
 
 ---
 
 ### [6/12] DSCF8149-7.JPG
 
-![DSCF8149-7.JPG](./DSCF8149-7.JPG)
+![DSCF8149-7.JPG](./DSCF8149-7-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -143,7 +147,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [7/12] DSCF8231.JPG
 
-![DSCF8231.JPG](./DSCF8231.JPG)
+![DSCF8231.JPG](./DSCF8231-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -163,7 +167,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [8/12] DSCF0525.jpg
 
-![DSCF0525.jpg](./DSCF0525.jpg)
+![DSCF0525.jpg](./DSCF0525-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -183,7 +187,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [9/12] 849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG
 
-![849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG](./849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG)
+![849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG](./849BDEFE-8868-48A8-B31D-ADB58F0161022-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -203,7 +207,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [10/12] DSCF6274.JPG
 
-![DSCF6274.JPG](./DSCF6274.JPG)
+![DSCF6274.JPG](./DSCF6274-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -221,13 +225,19 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 > 💬 **[Poetic Caesura / Musical Rest]**
 >
-> *"Not known   Because not looked for   But heard, half heard   In the stillness   Between two waves of the sea      T. S. Eliot"*
+> *Not known*
+> *Because not looked for*
+> *But heard, half heard*
+> *In the stillness*
+> *Between two waves of the sea*
+>
+> — **T. S. Eliot**
 
 ---
 
 ### [11/12] IMG760.jpg
 
-![@photo.initiator](./IMG760.jpg)
+![@photo.initiator](./IMG760-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -248,7 +258,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 
 ### [12/12] DSCF9159.jpg
 
-![DSCF9159.jpg](./DSCF9159.jpg)
+![DSCF9159.jpg](./DSCF9159-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |

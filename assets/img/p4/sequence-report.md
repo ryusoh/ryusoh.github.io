@@ -16,7 +16,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [1/20] DSCF4250-3.jpg
 
-![DSCF4250-3.jpg](./DSCF4250-3.jpg)
+![DSCF4250-3.jpg](./DSCF4250-3-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -45,7 +45,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [2/20] DSCF4090.jpg
 
-![DSCF4090.jpg](./DSCF4090.jpg)
+![DSCF4090.jpg](./DSCF4090-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -65,7 +65,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [3/20] DSCF7212-2.jpg
 
-![DSCF7212-2.jpg](./DSCF7212-2.jpg)
+![DSCF7212-2.jpg](./DSCF7212-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -85,7 +85,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [4/20] DSCF1897-2.jpg
 
-![DSCF1897-2.jpg](./DSCF1897-2.jpg)
+![DSCF1897-2.jpg](./DSCF1897-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -105,7 +105,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [5/20] DSCF8552-6.jpg
 
-![DSCF8552-6.jpg](./DSCF8552-6.jpg)
+![DSCF8552-6.jpg](./DSCF8552-6-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -125,7 +125,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [6/20] DSCF5453-2.jpg
 
-![DSCF5453-2.jpg](./DSCF5453-2.jpg)
+![DSCF5453-2.jpg](./DSCF5453-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -145,7 +145,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [7/20] DSCF7352.jpg
 
-![DSCF7352.jpg](./DSCF7352.jpg)
+![DSCF7352.jpg](./DSCF7352-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -165,7 +165,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [8/20] 940E2644-C690-41F0-9898-0EFB79C69DC5.jpg
 
-![940E2644-C690-41F0-9898-0EFB79C69DC5.jpg](./940E2644-C690-41F0-9898-0EFB79C69DC5.jpg)
+![940E2644-C690-41F0-9898-0EFB79C69DC5.jpg](./940E2644-C690-41F0-9898-0EFB79C69DC5-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -185,7 +185,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [9/20] 18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg
 
-![18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg](./18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg)
+![18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg](./18F4C334-BD6B-4C91-8CD8-8615AD7ADF67-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -205,7 +205,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [10/20] DSCF9185.jpg
 
-![DSCF9185.jpg](./DSCF9185.jpg)
+![DSCF9185.jpg](./DSCF9185-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -225,7 +225,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [11/20] DSCF8631.jpg
 
-![DSCF8631.jpg](./DSCF8631.jpg)
+![DSCF8631.jpg](./DSCF8631-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -245,7 +245,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [12/20] DSCF0310-3.jpg
 
-![DSCF0310-3.jpg](./DSCF0310-3.jpg)
+![DSCF0310-3.jpg](./DSCF0310-3-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -265,7 +265,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [13/20] DSCF6872-5.jpg
 
-![DSCF6872-5.jpg](./DSCF6872-5.jpg)
+![DSCF6872-5.jpg](./DSCF6872-5-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -285,7 +285,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [14/20] DSCF9642-2.jpg
 
-![DSCF9642-2.jpg](./DSCF9642-2.jpg)
+![DSCF9642-2.jpg](./DSCF9642-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -305,7 +305,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [15/20] R0001059-4.jpg
 
-![R0001059-4.jpg](./R0001059-4.jpg)
+![R0001059-4.jpg](./R0001059-4-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -325,7 +325,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [16/20] DSCF4110-2.jpg
 
-![DSCF4110-2.jpg](./DSCF4110-2.jpg)
+![DSCF4110-2.jpg](./DSCF4110-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -345,7 +345,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [17/20] DSCF6250-6.jpg
 
-![DSCF6250-6.jpg](./DSCF6250-6.jpg)
+![DSCF6250-6.jpg](./DSCF6250-6-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -365,7 +365,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [18/20] DSCF1207-5.jpg
 
-![DSCF1207-5.jpg](./DSCF1207-5.jpg)
+![DSCF1207-5.jpg](./DSCF1207-5-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -385,7 +385,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [19/20] DSCF3446-2.jpg
 
-![DSCF3446-2.jpg](./DSCF3446-2.jpg)
+![DSCF3446-2.jpg](./DSCF3446-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |
@@ -405,7 +405,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 
 ### [20/20] DSCF0896-2.jpg
 
-![DSCF0896-2.jpg](./DSCF0896-2.jpg)
+![DSCF0896-2.jpg](./DSCF0896-2-768.webp)
 
 | Attribute | Value |
 | :--- | :--- |

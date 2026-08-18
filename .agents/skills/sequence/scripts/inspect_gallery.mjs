@@ -448,6 +448,28 @@ export async function inspectGallery(pageArg) {
 }
 
 /**
+ * Resolves the optimal lightweight preview image filename (e.g. -768.webp or -1200.webp)
+ * to keep Markdown report file size minimal and compatible with mobile/iOS webviews.
+ */
+export function resolvePreviewFilename(dir, baseFilename) {
+    if (!baseFilename) return baseFilename;
+    const { name: stem } = path.parse(baseFilename);
+    const candidates = [
+        `${stem}-768.webp`,
+        `${stem}-768.jpg`,
+        `${stem}-1200.webp`,
+        `${stem}-1200.jpg`,
+        baseFilename,
+    ];
+    for (const cand of candidates) {
+        if (fs.existsSync(path.join(dir, cand))) {
+            return cand;
+        }
+    }
+    return baseFilename;
+}
+
+/**
  * Generates a rich Markdown Visual Curation Report with embedded real images,
  * aesthetic/narrative rationale, and computed Hamiltonian metrics.
  *
@@ -529,10 +551,13 @@ export async function generateVisualReport(pageId, options = {}) {
         md += `*No active sequenced images found in this gallery.*\n\n`;
     }
 
+    const galleryDir = path.join(REPO_ROOT, 'assets', 'img', pageId);
+
     for (let i = 0; i < images.length; i++) {
         const img = images[i];
         const a = img.analysis;
-        const imgAbsPath = path.join(REPO_ROOT, 'assets', 'img', pageId, img.filename);
+        const previewFilename = resolvePreviewFilename(galleryDir, img.filename);
+        const imgAbsPath = path.join(galleryDir, previewFilename);
         const relImgPath = path.relative(path.dirname(outputPath), imgAbsPath);
         const imgEmbedUrl = relImgPath.startsWith('.') ? relImgPath : `./${relImgPath}`;
 
@@ -738,7 +763,8 @@ export async function generateVisualReport(pageId, options = {}) {
         md += `## 4. Unsequenced Candidates & Outtakes (${data.outtakes.length})\n\n`;
         for (const out of data.outtakes) {
             const a = out.analysis;
-            const imgAbsPath = path.join(REPO_ROOT, 'assets', 'img', pageId, out.filename);
+            const previewFilename = resolvePreviewFilename(galleryDir, out.filename);
+            const imgAbsPath = path.join(galleryDir, previewFilename);
             const relImgPath = path.relative(path.dirname(outputPath), imgAbsPath);
             const imgEmbedUrl = relImgPath.startsWith('.') ? relImgPath : `./${relImgPath}`;
             md += `#### ✕ ${out.filename}\n\n`;

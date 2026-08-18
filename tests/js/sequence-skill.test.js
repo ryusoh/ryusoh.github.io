@@ -105,7 +105,7 @@ describe('sequence skill automation script', () => {
             expect(report).toContain('# Visual Curation & Sequence Report');
             expect(report).toContain('Hamiltonian Sequence Energy');
             expect(report).toContain('Respiratory Pacing Score');
-            expect(report).toContain('![DSCF9004-3.jpg](./DSCF9004-3.jpg');
+            expect(report).toContain('![DSCF9004-3.jpg](./DSCF9004-3-768.webp)');
             expect(report).toContain('Framing & Aspect');
             expect(report).toContain('Tonality & Breath');
             expect(report).toContain('Poetic Caesura');
@@ -385,7 +385,8 @@ describe('sequence skill automation script', () => {
 
     test('inspect_gallery helper functions handle edge cases and null inputs safely', () => {
         const testCode = `
-            import { calculateTransitionCost, calculatePairwiseTransitions, analyzeRespiratoryRhythm, deltaE } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+            import { calculateTransitionCost, calculatePairwiseTransitions, analyzeRespiratoryRhythm, deltaE, resolvePreviewFilename } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+            import path from 'path';
 
             if (deltaE(null, null) !== 0) throw new Error('deltaE null failed');
             if (deltaE({ L: 50, a: 0, b: 0 }, null) !== 0) throw new Error('deltaE single null failed');
@@ -401,6 +402,14 @@ describe('sequence skill automation script', () => {
 
             const emptyResp = analyzeRespiratoryRhythm([]);
             if (emptyResp.rhythmScore !== 100 || emptyResp.anomalies.length !== 0) throw new Error('empty respiratory failed');
+
+            // 6. resolvePreviewFilename candidate resolution
+            const p5Dir = path.resolve(process.cwd(), 'assets', 'img', 'p5');
+            const resolvedWebp = resolvePreviewFilename(p5Dir, 'DSCF9004-3.jpg');
+            if (resolvedWebp !== 'DSCF9004-3-768.webp') throw new Error(\`resolvePreviewFilename failed: expected DSCF9004-3-768.webp, got \${resolvedWebp}\`);
+
+            const fallbackNonExistent = resolvePreviewFilename('/tmp', 'nonexistent.jpg');
+            if (fallbackNonExistent !== 'nonexistent.jpg') throw new Error(\`resolvePreviewFilename fallback failed: got \${fallbackNonExistent}\`);
 
             console.log('EDGE_CASES_PASSED');
         `;
