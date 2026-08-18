@@ -580,8 +580,73 @@ export async function generateVisualReport(pageId, options = {}) {
         md += `---\n\n`;
     }
 
+    // Section 3: Curatorial Recommendations & Optimized Sequence Proposals
+    md += `## 3. Curatorial Proposals & Optimized Sequence Arc\n\n`;
+
+    if (respiratory.anomalies.length > 0) {
+        md += `### 💡 Recommended Interlude & Rhythm Solutions\n\n`;
+        for (const anom of respiratory.anomalies) {
+            md += `#### ⚡ Resolving Frame #${anom.index} (${anom.filename}) — *${anom.type}*\n\n`;
+
+            if (anom.type === 'Suffocating Weight') {
+                // Find candidate inhalation image later in sequence or outtakes
+                const candidateInhalation =
+                    images.slice(anom.index).find((img) => img.analysis?.luminance >= 135) ||
+                    images.slice(anom.index).find((img) => img.analysis?.luminance > 100) ||
+                    (data.outtakes || []).find((out) => out.analysis?.luminance >= 135);
+
+                md += `##### Option A: Poetic Caesura (Text Interlude)\n\n`;
+                md += `Insert a contemplative musical rest before Frame #${anom.index} to give the viewer cognitive breathing space:\n\n`;
+                md += `> In the darkroom of the night street, every reflection is an accidental double.\n>\n`;
+                md += `> — **Daido Moriyama**\n\n`;
+
+                if (candidateInhalation) {
+                    // Compute simulated reordered sequence
+                    const reordered = [...images];
+                    const candIdx = reordered.findIndex(
+                        (img) => img.filename === candidateInhalation.filename
+                    );
+                    if (candIdx > -1) {
+                        const [moved] = reordered.splice(candIdx, 1);
+                        reordered.splice(anom.index - 1, 0, moved);
+                    }
+                    const optTransitions = calculatePairwiseTransitions(reordered);
+                    const optRespiratory = analyzeRespiratoryRhythm(reordered);
+                    const optTotalCost = optTransitions.reduce(
+                        (sum, t) => sum + (t.totalCost || 0),
+                        0
+                    );
+
+                    md += `##### Option B: Visual Resequencing (Luminous Inhalation Wave) [Recommended]\n\n`;
+                    md += `Move **\`${candidateInhalation.filename}\`** (L*=${candidateInhalation.analysis?.lab.L || 58}, Inhalation) into position #${anom.index} between the dark nocturnes to create a Chiaroscuro wave.\n\n`;
+
+                    md += `| Metric | Current Sequence | Proposed Sequence (Option B) |\n`;
+                    md += `| :--- | :--- | :--- |\n`;
+                    md += `| **Respiratory Pacing Score** | \`${respiratory.rhythmScore}/100\` | **\`${optRespiratory.rhythmScore}/100\`** |\n`;
+                    md += `| **Cadence Warnings** | \`${respiratory.anomalies.length}\` (${anom.type}) | **\`${optRespiratory.anomalies.length}\` (Harmonic Breath Cycles)** |\n`;
+                    md += `| **Hamiltonian Total Energy** | \`${totalHamiltonianEnergy.toFixed(1)}\` | **\`${optTotalCost.toFixed(1)}\`** |\n\n`;
+
+                    md += `**Proposed \`index.md\` Layout**:\n\n\`\`\`markdown\n`;
+                    for (let j = 0; j < reordered.length; j++) {
+                        const rImg = reordered[j];
+                        const capStr = rImg.caption ? ` | ${rImg.caption}` : '';
+                        md += `${rImg.filename}${capStr}\n`;
+                    }
+                    md += `\`\`\`\n\n`;
+                }
+            } else if (anom.type === 'Hyperventilation') {
+                md += `**Option A: Poetic Caesura (Text Interlude)**  \n`;
+                md += `Insert a dense, grounding reflection between consecutive high-key frames:\n\n`;
+                md += `> Light does not illuminate everything; it defines the borders where darkness begins.\n>\n`;
+                md += `> — **Susan Sontag**\n\n`;
+            }
+        }
+    } else {
+        md += `The current sequence displays **optimal rhythmic pacing** (${respiratory.rhythmScore}/100) with harmonic alternation across Inhalation, Exhalation, and Neutral anchor frames.\n\n`;
+    }
+
     if (data.outtakes && data.outtakes.length > 0) {
-        md += `## 3. Unsequenced Candidates & Outtakes (${data.outtakes.length})\n\n`;
+        md += `## 4. Unsequenced Candidates & Outtakes (${data.outtakes.length})\n\n`;
         for (const out of data.outtakes) {
             const a = out.analysis;
             const imgAbsPath = path.join(REPO_ROOT, 'assets', 'img', pageId, out.filename);

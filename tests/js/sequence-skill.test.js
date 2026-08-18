@@ -123,6 +123,11 @@ describe('sequence skill automation script', () => {
                 /\*\*Curatorial Rationale & Montage Dynamic\*\*:\s*@photo\.initiator/
             );
 
+            // TDD: Curatorial Proposals & Interlude Recommendations
+            expect(report).toContain('Curatorial Proposals & Optimized Sequence Arc');
+            expect(report).toContain('Recommended Interlude & Rhythm Solutions');
+            expect(report).toContain('Proposed Sequence (Option B)');
+
             // TDD: Generated report must be 100% compliant with repo markdownlint rules
             expect(() => {
                 execFileSync('npx', ['markdownlint', tempReportPath], {
