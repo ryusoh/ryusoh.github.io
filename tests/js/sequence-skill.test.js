@@ -123,12 +123,58 @@ describe('sequence skill automation script', () => {
                 /\*\*Curatorial Rationale & Montage Dynamic\*\*:\s*@photo\.initiator/
             );
 
-            // TDD: Curatorial Proposals & Interlude Recommendations
+            // TDD: Curatorial Proposals & Interlude Recommendations (optimal sequence)
             expect(report).toContain('Curatorial Proposals & Optimized Sequence Arc');
-            expect(report).toContain('Recommended Interlude & Rhythm Solutions');
-            expect(report).toContain('Proposed Sequence (Option B)');
+            expect(report).toContain('optimal rhythmic pacing');
 
             // TDD: Generated report must be 100% compliant with repo markdownlint rules
+            expect(() => {
+                execFileSync('npx', ['markdownlint', tempReportPath], {
+                    cwd: REPO_ROOT,
+                    stdio: 'pipe',
+                });
+            }).not.toThrow();
+        } finally {
+            if (fs.existsSync(tempReportPath)) {
+                fs.unlinkSync(tempReportPath);
+            }
+        }
+    });
+
+    test('generateVisualReport generates interlude proposals when sequence anomalies exist', () => {
+        const tempReportPath = path.join(REPO_ROOT, 'assets', 'img', 'p5', 'test-anom-report.md');
+        try {
+            // Un-optimized sequence with 3 consecutive dark frames to trigger Suffocating Weight
+            const unoptimized = [
+                'DSCF9004-3.jpg',
+                'DSCF8149-7.JPG',
+                'DSCF8231.JPG',
+                '849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG',
+                'DSCF0525.jpg',
+            ];
+
+            const script = `
+                import { generateVisualReport } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+                const res = await generateVisualReport('p5', {
+                    outputPath: ${JSON.stringify(tempReportPath)},
+                    sequenceOverride: ${JSON.stringify(unoptimized)}
+                });
+            `;
+
+            execFileSync('node', ['--input-type=module', '-e', script], {
+                cwd: REPO_ROOT,
+                encoding: 'utf8',
+            });
+
+            expect(fs.existsSync(tempReportPath)).toBe(true);
+            const report = fs.readFileSync(tempReportPath, 'utf8');
+
+            expect(report).toContain('Recommended Interlude & Rhythm Solutions');
+            expect(report).toContain('Poetic Caesura (Text Interlude)');
+            expect(report).toContain('Visual Resequencing (Luminous Inhalation Wave)');
+            expect(report).toContain('Proposed Sequence (Option B)');
+
+            // Must also be 100% markdownlint compliant
             expect(() => {
                 execFileSync('npx', ['markdownlint', tempReportPath], {
                     cwd: REPO_ROOT,

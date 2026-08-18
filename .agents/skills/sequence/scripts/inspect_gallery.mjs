@@ -595,7 +595,7 @@ export async function generateVisualReport(pageId, options = {}) {
                     images.slice(anom.index).find((img) => img.analysis?.luminance > 100) ||
                     (data.outtakes || []).find((out) => out.analysis?.luminance >= 135);
 
-                md += `##### Option A: Poetic Caesura (Text Interlude)\n\n`;
+                md += `##### Option A (Frame #${anom.index}): Poetic Caesura (Text Interlude)\n\n`;
                 md += `Insert a contemplative musical rest before Frame #${anom.index} to give the viewer cognitive breathing space:\n\n`;
                 md += `> In the darkroom of the night street, every reflection is an accidental double.\n>\n`;
                 md += `> — **Daido Moriyama**\n\n`;
@@ -617,7 +617,7 @@ export async function generateVisualReport(pageId, options = {}) {
                         0
                     );
 
-                    md += `##### Option B: Visual Resequencing (Luminous Inhalation Wave) [Recommended]\n\n`;
+                    md += `##### Option B (Frame #${anom.index}): Visual Resequencing (Luminous Inhalation Wave) [Recommended]\n\n`;
                     md += `Move **\`${candidateInhalation.filename}\`** (L*=${candidateInhalation.analysis?.lab.L || 58}, Inhalation) into position #${anom.index} between the dark nocturnes to create a Chiaroscuro wave.\n\n`;
 
                     md += `| Metric | Current Sequence | Proposed Sequence (Option B) |\n`;
@@ -635,7 +635,7 @@ export async function generateVisualReport(pageId, options = {}) {
                     md += `\`\`\`\n\n`;
                 }
             } else if (anom.type === 'Hyperventilation') {
-                md += `**Option A: Poetic Caesura (Text Interlude)**  \n`;
+                md += `##### Option A (Frame #${anom.index}): Poetic Caesura (Text Interlude)\n\n`;
                 md += `Insert a dense, grounding reflection between consecutive high-key frames:\n\n`;
                 md += `> Light does not illuminate everything; it defines the borders where darkness begins.\n>\n`;
                 md += `> — **Susan Sontag**\n\n`;
