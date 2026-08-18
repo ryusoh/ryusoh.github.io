@@ -280,7 +280,7 @@ node .agents/skills/sequence/scripts/inspect_gallery.mjs p5
 node .agents/skills/sequence/scripts/inspect_gallery.mjs p5 --json
 
 # 3. Generate rich Visual Sequence Report (assets/img/pN/sequence-report.md)
-# Embeds actual photos via file:// links, Hamiltonian step energy costs, and curatorial rationale
+# Embeds actual photos via relative Markdown links, CIELAB L*a*b* & ΔE₇₆ step costs, and curatorial rationale
 node .agents/skills/sequence/scripts/inspect_gallery.mjs p5 --report
 ```
 
