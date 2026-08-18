@@ -8,9 +8,33 @@
 >
 > **Respiratory Pacing Score**: `100/100` (3 Inhalations, 2 Exhalations, 15 Grounding)
 
-## 1. Executive Curatorial Architecture
+## 1. Executive Curatorial & Quantitative Architecture
 
-This report visually illustrates the recommended image sequence for **p4**, embedding high-resolution photographs directly in markdown alongside technical colorimetry (CIELAB L*a*b*, ΔE₇₆), respiratory pacing waveforms, and multi-agent aesthetic rationale.
+This report quantitatively evaluates the visual narrative arc for **p4**, combining photometric colorimetry (CIELAB L*a*b*, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
+
+### 1.1 Photometric Respiratory Waveform
+
+The respiratory luminance waveform maps the photometric breathing rhythm of the essay, balancing luminous expansions with low-key chiaroscuro grounding anchors.
+
+![Photometric Respiratory Waveform](./sequence-waveform.svg)
+
+**Figure 1**: Photometric Luminance Waveform `L*(t) ∈ [0, 255]` and Respiratory Rhythm. Shaded regions indicate Inhalation (`L* >= 135`, luminous expansiveness) and Exhalation (`L* <= 75`, chiaroscuro grounding) zones. Vertical dashed lines mark poetic caesuras.
+
+### 1.2 Hamiltonian Pairwise Transition Tension
+
+Pairwise transition energy measures visual friction and cognitive momentum between adjacent frames, decomposed into chromatic distance (ΔE₇₆, 45%), luminance contrast (ΔLum, 35%), and geometric aspect shift (ΔAspect, 20%).
+
+![Hamiltonian Pairwise Transition Tension](./sequence-transitions.svg)
+
+**Figure 2**: Pairwise step cost `C(i, i+1)` decomposed into chromatic, luminance, and aspect variance components. Dashed reference lines define harmonic baseline (`C <= 25`) and montage shock (`C >= 50`) thresholds.
+
+### 1.3 CIELAB Colorimetric Progression & Spatial Cadence
+
+The chromatic spectrum profile charts the physical color evolution across sequential frames alongside metric aspect ratio and spatial framing cadence.
+
+![CIELAB Colorimetric Progression](./sequence-colorimetry.svg)
+
+**Figure 3**: Sequential colorimetric profile detailing mean sRGB swatches, CIELAB coordinates (`L*, a*, b*`), aspect ratio, orientation (L/P), and breath type.
 
 ## 2. Visual Sequence Journey
 
@@ -32,7 +56,7 @@ This report visually illustrates the recommended image sequence for **p4**, embe
 - *Composition & Gaze Vectors*: Central vertical mass of the white poster bordered by two grasping hands, framed by the rigid matrix of portrait tiles behind.
 - *Transition Dynamic*: Direct bridge into the Threshold Caesura (Mathurin Régnier's high-noon lantern), leading to the cool, muted observation of the zoo enclosure.
 
-> 💬 **[Poetic Caesura / Musical Rest]**
+> **[Poetic Caesura: Musical Rest]**
 >
 > *A hundred and a hundred times*
 > *Have I taken up my lantern*

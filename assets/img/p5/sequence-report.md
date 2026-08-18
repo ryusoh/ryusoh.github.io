@@ -8,9 +8,33 @@
 >
 > **Respiratory Pacing Score**: `100/100` (3 Inhalations, 5 Exhalations, 4 Grounding)
 
-## 1. Executive Curatorial Architecture
+## 1. Executive Curatorial & Quantitative Architecture
 
-This report visually illustrates the recommended image sequence for **p5**, embedding high-resolution photographs directly in markdown alongside technical colorimetry (CIELAB L*a*b*, ΔE₇₆), respiratory pacing waveforms, and multi-agent aesthetic rationale.
+This report quantitatively evaluates the visual narrative arc for **p5**, combining photometric colorimetry (CIELAB L*a*b*, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
+
+### 1.1 Photometric Respiratory Waveform
+
+The respiratory luminance waveform maps the photometric breathing rhythm of the essay, balancing luminous expansions with low-key chiaroscuro grounding anchors.
+
+![Photometric Respiratory Waveform](./sequence-waveform.svg)
+
+**Figure 1**: Photometric Luminance Waveform `L*(t) ∈ [0, 255]` and Respiratory Rhythm. Shaded regions indicate Inhalation (`L* >= 135`, luminous expansiveness) and Exhalation (`L* <= 75`, chiaroscuro grounding) zones. Vertical dashed lines mark poetic caesuras.
+
+### 1.2 Hamiltonian Pairwise Transition Tension
+
+Pairwise transition energy measures visual friction and cognitive momentum between adjacent frames, decomposed into chromatic distance (ΔE₇₆, 45%), luminance contrast (ΔLum, 35%), and geometric aspect shift (ΔAspect, 20%).
+
+![Hamiltonian Pairwise Transition Tension](./sequence-transitions.svg)
+
+**Figure 2**: Pairwise step cost `C(i, i+1)` decomposed into chromatic, luminance, and aspect variance components. Dashed reference lines define harmonic baseline (`C <= 25`) and montage shock (`C >= 50`) thresholds.
+
+### 1.3 CIELAB Colorimetric Progression & Spatial Cadence
+
+The chromatic spectrum profile charts the physical color evolution across sequential frames alongside metric aspect ratio and spatial framing cadence.
+
+![CIELAB Colorimetric Progression](./sequence-colorimetry.svg)
+
+**Figure 3**: Sequential colorimetric profile detailing mean sRGB swatches, CIELAB coordinates (`L*, a*, b*`), aspect ratio, orientation (L/P), and breath type.
 
 ## 2. Visual Sequence Journey
 
@@ -32,7 +56,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 - *Composition & Gaze Vectors*: Centered, inward-collapsing hand gesture creating a closed psychological container.
 - *Transition Dynamic*: High-contrast jump from low-key interior grain into bright daylight public space.
 
-> 💬 **[Poetic Caesura / Musical Rest]**
+> **[Poetic Caesura: Musical Rest]**
 >
 > *A street photographer is an obsessive spectator who hates being looked at.*
 > *To turn the lens on oneself is either an accident of reflection or a mild confession.*
@@ -118,7 +142,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 - *Composition & Gaze Vectors*: Diagonal dispersion of raindrops scattering the light.
 - *Transition Dynamic*: Threshold transition from daytime observation to nocturnal theater.
 
-> 💬 **[Poetic Caesura / Musical Rest]**
+> **[Poetic Caesura: Musical Rest]**
 >
 > *Photography by day is observation;*
 > *By night, it is theater.*
@@ -223,7 +247,7 @@ This report visually illustrates the recommended image sequence for **p5**, embe
 - *Composition & Gaze Vectors*: Striking diagonal tungsten light beam cutting across the ceiling directly into the photographer.
 - *Transition Dynamic*: Transition from staged mechanics to raw, spontaneous street interaction.
 
-> 💬 **[Poetic Caesura / Musical Rest]**
+> **[Poetic Caesura: Musical Rest]**
 >
 > *Not known*
 > *Because not looked for*

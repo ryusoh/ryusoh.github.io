@@ -421,4 +421,194 @@ describe('sequence skill automation script', () => {
 
         expect(stdout).toContain('EDGE_CASES_PASSED');
     });
+
+    test('generateSequenceChartsSvg generates formal, technical SVG dashboard without emojis', () => {
+        const testCode = `
+            import {
+                generateSequenceChartsSvg,
+                generateLuminanceWaveformSvg,
+                generateTransitionTensionSvg,
+                generateColorimetrySpectrumSvg,
+                escapeXml
+            } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+
+            // 1. Test escapeXml
+            if (escapeXml('<hello & "world">') !== '&lt;hello &amp; &quot;world&quot;&gt;') {
+                throw new Error('escapeXml failed');
+            }
+
+            // 2. Generate SVG for mock dataset
+            const mockImages = [
+                {
+                    filename: '1.jpg',
+                    analysis: {
+                        luminance: 68,
+                        aspectRatio: '1.50',
+                        orientation: 'landscape',
+                        avgRGB: [40, 45, 50],
+                        lab: { L: 28.6, a: -1.0, b: 0.3 },
+                        breathType: 'Exhalation',
+                    },
+                },
+                {
+                    filename: '2.jpg',
+                    analysis: {
+                        luminance: 161,
+                        aspectRatio: '1.50',
+                        orientation: 'landscape',
+                        avgRGB: [160, 165, 170],
+                        lab: { L: 66.2, a: 4.0, b: 7.9 },
+                        breathType: 'Inhalation',
+                    },
+                },
+            ];
+
+            const mockTransitions = [
+                {
+                    from: '1.jpg',
+                    to: '2.jpg',
+                    deltaE: 38.62,
+                    deltaLum: 93,
+                    deltaAspect: 0,
+                    totalCost: 34.7,
+                    chromaticComponent: 21.7,
+                    lumComponent: 12.8,
+                    aspectComponent: 0,
+                },
+            ];
+
+            const mockResp = {
+                rhythmScore: 100,
+                inhalations: 1,
+                exhalations: 1,
+                neutrals: 0,
+                anomalies: [],
+            };
+
+            const mockQuotes = [{ afterImageIndex: 1, content: 'Test caesura' }];
+
+            // Test modular generators
+            const f1Svg = generateLuminanceWaveformSvg({
+                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                images: mockImages,
+                respiratory: mockResp,
+                quotes: mockQuotes,
+            });
+            if (!f1Svg.includes('Figure 1: Photometric Luminance Waveform') || !f1Svg.includes('Inhalation (L* ≥ 135)')) {
+                throw new Error('generateLuminanceWaveformSvg failed');
+            }
+
+            const f2Svg = generateTransitionTensionSvg({
+                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                transitions: mockTransitions,
+            });
+            if (!f2Svg.includes('Figure 2: Pairwise Hamiltonian Transition Tension') || !f2Svg.includes('Chromatic ΔE (45%)')) {
+                throw new Error('generateTransitionTensionSvg failed');
+            }
+
+            const f3Svg = generateColorimetrySpectrumSvg({
+                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                images: mockImages,
+            });
+            if (!f3Svg.includes('Figure 3: Colorimetric CIELAB Spectrum') || !f3Svg.includes('rgb(40, 45, 50)')) {
+                throw new Error('generateColorimetrySpectrumSvg failed');
+            }
+
+            const svg = generateSequenceChartsSvg({
+                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                images: mockImages,
+                transitions: mockTransitions,
+                respiratory: mockResp,
+                quotes: mockQuotes,
+                archetype: 'Polyphonic Street Symphony',
+            });
+
+            // Must be valid SVG structure
+            if (!svg.startsWith('<svg') || !svg.trim().endsWith('</svg>')) {
+                throw new Error('SVG root tags missing');
+            }
+
+            // Must NOT contain any emojis (strict formal technical requirement)
+            const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+            if (emojiRegex.test(svg) || emojiRegex.test(f1Svg) || emojiRegex.test(f2Svg) || emojiRegex.test(f3Svg)) {
+                throw new Error('SVG contains forbidden emoji characters');
+            }
+
+            console.log('SVG_DASHBOARD_PASSED');
+        `;
+
+        const stdout = execFileSync('node', ['--input-type=module', '-e', testCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+
+        expect(stdout).toContain('SVG_DASHBOARD_PASSED');
+    });
+
+    test('inspect_gallery --report writes modular SVGs alongside report', () => {
+        const tempReportPath = path.join(REPO_ROOT, 'assets', 'img', 'p5', 'test-chart-report.md');
+        const expectedWaveformPath = path.join(
+            REPO_ROOT,
+            'assets',
+            'img',
+            'p5',
+            'sequence-waveform.svg'
+        );
+        const expectedTransitionsPath = path.join(
+            REPO_ROOT,
+            'assets',
+            'img',
+            'p5',
+            'sequence-transitions.svg'
+        );
+        const expectedColorimetryPath = path.join(
+            REPO_ROOT,
+            'assets',
+            'img',
+            'p5',
+            'sequence-colorimetry.svg'
+        );
+
+        try {
+            execFileSync('node', [INSPECT_SCRIPT, 'p5', '--report', tempReportPath], {
+                cwd: REPO_ROOT,
+                encoding: 'utf8',
+            });
+
+            expect(fs.existsSync(tempReportPath)).toBe(true);
+            expect(fs.existsSync(expectedWaveformPath)).toBe(true);
+            expect(fs.existsSync(expectedTransitionsPath)).toBe(true);
+            expect(fs.existsSync(expectedColorimetryPath)).toBe(true);
+
+            const report = fs.readFileSync(tempReportPath, 'utf8');
+            expect(report).toContain(
+                '![Photometric Respiratory Waveform](./sequence-waveform.svg)'
+            );
+            expect(report).toContain(
+                '![Hamiltonian Pairwise Transition Tension](./sequence-transitions.svg)'
+            );
+            expect(report).toContain(
+                '![CIELAB Colorimetric Progression](./sequence-colorimetry.svg)'
+            );
+
+            const f1 = fs.readFileSync(expectedWaveformPath, 'utf8');
+            const f2 = fs.readFileSync(expectedTransitionsPath, 'utf8');
+            const f3 = fs.readFileSync(expectedColorimetryPath, 'utf8');
+
+            expect(f1).toContain('Figure 1: Photometric Luminance Waveform');
+            expect(f2).toContain('Figure 2: Pairwise Hamiltonian Transition Tension');
+            expect(f3).toContain('Figure 3: Colorimetric CIELAB Spectrum');
+
+            // Strictly no emojis in SVGs or Report
+            const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+            expect(emojiRegex.test(f1)).toBe(false);
+            expect(emojiRegex.test(f2)).toBe(false);
+            expect(emojiRegex.test(f3)).toBe(false);
+            expect(emojiRegex.test(report)).toBe(false);
+        } finally {
+            if (fs.existsSync(tempReportPath)) {
+                fs.unlinkSync(tempReportPath);
+            }
+        }
+    });
 });
