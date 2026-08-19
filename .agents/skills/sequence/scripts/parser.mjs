@@ -159,7 +159,9 @@ export async function analyzeImage(imagePath) {
     try {
         const image = sharp(imagePath);
         const metadata = await image.metadata();
-        const stats = await image.stats();
+        // Downscale before stats() so colorimetry is computed on a tiny thumbnail
+        // instead of the full-resolution file. Width/height remain original.
+        const stats = await image.clone().resize(64, 64, { fit: 'inside' }).stats();
 
         const width = metadata.width || 0;
         const height = metadata.height || 0;
