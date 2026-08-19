@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -7,6 +7,7 @@ help:
 	@echo "  hooks         Install pre-commit git hooks (if available)"
 	@echo "  precommit     Run pre-commit on all files"
 	@echo "  precommit-fix Run pre-commit auto-fixes on all files"
+	@echo "  gate          CI parity: check + test, no auto-fix/stage"
 	@echo "  update-hooks  pre-commit autoupdate for hook repos"
 	@echo "  fmt-check     Run Prettier in check mode"
 	@echo "  fmt           Apply Prettier formatting"
@@ -68,6 +69,12 @@ precommit-fix: hooks sync-check
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
 	fi
+
+# CI parity without auto-fixes or `git add -u`. Faster iteration than
+# precommit-fix because it skips the pre-commit hooks (including the slow
+# jest-related pass) and does not stage anything. Use this while editing;
+# run precommit-fix once before opening a PR.
+gate: check test
 
 # .claude/commands/ is generated from .agents/skills/ (the canonical source) by
 # tools/sync_commands.py. Fail if regeneration is not a no-op (content hash of

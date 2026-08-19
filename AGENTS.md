@@ -137,6 +137,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Need                                               | Command                                  |
 | -------------------------------------------------- | ---------------------------------------- |
 | Full gate (format + lint + type + Jest + coverage) | `make precommit-fix`                     |
+| CI parity without auto-fix/stage                   | `make gate`                              |
 | Format-check + lint + type only (quick CI parity)  | `make check`                             |
 | Auto-fix format + lint                             | `make fix`                               |
 | Full Jest suite + coverage report                  | `make test`                              |
@@ -153,8 +154,9 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Build responsive AVIF/WebP gallery tiers           | `make images`                            |
 | Generate ThumbHash blur-up placeholders            | `make thumbhashes`                       |
 
-- Use scoped `npx jest <file>` for the tight edit→verify loop; run
-  `make precommit-fix` before opening the PR.
+- Use scoped `npx jest <file>` for the tight edit→verify loop; use
+  `make gate` for a faster CI-parity check (check + test, no auto-fix/stage).
+  Run `make precommit-fix` once before opening the PR.
 - **Workflow action versions** — when bumping a GitHub Actions pin in
   `.github/workflows/`, verify the major-version tag exists
   (`gh api repos/<owner>/<repo>/git/refs/tags/v<N>`). Major-version tags are
