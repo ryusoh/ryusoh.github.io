@@ -272,8 +272,8 @@ export async function inspectGallery(pageArg) {
     // Pairwise transition analysis across current sequence
     const transitions = calculatePairwiseTransitions(sequencedImages);
 
-    // Respiratory Rhythm (Inhalation / Exhalation)
-    const respiratory = analyzeRespiratoryRhythm(sequencedImages);
+    // Respiratory Rhythm (Inhalation / Exhalation) with Caesura interlude awareness
+    const respiratory = analyzeRespiratoryRhythm(sequencedImages, quotes);
 
     // Scan directory for all image files to detect unreferenced outtakes
     const allFiles = fs.readdirSync(dir);
@@ -295,7 +295,7 @@ export async function inspectGallery(pageArg) {
         }
     }
 
-    const candidateEvaluations = evaluateCandidatePlacements(sequencedImages, outtakes);
+    const candidateEvaluations = evaluateCandidatePlacements(sequencedImages, outtakes, quotes);
 
     const outputData = {
         gallery: {

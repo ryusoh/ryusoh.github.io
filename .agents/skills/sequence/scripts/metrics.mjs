@@ -125,14 +125,18 @@ export function calculatePairwiseTransitions(images) {
 
 /**
  * Analyzes sequence respiratory rhythm (Kawauchi Inhalation / Exhalation breathing cycles).
+ * Accounts for poetic Caesuras (text blockquotes) which act as cognitive breath rests.
  * @param {Array} images
+ * @param {Array} [quotes=[]] Optional array of quote interludes with afterImageIndex
  * @returns {object}
  */
-export function analyzeRespiratoryRhythm(images) {
+export function analyzeRespiratoryRhythm(images, quotes = []) {
     const sequence = [];
     let consecutiveInhalations = 0;
     let consecutiveExhalations = 0;
     const anomalies = [];
+
+    const quotesAfter = new Set((quotes || []).map((q) => q.afterImageIndex));
 
     for (let i = 0; i < images.length; i++) {
         const img = images[i];
@@ -157,7 +161,7 @@ export function analyzeRespiratoryRhythm(images) {
                 index: i + 1,
                 filename: img.filename,
                 type: 'Hyperventilation',
-                detail: `${consecutiveInhalations} consecutive high-key inhalation frames—consider a darker grounding anchor.`,
+                detail: `${consecutiveInhalations} consecutive high-key inhalation frames—consider a darker grounding anchor or caesura.`,
             });
         }
         if (consecutiveExhalations >= 3) {
@@ -165,7 +169,7 @@ export function analyzeRespiratoryRhythm(images) {
                 index: i + 1,
                 filename: img.filename,
                 type: 'Suffocating Weight',
-                detail: `${consecutiveExhalations} consecutive low-key exhalation frames—consider an open luminous interlude.`,
+                detail: `${consecutiveExhalations} consecutive low-key exhalation frames—consider an open luminous interlude or caesura.`,
             });
         }
 
@@ -175,6 +179,12 @@ export function analyzeRespiratoryRhythm(images) {
             luminance: lum,
             breath,
         });
+
+        // A poetic caesura / text blockquote resets the consecutive breath streak
+        if (quotesAfter.has(i + 1)) {
+            consecutiveInhalations = 0;
+            consecutiveExhalations = 0;
+        }
     }
 
     let inhalations = 0;
@@ -200,9 +210,10 @@ export function analyzeRespiratoryRhythm(images) {
  * Evaluates optimal insertion slots and impact for candidate outtake images into an existing sequence.
  * @param {Array} activeImages Current sequenced images
  * @param {Array} candidateImages Outtakes or newly added images
+ * @param {Array} [quotes=[]] Text interludes
  * @returns {Array<object>} Evaluation results per candidate
  */
-export function evaluateCandidatePlacements(activeImages, candidateImages) {
+export function evaluateCandidatePlacements(activeImages, candidateImages, quotes = []) {
     if (
         !activeImages ||
         activeImages.length === 0 ||
@@ -214,7 +225,7 @@ export function evaluateCandidatePlacements(activeImages, candidateImages) {
 
     const baselineTransitions = calculatePairwiseTransitions(activeImages);
     const baselineTotalCost = baselineTransitions.reduce((s, t) => s + (t.totalCost || 0), 0);
-    const baselineRhythm = analyzeRespiratoryRhythm(activeImages);
+    const baselineRhythm = analyzeRespiratoryRhythm(activeImages, quotes);
 
     const evaluations = [];
 
@@ -226,36 +237,42 @@ export function evaluateCandidatePlacements(activeImages, candidateImages) {
         // Test inserting at every position from 0 (opening) to activeImages.length (finale)
         for (let pos = 0; pos <= activeImages.length; pos++) {
             const trialImages = [...activeImages.slice(0, pos), cand, ...activeImages.slice(pos)];
+            const trialQuotes = (quotes || []).map((q) => ({
+                ...q,
+                afterImageIndex:
+                    q.afterImageIndex >= pos + 1 ? q.afterImageIndex + 1 : q.afterImageIndex,
+            }));
             const trialTransitions = calculatePairwiseTransitions(trialImages);
             const trialCost = trialTransitions.reduce((s, t) => s + (t.totalCost || 0), 0);
-            const trialRhythm = analyzeRespiratoryRhythm(trialImages);
+            const trialRhythm = analyzeRespiratoryRhythm(trialImages, trialQuotes);
 
-            // Compute local transition cost with immediate neighbors
+            // Compute net transition energy delta for this specific insertion
+            let netDelta = 0;
             let localStepCost = 0;
-            if (pos > 0) {
+            if (pos === 0 && activeImages.length > 0) {
+                netDelta = calculateTransitionCost(cand, activeImages[0]).totalCost;
+                localStepCost = netDelta;
+            } else if (pos === activeImages.length && activeImages.length > 0) {
+                netDelta = calculateTransitionCost(
+                    activeImages[activeImages.length - 1],
+                    cand
+                ).totalCost;
+                localStepCost = netDelta;
+            } else if (activeImages.length > 0) {
                 const prev = activeImages[pos - 1];
-                if (prev.analysis && cand.analysis) {
-                    localStepCost += calculateTransitionCost(
-                        prev.analysis,
-                        cand.analysis
-                    ).totalCost;
-                }
-            }
-            if (pos < activeImages.length) {
                 const next = activeImages[pos];
-                if (cand.analysis && next.analysis) {
-                    localStepCost += calculateTransitionCost(
-                        cand.analysis,
-                        next.analysis
-                    ).totalCost;
-                }
+                const oldEdge = calculateTransitionCost(prev, next).totalCost;
+                const newEdge1 = calculateTransitionCost(prev, cand).totalCost;
+                const newEdge2 = calculateTransitionCost(cand, next).totalCost;
+                netDelta = Number((newEdge1 + newEdge2 - oldEdge).toFixed(1));
+                localStepCost = Number(((newEdge1 + newEdge2) / 2).toFixed(1));
             }
 
-            const costDelta = trialCost - baselineTotalCost;
+            const costDelta = Number((trialCost - baselineTotalCost).toFixed(1));
             const rhythmDelta = trialRhythm.rhythmScore - baselineRhythm.rhythmScore;
 
-            // Combined score: lower step friction + higher respiratory rhythm score
-            const combinedScore = 100 - localStepCost + trialRhythm.rhythmScore;
+            // Combined score: minimize net delta energy + maximize respiratory rhythm score
+            const combinedScore = 100 - netDelta * 1.5 + trialRhythm.rhythmScore;
 
             slotRankings.push({
                 slotIndex: pos,
@@ -263,8 +280,9 @@ export function evaluateCandidatePlacements(activeImages, candidateImages) {
                 prevNeighbor: pos > 0 ? activeImages[pos - 1].filename : null,
                 nextNeighbor: pos < activeImages.length ? activeImages[pos].filename : null,
                 trialTotalCost: Math.round(trialCost * 10) / 10,
-                costDelta: Math.round(costDelta * 10) / 10,
-                localStepCost: Math.round(localStepCost * 10) / 10,
+                costDelta,
+                netDelta,
+                localStepCost,
                 rhythmScore: trialRhythm.rhythmScore,
                 rhythmDelta,
                 newAnomalies: trialRhythm.anomalies.length,

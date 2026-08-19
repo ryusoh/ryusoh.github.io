@@ -190,7 +190,7 @@ Options:
                     `      ↳ Optimal Slot: Position #${b.slotPosition} (between ${prev} and ${next})`
                 );
                 console.log(
-                    `      ↳ Transition Friction: Step Cost ${b.localStepCost} | ΔTotal: ${b.costDelta > 0 ? '+' : ''}${b.costDelta} | Pacing Score: ${b.rhythmScore}/100`
+                    `      ↳ Transition Friction: Net ΔEnergy ${b.netDelta > 0 ? '+' : ''}${b.netDelta} | Local Step ${b.localStepCost} | Pacing Score: ${b.rhythmScore}/100`
                 );
                 console.log(`      ↳ Recommendation: ${evalMatch.curatorialRationale}`);
             }

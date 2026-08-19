@@ -379,7 +379,7 @@ export async function generateVisualReport(pageId, options = {}) {
                 const prev = b.prevNeighbor ? `\`${b.prevNeighbor}\`` : '`[OPENING]`';
                 const next = b.nextNeighbor ? `\`${b.nextNeighbor}\`` : '`[FINALE]`';
                 md += `- **Optimal Integration Slot**: Position #${b.slotPosition} (${prev} → **\`${out.filename}\`** → ${next})\n`;
-                md += `- **Pacing Impact**: Local Step Cost \`${b.localStepCost}\` · Pacing Score \`${b.rhythmScore}/100\`\n`;
+                md += `- **Pacing Impact**: Net ΔEnergy \`${b.netDelta > 0 ? '+' : ''}${b.netDelta}\` · Local Step Cost \`${b.localStepCost}\` · Pacing Score \`${b.rhythmScore}/100\`\n`;
                 md += `- **Curatorial Suggestion**: ${evalMatch.curatorialRationale}\n`;
             }
 
