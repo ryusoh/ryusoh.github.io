@@ -442,7 +442,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - *Visual Subject & Content*: A street memorial on sunlit terracotta brick steps featuring an orange safety cone, fresh flowers, candles, liquor bottles, a taped photo of a man and dog ('We will Miss you!'), with the long dark shadow of the photographer standing over it.
 - *Thematic Meaning*: The poignant final resolution of 'Das Gespenst'. The phantom is no longer an illusion or an optical game—it is the memory of the departed, and the photographer's shadow cast on the brick is a silent, reverent witness to human mortality.
 - *Composition & Gaze Vectors*: Long diagonal shadow extending from the bottom center toward the flowers and memorial photo on the upper concrete wall.
-- *Transition Dynamic*: Final contemplative resting frame of the entire photo essay.
+- *Transition Dynamic*: Final contemplative resting frame of the visual essay.
 
 ---
 

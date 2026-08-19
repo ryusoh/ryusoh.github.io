@@ -419,7 +419,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A sleek Mustang in the midnight shadows, its rear glass dusted with dew, flanked and illuminated by two blinding white floodlight orbs blazing like twin supernovas into the lens.
 - _Thematic Meaning_: The ultimate visual resolution of the series title: 'I TEAR UP THE BAY WHEN I COME THROUGH'. The twin blinding suns extinguish the darkness in a final, incandescent roar of nocturnal triumph.
 - _Composition & Gaze Vectors_: Two powerful circular light flares commanding the left and right upper quadrants, framing the dark metallic contours of the departing vehicle.
-- _Transition Dynamic_: Final resting resolution frame of the visual odyssey.
+- _Transition Dynamic_: Final contemplative resting frame of the visual essay.
 
 ---
 

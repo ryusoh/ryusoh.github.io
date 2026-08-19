@@ -791,4 +791,63 @@ describe('sequence skill automation script', () => {
             }
         }
     });
+
+    test('resolveTransitionDynamic correctly handles edge maps, target objects, and invalidates stale commentary on insertion', async () => {
+        const testModuleCode = `
+            import { resolveTransitionDynamic } from './.agents/skills/sequence/scripts/report.mjs';
+
+            // 1. Last frame in sequence returns resting resolution
+            const lastResult = resolveTransitionDynamic({ filename: 'last.jpg' }, null, null);
+            if (!lastResult.includes('Final contemplative resting frame')) {
+                throw new Error('Failed last frame test');
+            }
+
+            // 2. Direct edge map has highest precedence
+            const edgeResult = resolveTransitionDynamic(
+                { filename: 'imgA.jpg' },
+                { filename: 'imgB.jpg' },
+                { totalCost: 15 },
+                { transition: 'Old node transition' },
+                { 'imgA.jpg -> imgB.jpg': 'Curated edge transition between A and B' }
+            );
+            if (edgeResult !== 'Curated edge transition between A and B') {
+                throw new Error('Failed direct edge map precedence test');
+            }
+
+            // 3. Target-aware transition object matches when successor equals target
+            const validTargetResult = resolveTransitionDynamic(
+                { filename: 'imgA.jpg' },
+                { filename: 'imgB.jpg' },
+                { totalCost: 15 },
+                { transition: { to: 'imgB.jpg', text: 'Curated transition to B' } }
+            );
+            if (validTargetResult !== 'Curated transition to B') {
+                throw new Error('Failed valid target object test');
+            }
+
+            // 4. Target mismatch on insertion invalidates stale text and dynamically synthesizes
+            const insertedResult = resolveTransitionDynamic(
+                { filename: 'imgA.jpg' },
+                { filename: 'imgNew.jpg' },
+                { totalCost: 35, deltaLum: 60, deltaE: 30 },
+                { transition: { to: 'imgB.jpg', text: 'Stale transition written for B' } },
+                {},
+                { role: 'Act II: The Sidewalk Companions' }
+            );
+            if (insertedResult.includes('Stale transition written for B')) {
+                throw new Error('Failed target mismatch invalidation test: stale text was rendered!');
+            }
+            if (!insertedResult.includes('aesthetic shock') || !insertedResult.includes('the sidewalk companions')) {
+                throw new Error('Failed dynamic synthesis on target mismatch: ' + insertedResult);
+            }
+
+            console.log('TRANSITION_RESOLVER_PASSED');
+        `;
+
+        const stdout = execFileSync('node', ['--input-type=module', '-e', testModuleCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+        expect(stdout).toContain('TRANSITION_RESOLVER_PASSED');
+    });
 });

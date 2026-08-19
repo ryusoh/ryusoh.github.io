@@ -16,6 +16,80 @@ import {
 } from './charts.mjs';
 
 /**
+ * Resolves the transition dynamic prose for an image pair in the sequence.
+ * Enforces graph integrity by checking explicit edge targets and invalidating
+ * stale node commentary when sequence topology changes.
+ *
+ * @param {object} img - Current image object
+ * @param {object|null} nextImg - Next image object in sequence (or null if last)
+ * @param {object|null} nextTrans - Physical transition metrics (deltaE, deltaLum, totalCost)
+ * @param {object|string} [commentary] - Node commentary
+ * @param {object} [edgeTransitionsMap] - Optional map of "imgA -> imgB" edges
+ * @param {object} [nextCommentary] - Commentary of next image (for dynamic role synthesis)
+ * @returns {string}
+ */
+export function resolveTransitionDynamic(
+    img,
+    nextImg,
+    nextTrans,
+    commentary = {},
+    edgeTransitionsMap = {},
+    nextCommentary = {}
+) {
+    if (!nextImg) {
+        return 'Final contemplative resting frame of the visual essay.';
+    }
+
+    // 1. Direct Edge Commentary (highest priority): "imgA.jpg -> imgB.jpg"
+    const edgeKey = `${img.filename} -> ${nextImg.filename}`;
+    if (edgeTransitionsMap && edgeTransitionsMap[edgeKey]) {
+        return edgeTransitionsMap[edgeKey];
+    }
+
+    // 2. Node transition with target validation
+    if (commentary && typeof commentary === 'object') {
+        const transVal = commentary.transition;
+        if (transVal && typeof transVal === 'object' && transVal !== null) {
+            if (transVal.to && transVal.to === nextImg.filename) {
+                return transVal.text;
+            }
+            // Target mismatch: transVal was written for another successor image.
+            // Invalidate stale text and fall through to dynamic synthesis.
+        } else if (typeof transVal === 'string' && transVal.trim()) {
+            if (commentary.transitionTarget && commentary.transitionTarget !== nextImg.filename) {
+                // Explicit target mismatch: invalidate stale text.
+            } else {
+                return transVal;
+            }
+        }
+    }
+
+    // 3. Dynamic Contextual Synthesis based on physical metrics + successor qualities
+    const nextRole = nextCommentary?.role
+        ? nextCommentary.role
+              .replace(/^Act\s+[IVX]+:\s*/i, '')
+              .replace(/Frame\s*#?\d+/i, '')
+              .trim()
+        : '';
+
+    if (nextTrans) {
+        const cost = nextTrans.totalCost ?? nextTrans.stepCost ?? 0;
+        const deltaLum = nextTrans.deltaLum ?? 0;
+        const deltaE = nextTrans.deltaE ?? 0;
+
+        if (cost < 10) {
+            return `Harmonic chromatic transition with step cost of ${cost}${nextRole ? `, progressing smoothly into ${nextRole.toLowerCase()}` : ''}.`;
+        } else if (cost > 30 || deltaLum > 50) {
+            return `High-tension aesthetic shock (ΔE₇₆: ${deltaE}, ΔLum: ${deltaLum}, step cost: ${cost})${nextRole ? `, pivoting sharply into ${nextRole.toLowerCase()}` : ''}.`;
+        } else {
+            return `Balanced progression with step cost of ${cost}${nextRole ? `, bridging into ${nextRole.toLowerCase()}` : ''}.`;
+        }
+    }
+
+    return 'Harmonic progression into the subsequent frame.';
+}
+
+/**
  * Generates a rich Markdown Visual Curation Report with embedded real images,
  * aesthetic/narrative rationale, and computed Hamiltonian metrics.
  *
@@ -183,11 +257,25 @@ export async function generateVisualReport(pageId, options = {}) {
                       ? `Act III: Climactic Movement (Frame #${i + 1})`
                       : `Act IV: Resolution Movement (Frame #${i + 1})`;
 
-        const dynamicTransDesc = nextTrans
-            ? `${nextTrans.deltaLum > 40 ? 'High-contrast tonal step' : 'Harmonic chromatic transition'} with step cost of ${nextTrans.totalCost}.`
-            : 'Final contemplative resting frame.';
+        const nextImg = images[i + 1] || null;
+        const nextCommentary = nextImg
+            ? img.customCommentary
+                ? {}
+                : finalCommentaryMap[nextImg.filename] || {}
+            : {};
+        const edgeTransitionsMap =
+            finalCommentaryMap.transitions || finalCommentaryMap._transitions || {};
 
         const commentary = img.customCommentary || finalCommentaryMap[img.filename];
+        const transDynamic = resolveTransitionDynamic(
+            img,
+            nextImg,
+            nextTrans,
+            commentary,
+            edgeTransitionsMap,
+            nextCommentary
+        );
+
         if (commentary) {
             if (typeof commentary === 'string') {
                 md += `**Curatorial Rationale & Montage Dynamic**:\n\n${commentary.trim()}\n\n`;
@@ -238,7 +326,7 @@ export async function generateVisualReport(pageId, options = {}) {
                 if (commentary.vector || commentary.vectors) {
                     md += `- *Composition & Gaze Vectors*: ${formatProse(commentary.vector || commentary.vectors)}\n`;
                 }
-                md += `- *Transition Dynamic*: ${formatProse(commentary.transition || dynamicTransDesc)}\n\n`;
+                md += `- *Transition Dynamic*: ${formatProse(transDynamic)}\n\n`;
             }
         } else if (a) {
             const breathDesc =
@@ -248,7 +336,8 @@ export async function generateVisualReport(pageId, options = {}) {
                       ? 'Low-key exhalation grounding the viewer with chiaroscuro mass.'
                       : 'Neutral midpoint maintaining narrative continuity.';
 
-            md += `**Curatorial Rationale & Montage Dynamic**:\n\n- *Pacing Role*: ${dynamicPacingRole}\n- *Tonal Dynamic*: ${breathDesc}\n- *Transition*: ${dynamicTransDesc}\n\n`;
+            const formatProse = (text) => (text || '').replace(/L\*=([0-9.]+)/g, '`L*=$1`');
+            md += `**Curatorial Rationale & Montage Dynamic**:\n\n- *Pacing Role*: ${dynamicPacingRole}\n- *Tonal Dynamic*: ${breathDesc}\n- *Transition*: ${formatProse(transDynamic)}\n\n`;
         }
 
         // Insert caesura quote if present

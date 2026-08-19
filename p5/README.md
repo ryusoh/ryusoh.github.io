@@ -295,7 +295,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Shot from inside the refrigerator looking out at the photographer eating yogurt with a spoon late at night, glasses askew.
 - _Thematic Meaning_: The ultimate anti-heroic resolution. After all the artistic personas, mountain stages, and street encounters, the work concludes on quiet, unadorned humanity.
 - _Composition & Gaze Vectors_: Receding refrigerator shelving wire lines framing the subject in soft kitchen glow.
-- _Transition Dynamic_: Final contemplative resting point of the entire photo essay.
+- _Transition Dynamic_: Final contemplative resting frame of the visual essay.
 
 ---
 

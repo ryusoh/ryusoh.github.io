@@ -25,14 +25,20 @@
     "subject": "A costumed gorilla figure adorned with a glittering rhinestone crown and gold medallion ('K') encountering a cyclist with a helmet-mounted light in a dark city park.",
     "thematicMeaning": "The threshold into magical realism: West Coast street culture as a theatrical masquerade where urban mythology, nocturnal play, and surreal encounters coexist.",
     "vectors": "Diagonal interaction axis between the masked figure's roaring mouth and the cyclist's observing gaze, bisected by kinetic flash flare.",
-    "transition": "Harmonic step into the kinetic slipstream of the street walker."
+    "transition": {
+      "to": "DSCF3435.JPG",
+      "text": "Masked theatrical folklore transitions into warm human camaraderie and intimate sidewalk brotherhood."
+    }
   },
   "DSCF3435.JPG": {
     "role": "Act II: Nocturnal Comradeship / The Sidewalk Companions",
     "subject": "Two men outside at night against a luminous wall with a Mexican flag, one adjusting gear in a blue SF fitted cap while the other in glasses and jacket looks calmly at the camera.",
     "thematicMeaning": "Captures informal street brotherhood and cultural heritage in the nocturnal urban landscape. The soft illuminated wall and direct gaze introduce human warmth amidst the nighttime carnival.",
     "vectors": "Diagonal balance between the foreground figure's downward focus and the standing companion's direct eye contact, framed by subtle flash flare.",
-    "transition": "Bridges masked nocturnal folklore into intimate street camaraderie before the kinetic light trails."
+    "transition": {
+      "to": "DSCF6946.jpg",
+      "text": "Bridges masked nocturnal folklore into intimate street camaraderie before the kinetic light trails."
+    }
   },
   "DSCF6946.jpg": {
     "role": "Act II: Time Dilation / The Luminous Slipstream",
