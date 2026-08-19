@@ -418,15 +418,22 @@ body {
         pointer-events: auto !important;
     }
 
-    #cont.is-expanded::before {
-        content: '' !important;
+    #safe-area-blur {
         position: fixed !important;
-        top: -120px !important;
+        top: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        height: 120px !important;
-        background: rgba(0, 0, 0, 0.5) !important;
+        height: max(11px, env(safe-area-inset-top, 11px)) !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+        backdrop-filter: blur(25px) !important;
         pointer-events: none !important;
+        z-index: 999 !important;
+        display: none !important;
+    }
+
+    #safe-area-blur.is-visible {
+        display: block !important;
     }
 
     #cont .cont-inner,

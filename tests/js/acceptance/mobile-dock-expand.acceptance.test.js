@@ -302,4 +302,122 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         expect(cont.classList.contains('is-scrolled-down')).toBe(false);
         expect(document.body.classList.contains('is-scrolled-down')).toBe(false);
     });
+
+    test('TDD: expanding the mobile dock shows a top safe-area blur strip and nudges theme-color', () => {
+        const originalRaf = window.requestAnimationFrame;
+        window.requestAnimationFrame = jest.fn((cb) => cb());
+
+        document.documentElement.innerHTML = `
+            <head><meta name="theme-color" content="#000000" /></head>
+            <body>
+                <div id="cont">
+                    <header id="site-header">
+                        <h1 class="brand-title">
+                            <a href="/" class="nav-back"><span>Zhuang Liu</span></a>
+                        </h1>
+                    </header>
+                </div>
+            </body>
+        `;
+
+        window.matchMedia = jest.fn().mockImplementation((query) => ({
+            matches: query.includes('max-width: 449px'),
+            media: query,
+            onchange: null,
+            addListener: jest.fn(),
+            removeListener: jest.fn(),
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            dispatchEvent: jest.fn(),
+        }));
+
+        const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        initMobileDock();
+
+        const cont = document.getElementById('cont');
+        const titleLink = document.querySelector('.brand-title a');
+        const meta = document.querySelector('meta[name="theme-color"]');
+
+        // The strip is created eagerly on mobile init, hidden until expanded.
+        const blur = document.getElementById('safe-area-blur');
+        expect(blur).toBeTruthy();
+        expect(blur.classList.contains('is-visible')).toBe(false);
+
+        titleLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+        expect(blur.classList.contains('is-visible')).toBe(true);
+        expect(cont.classList.contains('is-expanded')).toBe(true);
+        expect(meta.getAttribute('content')).toBe('#000000');
+
+        titleLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        expect(blur.classList.contains('is-visible')).toBe(false);
+
+        window.requestAnimationFrame = originalRaf;
+    });
+
+    test('TDD: mobile dock expand works without a theme-color meta tag', () => {
+        document.documentElement.innerHTML = `
+            <div id="cont">
+                <header id="site-header">
+                    <h1 class="brand-title">
+                        <a href="/" class="nav-back"><span>Zhuang Liu</span></a>
+                    </h1>
+                </header>
+            </div>
+        `;
+
+        window.matchMedia = jest.fn().mockImplementation((query) => ({
+            matches: query.includes('max-width: 449px'),
+            media: query,
+            onchange: null,
+            addListener: jest.fn(),
+            removeListener: jest.fn(),
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            dispatchEvent: jest.fn(),
+        }));
+
+        const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        initMobileDock();
+
+        const titleLink = document.querySelector('.brand-title a');
+        expect(() =>
+            titleLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+        ).not.toThrow();
+        expect(document.getElementById('safe-area-blur')).toBeTruthy();
+    });
+
+    test('TDD: mobile dock reuses an existing #safe-area-blur element', () => {
+        document.documentElement.innerHTML = `
+            <div id="safe-area-blur" data-existing="true"></div>
+            <div id="cont">
+                <header id="site-header">
+                    <h1 class="brand-title">
+                        <a href="/" class="nav-back"><span>Zhuang Liu</span></a>
+                    </h1>
+                </header>
+            </div>
+        `;
+
+        window.matchMedia = jest.fn().mockImplementation((query) => ({
+            matches: query.includes('max-width: 449px'),
+            media: query,
+            onchange: null,
+            addListener: jest.fn(),
+            removeListener: jest.fn(),
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            dispatchEvent: jest.fn(),
+        }));
+
+        const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        initMobileDock();
+
+        const titleLink = document.querySelector('.brand-title a');
+        titleLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+        const blur = document.getElementById('safe-area-blur');
+        expect(blur.getAttribute('data-existing')).toBe('true');
+        expect(blur.classList.contains('is-visible')).toBe(true);
+    });
 });

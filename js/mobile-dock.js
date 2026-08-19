@@ -19,6 +19,39 @@
         );
     }
 
+    function getSafeAreaBlur() {
+        if (typeof document === 'undefined') {
+            return null;
+        }
+        let el = document.getElementById('safe-area-blur');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'safe-area-blur';
+            el.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(el);
+        }
+        return el;
+    }
+
+    function forceSafariToolbarResample() {
+        if (typeof document === 'undefined') {
+            return;
+        }
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (!meta) {
+            return;
+        }
+        const original = meta.getAttribute('content') || '#000000';
+        if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+            window.requestAnimationFrame(function () {
+                meta.setAttribute('content', original + 'fe');
+                window.requestAnimationFrame(function () {
+                    meta.setAttribute('content', original);
+                });
+            });
+        }
+    }
+
     function initMobileDock() {
         const cont = document.getElementById('cont');
         const titleLink = document.querySelector(
@@ -30,6 +63,20 @@
         }
 
         titleLink.setAttribute('data-mobile-dock-initialized', 'true');
+
+        const safeAreaBlur = isMobile() ? getSafeAreaBlur() : null;
+        const contEl = cont;
+
+        function updateSafeAreaBlur() {
+            if (!safeAreaBlur) {
+                return;
+            }
+            if (contEl.classList.contains('is-expanded')) {
+                safeAreaBlur.classList.add('is-visible');
+            } else {
+                safeAreaBlur.classList.remove('is-visible');
+            }
+        }
 
         titleLink.addEventListener('click', function (event) {
             // On desktop: standard navigation to href
@@ -43,9 +90,12 @@
                 event.preventDefault();
                 event.stopPropagation();
                 cont.classList.add('is-expanded');
+                updateSafeAreaBlur();
+                forceSafariToolbarResample();
             } else {
                 // 2. Expanded state:
                 cont.classList.remove('is-expanded');
+                updateSafeAreaBlur();
 
                 const isHome =
                     document.body && document.body.getAttribute('data-page-type') === 'home';
@@ -75,6 +125,7 @@
                 !cont.contains(/** @type {Node} */ (event.target))
             ) {
                 cont.classList.remove('is-expanded');
+                updateSafeAreaBlur();
             }
         });
 
