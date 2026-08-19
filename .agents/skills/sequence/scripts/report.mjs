@@ -66,7 +66,7 @@ export async function generateVisualReport(pageId, options = {}) {
     }
 
     const transitions = calculatePairwiseTransitions(images);
-    const respiratory = analyzeRespiratoryRhythm(images);
+    const respiratory = analyzeRespiratoryRhythm(images, data.quotes);
     const totalHamiltonianEnergy = transitions.reduce((sum, t) => sum + (t.totalCost || 0), 0);
     const avgHamiltonianEnergy =
         transitions.length > 0

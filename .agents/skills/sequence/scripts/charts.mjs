@@ -324,7 +324,7 @@ export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
 
         // If slot width is compact (< 55px), display header legend for metric rows and breath abbreviations
         if (slotWidth < 55) {
-            svg += `  <text x="${rightMargin}" y="17" class="threshold-label" text-anchor="end">Rows: L* Luminance · (a*, b*) Chroma · Aspect · [INH/EXH/GRD] Breath</text>\n`;
+            svg += `  <text x="${rightMargin}" y="17" class="threshold-label" text-anchor="end">Breath: [INH] Inhale · [EXH] Exhale · [GRD] Ground</text>\n`;
         }
 
         // Left margin row headers for clear metric identification
