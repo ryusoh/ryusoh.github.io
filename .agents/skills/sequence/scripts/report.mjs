@@ -367,7 +367,7 @@ export async function generateVisualReport(pageId, options = {}) {
             const imgAbsPath = path.join(galleryDir, previewFilename);
             const relImgPath = path.relative(path.dirname(outputPath), imgAbsPath);
             const imgEmbedUrl = relImgPath.startsWith('.') ? relImgPath : `./${relImgPath}`;
-            md += `#### Candidate: ${out.filename}\n\n`;
+            md += `### Candidate: ${out.filename}\n\n`;
             md += `![${out.filename}](${imgEmbedUrl})\n\n`;
             if (a) {
                 md += `- **Metrics**: \`${a.orientation.toUpperCase()}\` · \`${a.width}×${a.height}\` · \`L*=${a.lab.L}\` (${a.breathType})\n`;

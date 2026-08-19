@@ -255,6 +255,40 @@ describe('sequence skill automation script', () => {
         }).toThrow();
     });
 
+    test('generateVisualReport generates outtakes section with compliant h3 heading increments', () => {
+        const tempReportPath = path.join(
+            REPO_ROOT,
+            'assets',
+            'img',
+            'p3',
+            'test-outtake-heading-report.md'
+        );
+        try {
+            execFileSync('node', [INSPECT_SCRIPT, 'p3', '--report', tempReportPath], {
+                cwd: REPO_ROOT,
+                encoding: 'utf8',
+            });
+
+            expect(fs.existsSync(tempReportPath)).toBe(true);
+            const report = fs.readFileSync(tempReportPath, 'utf8');
+            expect(report).toContain('## 4. Unsequenced Candidates & Outtakes');
+            expect(report).toContain('### Candidate: DSCF2056-2.jpg');
+            expect(report).not.toMatch(/#### Candidate:/);
+
+            // Verify markdownlint compliance on generated report
+            expect(() => {
+                execFileSync('npx', ['markdownlint-cli', tempReportPath], {
+                    cwd: REPO_ROOT,
+                    stdio: 'pipe',
+                });
+            }).not.toThrow();
+        } finally {
+            if (fs.existsSync(tempReportPath)) {
+                fs.unlinkSync(tempReportPath);
+            }
+        }
+    });
+
     test('inspect_gallery dynamically adapts pacing role when sequence order shifts while preserving intrinsic commentary', () => {
         const tempReportPath = path.join(
             REPO_ROOT,
