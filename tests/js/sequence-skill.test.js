@@ -719,4 +719,38 @@ describe('sequence skill automation script', () => {
         });
         expect(stdout).toContain('MODULAR_SUBMODULES_PASSED');
     });
+
+    test('evaluateCandidatePlacements accurately computes optimal insertion slots and energy deltas', () => {
+        const candidateTestCode = `
+            import { evaluateCandidatePlacements } from './.agents/skills/sequence/scripts/metrics.mjs';
+
+            const mockActive = [
+                { filename: 'img1.jpg', analysis: { luminance: 150, lab: { L: 80, a: 5, b: 5 }, breathType: 'Inhalation' } },
+                { filename: 'img2.jpg', analysis: { luminance: 160, lab: { L: 85, a: 4, b: 6 }, breathType: 'Inhalation' } },
+                { filename: 'img3.jpg', analysis: { luminance: 170, lab: { L: 90, a: 3, b: 7 }, breathType: 'Inhalation' } },
+            ];
+
+            const mockCandidate = [
+                { filename: 'dark_candid.jpg', analysis: { luminance: 40, lab: { L: 20, a: 0, b: 0 }, breathType: 'Exhalation' } }
+            ];
+
+            const evals = evaluateCandidatePlacements(mockActive, mockCandidate);
+            if (evals.length !== 1) throw new Error('Expected 1 candidate evaluation');
+            if (!evals[0].bestSlot) throw new Error('Expected bestSlot on evaluation');
+            if (evals[0].bestSlot.slotPosition < 1 || evals[0].bestSlot.slotPosition > 4) {
+                throw new Error('Invalid slotPosition: ' + evals[0].bestSlot.slotPosition);
+            }
+            if (typeof evals[0].curatorialRationale !== 'string' || evals[0].curatorialRationale.length === 0) {
+                throw new Error('Missing curatorialRationale');
+            }
+
+            console.log('CANDIDATE_EVALUATION_PASSED');
+        `;
+
+        const stdout = execFileSync('node', ['--input-type=module', '-e', candidateTestCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+        expect(stdout).toContain('CANDIDATE_EVALUATION_PASSED');
+    });
 });

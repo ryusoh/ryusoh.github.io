@@ -9,7 +9,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import { load as yamlLoad } from 'js-yaml';
-import { rgbToLab, calculatePairwiseTransitions, analyzeRespiratoryRhythm } from './metrics.mjs';
+import {
+    rgbToLab,
+    calculatePairwiseTransitions,
+    analyzeRespiratoryRhythm,
+    evaluateCandidatePlacements,
+} from './metrics.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -290,6 +295,8 @@ export async function inspectGallery(pageArg) {
         }
     }
 
+    const candidateEvaluations = evaluateCandidatePlacements(sequencedImages, outtakes);
+
     const outputData = {
         gallery: {
             pageId,
@@ -306,6 +313,7 @@ export async function inspectGallery(pageArg) {
         images: sequencedImages,
         quotes,
         outtakes,
+        candidateEvaluations,
     };
 
     return outputData;

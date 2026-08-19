@@ -372,7 +372,18 @@ export async function generateVisualReport(pageId, options = {}) {
             if (a) {
                 md += `- **Metrics**: \`${a.orientation.toUpperCase()}\` · \`${a.width}×${a.height}\` · \`L*=${a.lab.L}\` (${a.breathType})\n`;
             }
-            md += `- **Curatorial Exclusion Rationale**: Excluded to maintain narrative tension, prevent chromatic friction, or avoid eye-vector redundancy.\n\n`;
+
+            const evalMatch = data.candidateEvaluations?.find((e) => e.candidate === out.filename);
+            if (evalMatch && evalMatch.bestSlot) {
+                const b = evalMatch.bestSlot;
+                const prev = b.prevNeighbor ? `\`${b.prevNeighbor}\`` : '`[OPENING]`';
+                const next = b.nextNeighbor ? `\`${b.nextNeighbor}\`` : '`[FINALE]`';
+                md += `- **Optimal Integration Slot**: Position #${b.slotPosition} (${prev} → **\`${out.filename}\`** → ${next})\n`;
+                md += `- **Pacing Impact**: Local Step Cost \`${b.localStepCost}\` · Pacing Score \`${b.rhythmScore}/100\`\n`;
+                md += `- **Curatorial Suggestion**: ${evalMatch.curatorialRationale}\n`;
+            }
+
+            md += `- **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).\n\n`;
         }
     }
 

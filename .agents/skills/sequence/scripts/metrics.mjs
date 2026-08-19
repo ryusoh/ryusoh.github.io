@@ -195,3 +195,113 @@ export function analyzeRespiratoryRhythm(images) {
         neutrals,
     };
 }
+
+/**
+ * Evaluates optimal insertion slots and impact for candidate outtake images into an existing sequence.
+ * @param {Array} activeImages Current sequenced images
+ * @param {Array} candidateImages Outtakes or newly added images
+ * @returns {Array<object>} Evaluation results per candidate
+ */
+export function evaluateCandidatePlacements(activeImages, candidateImages) {
+    if (
+        !activeImages ||
+        activeImages.length === 0 ||
+        !candidateImages ||
+        candidateImages.length === 0
+    ) {
+        return [];
+    }
+
+    const baselineTransitions = calculatePairwiseTransitions(activeImages);
+    const baselineTotalCost = baselineTransitions.reduce((s, t) => s + (t.totalCost || 0), 0);
+    const baselineRhythm = analyzeRespiratoryRhythm(activeImages);
+
+    const evaluations = [];
+
+    for (const cand of candidateImages) {
+        if (!cand.analysis || cand.analysis.error) continue;
+
+        const slotRankings = [];
+
+        // Test inserting at every position from 0 (opening) to activeImages.length (finale)
+        for (let pos = 0; pos <= activeImages.length; pos++) {
+            const trialImages = [...activeImages.slice(0, pos), cand, ...activeImages.slice(pos)];
+            const trialTransitions = calculatePairwiseTransitions(trialImages);
+            const trialCost = trialTransitions.reduce((s, t) => s + (t.totalCost || 0), 0);
+            const trialRhythm = analyzeRespiratoryRhythm(trialImages);
+
+            // Compute local transition cost with immediate neighbors
+            let localStepCost = 0;
+            if (pos > 0) {
+                const prev = activeImages[pos - 1];
+                if (prev.analysis && cand.analysis) {
+                    localStepCost += calculateTransitionCost(
+                        prev.analysis,
+                        cand.analysis
+                    ).totalCost;
+                }
+            }
+            if (pos < activeImages.length) {
+                const next = activeImages[pos];
+                if (cand.analysis && next.analysis) {
+                    localStepCost += calculateTransitionCost(
+                        cand.analysis,
+                        next.analysis
+                    ).totalCost;
+                }
+            }
+
+            const costDelta = trialCost - baselineTotalCost;
+            const rhythmDelta = trialRhythm.rhythmScore - baselineRhythm.rhythmScore;
+
+            // Combined score: lower step friction + higher respiratory rhythm score
+            const combinedScore = 100 - localStepCost + trialRhythm.rhythmScore;
+
+            slotRankings.push({
+                slotIndex: pos,
+                slotPosition: pos + 1,
+                prevNeighbor: pos > 0 ? activeImages[pos - 1].filename : null,
+                nextNeighbor: pos < activeImages.length ? activeImages[pos].filename : null,
+                trialTotalCost: Math.round(trialCost * 10) / 10,
+                costDelta: Math.round(costDelta * 10) / 10,
+                localStepCost: Math.round(localStepCost * 10) / 10,
+                rhythmScore: trialRhythm.rhythmScore,
+                rhythmDelta,
+                newAnomalies: trialRhythm.anomalies.length,
+                resolvedAnomalies: Math.max(
+                    0,
+                    baselineRhythm.anomalies.length - trialRhythm.anomalies.length
+                ),
+                combinedScore,
+            });
+        }
+
+        // Sort by best score
+        slotRankings.sort((a, b) => b.combinedScore - a.combinedScore);
+        const bestSlot = slotRankings[0];
+
+        // Curatorial placement rationale
+        let rationale = '';
+        if (bestSlot.prevNeighbor && bestSlot.nextNeighbor) {
+            rationale = `Integrates smoothly between #${bestSlot.slotPosition - 1} (${bestSlot.prevNeighbor}) and #${bestSlot.slotPosition} (${bestSlot.nextNeighbor})`;
+        } else if (!bestSlot.prevNeighbor) {
+            rationale = `Serves as a powerful opening establishing frame before #${bestSlot.slotPosition} (${bestSlot.nextNeighbor})`;
+        } else {
+            rationale = `Acts as a resonant concluding coda frame after #${bestSlot.slotPosition - 1} (${bestSlot.prevNeighbor})`;
+        }
+
+        if (bestSlot.resolvedAnomalies > 0) {
+            rationale += `; resolves ${bestSlot.resolvedAnomalies} cadence warning(s)`;
+        }
+
+        evaluations.push({
+            candidate: cand.filename,
+            analysis: cand.analysis,
+            bestSlot,
+            alternativeSlots: slotRankings.slice(1, 3),
+            curatorialRationale: rationale,
+        });
+    }
+
+    return evaluations;
+}

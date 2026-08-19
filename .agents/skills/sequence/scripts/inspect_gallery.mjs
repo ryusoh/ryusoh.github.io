@@ -164,15 +164,35 @@ Options:
 
     if (outtakes.length > 0) {
         console.log(`\n----------------------------------------------------------------------`);
-        console.log(`UNSEQUENCED CANDIDATES / OUTTAKES IN DIRECTORY (${outtakes.length}):`);
+        console.log(
+            `UNSEQUENCED CANDIDATES & AUTOMATED INSERTION SIMULATION (${outtakes.length}):`
+        );
         for (const out of outtakes) {
             const a = out.analysis;
             if (a) {
                 console.log(
-                    ` - ${out.filename.padEnd(28, ' ')} | ${a.orientation.toUpperCase()} | ${a.width}x${a.height} | Lum: ${a.luminance} (${a.breathType})`
+                    ` - ${out.filename.padEnd(28, ' ')} | ${a.orientation.toUpperCase().padEnd(9, ' ')} | ${String(a.width + 'x' + a.height).padEnd(11, ' ')} | Lum: ${String(a.luminance).padStart(3, ' ')} (${a.breathType})`
                 );
             } else {
                 console.log(` - ${out.filename}`);
+            }
+
+            const evalMatch = outputData.candidateEvaluations?.find(
+                (e) => e.candidate === out.filename
+            );
+            if (evalMatch && evalMatch.bestSlot) {
+                const b = evalMatch.bestSlot;
+                const prev = b.prevNeighbor
+                    ? `#${b.slotPosition - 1} (${b.prevNeighbor})`
+                    : '[OPENING]';
+                const next = b.nextNeighbor ? `#${b.slotPosition} (${b.nextNeighbor})` : '[FINALE]';
+                console.log(
+                    `      ↳ Optimal Slot: Position #${b.slotPosition} (between ${prev} and ${next})`
+                );
+                console.log(
+                    `      ↳ Transition Friction: Step Cost ${b.localStepCost} | ΔTotal: ${b.costDelta > 0 ? '+' : ''}${b.costDelta} | Pacing Score: ${b.rhythmScore}/100`
+                );
+                console.log(`      ↳ Recommendation: ${evalMatch.curatorialRationale}`);
             }
         }
     }
