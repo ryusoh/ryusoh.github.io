@@ -2,11 +2,11 @@
 
 > **Curation Archetype**: Polyphonic Street Symphony / Lyrical Arc
 >
-> **Sequence Status**: Resequencing Recommended (Cadence Anomalies Detected)
+> **Sequence Status**: Validated (Existing sequence affirmed as optimal)
 >
-> **Hamiltonian Sequence Energy**: `336.1` (Avg Step Cost: `16.8`)
+> **Hamiltonian Sequence Energy**: `377.0` (Avg Step Cost: `17.1`)
 >
-> **Respiratory Pacing Score**: `85/100` (6 Inhalations, 3 Exhalations, 12 Grounding)
+> **Respiratory Pacing Score**: `100/100` (7 Inhalations, 3 Exhalations, 13 Grounding)
 
 ## 1. Executive Curatorial & Quantitative Architecture
 
@@ -36,13 +36,9 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 **Figure 3**: Sequential colorimetric profile detailing mean sRGB swatches, CIELAB coordinates (`L*, a*, b*`), aspect ratio, orientation (L/P), and breath type.
 
-### Cadence & Respiratory Rhythm Alerts
-
-- **Frame #3 (DSCF7753-3.jpg)** — *Hyperventilation*: 3 consecutive high-key inhalation frames—consider a darker grounding anchor.
-
 ## 2. Visual Sequence Journey
 
-### [1/21] DSCF7765.jpg
+### [1/23] DSCF7765.jpg
 
 ![DSCF7765.jpg](./DSCF7765-768.webp)
 
@@ -66,7 +62,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [2/21] DSCF7728.jpg
+### [2/23] DSCF7728.jpg
 
 ![DSCF7728.jpg](./DSCF7728-768.webp)
 
@@ -86,7 +82,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [3/21] DSCF7753-3.jpg
+### [3/23] DSCF7753-3.jpg
 
 ![DSCF7753-3.jpg](./DSCF7753-3-768.webp)
 
@@ -106,7 +102,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [4/21] DSCF7186-2.jpg
+### [4/23] DSCF7186-2.jpg
 
 ![DSCF7186-2.jpg](./DSCF7186-2-768.webp)
 
@@ -114,7 +110,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=41.37` — **Neutral** (CIELAB: `41.37, -2.44, 14.98`) |
-| **Transition to #5 (DSCF6946.jpg)** | `ΔE₇₆: 18.7` (Color) · `ΔLum: 37` · **Step Cost: `15.6`** |
+| **Transition to #5 (DSCF3435.JPG)** | `ΔE₇₆: 35.85` (Color) · `ΔLum: 90` · **Step Cost: `32.5`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -126,7 +122,27 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [5/21] DSCF6946.jpg
+### [5/23] DSCF3435.JPG
+
+![DSCF3435.JPG](./DSCF3435-768.webp)
+
+| Attribute | Value |
+| :--- | :--- |
+| **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
+| **Tonality & Breath** | `L*=75.85` — **Inhalation** (CIELAB: `75.85, -4.29, 5.33`) |
+| **Transition to #6 (DSCF6946.jpg)** | `ΔE₇₆: 28.6` (Color) · `ΔLum: 53` · **Step Cost: `23.4`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- *Pacing Role*: Act II: Nocturnal Comradeship / The Sidewalk Companions
+- *Visual Subject & Content*: Two men outside at night against a luminous wall with a Mexican flag, one adjusting gear in a blue SF fitted cap while the other in glasses and jacket looks calmly at the camera.
+- *Thematic Meaning*: Captures informal street brotherhood and cultural heritage in the nocturnal urban landscape. The soft illuminated wall and direct gaze introduce human warmth amidst the nighttime carnival.
+- *Composition & Gaze Vectors*: Diagonal balance between the foreground figure's downward focus and the standing companion's direct eye contact, framed by subtle flash flare.
+- *Transition Dynamic*: Bridges masked nocturnal folklore into intimate street camaraderie before the kinetic light trails.
+
+---
+
+### [6/23] DSCF6946.jpg
 
 ![DSCF6946.jpg](./DSCF6946-768.webp)
 
@@ -134,7 +150,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=56.17` — **Neutral** (CIELAB: `56.17, -5.18, 26.07`) |
-| **Transition to #6 (8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG)** | `ΔE₇₆: 39.53` (Color) · `ΔLum: 21` · **Step Cost: `25.1`** |
+| **Transition to #7 (8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG)** | `ΔE₇₆: 39.53` (Color) · `ΔLum: 21` · **Step Cost: `25.1`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -146,7 +162,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [6/21] 8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG
+### [7/23] 8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG
 
 ![8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG](./8B0245DC-4C12-4CD1-A6B0-96883BFAF25B-768.webp)
 
@@ -154,7 +170,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `1363×907` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=47.81` — **Neutral** (CIELAB: `47.81, 7.48, -10.43`) |
-| **Transition to #7 (DSCF5338.JPG)** | `ΔE₇₆: 10.71` (Color) · `ΔLum: 20` · **Step Cost: `8.8`** |
+| **Transition to #8 (DSCF5338.JPG)** | `ΔE₇₆: 10.71` (Color) · `ΔLum: 20` · **Step Cost: `8.8`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -166,7 +182,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [7/21] DSCF5338.JPG
+### [8/23] DSCF5338.JPG
 
 ![DSCF5338.JPG](./DSCF5338-768.webp)
 
@@ -174,7 +190,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=39.83` — **Neutral** (CIELAB: `39.83, 9.39, -17.31`) |
-| **Transition to #8 (DSCF0490.JPG)** | `ΔE₇₆: 25.38` (Color) · `ΔLum: 39` · **Step Cost: `19.6`** |
+| **Transition to #9 (DSCF0490.JPG)** | `ΔE₇₆: 25.38` (Color) · `ΔLum: 39` · **Step Cost: `19.6`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -186,7 +202,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [8/21] DSCF0490.JPG
+### [9/23] DSCF0490.JPG
 
 ![DSCF0490.JPG](./DSCF0490-768.webp)
 
@@ -194,7 +210,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=55.04` — **Neutral** (CIELAB: `55.04, -0.57, 0.4`) |
-| **Transition to #9 (R0001972-4.JPG)** | `ΔE₇₆: 14.82` (Color) · `ΔLum: 33` · **Step Cost: `12.9`** |
+| **Transition to #10 (R0001972-4.JPG)** | `ΔE₇₆: 14.82` (Color) · `ΔLum: 33` · **Step Cost: `12.9`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -206,7 +222,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [9/21] R0001972-4.JPG
+### [10/23] R0001972-4.JPG
 
 ![R0001972-4.JPG](./R0001972-4-768.webp)
 
@@ -214,7 +230,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=41.78` — **Neutral** (CIELAB: `41.78, 1.8, -5.78`) |
-| **Transition to #10 (DSCF4237-2.jpg)** | `ΔE₇₆: 14.67` (Color) · `ΔLum: 22` · **Step Cost: `11.3`** |
+| **Transition to #11 (DSCF4237-2.jpg)** | `ΔE₇₆: 14.67` (Color) · `ΔLum: 22` · **Step Cost: `11.3`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -226,7 +242,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [10/21] DSCF4237-2.jpg
+### [11/23] DSCF4237-2.jpg
 
 ![DSCF4237-2.jpg](./DSCF4237-2-768.webp)
 
@@ -234,7 +250,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=51` — **Neutral** (CIELAB: `51, 1.98, 5.63`) |
-| **Transition to #11 (IMG_4582.jpg)** | `ΔE₇₆: 7.46` (Color) · `ΔLum: 15` · **Step Cost: `6.3`** |
+| **Transition to #12 (IMG_4582.jpg)** | `ΔE₇₆: 7.46` (Color) · `ΔLum: 15` · **Step Cost: `6.3`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -246,7 +262,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [11/21] IMG_4582.jpg
+### [12/23] IMG_4582.jpg
 
 ![IMG_4582.jpg](./IMG_4582-768.webp)
 
@@ -254,7 +270,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1364` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=45.15` — **Neutral** (CIELAB: `45.15, 6.02, 7.88`) |
-| **Transition to #12 (B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG)** | `ΔE₇₆: 22.68` (Color) · `ΔLum: 45` · **Step Cost: `18.9`** |
+| **Transition to #13 (B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG)** | `ΔE₇₆: 22.68` (Color) · `ΔLum: 45` · **Step Cost: `18.9`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -266,7 +282,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [12/21] B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG
+### [13/23] B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG
 
 ![B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG](./B5B35521-9A08-4B1C-AAB3-429D75A3769E-768.webp)
 
@@ -274,7 +290,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1364` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=62.63` — **Inhalation** (CIELAB: `62.63, -4.41, -2.12`) |
-| **Transition to #13 (DSCF8563-5.jpg)** | `ΔE₇₆: 19.98` (Color) · `ΔLum: 48` · **Step Cost: `17.8`** |
+| **Transition to #14 (DSCF8563-5.jpg)** | `ΔE₇₆: 19.98` (Color) · `ΔLum: 48` · **Step Cost: `17.8`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -286,7 +302,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [13/21] DSCF8563-5.jpg
+### [14/23] DSCF8563-5.jpg
 
 ![DSCF8563-5.jpg](./DSCF8563-5-768.webp)
 
@@ -294,7 +310,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=43.55` — **Neutral** (CIELAB: `43.55, -2.59, 3.53`) |
-| **Transition to #14 (DSCF3632.JPG)** | `ΔE₇₆: 18.96` (Color) · `ΔLum: 30` · **Step Cost: `14.8`** |
+| **Transition to #15 (DSCF8671.JPG)** | `ΔE₇₆: 6.56` (Color) · `ΔLum: 5` · **Step Cost: `4.4`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -306,7 +322,27 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [14/21] DSCF3632.JPG
+### [15/23] DSCF8671.JPG
+
+![DSCF8671.JPG](./DSCF8671-768.webp)
+
+| Attribute | Value |
+| :--- | :--- |
+| **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
+| **Tonality & Breath** | `L*=41.5` — **Neutral** (CIELAB: `41.5, 2.75, 6.74`) |
+| **Transition to #16 (DSCF3632.JPG)** | `ΔE₇₆: 13.37` (Color) · `ΔLum: 25` · **Step Cost: `11`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- *Pacing Role*: Act III: Shared Focus / The Digital Agora
+- *Visual Subject & Content*: A man in a sharp tailored suit and a woman with bright golden curls nestled in a dense festive crowd, leaning together in deep concentration over a smartphone screen.
+- *Thematic Meaning*: Explores the tender micro-narratives within massive civic gatherings. High-contrast flash captures the quiet bubble of shared human connection amidst a moving sea of celebratory citizens.
+- *Composition & Gaze Vectors*: Converging downward gazes and hand gestures over the screen, contrasting against the kinetic flow of the surrounding crowd.
+- *Transition Dynamic*: Transitions from multi-planar street observations into an intimate duo before entering the barbershop sanctuary.
+
+---
+
+### [16/23] DSCF3632.JPG
 
 ![DSCF3632.JPG](./DSCF3632-768.webp)
 
@@ -314,7 +350,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=31.3` — **Exhalation** (CIELAB: `31.3, 7.31, 14.08`) |
-| **Transition to #15 (DSCF1137.jpg)** | `ΔE₇₆: 8.38` (Color) · `ΔLum: 15` · **Step Cost: `6.8`** |
+| **Transition to #17 (DSCF1137.jpg)** | `ΔE₇₆: 8.38` (Color) · `ΔLum: 15` · **Step Cost: `6.8`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -326,7 +362,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [15/21] DSCF1137.jpg
+### [17/23] DSCF1137.jpg
 
 ![DSCF1137.jpg](./DSCF1137-768.webp)
 
@@ -334,7 +370,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=37.91` — **Neutral** (CIELAB: `37.91, 8.49, 9.06`) |
-| **Transition to #16 (DSCF7672-2.JPG)** | `ΔE₇₆: 26.22` (Color) · `ΔLum: 47` · **Step Cost: `21.2`** |
+| **Transition to #18 (DSCF7672-2.JPG)** | `ΔE₇₆: 26.22` (Color) · `ΔLum: 47` · **Step Cost: `21.2`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -346,7 +382,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [16/21] DSCF7672-2.JPG
+### [18/23] DSCF7672-2.JPG
 
 ![DSCF7672-2.JPG](./DSCF7672-2-768.webp)
 
@@ -354,7 +390,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=57.48` — **Neutral** (CIELAB: `57.48, 23.18, 18.49`) |
-| **Transition to #17 (DSCF1113.jpg)** | `ΔE₇₆: 22.82` (Color) · `ΔLum: 40` · **Step Cost: `18.3`** |
+| **Transition to #19 (DSCF1113.jpg)** | `ΔE₇₆: 22.82` (Color) · `ΔLum: 40` · **Step Cost: `18.3`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -366,7 +402,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [17/21] DSCF1113.jpg
+### [19/23] DSCF1113.jpg
 
 ![DSCF1113.jpg](./DSCF1113-768.webp)
 
@@ -374,7 +410,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=72.1` — **Inhalation** (CIELAB: `72.1, 9.72, 29.71`) |
-| **Transition to #18 (DSCF3579.JPG)** | `ΔE₇₆: 52.27` (Color) · `ΔLum: 105` · **Step Cost: `43.8`** |
+| **Transition to #20 (DSCF3579.JPG)** | `ΔE₇₆: 52.27` (Color) · `ΔLum: 105` · **Step Cost: `43.8`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -386,7 +422,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [18/21] DSCF3579.JPG
+### [20/23] DSCF3579.JPG
 
 ![DSCF3579.JPG](./DSCF3579-768.webp)
 
@@ -394,7 +430,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=29.88` — **Exhalation** (CIELAB: `29.88, 6.55, -0.95`) |
-| **Transition to #19 (DSCF7318-3.jpg)** | `ΔE₇₆: 13.77` (Color) · `ΔLum: 19` · **Step Cost: `10.4`** |
+| **Transition to #21 (DSCF7318-3.jpg)** | `ΔE₇₆: 13.77` (Color) · `ΔLum: 19` · **Step Cost: `10.4`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -406,7 +442,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [19/21] DSCF7318-3.jpg
+### [21/23] DSCF7318-3.jpg
 
 ![DSCF7318-3.jpg](./DSCF7318-3-768.webp)
 
@@ -414,7 +450,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `6240×4160` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=37.7` — **Neutral** (CIELAB: `37.7, 0.41, 8.57`) |
-| **Transition to #20 (DSCF5759-5.jpg)** | `ΔE₇₆: 3.43` (Color) · `ΔLum: 6` · **Step Cost: `2.8`** |
+| **Transition to #22 (DSCF5759-5.jpg)** | `ΔE₇₆: 3.43` (Color) · `ΔLum: 6` · **Step Cost: `2.8`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -426,7 +462,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [20/21] DSCF5759-5.jpg
+### [22/23] DSCF5759-5.jpg
 
 ![DSCF5759-5.jpg](./DSCF5759-5-768.webp)
 
@@ -434,7 +470,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :--- | :--- |
 | **Framing & Aspect** | `LANDSCAPE` · `4675×3117` (Aspect: `1.50`) |
 | **Tonality & Breath** | `L*=35.26` — **Neutral** (CIELAB: `35.26, 2.64, 9.47`) |
-| **Transition to #21 (DSCF5719-3.jpg)** | `ΔE₇₆: 13.15` (Color) · `ΔLum: 30` · **Step Cost: `11.5`** |
+| **Transition to #23 (DSCF5719-3.jpg)** | `ΔE₇₆: 13.15` (Color) · `ΔLum: 30` · **Step Cost: `11.5`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -451,7 +487,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [21/21] DSCF5719-3.jpg
+### [23/23] DSCF5719-3.jpg
 
 ![DSCF5719-3.jpg](./DSCF5719-3-768.webp)
 
@@ -472,23 +508,36 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ## 3. Curatorial Proposals & Optimized Sequence Arc
 
-### Recommended Interlude & Rhythm Solutions
+The current sequence displays **optimal rhythmic pacing** (100/100) with harmonic alternation across Inhalation, Exhalation, and Neutral anchor frames.
 
-#### Resolution for Frame #3 (DSCF7753-3.jpg) — *Hyperventilation*
-
-##### Option A (Frame #3): Poetic Caesura (Text Interlude)
-
-Insert a dense, grounding reflection between consecutive high-key frames:
-
-> Light does not illuminate everything; it defines the borders where darkness begins.
->
-> — **Susan Sontag**
-
-## 4. Unsequenced Candidates & Outtakes (1)
+## 4. Unsequenced Candidates & Outtakes (3)
 
 ### Candidate: DSCF2056-2.jpg
 
 ![DSCF2056-2.jpg](./DSCF2056-2-768.webp)
 
 - **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=60.82` (Inhalation)
-- **Curatorial Exclusion Rationale**: Excluded to maintain narrative tension, prevent chromatic friction, or avoid eye-vector redundancy.
+- **Optimal Integration Slot**: Position #5 (`DSCF7186-2.jpg` → **`DSCF2056-2.jpg`** → `DSCF3435.JPG`)
+- **Pacing Impact**: Net ΔEnergy `+1.1` · Local Step Cost `16.8` · Pacing Score `100/100`
+- **Curatorial Suggestion**: Integrates smoothly between #4 (DSCF7186-2.jpg) and #5 (DSCF3435.JPG)
+- **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
+
+### Candidate: DSCF8569.JPG
+
+![DSCF8569.JPG](./DSCF8569.JPG)
+
+- **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=42.39` (Neutral)
+- **Optimal Integration Slot**: Position #20 (`DSCF1113.jpg` → **`DSCF8569.JPG`** → `DSCF3579.JPG`)
+- **Pacing Impact**: Net ΔEnergy `+0.5` · Local Step Cost `22.1` · Pacing Score `100/100`
+- **Curatorial Suggestion**: Integrates smoothly between #19 (DSCF1113.jpg) and #20 (DSCF3579.JPG)
+- **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
+
+### Candidate: DSCF8748.JPG
+
+![DSCF8748.JPG](./DSCF8748.JPG)
+
+- **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=51.68` (Neutral)
+- **Optimal Integration Slot**: Position #9 (`DSCF5338.JPG` → **`DSCF8748.JPG`** → `DSCF0490.JPG`)
+- **Pacing Impact**: Net ΔEnergy `+2.6` · Local Step Cost `11.1` · Pacing Score `100/100`
+- **Curatorial Suggestion**: Integrates smoothly between #8 (DSCF5338.JPG) and #9 (DSCF0490.JPG)
+- **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).

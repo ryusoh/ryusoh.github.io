@@ -15,151 +15,169 @@
   <rect x="68" y="22" width="777" height="170" class="spine-box" />
   <text transform="translate(24, 107) rotate(-90)" class="axis-title" text-anchor="middle">CIELAB &amp; Aspect</text>
   <text x="845" y="17" class="threshold-label" text-anchor="end">Breath: [INH] Inhale · [EXH] Exhale · [GRD] Ground</text>
-  <rect x="71" y="28" width="31" height="92" fill="rgb(140, 135, 135)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="86.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">1</text>
-  <text x="86.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=56.74</text>
-  <text x="86.5" y="145" class="threshold-label" text-anchor="middle">(2, 1)</text>
-  <text x="86.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="86.5" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
-  <line x1="86.5" y1="187.5" x2="86.5" y2="192" class="tick-line" />
-  <rect x="108" y="28" width="31" height="92" fill="rgb(212, 187, 149)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="123.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">2</text>
-  <text x="123.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=77.11</text>
-  <text x="123.5" y="145" class="threshold-label" text-anchor="middle">(3, 23)</text>
-  <text x="123.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="123.5" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
-  <line x1="123.5" y1="187.5" x2="123.5" y2="192" class="tick-line" />
-  <rect x="145" y="28" width="31" height="92" fill="rgb(159, 169, 171)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="160.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">3</text>
-  <text x="160.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=68.52</text>
-  <text x="160.5" y="145" class="threshold-label" text-anchor="middle">(-3, -2)</text>
-  <text x="160.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="160.5" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
-  <line x1="160.5" y1="187.5" x2="160.5" y2="192" class="tick-line" />
-  <rect x="182" y="28" width="31" height="92" fill="rgb(103, 98, 73)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="197.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">4</text>
-  <text x="197.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=41.37</text>
-  <text x="197.5" y="145" class="threshold-label" text-anchor="middle">(-2, 15)</text>
-  <text x="197.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="197.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="197.5" y1="187.5" x2="197.5" y2="192" class="tick-line" />
-  <rect x="219" y="28" width="31" height="92" fill="rgb(142, 136, 89)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="234.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">5</text>
-  <text x="234.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=56.17</text>
-  <text x="234.5" y="145" class="threshold-label" text-anchor="middle">(-5, 26)</text>
-  <text x="234.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="234.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="234.5" y1="187.5" x2="234.5" y2="192" class="tick-line" />
-  <rect x="256" y="28" width="31" height="92" fill="rgb(118, 110, 131)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="271.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">6</text>
-  <text x="271.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=47.81</text>
-  <text x="271.5" y="145" class="threshold-label" text-anchor="middle">(7, -10)</text>
-  <text x="271.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="271.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="271.5" y1="187.5" x2="271.5" y2="192" class="tick-line" />
-  <rect x="293" y="28" width="31" height="92" fill="rgb(95, 90, 122)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="308.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">7</text>
-  <text x="308.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=39.83</text>
-  <text x="308.5" y="145" class="threshold-label" text-anchor="middle">(9, -17)</text>
-  <text x="308.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="308.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="308.5" y1="187.5" x2="308.5" y2="192" class="tick-line" />
-  <rect x="330" y="28" width="31" height="92" fill="rgb(131, 132, 131)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="345.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">8</text>
-  <text x="345.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=55.04</text>
-  <text x="345.5" y="145" class="threshold-label" text-anchor="middle">(-1, 0)</text>
-  <text x="345.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="345.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="345.5" y1="187.5" x2="345.5" y2="192" class="tick-line" />
-  <rect x="367" y="28" width="31" height="92" fill="rgb(97, 98, 108)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="382.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">9</text>
-  <text x="382.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=41.78</text>
-  <text x="382.5" y="145" class="threshold-label" text-anchor="middle">(2, -6)</text>
-  <text x="382.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="382.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="382.5" y1="187.5" x2="382.5" y2="192" class="tick-line" />
-  <rect x="404" y="28" width="31" height="92" fill="rgb(129, 120, 112)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="419.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">10</text>
-  <text x="419.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=51</text>
-  <text x="419.5" y="145" class="threshold-label" text-anchor="middle">(2, 6)</text>
-  <text x="419.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="419.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="419.5" y1="187.5" x2="419.5" y2="192" class="tick-line" />
-  <rect x="441" y="28" width="31" height="92" fill="rgb(122, 103, 94)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="456.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">11</text>
-  <text x="456.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=45.15</text>
-  <text x="456.5" y="145" class="threshold-label" text-anchor="middle">(6, 8)</text>
-  <text x="456.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="456.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="456.5" y1="187.5" x2="456.5" y2="192" class="tick-line" />
-  <rect x="478" y="28" width="31" height="92" fill="rgb(141, 154, 155)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="493.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">12</text>
-  <text x="493.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=62.63</text>
-  <text x="493.5" y="145" class="threshold-label" text-anchor="middle">(-4, -2)</text>
-  <text x="493.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="493.5" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
-  <line x1="493.5" y1="187.5" x2="493.5" y2="192" class="tick-line" />
-  <rect x="515" y="28" width="31" height="92" fill="rgb(101, 104, 97)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="530.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">13</text>
-  <text x="530.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=43.55</text>
-  <text x="530.5" y="145" class="threshold-label" text-anchor="middle">(-3, 4)</text>
-  <text x="530.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="530.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="530.5" y1="187.5" x2="530.5" y2="192" class="tick-line" />
-  <rect x="552" y="28" width="31" height="92" fill="rgb(92, 69, 52)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="567.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">14</text>
-  <text x="567.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=31.3</text>
-  <text x="567.5" y="145" class="threshold-label" text-anchor="middle">(7, 14)</text>
-  <text x="567.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="567.5" y="170" class="threshold-label" fill="#b91c1c" font-size="7.5px" font-weight="bold" text-anchor="middle">[EXH]</text>
-  <line x1="567.5" y1="187.5" x2="567.5" y2="192" class="tick-line" />
-  <rect x="589" y="28" width="31" height="92" fill="rgb(108, 84, 75)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="604.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">15</text>
-  <text x="604.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=37.91</text>
-  <text x="604.5" y="145" class="threshold-label" text-anchor="middle">(8, 9)</text>
-  <text x="604.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="604.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="604.5" y1="187.5" x2="604.5" y2="192" class="tick-line" />
-  <rect x="626" y="28" width="31" height="92" fill="rgb(186, 122, 107)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="641.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">16</text>
-  <text x="641.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=57.48</text>
-  <text x="641.5" y="145" class="threshold-label" text-anchor="middle">(23, 18)</text>
-  <text x="641.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="641.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="641.5" y1="187.5" x2="641.5" y2="192" class="tick-line" />
-  <rect x="663" y="28" width="31" height="92" fill="rgb(212, 169, 123)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="678.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">17</text>
-  <text x="678.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=72.1</text>
-  <text x="678.5" y="145" class="threshold-label" text-anchor="middle">(10, 30)</text>
-  <text x="678.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="678.5" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
-  <line x1="678.5" y1="187.5" x2="678.5" y2="192" class="tick-line" />
-  <rect x="700" y="28" width="31" height="92" fill="rgb(80, 67, 72)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="715.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">18</text>
-  <text x="715.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=29.88</text>
-  <text x="715.5" y="145" class="threshold-label" text-anchor="middle">(7, -1)</text>
-  <text x="715.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="715.5" y="170" class="threshold-label" fill="#b91c1c" font-size="7.5px" font-weight="bold" text-anchor="middle">[EXH]</text>
-  <line x1="715.5" y1="187.5" x2="715.5" y2="192" class="tick-line" />
-  <rect x="737" y="28" width="31" height="92" fill="rgb(95, 88, 75)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="752.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">19</text>
-  <text x="752.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=37.7</text>
-  <text x="752.5" y="145" class="threshold-label" text-anchor="middle">(0, 9)</text>
-  <text x="752.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="752.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="752.5" y1="187.5" x2="752.5" y2="192" class="tick-line" />
-  <rect x="774" y="28" width="31" height="92" fill="rgb(93, 81, 68)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="789.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">20</text>
-  <text x="789.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=35.26</text>
-  <text x="789.5" y="145" class="threshold-label" text-anchor="middle">(3, 9)</text>
-  <text x="789.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="789.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
-  <line x1="789.5" y1="187.5" x2="789.5" y2="192" class="tick-line" />
-  <rect x="811" y="28" width="31" height="92" fill="rgb(60, 52, 41)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="826.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">21</text>
-  <text x="826.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">L*=22.22</text>
-  <text x="826.5" y="145" class="threshold-label" text-anchor="middle">(1, 8)</text>
-  <text x="826.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="826.5" y="170" class="threshold-label" fill="#b91c1c" font-size="7.5px" font-weight="bold" text-anchor="middle">[EXH]</text>
-  <line x1="826.5" y1="187.5" x2="826.5" y2="192" class="tick-line" />
+  <text x="62" y="133" class="threshold-label" font-weight="bold" text-anchor="end">L*</text>
+  <text x="62" y="145" class="threshold-label" text-anchor="end">a*,b*</text>
+  <text x="62" y="158" class="threshold-label" text-anchor="end">Asp</text>
+  <text x="62" y="170" class="threshold-label" text-anchor="end">Tag</text>
+  <rect x="71" y="28" width="27.782608695652172" height="92" fill="rgb(140, 135, 135)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="84.8913043478261" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">1</text>
+  <text x="84.8913043478261" y="133" class="tick-label" font-weight="600" text-anchor="middle">57</text>
+  <text x="84.8913043478261" y="145" class="threshold-label" text-anchor="middle">2,1</text>
+  <text x="84.8913043478261" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="84.8913043478261" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
+  <line x1="84.8913043478261" y1="187.5" x2="84.8913043478261" y2="192" class="tick-line" />
+  <rect x="104.78260869565217" y="28" width="27.782608695652172" height="92" fill="rgb(212, 187, 149)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="118.67391304347825" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">2</text>
+  <text x="118.67391304347825" y="133" class="tick-label" font-weight="600" text-anchor="middle">77</text>
+  <text x="118.67391304347825" y="145" class="threshold-label" text-anchor="middle">3,23</text>
+  <text x="118.67391304347825" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="118.67391304347825" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
+  <line x1="118.67391304347825" y1="187.5" x2="118.67391304347825" y2="192" class="tick-line" />
+  <rect x="138.56521739130434" y="28" width="27.782608695652172" height="92" fill="rgb(159, 169, 171)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="152.45652173913044" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">3</text>
+  <text x="152.45652173913044" y="133" class="tick-label" font-weight="600" text-anchor="middle">69</text>
+  <text x="152.45652173913044" y="145" class="threshold-label" text-anchor="middle">-3,-2</text>
+  <text x="152.45652173913044" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="152.45652173913044" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
+  <line x1="152.45652173913044" y1="187.5" x2="152.45652173913044" y2="192" class="tick-line" />
+  <rect x="172.3478260869565" y="28" width="27.782608695652172" height="92" fill="rgb(103, 98, 73)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="186.2391304347826" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">4</text>
+  <text x="186.2391304347826" y="133" class="tick-label" font-weight="600" text-anchor="middle">41</text>
+  <text x="186.2391304347826" y="145" class="threshold-label" text-anchor="middle">-2,15</text>
+  <text x="186.2391304347826" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="186.2391304347826" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="186.2391304347826" y1="187.5" x2="186.2391304347826" y2="192" class="tick-line" />
+  <rect x="206.1304347826087" y="28" width="27.782608695652172" height="92" fill="rgb(183, 189, 177)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="220.02173913043478" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">5</text>
+  <text x="220.02173913043478" y="133" class="tick-label" font-weight="600" text-anchor="middle">76</text>
+  <text x="220.02173913043478" y="145" class="threshold-label" text-anchor="middle">-4,5</text>
+  <text x="220.02173913043478" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="220.02173913043478" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
+  <line x1="220.02173913043478" y1="187.5" x2="220.02173913043478" y2="192" class="tick-line" />
+  <rect x="239.91304347826087" y="28" width="27.782608695652172" height="92" fill="rgb(142, 136, 89)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="253.80434782608697" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">6</text>
+  <text x="253.80434782608697" y="133" class="tick-label" font-weight="600" text-anchor="middle">56</text>
+  <text x="253.80434782608697" y="145" class="threshold-label" text-anchor="middle">-5,26</text>
+  <text x="253.80434782608697" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="253.80434782608697" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="253.80434782608697" y1="187.5" x2="253.80434782608697" y2="192" class="tick-line" />
+  <rect x="273.695652173913" y="28" width="27.782608695652172" height="92" fill="rgb(118, 110, 131)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="287.58695652173907" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">7</text>
+  <text x="287.58695652173907" y="133" class="tick-label" font-weight="600" text-anchor="middle">48</text>
+  <text x="287.58695652173907" y="145" class="threshold-label" text-anchor="middle">7,-10</text>
+  <text x="287.58695652173907" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="287.58695652173907" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="287.58695652173907" y1="187.5" x2="287.58695652173907" y2="192" class="tick-line" />
+  <rect x="307.4782608695652" y="28" width="27.782608695652172" height="92" fill="rgb(95, 90, 122)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="321.36956521739125" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">8</text>
+  <text x="321.36956521739125" y="133" class="tick-label" font-weight="600" text-anchor="middle">40</text>
+  <text x="321.36956521739125" y="145" class="threshold-label" text-anchor="middle">9,-17</text>
+  <text x="321.36956521739125" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="321.36956521739125" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="321.36956521739125" y1="187.5" x2="321.36956521739125" y2="192" class="tick-line" />
+  <rect x="341.2608695652174" y="28" width="27.782608695652172" height="92" fill="rgb(131, 132, 131)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="355.15217391304344" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">9</text>
+  <text x="355.15217391304344" y="133" class="tick-label" font-weight="600" text-anchor="middle">55</text>
+  <text x="355.15217391304344" y="145" class="threshold-label" text-anchor="middle">-1,0</text>
+  <text x="355.15217391304344" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="355.15217391304344" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="355.15217391304344" y1="187.5" x2="355.15217391304344" y2="192" class="tick-line" />
+  <rect x="375.04347826086956" y="28" width="27.782608695652172" height="92" fill="rgb(97, 98, 108)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="388.9347826086956" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">10</text>
+  <text x="388.9347826086956" y="133" class="tick-label" font-weight="600" text-anchor="middle">42</text>
+  <text x="388.9347826086956" y="145" class="threshold-label" text-anchor="middle">2,-6</text>
+  <text x="388.9347826086956" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="388.9347826086956" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="388.9347826086956" y1="187.5" x2="388.9347826086956" y2="192" class="tick-line" />
+  <rect x="408.82608695652175" y="28" width="27.782608695652172" height="92" fill="rgb(129, 120, 112)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="422.7173913043478" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">11</text>
+  <text x="422.7173913043478" y="133" class="tick-label" font-weight="600" text-anchor="middle">51</text>
+  <text x="422.7173913043478" y="145" class="threshold-label" text-anchor="middle">2,6</text>
+  <text x="422.7173913043478" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="422.7173913043478" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="422.7173913043478" y1="187.5" x2="422.7173913043478" y2="192" class="tick-line" />
+  <rect x="442.6086956521739" y="28" width="27.782608695652172" height="92" fill="rgb(122, 103, 94)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="456.49999999999994" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">12</text>
+  <text x="456.49999999999994" y="133" class="tick-label" font-weight="600" text-anchor="middle">45</text>
+  <text x="456.49999999999994" y="145" class="threshold-label" text-anchor="middle">6,8</text>
+  <text x="456.49999999999994" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="456.49999999999994" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="456.49999999999994" y1="187.5" x2="456.49999999999994" y2="192" class="tick-line" />
+  <rect x="476.39130434782606" y="28" width="27.782608695652172" height="92" fill="rgb(141, 154, 155)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="490.28260869565213" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">13</text>
+  <text x="490.28260869565213" y="133" class="tick-label" font-weight="600" text-anchor="middle">63</text>
+  <text x="490.28260869565213" y="145" class="threshold-label" text-anchor="middle">-4,-2</text>
+  <text x="490.28260869565213" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="490.28260869565213" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
+  <line x1="490.28260869565213" y1="187.5" x2="490.28260869565213" y2="192" class="tick-line" />
+  <rect x="510.17391304347825" y="28" width="27.782608695652172" height="92" fill="rgb(101, 104, 97)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="524.0652173913044" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">14</text>
+  <text x="524.0652173913044" y="133" class="tick-label" font-weight="600" text-anchor="middle">44</text>
+  <text x="524.0652173913044" y="145" class="threshold-label" text-anchor="middle">-3,4</text>
+  <text x="524.0652173913044" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="524.0652173913044" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="524.0652173913044" y1="187.5" x2="524.0652173913044" y2="192" class="tick-line" />
+  <rect x="543.9565217391304" y="28" width="27.782608695652172" height="92" fill="rgb(107, 96, 87)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="557.8478260869565" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">15</text>
+  <text x="557.8478260869565" y="133" class="tick-label" font-weight="600" text-anchor="middle">42</text>
+  <text x="557.8478260869565" y="145" class="threshold-label" text-anchor="middle">3,7</text>
+  <text x="557.8478260869565" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="557.8478260869565" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="557.8478260869565" y1="187.5" x2="557.8478260869565" y2="192" class="tick-line" />
+  <rect x="577.7391304347825" y="28" width="27.782608695652172" height="92" fill="rgb(92, 69, 52)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="591.6304347826086" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">16</text>
+  <text x="591.6304347826086" y="133" class="tick-label" font-weight="600" text-anchor="middle">31</text>
+  <text x="591.6304347826086" y="145" class="threshold-label" text-anchor="middle">7,14</text>
+  <text x="591.6304347826086" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="591.6304347826086" y="170" class="threshold-label" fill="#b91c1c" font-size="7.5px" font-weight="bold" text-anchor="middle">[EXH]</text>
+  <line x1="591.6304347826086" y1="187.5" x2="591.6304347826086" y2="192" class="tick-line" />
+  <rect x="611.5217391304348" y="28" width="27.782608695652172" height="92" fill="rgb(108, 84, 75)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="625.4130434782609" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">17</text>
+  <text x="625.4130434782609" y="133" class="tick-label" font-weight="600" text-anchor="middle">38</text>
+  <text x="625.4130434782609" y="145" class="threshold-label" text-anchor="middle">8,9</text>
+  <text x="625.4130434782609" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="625.4130434782609" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="625.4130434782609" y1="187.5" x2="625.4130434782609" y2="192" class="tick-line" />
+  <rect x="645.3043478260869" y="28" width="27.782608695652172" height="92" fill="rgb(186, 122, 107)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="659.195652173913" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">18</text>
+  <text x="659.195652173913" y="133" class="tick-label" font-weight="600" text-anchor="middle">57</text>
+  <text x="659.195652173913" y="145" class="threshold-label" text-anchor="middle">23,18</text>
+  <text x="659.195652173913" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="659.195652173913" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="659.195652173913" y1="187.5" x2="659.195652173913" y2="192" class="tick-line" />
+  <rect x="679.0869565217391" y="28" width="27.782608695652172" height="92" fill="rgb(212, 169, 123)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="692.9782608695652" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">19</text>
+  <text x="692.9782608695652" y="133" class="tick-label" font-weight="600" text-anchor="middle">72</text>
+  <text x="692.9782608695652" y="145" class="threshold-label" text-anchor="middle">10,30</text>
+  <text x="692.9782608695652" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="692.9782608695652" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
+  <line x1="692.9782608695652" y1="187.5" x2="692.9782608695652" y2="192" class="tick-line" />
+  <rect x="712.8695652173913" y="28" width="27.782608695652172" height="92" fill="rgb(80, 67, 72)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="726.7608695652174" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">20</text>
+  <text x="726.7608695652174" y="133" class="tick-label" font-weight="600" text-anchor="middle">30</text>
+  <text x="726.7608695652174" y="145" class="threshold-label" text-anchor="middle">7,-1</text>
+  <text x="726.7608695652174" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="726.7608695652174" y="170" class="threshold-label" fill="#b91c1c" font-size="7.5px" font-weight="bold" text-anchor="middle">[EXH]</text>
+  <line x1="726.7608695652174" y1="187.5" x2="726.7608695652174" y2="192" class="tick-line" />
+  <rect x="746.6521739130435" y="28" width="27.782608695652172" height="92" fill="rgb(95, 88, 75)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="760.5434782608696" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">21</text>
+  <text x="760.5434782608696" y="133" class="tick-label" font-weight="600" text-anchor="middle">38</text>
+  <text x="760.5434782608696" y="145" class="threshold-label" text-anchor="middle">0,9</text>
+  <text x="760.5434782608696" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="760.5434782608696" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="760.5434782608696" y1="187.5" x2="760.5434782608696" y2="192" class="tick-line" />
+  <rect x="780.4347826086956" y="28" width="27.782608695652172" height="92" fill="rgb(93, 81, 68)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="794.3260869565217" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">22</text>
+  <text x="794.3260869565217" y="133" class="tick-label" font-weight="600" text-anchor="middle">35</text>
+  <text x="794.3260869565217" y="145" class="threshold-label" text-anchor="middle">3,9</text>
+  <text x="794.3260869565217" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="794.3260869565217" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <line x1="794.3260869565217" y1="187.5" x2="794.3260869565217" y2="192" class="tick-line" />
+  <rect x="814.2173913043478" y="28" width="27.782608695652172" height="92" fill="rgb(60, 52, 41)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="828.1086956521739" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">23</text>
+  <text x="828.1086956521739" y="133" class="tick-label" font-weight="600" text-anchor="middle">22</text>
+  <text x="828.1086956521739" y="145" class="threshold-label" text-anchor="middle">1,8</text>
+  <text x="828.1086956521739" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50</text>
+  <text x="828.1086956521739" y="170" class="threshold-label" fill="#b91c1c" font-size="7.5px" font-weight="bold" text-anchor="middle">[EXH]</text>
+  <line x1="828.1086956521739" y1="187.5" x2="828.1086956521739" y2="192" class="tick-line" />
 </svg>
