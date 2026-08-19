@@ -33,15 +33,17 @@ export function resolveGalleryPath(arg) {
     }
 
     let clean = String(arg).trim();
-    if (/^\d+$/.test(clean)) {
-        clean = `p${clean}`;
-    }
 
-    if (/^p\d+$/i.test(clean)) {
+    // Check if the argument contains a pN pattern (e.g. "p2", "2", "p2/index.html", "assets/img/p2/index.md")
+    const pMatch = clean.match(/(?:^|\/)(p\d+)(?:\/|\.|$)/i) || clean.match(/^(\d+)$/);
+    if (pMatch) {
+        const num =
+            pMatch[1].startsWith('p') || pMatch[1].startsWith('P') ? pMatch[1] : `p${pMatch[1]}`;
+        const pageId = num.toLowerCase();
         return {
-            pageId: clean.toLowerCase(),
-            dir: path.join(REPO_ROOT, 'assets', 'img', clean.toLowerCase()),
-            mdPath: path.join(REPO_ROOT, 'assets', 'img', clean.toLowerCase(), 'index.md'),
+            pageId,
+            dir: path.join(REPO_ROOT, 'assets', 'img', pageId),
+            mdPath: path.join(REPO_ROOT, 'assets', 'img', pageId, 'index.md'),
         };
     }
 
