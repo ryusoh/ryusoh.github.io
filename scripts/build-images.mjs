@@ -1,6 +1,31 @@
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'child_process';
 import sharp from 'sharp';
+
+function sanitizeImageMetadata(filePath) {
+    if (!fs.existsSync(filePath)) return false;
+    const ext = path.extname(filePath).toLowerCase();
+    if (!['.jpg', '.jpeg'].includes(ext)) return false;
+    try {
+        execFileSync(
+            'exiftool',
+            [
+                '-m',
+                '-overwrite_original',
+                '-gps:all=',
+                '-serialnumber=',
+                '-bodyserialnumber=',
+                '-lensserialnumber=',
+                filePath,
+            ],
+            { stdio: 'ignore' }
+        );
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 function getProjectPages() {
     const assetsDir = path.join('assets', 'img');
@@ -33,6 +58,7 @@ async function processImages() {
 
         for (const file of files) {
             const inputPath = path.join(dir, file);
+            sanitizeImageMetadata(inputPath);
             const ext = path.extname(file);
             const baseName = path.basename(file, ext);
 

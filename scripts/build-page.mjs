@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execFileSync } from 'child_process';
 import sharp from 'sharp';
 import { load as yamlLoad } from 'js-yaml';
 import { rgbaToThumbHash, thumbHashToDataURL } from 'thumbhash';
@@ -24,6 +25,34 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const TEMPLATE_PATH = path.join(ROOT_DIR, 'scripts', 'templates', 'portfolio-shell.html');
 const SIZES_ATTR = '(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px';
+
+/**
+ * Sanitizes GPS coordinates and hardware serial numbers from a source JPEG image if present.
+ * Uses exiftool if available; fails open silently if not installed.
+ */
+export function sanitizeImageMetadata(filePath) {
+    if (!fs.existsSync(filePath)) return false;
+    const ext = path.extname(filePath).toLowerCase();
+    if (!['.jpg', '.jpeg'].includes(ext)) return false;
+    try {
+        execFileSync(
+            'exiftool',
+            [
+                '-m',
+                '-overwrite_original',
+                '-gps:all=',
+                '-serialnumber=',
+                '-bodyserialnumber=',
+                '-lensserialnumber=',
+                filePath,
+            ],
+            { stdio: 'ignore' }
+        );
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 /**
  * Parses an index.md file with frontmatter and body.
@@ -55,6 +84,9 @@ export async function ensureImageVariants(dir, filename) {
     if (!fs.existsSync(inputPath)) {
         throw new Error(`Image not found on disk: ${inputPath}`);
     }
+
+    // Automatically strip GPS & hardware serial numbers from source JPEG if present
+    sanitizeImageMetadata(inputPath);
 
     const ext = path.extname(filename);
     const baseName = path.basename(filename, ext);

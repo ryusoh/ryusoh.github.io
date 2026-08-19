@@ -83,6 +83,24 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
         }
     });
 
+    test('sanitizeImageMetadata safely handles non-existent files and non-JPEG extensions', () => {
+        const scriptCode = `
+            import { sanitizeImageMetadata } from './scripts/build-page.mjs';
+            if (sanitizeImageMetadata('/tmp/nonexistent.jpg') !== false) {
+                throw new Error('Expected false for non-existent file');
+            }
+            if (sanitizeImageMetadata('./package.json') !== false) {
+                throw new Error('Expected false for non-JPEG file');
+            }
+            console.log('SANITIZE_METADATA_SAFE');
+        `;
+        const res = execFileSync('node', ['--input-type=module', '-e', scriptCode], {
+            cwd: ROOT_DIR,
+            encoding: 'utf8',
+        });
+        expect(res).toContain('SANITIZE_METADATA_SAFE');
+    });
+
     describe('Ephemeral Synthetic Project Page Build E2E Test', () => {
         const testPageId = 'p99';
         const testImgDir = path.join(ROOT_DIR, 'assets', 'img', testPageId);
