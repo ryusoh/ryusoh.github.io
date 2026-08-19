@@ -6,6 +6,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'child_process';
 import { calculatePairwiseTransitions, analyzeRespiratoryRhythm } from './metrics.mjs';
 import { inspectGallery, resolvePreviewFilename, REPO_ROOT } from './parser.mjs';
 import {
@@ -101,17 +102,10 @@ export async function generateVisualReport(pageId, options = {}) {
         fs.writeFileSync(colorimetryPath, colorimetrySvg, 'utf8');
     }
 
-    const relWaveform = path.relative(reportDir, waveformPath);
-    const relTransitions = path.relative(reportDir, transitionsPath);
-    const relColorimetry = path.relative(reportDir, colorimetryPath);
-
-    const waveformEmbedUrl = relWaveform.startsWith('.') ? relWaveform : `./${relWaveform}`;
-    const transitionsEmbedUrl = relTransitions.startsWith('.')
-        ? relTransitions
-        : `./${relTransitions}`;
-    const colorimetryEmbedUrl = relColorimetry.startsWith('.')
-        ? relColorimetry
-        : `./${relColorimetry}`;
+    // Use ./ relative paths for 100% compatibility with VSCode vanilla preview and standard markdown viewers
+    const waveformEmbedUrl = `./sequence-waveform.svg`;
+    const transitionsEmbedUrl = `./sequence-transitions.svg`;
+    const colorimetryEmbedUrl = `./sequence-colorimetry.svg`;
 
     let md = `# Visual Curation & Sequence Report: ${data.gallery.title || pageId.toUpperCase()}\n\n`;
     md += `> **Curation Archetype**: ${archetype}\n>\n`;
@@ -157,9 +151,7 @@ export async function generateVisualReport(pageId, options = {}) {
         const img = images[i];
         const a = img.analysis;
         const previewFilename = resolvePreviewFilename(galleryDir, img.filename);
-        const imgAbsPath = path.join(galleryDir, previewFilename);
-        const relImgPath = path.relative(path.dirname(outputPath), imgAbsPath);
-        const imgEmbedUrl = relImgPath.startsWith('.') ? relImgPath : `./${relImgPath}`;
+        const imgEmbedUrl = `./${previewFilename}`;
 
         md += `### [${i + 1}/${images.length}] ${img.filename}\n\n`;
         md += `![${img.alt || img.caption || img.filename}](${imgEmbedUrl})\n\n`;
@@ -364,9 +356,7 @@ export async function generateVisualReport(pageId, options = {}) {
         for (const out of data.outtakes) {
             const a = out.analysis;
             const previewFilename = resolvePreviewFilename(galleryDir, out.filename);
-            const imgAbsPath = path.join(galleryDir, previewFilename);
-            const relImgPath = path.relative(path.dirname(outputPath), imgAbsPath);
-            const imgEmbedUrl = relImgPath.startsWith('.') ? relImgPath : `./${relImgPath}`;
+            const imgEmbedUrl = `./${previewFilename}`;
             md += `### Candidate: ${out.filename}\n\n`;
             md += `![${out.filename}](${imgEmbedUrl})\n\n`;
             if (a) {
@@ -393,6 +383,35 @@ export async function generateVisualReport(pageId, options = {}) {
     if (outputPath) {
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         fs.writeFileSync(outputPath, md, 'utf8');
+
+        // Automatically maintain a root-level README.md (e.g. p2/README.md)
+        // with adjusted relative paths (../assets/img/p2/...) so that GitHub Web and the GitHub iOS app
+        // automatically render the full visual sequence report on the folder page with zero extra taps
+        const pageDir = path.join(REPO_ROOT, pageId);
+        if (fs.existsSync(pageDir) && fs.statSync(pageDir).isDirectory()) {
+            // Clean up any legacy symlink if present
+            const oldSymlink = path.join(pageDir, 'sequence-report.md');
+            if (fs.existsSync(oldSymlink) || fs.lstatSync(oldSymlink, { throwIfNoEntry: false })) {
+                try {
+                    fs.unlinkSync(oldSymlink);
+                } catch {
+                    // Ignore
+                }
+            }
+
+            const readmePath = path.join(pageDir, 'README.md');
+            const readmeMd = md.replace(/\(\.\/([^)]+)\)/g, `(../assets/img/${pageId}/$1)`);
+            fs.writeFileSync(readmePath, readmeMd, 'utf8');
+
+            try {
+                execFileSync('npx', ['prettier', '--write', outputPath, readmePath], {
+                    cwd: REPO_ROOT,
+                    stdio: 'ignore',
+                });
+            } catch {
+                // Ignore if npx/prettier is unavailable in sub-process
+            }
+        }
     }
 
     return {
