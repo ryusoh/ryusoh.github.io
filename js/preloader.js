@@ -57,6 +57,7 @@
                     '/assets/img/p2/DSCF8739.jpg',
                     '/assets/img/p2/DSCF3487-3.jpg',
                     '/assets/img/p2/DSCF3445-2.jpg',
+                    '/assets/img/p2/DSCF7452.JPG',
                     '/assets/img/p2/R0004664.JPG',
                     '/assets/img/p2/DSCF2862-3.jpg',
                 ],
