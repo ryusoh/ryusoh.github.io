@@ -50,17 +50,17 @@ Simulate a collaborative multi-agent editorial council to resolve narrative tens
 
 ### 4. Deliver the Frontier Curation Plan & Visual Sequence Report
 
-Present the curation plan and generate the dedicated Visual Sequence Report:
+Present the curation plan and **ALWAYS generate/refresh the dedicated Visual Sequence Report on disk**:
 
 1. **Executive Editorial Vision**: The chosen Storytelling Archetype, overarching narrative thesis, emotional trajectory, and unambiguous **Sequence Verdict** (state clearly whether the existing order is _Validated & Affirmed as Optimal_ or _Resequenced & Optimized_).
 2. **Respiratory & Rhythm Summary**: Total Inhalations vs. Exhalations, pacing score, and cadence balance.
-3. **Generate Rich Visual Sequence Report**: The skill must NOT produce a purely mechanical report with dry boilerplate placeholders. Combine the computational colorimetry with your multimodal Visual CoT analysis (subject matter, thematic meaning, gaze vectors, and narrative role) by generating a commentary JSON or map and generating `assets/img/p<N>/sequence-report.md`:
+3. **MANDATORY: Execute Report Generation Script**: The agent MUST run this command during the session to compile all 3 SVG figures and `sequence-report.md` fresh from disk. Never omit this command or leave it for the user to run:
 
     ```bash
-    node .agents/skills/sequence/scripts/inspect_gallery.mjs $ARGUMENTS --report --commentary <path/to/commentary.json>
+    node .agents/skills/sequence/scripts/inspect_gallery.mjs $ARGUMENTS --report --commentary assets/img/$ARGUMENTS/commentary.json
     ```
 
-    The generated report must directly embed high-resolution photographs via relative links, step energy costs, and the deep artistic critiques synthesized in Steps 2 and 3.
+    The generated report directly embeds high-resolution photographs via relative links, step energy costs, and the deep artistic critiques synthesized in Steps 2 and 3.
 
 4. **Frame-by-Frame Sequence Table**:
     - Sequential Position & Filename
