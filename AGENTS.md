@@ -352,3 +352,9 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
   `make precommit-fix` itself ends with `git add -u`, which stages **all**
   tracked modifications including a sibling's — another reason to keep file
   sets disjoint.
+- **Tests must be hermetic: never write temp artifacts into production asset
+  directories.** For example, sequence-skill reports/SVGs/JSON scratch files go
+  in `tests/fixtures/sequence-scratch/` (gitignored), not `assets/img/pN/`.
+  Production side effects that are normally desirable — such as auto-syncing
+  `pN/README.md` when a report is regenerated — must be gated to the canonical
+  production path so tests cannot corrupt tracked files.

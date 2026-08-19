@@ -108,6 +108,7 @@ export async function generateVisualReport(pageId, options = {}) {
     const outputPath = path.isAbsolute(rawOutputPath)
         ? rawOutputPath
         : path.resolve(REPO_ROOT, rawOutputPath);
+    const reportDir = path.dirname(outputPath);
 
     const data = await inspectGallery(pageId);
     let images = data.images;
@@ -164,7 +165,6 @@ export async function generateVisualReport(pageId, options = {}) {
         images,
     });
 
-    const reportDir = path.dirname(outputPath);
     const waveformPath = path.join(reportDir, 'sequence-waveform.svg');
     const transitionsPath = path.join(reportDir, 'sequence-transitions.svg');
     const colorimetryPath = path.join(reportDir, 'sequence-colorimetry.svg');
@@ -220,12 +220,14 @@ export async function generateVisualReport(pageId, options = {}) {
     }
 
     const galleryDir = path.join(REPO_ROOT, 'assets', 'img', pageId);
+    const galleryRel = path.relative(reportDir, galleryDir);
+    const galleryUrlPrefix = galleryRel ? `${galleryRel}/` : './';
 
     for (let i = 0; i < images.length; i++) {
         const img = images[i];
         const a = img.analysis;
         const previewFilename = resolvePreviewFilename(galleryDir, img.filename);
-        const imgEmbedUrl = `./${previewFilename}`;
+        const imgEmbedUrl = `${galleryUrlPrefix}${previewFilename}`;
 
         md += `### [${i + 1}/${images.length}] ${img.filename}\n\n`;
         md += `![${img.alt || img.caption || img.filename}](${imgEmbedUrl})\n\n`;
@@ -447,7 +449,7 @@ export async function generateVisualReport(pageId, options = {}) {
         for (const out of data.outtakes) {
             const a = out.analysis;
             const previewFilename = resolvePreviewFilename(galleryDir, out.filename);
-            const imgEmbedUrl = `./${previewFilename}`;
+            const imgEmbedUrl = `${galleryUrlPrefix}${previewFilename}`;
             md += `### Candidate: ${out.filename}\n\n`;
             md += `![${out.filename}](${imgEmbedUrl})\n\n`;
             if (a) {
@@ -475,11 +477,24 @@ export async function generateVisualReport(pageId, options = {}) {
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         fs.writeFileSync(outputPath, md, 'utf8');
 
+        // Format the generated report so consumers (and tests) always see Prettier-clean markdown.
+        try {
+            execFileSync('npx', ['prettier', '--write', outputPath], {
+                cwd: REPO_ROOT,
+                stdio: 'ignore',
+            });
+        } catch {
+            // Ignore if npx/prettier is unavailable in sub-process
+        }
+
         // Automatically maintain a root-level README.md (e.g. p2/README.md)
         // with adjusted relative paths (../assets/img/p2/...) so that GitHub Web and the GitHub iOS app
-        // automatically render the full visual sequence report on the folder page with zero extra taps
+        // automatically render the full visual sequence report on the folder page with zero extra taps.
+        // Only do this when writing the canonical gallery report; tests or custom output paths must not
+        // mutate the folder README.
+        const isCanonicalReport = path.normalize(outputPath) === defaultOutPath;
         const pageDir = path.join(REPO_ROOT, pageId);
-        if (fs.existsSync(pageDir) && fs.statSync(pageDir).isDirectory()) {
+        if (isCanonicalReport && fs.existsSync(pageDir) && fs.statSync(pageDir).isDirectory()) {
             // Clean up any legacy symlink if present
             const oldSymlink = path.join(pageDir, 'sequence-report.md');
             if (fs.existsSync(oldSymlink) || fs.lstatSync(oldSymlink, { throwIfNoEntry: false })) {
@@ -495,7 +510,7 @@ export async function generateVisualReport(pageId, options = {}) {
             fs.writeFileSync(readmePath, readmeMd, 'utf8');
 
             try {
-                execFileSync('npx', ['prettier', '--write', outputPath, readmePath], {
+                execFileSync('npx', ['prettier', '--write', readmePath], {
                     cwd: REPO_ROOT,
                     stdio: 'ignore',
                 });

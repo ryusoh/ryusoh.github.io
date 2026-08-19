@@ -9,6 +9,7 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
+const SCRATCH_DIR = path.join(REPO_ROOT, 'tests', 'fixtures', 'sequence-scratch');
 const INSPECT_SCRIPT = path.join(
     REPO_ROOT,
     '.agents',
@@ -81,13 +82,7 @@ describe('sequence skill automation script', () => {
     });
 
     test('inspect_gallery --report generates markdown report with embedded images and energy scores', () => {
-        const tempReportPath = path.join(
-            REPO_ROOT,
-            'assets',
-            'img',
-            'p5',
-            'test-sequence-report.md'
-        );
+        const tempReportPath = path.join(SCRATCH_DIR, 'test-sequence-report.md');
         try {
             const stdout = execFileSync(
                 'node',
@@ -105,7 +100,13 @@ describe('sequence skill automation script', () => {
             expect(report).toContain('# Visual Curation & Sequence Report');
             expect(report).toContain('Hamiltonian Sequence Energy');
             expect(report).toContain('Respiratory Pacing Score');
-            expect(report).toContain('![DSCF9004-3.jpg](./DSCF9004-3-768.webp)');
+            const expectedImgUrl = path
+                .relative(
+                    SCRATCH_DIR,
+                    path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9004-3-768.webp')
+                )
+                .replace(/\\/g, '/');
+            expect(report).toContain(`![DSCF9004-3.jpg](${expectedImgUrl})`);
             expect(report).toContain('Framing & Aspect');
             expect(report).toContain('Tonality & Breath');
             expect(report).toContain('Poetic Caesura');
@@ -142,7 +143,7 @@ describe('sequence skill automation script', () => {
     });
 
     test('generateVisualReport generates interlude proposals when sequence anomalies exist', () => {
-        const tempReportPath = path.join(REPO_ROOT, 'assets', 'img', 'p5', 'test-anom-report.md');
+        const tempReportPath = path.join(SCRATCH_DIR, 'test-anom-report.md');
         try {
             // Un-optimized sequence with 3 consecutive dark frames to trigger Suffocating Weight
             const unoptimized = [
@@ -198,14 +199,8 @@ describe('sequence skill automation script', () => {
     });
 
     test('inspect_gallery --report --commentary integrates custom commentary map into visual report', () => {
-        const tempReportPath = path.join(
-            REPO_ROOT,
-            'assets',
-            'img',
-            'p5',
-            'test-custom-comm-report.md'
-        );
-        const tempCommPath = path.join(REPO_ROOT, 'assets', 'img', 'p5', 'test-custom-comm.json');
+        const tempReportPath = path.join(SCRATCH_DIR, 'test-custom-comm-report.md');
+        const tempCommPath = path.join(SCRATCH_DIR, 'test-custom-comm.json');
 
         try {
             const customCommentary = {
@@ -256,13 +251,7 @@ describe('sequence skill automation script', () => {
     });
 
     test('generateVisualReport generates outtakes section with compliant h3 heading increments', () => {
-        const tempReportPath = path.join(
-            REPO_ROOT,
-            'assets',
-            'img',
-            'p3',
-            'test-outtake-heading-report.md'
-        );
+        const tempReportPath = path.join(SCRATCH_DIR, 'test-outtake-heading-report.md');
         try {
             execFileSync('node', [INSPECT_SCRIPT, 'p3', '--report', tempReportPath], {
                 cwd: REPO_ROOT,
@@ -294,13 +283,7 @@ describe('sequence skill automation script', () => {
     });
 
     test('inspect_gallery dynamically adapts pacing role when sequence order shifts while preserving intrinsic commentary', () => {
-        const tempReportPath = path.join(
-            REPO_ROOT,
-            'assets',
-            'img',
-            'p5',
-            'test-dynamic-role-report.md'
-        );
+        const tempReportPath = path.join(SCRATCH_DIR, 'test-dynamic-role-report.md');
 
         try {
             // Reorder: Move DSCF9159.jpg (originally Frame 12 Coda) to Frame 1 Opener,
@@ -339,7 +322,7 @@ describe('sequence skill automation script', () => {
             // DSCF9159 at Frame 1 should now have an Overture role (adapted dynamically)
             // while preserving its intrinsic visual subject and meaning
             expect(report).toMatch(
-                /### \[1\/12\] DSCF9159\.jpg[\s\S]*?- \*Pacing Role\*: Act I: The Overture/
+                /### \[1\/12\] DSCF9159\.jpg[\s\S]*?[_*]Pacing Role[_*]: Act I: The Overture/
             );
             expect(report).toContain('eating yogurt with a spoon late at night');
             expect(report).toContain('quiet, unadorned humanity');
@@ -347,7 +330,7 @@ describe('sequence skill automation script', () => {
             // DSCF9004-3 at Frame 12 should now have a Coda role (adapted dynamically)
             // while preserving its intrinsic visual subject
             expect(report).toMatch(
-                /### \[12\/12\] DSCF9004-3\.jpg[\s\S]*?- \*Pacing Role\*: Act IV: Coda/
+                /### \[12\/12\] DSCF9004-3\.jpg[\s\S]*?[_*]Pacing Role[_*]: Act IV: Coda/
             );
             expect(report).toContain('white helmet with both hands covering the face');
         } finally {
@@ -584,28 +567,10 @@ describe('sequence skill automation script', () => {
     });
 
     test('inspect_gallery --report writes modular SVGs alongside report', () => {
-        const tempReportPath = path.join(REPO_ROOT, 'assets', 'img', 'p5', 'test-chart-report.md');
-        const expectedWaveformPath = path.join(
-            REPO_ROOT,
-            'assets',
-            'img',
-            'p5',
-            'sequence-waveform.svg'
-        );
-        const expectedTransitionsPath = path.join(
-            REPO_ROOT,
-            'assets',
-            'img',
-            'p5',
-            'sequence-transitions.svg'
-        );
-        const expectedColorimetryPath = path.join(
-            REPO_ROOT,
-            'assets',
-            'img',
-            'p5',
-            'sequence-colorimetry.svg'
-        );
+        const tempReportPath = path.join(SCRATCH_DIR, 'test-chart-report.md');
+        const expectedWaveformPath = path.join(SCRATCH_DIR, 'sequence-waveform.svg');
+        const expectedTransitionsPath = path.join(SCRATCH_DIR, 'sequence-transitions.svg');
+        const expectedColorimetryPath = path.join(SCRATCH_DIR, 'sequence-colorimetry.svg');
 
         try {
             execFileSync('node', [INSPECT_SCRIPT, 'p5', '--report', tempReportPath], {

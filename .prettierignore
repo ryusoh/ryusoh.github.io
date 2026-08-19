@@ -26,6 +26,11 @@ reports/
 # CLAUDE.md). Prose/markdown, not gated — don't let Prettier reformat them.
 .jules/
 
+# Gitignored test scratch directory — sequence-skill tests write transient
+# reports/JSON/SVGs here and clean them up in finally blocks. Whole-repo
+# prettier must not fail on leftover scratch files.
+tests/fixtures/sequence-scratch/
+
 # Gitignored local Claude config (see .gitignore). CI's staged-files prettier
 # hook never sees it, so don't let whole-repo `make fmt-check` fail on it.
 # Scoped to local files only — tracked .claude/commands/ stays format-checked.
