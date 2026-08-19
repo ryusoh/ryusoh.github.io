@@ -654,4 +654,35 @@ describe('sequence skill automation script', () => {
         });
         expect(stdout).toContain('DENSE_SVG_PASSED');
     });
+
+    test('modular architecture exports are cleanly isolated across metrics, parser, charts, and report submodules', () => {
+        const modularTestCode = `
+            import { rgbToLab, deltaE, calculateTransitionCost } from './.agents/skills/sequence/scripts/metrics.mjs';
+            import { resolveGalleryPath, parseGalleryMarkdown } from './.agents/skills/sequence/scripts/parser.mjs';
+            import { generateLuminanceWaveformSvg, generateTransitionTensionSvg } from './.agents/skills/sequence/scripts/charts.mjs';
+            import { generateVisualReport } from './.agents/skills/sequence/scripts/report.mjs';
+
+            const lab = rgbToLab(255, 255, 255);
+            if (lab.L < 99) throw new Error('metrics.mjs rgbToLab failed');
+
+            const diff = deltaE({ L: 50, a: 0, b: 0 }, { L: 55, a: 0, b: 0 });
+            if (diff !== 5) throw new Error('metrics.mjs deltaE failed');
+
+            const { pageId } = resolveGalleryPath('p5');
+            if (pageId !== 'p5') throw new Error('parser.mjs resolveGalleryPath failed');
+
+            const waveform = generateLuminanceWaveformSvg({ gallery: { pageId: 'p5' }, images: [] });
+            if (!waveform.includes('Figure 1')) throw new Error('charts.mjs waveform failed');
+
+            if (typeof generateVisualReport !== 'function') throw new Error('report.mjs generateVisualReport failed');
+
+            console.log('MODULAR_SUBMODULES_PASSED');
+        `;
+
+        const stdout = execFileSync('node', ['--input-type=module', '-e', modularTestCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+        expect(stdout).toContain('MODULAR_SUBMODULES_PASSED');
+    });
 });
