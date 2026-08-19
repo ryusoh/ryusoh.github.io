@@ -3,8 +3,22 @@ name: CI
 on:
     push:
         branches: [master, main]
+        paths-ignore:
+            - 'assets/img/**/*.jpg'
+            - 'assets/img/**/*.JPG'
+            - 'assets/img/**/*.jpeg'
+            - 'assets/img/**/*.avif'
+            - 'assets/img/**/*.webp'
+            - 'assets/img/**/*.png'
     pull_request:
         branches: [master, main]
+        paths-ignore:
+            - 'assets/img/**/*.jpg'
+            - 'assets/img/**/*.JPG'
+            - 'assets/img/**/*.jpeg'
+            - 'assets/img/**/*.avif'
+            - 'assets/img/**/*.webp'
+            - 'assets/img/**/*.png'
 
 jobs:
     web-ci:
