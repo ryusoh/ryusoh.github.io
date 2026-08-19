@@ -510,7 +510,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 The current sequence displays **optimal rhythmic pacing** (100/100) with harmonic alternation across Inhalation, Exhalation, and Neutral anchor frames.
 
-## 4. Unsequenced Candidates & Outtakes (3)
+## 4. Unsequenced Candidates & Outtakes (1)
 
 ### Candidate: DSCF2056-2.jpg
 
@@ -520,24 +520,4 @@ The current sequence displays **optimal rhythmic pacing** (100/100) with harmoni
 - **Optimal Integration Slot**: Position #5 (`DSCF7186-2.jpg` → **`DSCF2056-2.jpg`** → `DSCF3435.JPG`)
 - **Pacing Impact**: Net ΔEnergy `+1.1` · Local Step Cost `16.8` · Pacing Score `100/100`
 - **Curatorial Suggestion**: Integrates smoothly between #4 (DSCF7186-2.jpg) and #5 (DSCF3435.JPG)
-- **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
-
-### Candidate: DSCF8569.JPG
-
-![DSCF8569.JPG](./DSCF8569.JPG)
-
-- **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=42.39` (Neutral)
-- **Optimal Integration Slot**: Position #20 (`DSCF1113.jpg` → **`DSCF8569.JPG`** → `DSCF3579.JPG`)
-- **Pacing Impact**: Net ΔEnergy `+0.5` · Local Step Cost `22.1` · Pacing Score `100/100`
-- **Curatorial Suggestion**: Integrates smoothly between #19 (DSCF1113.jpg) and #20 (DSCF3579.JPG)
-- **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
-
-### Candidate: DSCF8748.JPG
-
-![DSCF8748.JPG](./DSCF8748.JPG)
-
-- **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=51.68` (Neutral)
-- **Optimal Integration Slot**: Position #9 (`DSCF5338.JPG` → **`DSCF8748.JPG`** → `DSCF0490.JPG`)
-- **Pacing Impact**: Net ΔEnergy `+2.6` · Local Step Cost `11.1` · Pacing Score `100/100`
-- **Curatorial Suggestion**: Integrates smoothly between #8 (DSCF5338.JPG) and #9 (DSCF0490.JPG)
 - **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
