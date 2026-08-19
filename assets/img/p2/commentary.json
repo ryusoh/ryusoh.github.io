@@ -25,7 +25,14 @@
     "subject": "A woman in dark sunglasses, an ornate cream blouse, and a diaphanous pink tulle skirt strides forward carrying a shopping bag, flanked by male companions in sharp jackets in high-contrast afternoon sunlight.",
     "thematicMeaning": "The theater of urban vanity. Fashion and consumerism operate as armor against urban existential angst, bathed in the sharp, revealing chiaroscuro of downtown light.",
     "vectors": "Direct forward vector of the walking figures bisecting deep diagonal wall shadows, creating strong planar depth.",
-    "transition": "Harmonic transition stepping into the frenetic kinetic blur of Chinatown crosswalks."
+    "transition": "High-contrast daylight strut leaps into the golden underground velocity and defiant gaze of the BART platform."
+  },
+  "DSCF8444-3.jpg": {
+    "role": "Act II: Underground Defiance / The BART Platform",
+    "subject": "A young Black traveler in a mustard-yellow jacket and backpack stands on a subway platform with crossed arms, casting a piercing, defiant backward glance as a golden BART train blurs past.",
+    "thematicMeaning": "A quintessential decisive moment of street defiance. The subject's steady, unyielding gaze cuts through the subterranean speed of transit, demanding recognition.",
+    "vectors": "Strong horizontal velocity vector of the moving train contrasted against the rigid vertical posture and locked gaze of the commuter.",
+    "transition": "High-key chromatic burst (L*=61.78) cascades into the frenetic kinetic streaks of Chinatown crosswalks."
   },
   "DSCF8593-3.jpg": {
     "role": "Act II: Urban Velocity / Chinatown Slipstream",
@@ -39,14 +46,7 @@
     "subject": "An older Asian man in wire glasses and a dark jacket walks across a bold yellow zebra crossing at twilight, with corporate office lobbies and sleek vehicles looming in the reflective background.",
     "thematicMeaning": "The quiet alienation of the modern worker. Amidst corporate architecture and crosswalk markers, the subject carries an introspective, weary gravity.",
     "vectors": "Horizontal yellow crosswalk stripes receding into the distance, intersected by the solitary upright figure walking forward.",
-    "transition": "Twilight urban cool tones explode into the incandescent amber velocity of the underground transit platform."
-  },
-  "DSCF8444-3.jpg": {
-    "role": "Act II: Underground Defiance / The BART Platform",
-    "subject": "A young Black traveler in a mustard-yellow jacket and backpack stands on a subway platform with crossed arms, casting a piercing, defiant backward glance as a golden BART train blurs past.",
-    "thematicMeaning": "A quintessential decisive moment of street defiance. The subject's steady, unyielding gaze cuts through the subterranean speed of transit, demanding recognition.",
-    "vectors": "Strong horizontal velocity vector of the moving train contrasted against the rigid vertical posture and locked gaze of the commuter.",
-    "transition": "High-key chromatic burst (ΔE: 62.20, L*=61.78) plunging into the nocturnal freedom of the car roof."
+    "transition": "Twilight crosswalk harmonizes seamlessly (ΔE: 6.70) into the nocturnal freedom of the car roof."
   },
   "DSCF3433.jpg": {
     "role": "Act III: Nocturnal Defiance / The Sunroof Rebel",

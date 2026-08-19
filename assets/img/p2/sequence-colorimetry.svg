@@ -47,26 +47,26 @@
   <text x="197.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
   <text x="197.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
   <line x1="197.5" y1="187.5" x2="197.5" y2="192" class="tick-line" />
-  <rect x="219" y="28" width="31" height="92" fill="rgb(126, 100, 70)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="234.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">5</text>
-  <text x="234.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">44</text>
-  <text x="234.5" y="145" class="threshold-label" text-anchor="middle">(6, 21)</text>
+  <rect x="219" y="28" width="31" height="92" fill="rgb(194, 139, 48)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="234.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">5</text>
+  <text x="234.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">62</text>
+  <text x="234.5" y="145" class="threshold-label" text-anchor="middle">(13, 54)</text>
   <text x="234.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="234.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
+  <text x="234.5" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
   <line x1="234.5" y1="187.5" x2="234.5" y2="192" class="tick-line" />
-  <rect x="256" y="28" width="31" height="92" fill="rgb(82, 83, 70)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <rect x="256" y="28" width="31" height="92" fill="rgb(126, 100, 70)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
   <text x="271.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">6</text>
-  <text x="271.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">35</text>
-  <text x="271.5" y="145" class="threshold-label" text-anchor="middle">(-3, 7)</text>
+  <text x="271.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">44</text>
+  <text x="271.5" y="145" class="threshold-label" text-anchor="middle">(6, 21)</text>
   <text x="271.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
   <text x="271.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
   <line x1="271.5" y1="187.5" x2="271.5" y2="192" class="tick-line" />
-  <rect x="293" y="28" width="31" height="92" fill="rgb(194, 139, 48)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
-  <text x="308.5" y="44" fill="#0f172a" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">7</text>
-  <text x="308.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">62</text>
-  <text x="308.5" y="145" class="threshold-label" text-anchor="middle">(13, 54)</text>
+  <rect x="293" y="28" width="31" height="92" fill="rgb(82, 83, 70)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
+  <text x="308.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">7</text>
+  <text x="308.5" y="133" class="tick-label" font-weight="600" text-anchor="middle">35</text>
+  <text x="308.5" y="145" class="threshold-label" text-anchor="middle">(-3, 7)</text>
   <text x="308.5" y="158" class="tick-label" font-weight="bold" text-anchor="middle">1.50 L</text>
-  <text x="308.5" y="170" class="threshold-label" fill="#1d4ed8" font-size="7.5px" font-weight="bold" text-anchor="middle">[INH]</text>
+  <text x="308.5" y="170" class="threshold-label" fill="#475569" font-size="7.5px" font-weight="bold" text-anchor="middle">[GRD]</text>
   <line x1="308.5" y1="187.5" x2="308.5" y2="192" class="tick-line" />
   <rect x="330" y="28" width="31" height="92" fill="rgb(69, 83, 76)" stroke="#0f172a" stroke-width="0.75" rx="1.5" />
   <text x="345.5" y="44" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10px" font-weight="bold" text-anchor="middle">8</text>

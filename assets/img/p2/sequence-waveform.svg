@@ -37,10 +37,13 @@
   <line x1="68" y1="224" x2="72.5" y2="224" class="tick-line" />
   <line x1="735.5" y1="224" x2="740" y2="224" class="tick-line" />
   <text x="62" y="227" class="tick-label" text-anchor="end">0</text>
-  <path d="M 88 141.1764705882353 L 119.6 172.04705882352943 L 151.2 113.31764705882354 L 182.8 163.76470588235293 L 214.4 146.4470588235294 L 246 162.25882352941176 L 277.6 115.5764705882353 L 309.2 163.76470588235293 L 340.8 163.01176470588234 L 372.4 153.2235294117647 L 404 152.47058823529412 L 435.6 172.8 L 467.2 181.83529411764707 L 498.8 156.23529411764707 L 530.4 165.2705882352941 L 562 118.58823529411764 L 593.6 166.0235294117647 L 625.2 147.95294117647057 L 656.8 169.78823529411764 L 688.4 196.14117647058822 L 720 200.65882352941176" fill="none" stroke="#2b5c8f" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+  <path d="M 88 141.1764705882353 L 119.6 172.04705882352943 L 151.2 113.31764705882354 L 182.8 163.76470588235293 L 214.4 115.5764705882353 L 246 146.4470588235294 L 277.6 162.25882352941176 L 309.2 163.76470588235293 L 340.8 163.01176470588234 L 372.4 153.2235294117647 L 404 152.47058823529412 L 435.6 172.8 L 467.2 181.83529411764707 L 498.8 156.23529411764707 L 530.4 165.2705882352941 L 562 118.58823529411764 L 593.6 166.0235294117647 L 625.2 147.95294117647057 L 656.8 169.78823529411764 L 688.4 196.14117647058822 L 720 200.65882352941176" fill="none" stroke="#2b5c8f" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
   <line x1="103.8" y1="32" x2="103.8" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
   <rect x="81.8" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
   <text x="103.8" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="672.5999999999999" y1="32" x2="672.5999999999999" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="650.5999999999999" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="672.5999999999999" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
   <circle cx="88" cy="141.1764705882353" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="88" y1="219.5" x2="88" y2="224" class="tick-line" />
   <text x="88" y="238" class="tick-label" text-anchor="middle">1</text>
@@ -53,13 +56,13 @@
   <circle cx="182.8" cy="163.76470588235293" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="182.8" y1="219.5" x2="182.8" y2="224" class="tick-line" />
   <text x="182.8" y="238" class="tick-label" text-anchor="middle">4</text>
-  <circle cx="214.4" cy="146.4470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="214.4" cy="115.5764705882353" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="214.4" y1="219.5" x2="214.4" y2="224" class="tick-line" />
   <text x="214.4" y="238" class="tick-label" text-anchor="middle">5</text>
-  <circle cx="246" cy="162.25882352941176" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="246" cy="146.4470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="246" y1="219.5" x2="246" y2="224" class="tick-line" />
   <text x="246" y="238" class="tick-label" text-anchor="middle">6</text>
-  <circle cx="277.6" cy="115.5764705882353" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="277.6" cy="162.25882352941176" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="277.6" y1="219.5" x2="277.6" y2="224" class="tick-line" />
   <text x="277.6" y="238" class="tick-label" text-anchor="middle">7</text>
   <circle cx="309.2" cy="163.76470588235293" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
