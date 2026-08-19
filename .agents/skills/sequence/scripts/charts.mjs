@@ -322,10 +322,16 @@ export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
         // Substantial, elongated color bars filling ~54% of plot height
         const swatchHeight = 92;
 
-        // If slot width is compact (< 55px), display header legend for breath abbreviations
+        // If slot width is compact (< 55px), display header legend for metric rows and breath abbreviations
         if (slotWidth < 55) {
-            svg += `  <text x="${rightMargin}" y="17" class="threshold-label" text-anchor="end">Breath: [INH] Inhale · [EXH] Exhale · [GRD] Ground</text>\n`;
+            svg += `  <text x="${rightMargin}" y="17" class="threshold-label" text-anchor="end">Rows: L* Luminance · (a*, b*) Chroma · Aspect · [INH/EXH/GRD] Breath</text>\n`;
         }
+
+        // Left margin row headers for clear metric identification
+        svg += `  <text x="${leftMargin - 6}" y="${swatchY + swatchHeight + 13}" class="threshold-label" font-weight="bold" text-anchor="end">L*</text>\n`;
+        svg += `  <text x="${leftMargin - 6}" y="${swatchY + swatchHeight + 25}" class="threshold-label" text-anchor="end">a*,b*</text>\n`;
+        svg += `  <text x="${leftMargin - 6}" y="${swatchY + swatchHeight + 38}" class="threshold-label" text-anchor="end">Asp</text>\n`;
+        svg += `  <text x="${leftMargin - 6}" y="${swatchY + swatchHeight + 50}" class="threshold-label" text-anchor="end">Tag</text>\n`;
 
         for (let i = 0; i < numImages; i++) {
             const img = images[i];
@@ -342,15 +348,25 @@ export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
             const orient = (a?.orientation || 'land').substring(0, 1).toUpperCase();
             const aspect = a?.aspectRatio || '1.50';
 
-            // Adaptive label formatting to prevent overlapping in dense galleries (e.g. N >= 16)
-            let labLStr = `L*=${rawLabL}`;
-            if (slotWidth < 36) {
+            // Deterministic adaptive label formatting mathematically scaled to slot width:
+            // Glyphs are ~5.2px wide; slotWidth must guarantee at least 4px padding between labels.
+            let labLStr = `L*=${rawLabL.toFixed(1)}`;
+            if (slotWidth < 55 && slotWidth >= 44) {
                 labLStr = `L*=${Math.round(rawLabL)}`;
+            } else if (slotWidth < 44) {
+                labLStr = `${Math.round(rawLabL)}`;
             }
 
-            let abStr = `(${labA}, ${labB})`;
-            if (slotWidth < 55) {
+            let abStr = `(${labA.toFixed(1)}, ${labB.toFixed(1)})`;
+            if (slotWidth < 65 && slotWidth >= 34) {
                 abStr = `(${Math.round(labA)}, ${Math.round(labB)})`;
+            } else if (slotWidth < 34) {
+                abStr = `${Math.round(labA)},${Math.round(labB)}`;
+            }
+
+            let aspectStr = `${aspect} ${orient}`;
+            if (slotWidth < 34) {
+                aspectStr = `${aspect}`;
             }
 
             let breathTag = '[GROUNDING]';
@@ -373,7 +389,7 @@ export function generateColorimetrySpectrumSvg({ gallery = {}, images = [] }) {
 
             svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 13}" class="tick-label" font-weight="600" text-anchor="middle">${labLStr}</text>\n`;
             svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 25}" class="threshold-label" text-anchor="middle">${abStr}</text>\n`;
-            svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 38}" class="tick-label" font-weight="bold" text-anchor="middle">${aspect} ${orient}</text>\n`;
+            svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 38}" class="tick-label" font-weight="bold" text-anchor="middle">${aspectStr}</text>\n`;
             svg += `  <text x="${xCenter}" y="${swatchY + swatchHeight + 50}" class="threshold-label" fill="${breathColor}" font-size="7.5px" font-weight="bold" text-anchor="middle">${breathTag}</text>\n`;
 
             svg += `  <line x1="${xCenter}" y1="${boxBottom - 4.5}" x2="${xCenter}" y2="${boxBottom}" class="tick-line" />\n`;
