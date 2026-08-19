@@ -78,7 +78,6 @@
                     '/assets/img/p3/DSCF1137.jpg',
                     '/assets/img/p3/DSCF7672-2.JPG',
                     '/assets/img/p3/DSCF1113.jpg',
-                    '/assets/img/p3/DSCF2056-2.jpg',
                     '/assets/img/p3/DSCF3579.JPG',
                     '/assets/img/p3/DSCF7318-3.jpg',
                     '/assets/img/p3/DSCF5759-5.jpg',
