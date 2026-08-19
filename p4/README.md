@@ -10,7 +10,7 @@
 
 ## 1. Executive Curatorial & Quantitative Architecture
 
-This report quantitatively evaluates the visual narrative arc for **p4**, combining photometric colorimetry (CIELAB L*a*b\*, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
+This report quantitatively evaluates the visual narrative arc for **p4**, combining photometric colorimetry (CIELAB `L*a*b*`, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
 
 ### 1.1 Photometric Respiratory Waveform
 
@@ -83,7 +83,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: View from inside a dim, damp concrete zoo enclosure looking out through heavy glass, where two visitors shield their brows from the glare to peer inside.
 - _Thematic Meaning_: Inverts the dynamic of looking: the outside world becomes the exhibit, and the viewers outside become shadowy apparitions pressing against the glass barrier.
 - _Composition & Gaze Vectors_: Horizontal concrete partition and vertical steel ladder drawing the gaze into the central illuminated glass portal.
-- _Transition Dynamic_: Deep exhalation step (L\*=30.00, Lum 70) yielding to broad daylight and sharp cast shadows.
+- _Transition Dynamic_: Deep exhalation step (`L*=30.00`, Lum 70) yielding to broad daylight and sharp cast shadows.
 
 ---
 
@@ -123,7 +123,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Direct low sunlight catching a woman in tinted sunglasses and an oversized grey coat talking on a phone before a dark doorway and a yellow sports billboard, with the distinct silhouette of the photographer cast on the left wall.
 - _Thematic Meaning_: A classic street moment where the photographer's presence is betrayed by their own cast shadow. The subject looks past the camera, absorbed in her own invisible conversation.
 - _Composition & Gaze Vectors_: Left-to-right eye gaze and golden rim light counterbalanced by the deep black silhouette of the photographer in the lower-left quadrant.
-- _Transition Dynamic_: Warm exhalation grounding (L\*=31.37) before bursting into expansive, airy daylight.
+- _Transition Dynamic_: Warm exhalation grounding (`L*=31.37`) before bursting into expansive, airy daylight.
 
 ---
 

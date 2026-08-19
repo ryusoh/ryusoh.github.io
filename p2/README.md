@@ -10,7 +10,7 @@
 
 ## 1. Executive Curatorial & Quantitative Architecture
 
-This report quantitatively evaluates the visual narrative arc for **p2**, combining photometric colorimetry (CIELAB L*a*b\*, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
+This report quantitatively evaluates the visual narrative arc for **p2**, combining photometric colorimetry (CIELAB `L*a*b*`, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
 
 ### 1.1 Photometric Respiratory Waveform
 
@@ -78,7 +78,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Two middle-aged men leaning out of a red brick bar window, hands tightly clasped over the sill. The foreground man in a plain white t-shirt gazes directly into the lens with bloodshot, weathered eyes, while his companion watches with a sly grin.
 - _Thematic Meaning_: An unvarnished look at working-class exhaustion and camaraderie in the urban margins. Their clasped hands and world-weary gazes capture raw human vulnerability and quiet resilience.
 - _Composition & Gaze Vectors_: Horizontal sill dividing the frame, with the prominent interlocking hands anchoring the lower quadrant and direct eye contact commanding the upper half.
-- _Transition Dynamic_: Deep exhalation anchor (L\*=30.00) leading into the luminous skyward fervor of street evangelism.
+- _Transition Dynamic_: Deep exhalation anchor (`L*=30.00`) leading into the luminous skyward fervor of street evangelism.
 
 ---
 
@@ -98,7 +98,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Low-angle street perspective looking up at towering skyscrapers: an older woman in a clear protective visor raises her hands in ecstatic prayer, flanked by street preachers holding vibrant signs reading 'DO NOT DIE WITHOUT KNOWING JESUS'.
 - _Thematic Meaning_: Spiritual angst in the shadow of high finance. The fervent, desperate plea for salvation collides visually with the gleaming, impassive glass monoliths of the financial district.
 - _Composition & Gaze Vectors_: Dramatic upward perspective vectors along the soaring skyscraper facades, framed by the outstretched praying hands pointing skyward.
-- _Transition Dynamic_: Luminous inhalation (L\*=60.86) descending into the sleek, high-contrast sunlight of the commercial boulevard.
+- _Transition Dynamic_: Luminous inhalation (`L*=60.86`) descending into the sleek, high-contrast sunlight of the commercial boulevard.
 
 ---
 
@@ -138,7 +138,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A young Black traveler in a mustard-yellow jacket and backpack stands on a subway platform with crossed arms, casting a piercing, defiant backward glance as a golden BART train blurs past.
 - _Thematic Meaning_: A quintessential decisive moment of street defiance. The subject's steady, unyielding gaze cuts through the subterranean speed of transit, demanding recognition.
 - _Composition & Gaze Vectors_: Strong horizontal velocity vector of the moving train contrasted against the rigid vertical posture and locked gaze of the commuter.
-- _Transition Dynamic_: High-key chromatic burst (L\*=61.78) cascades into the frenetic kinetic streaks of Chinatown crosswalks.
+- _Transition Dynamic_: High-key chromatic burst (`L*=61.78`) cascades into the frenetic kinetic streaks of Chinatown crosswalks.
 
 ---
 
@@ -278,7 +278,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Chiaroscuro profile of an elderly Black gentleman wearing a black fedora and denim overalls, walking past classical fluted stone columns on a wet, reflective city pavement.
 - _Thematic Meaning_: Quiet grace and enduring resilience. The subject's etched facial profile and vintage attire evoke a timeless human dignity that transcends modern urban alienation.
 - _Composition & Gaze Vectors_: Diagonal forward momentum of the walker echoing the vertical fluting of the classical stone columns.
-- _Transition Dynamic_: Deep exhalation anchor (L\*=28.64) stepping into the shadowed alcove of the forsaken.
+- _Transition Dynamic_: Deep exhalation anchor (`L*=28.64`) stepping into the shadowed alcove of the forsaken.
 
 ---
 
@@ -298,7 +298,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A hooded figure sits curled in deep black shadow in a narrow street doorway, juxtaposed against a brightly colored mural featuring a weeping red rose and blue wooden panels.
 - _Thematic Meaning_: A poignant visual embodiment of the 'drowned, terribly forgotten and forsaken'. The harsh contrast between the vibrant public mural and the swallowed human shadow speaks directly to the core manifesto.
 - _Composition & Gaze Vectors_: Deep vertical wedge of black shadow slicing between the sunlit sidewalk and the painted blue wooden wall.
-- _Transition Dynamic_: Deep low-key exhalation (L\*=23.30) leading into the introspective sidewalk smoker.
+- _Transition Dynamic_: Deep low-key exhalation (`L*=23.30`) leading into the introspective sidewalk smoker.
 
 ---
 
@@ -358,7 +358,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: An older woman with glasses on her forehead and a cigarette in her mouth commands the steering wheel of a GMC Yukon truck, captured in intense direct flash against swirling yellow and orange light trails.
 - _Thematic Meaning_: Raw, unapologetic defiance. Pounding the pavement behind heavy machinery, the driver stares down the camera with unvarnished authenticity—a living avatar of the 'barbarian' spirit.
 - _Composition & Gaze Vectors_: Strong horizontal mass of the truck door and window framing the driver's locked gaze and hands on the wheel.
-- _Transition Dynamic_: High-key inhalation crest (L\*=60.58) transitioning into the collective street ritual of the midnight haircut.
+- _Transition Dynamic_: High-key inhalation crest (`L*=60.58`) transitioning into the collective street ritual of the midnight haircut.
 
 ---
 

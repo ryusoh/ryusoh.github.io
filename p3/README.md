@@ -10,7 +10,7 @@
 
 ## 1. Executive Curatorial & Quantitative Architecture
 
-This report quantitatively evaluates the visual narrative arc for **p3**, combining photometric colorimetry (CIELAB L*a*b\*, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
+This report quantitatively evaluates the visual narrative arc for **p3**, combining photometric colorimetry (CIELAB `L*a*b*`, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
 
 ### 1.1 Photometric Respiratory Waveform
 
@@ -78,7 +78,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A towering stepped altar drenched in golden marigolds (cempasúchil) for Día de los Muertos, with artisans and participants arranging offerings beneath a clear blue sky and soaring palm trees.
 - _Thematic Meaning_: Grounds the series in sacred community ritual and public cultural architecture. Saturated yellow hues and monumental verticality evoke celebration, remembrance, and the transcendent spirit of West Coast heritage.
 - _Composition & Gaze Vectors_: Vertical floral garlands and triangular stepped pyramid directing the gaze skyward, anchored by the working figure in the lower left foreground.
-- _Transition Dynamic_: Luminous tonal expansion (L\*=77.11) carrying the viewer upward before soaring into mid-air suspension.
+- _Transition Dynamic_: Luminous tonal expansion (`L*=77.11`) carrying the viewer upward before soaring into mid-air suspension.
 
 ---
 
@@ -298,7 +298,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Low-angle view of celebratory fans on an elevated ledge gesturing towards the camera in 'GOLD BLOODED' attire against a mirrored glass skyscraper facade.
 - _Thematic Meaning_: The triumphant crest of collective civic celebration. Bold hand gestures, sun-drenched architecture, and unabashed swagger reflect Bay Area sports culture at its peak.
 - _Composition & Gaze Vectors_: Extreme low-to-high diagonal perspective pointing up at the gesturing hands and dynamic crouched figures.
-- _Transition Dynamic_: Brilliant high-noon daylight (L\*=62.63) yields to multi-layered, contemplative street reflections.
+- _Transition Dynamic_: Brilliant high-noon daylight (`L*=62.63`) yields to multi-layered, contemplative street reflections.
 
 ---
 
@@ -358,7 +358,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Direct flash portrait of a barber in a red beanie and denim apron staring into the lens, with a mirror behind him reflecting the camera's starburst specular highlight.
 - _Thematic Meaning_: The barbershop as a cultural cornerstone and sacred masculine sanctuary. The direct gaze and optical flash reflection acknowledge the photographer's presence in a decisive moment of mutual recognition.
 - _Composition & Gaze Vectors_: Piercing central gaze vector locked directly on the lens, anchored by the dazzling 18-point starburst flare behind his head.
-- _Transition Dynamic_: Deep exhalation anchor (L\*=31.30) resetting the perceptual baseline before the wild nocturnal climax.
+- _Transition Dynamic_: Deep exhalation anchor (`L*=31.30`) resetting the perceptual baseline before the wild nocturnal climax.
 
 ---
 
@@ -398,7 +398,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Close-up double exposure of a smiling woman sticking her tongue out, layered across a translucent field of American flag stars against an illuminated corporate entrance.
 - _Thematic Meaning_: Playful, irreverent subversion of national iconography. The youthful gesture superimposed on the star-spangled banner reflects an informal, lived reinterpretation of American identity.
 - _Composition & Gaze Vectors_: Overlapping facial contours and diagonal flag stripes blending into a rich coral and magenta field.
-- _Transition Dynamic_: Rising tonal crescendo (L\*=57.48) building toward the incandescent solar light vortex.
+- _Transition Dynamic_: Rising tonal crescendo (`L*=57.48`) building toward the incandescent solar light vortex.
 
 ---
 

@@ -97,9 +97,9 @@ export async function generateVisualReport(pageId, options = {}) {
 
     if (outputPath) {
         fs.mkdirSync(reportDir, { recursive: true });
-        fs.writeFileSync(waveformPath, waveformSvg, 'utf8');
-        fs.writeFileSync(transitionsPath, transitionsSvg, 'utf8');
-        fs.writeFileSync(colorimetryPath, colorimetrySvg, 'utf8');
+        fs.writeFileSync(waveformPath, waveformSvg.trim() + '\n', 'utf8');
+        fs.writeFileSync(transitionsPath, transitionsSvg.trim() + '\n', 'utf8');
+        fs.writeFileSync(colorimetryPath, colorimetrySvg.trim() + '\n', 'utf8');
     }
 
     // Use ./ relative paths for 100% compatibility with VSCode vanilla preview and standard markdown viewers
@@ -114,7 +114,7 @@ export async function generateVisualReport(pageId, options = {}) {
     md += `> **Respiratory Pacing Score**: \`${respiratory.rhythmScore}/100\` (${respiratory.inhalations} Inhalations, ${respiratory.exhalations} Exhalations, ${respiratory.neutrals} Grounding)\n\n`;
 
     md += `## 1. Executive Curatorial & Quantitative Architecture\n\n`;
-    md += `This report quantitatively evaluates the visual narrative arc for **${pageId}**, combining photometric colorimetry (CIELAB L*a*b*, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.\n\n`;
+    md += `This report quantitatively evaluates the visual narrative arc for **${pageId}**, combining photometric colorimetry (CIELAB \`L*a*b*\`, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.\n\n`;
 
     md += `### 1.1 Photometric Respiratory Waveform\n\n`;
     md += `The respiratory luminance waveform maps the photometric breathing rhythm of the essay, balancing luminous expansions with low-key chiaroscuro grounding anchors.\n\n`;
@@ -226,17 +226,19 @@ export async function generateVisualReport(pageId, options = {}) {
                     effectiveRole = `${dynamicPacingRole}${cleanRoleName ? ` (${cleanRoleName})` : ''}`;
                 }
 
+                const formatProse = (text) => (text || '').replace(/L\*=([0-9.]+)/g, '`L*=$1`');
+
                 md += `- *Pacing Role*: ${effectiveRole}\n`;
                 if (commentary.subject || commentary.content) {
-                    md += `- *Visual Subject & Content*: ${commentary.subject || commentary.content}\n`;
+                    md += `- *Visual Subject & Content*: ${formatProse(commentary.subject || commentary.content)}\n`;
                 }
                 if (commentary.meaning || commentary.thematicMeaning) {
-                    md += `- *Thematic Meaning*: ${commentary.meaning || commentary.thematicMeaning}\n`;
+                    md += `- *Thematic Meaning*: ${formatProse(commentary.meaning || commentary.thematicMeaning)}\n`;
                 }
                 if (commentary.vector || commentary.vectors) {
-                    md += `- *Composition & Gaze Vectors*: ${commentary.vector || commentary.vectors}\n`;
+                    md += `- *Composition & Gaze Vectors*: ${formatProse(commentary.vector || commentary.vectors)}\n`;
                 }
-                md += `- *Transition Dynamic*: ${commentary.transition || dynamicTransDesc}\n\n`;
+                md += `- *Transition Dynamic*: ${formatProse(commentary.transition || dynamicTransDesc)}\n\n`;
             }
         } else if (a) {
             const breathDesc =
@@ -263,7 +265,7 @@ export async function generateVisualReport(pageId, options = {}) {
                 citeAuthor = citeMatch[1].replace(/<[^>]*>/g, '').trim();
                 quoteText = quoteText
                     .replace(/<footer[\s\S]*?<\/footer>/gi, '')
-                    .replace(/<cite>[\s\S]*?<\/cite>/gi);
+                    .replace(/<cite>[\s\S]*?<\/cite>/gi, '');
             }
 
             // Split into lines on <br />, clean html tags and whitespace

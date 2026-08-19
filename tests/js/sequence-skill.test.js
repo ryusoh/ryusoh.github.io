@@ -114,7 +114,7 @@ describe('sequence skill automation script', () => {
             expect(report).not.toMatch(/\$L\^/);
             expect(report).not.toMatch(/\$\Delta/);
             expect(report).not.toMatch(/\$L\*/);
-            expect(report).toContain('CIELAB L*a*b*');
+            expect(report).toContain('CIELAB `L*a*b*`');
             expect(report).toContain('ΔE₇₆');
 
             // TDD: Photo credit must not be used as Curatorial Rationale body
@@ -752,5 +752,43 @@ describe('sequence skill automation script', () => {
             encoding: 'utf8',
         });
         expect(stdout).toContain('CANDIDATE_EVALUATION_PASSED');
+    });
+
+    test('all pN/README.md files remain strictly synchronized with assets/img/pN/sequence-report.md', () => {
+        const galleries = ['p1', 'p2', 'p3', 'p4', 'p5'];
+        for (const id of galleries) {
+            const reportPath = path.join(REPO_ROOT, 'assets', 'img', id, 'sequence-report.md');
+            const readmePath = path.join(REPO_ROOT, id, 'README.md');
+            if (fs.existsSync(reportPath)) {
+                expect(fs.existsSync(readmePath)).toBe(true);
+                const reportContent = fs.readFileSync(reportPath, 'utf8');
+                const readmeContent = fs.readFileSync(readmePath, 'utf8');
+
+                const expected = reportContent.replace(
+                    /\(\.\/([^)]+)\)/g,
+                    '(../assets/img/' + id + '/$1)'
+                );
+                const normalize = (s) =>
+                    s
+                        .split('\n')
+                        .filter(
+                            (line) =>
+                                !line.trim().startsWith('| :--') && !line.trim().startsWith('|:--')
+                        )
+                        .map((line) =>
+                            line
+                                .trim()
+                                .replace(/\s+/g, ' ')
+                                .replace(/\|\s+/g, '|')
+                                .replace(/\s+\|/g, '|')
+                                .replace(/\\?\*/g, '*')
+                                .replace(/\\?_/g, '*')
+                        )
+                        .join('\n')
+                        .trim();
+
+                expect(normalize(readmeContent)).toBe(normalize(expected));
+            }
+        }
     });
 });

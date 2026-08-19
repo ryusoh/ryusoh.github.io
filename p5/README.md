@@ -10,7 +10,7 @@
 
 ## 1. Executive Curatorial & Quantitative Architecture
 
-This report quantitatively evaluates the visual narrative arc for **p5**, combining photometric colorimetry (CIELAB L*a*b\*, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
+This report quantitatively evaluates the visual narrative arc for **p5**, combining photometric colorimetry (CIELAB `L*a*b*`, ΔE₇₆), Hamiltonian pairwise transition tension, and multi-agent aesthetic critique.
 
 ### 1.1 Photometric Respiratory Waveform
 
@@ -203,7 +203,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 - _Pacing Role_: Act III: The Luminous Inhalation / Valley Lights
 - _Visual Subject & Content_: Aerial high-angle nightscape of glowing city lights across a valley floor under falling snow dust.
-- _Thematic Meaning_: The vital respiratory reset (L\*=57.91). A silent, expansive cosmic breath of fresh air amidst the nocturnal heat.
+- _Thematic Meaning_: The vital respiratory reset (`L*=57.91`). A silent, expansive cosmic breath of fresh air amidst the nocturnal heat.
 - _Composition & Gaze Vectors_: Soft horizontal golden glow anchoring the lower third of the frame.
 - _Transition Dynamic_: Dramatic counterpoint from serene golden valley to electric strobe energy.
 

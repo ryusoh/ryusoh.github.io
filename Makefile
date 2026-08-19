@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract
+.PHONY: help hooks precommit precommit-fix update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -99,7 +99,10 @@ lint-js:
 lint-css:
 	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --max-warnings=0 --formatter=unix
 
-lint: lint-js lint-css depcheck
+lint-md:
+	@$(NPX) markdownlint-cli --config .markdownlint.json "**/*.md" --ignore node_modules --ignore .gemini
+
+lint: lint-js lint-css lint-md depcheck
 
 # Dependency-structure gate: no circular imports. Rules: .dependency-cruiser.cjs
 # (alias-resolution stub: .dependency-cruiser.webpack.cjs — see its header for
