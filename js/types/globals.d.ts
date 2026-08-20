@@ -13,6 +13,7 @@ interface Gsap {
 
 declare const gsap: Gsap;
 declare const SplitText: any;
+declare const ThumbHash: unknown;
 
 interface Window {
     __MobileDockForTesting?: { initMobileDock: () => void };
@@ -86,9 +87,10 @@ interface Window {
     };
     __swForTesting?: unknown;
     __HoverPreviewForTesting?: unknown;
+    ThumbHash?: unknown;
     ThumbHashInit?: {
-        applyThumbHash: (img: HTMLImageElement, decoder?: unknown) => void;
-        init: (container?: HTMLElement | Document, decoder?: unknown) => void;
+        applyThumbHash: (el: HTMLElement, thumbHashDecoder?: unknown) => void;
+        init: (container?: HTMLElement | Document, thumbHashDecoder?: unknown) => void;
     };
 }
 

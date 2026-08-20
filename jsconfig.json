@@ -11,6 +11,7 @@
         "strict": true
     },
     "include": [
+        "js/thumbhash-init.js",
         "js/hover-preview.js",
         "js/service-worker-register.js",
         "js/types/*.d.ts",

@@ -7,18 +7,26 @@
     'use strict';
 
     /**
+     * @typedef {Object} ThumbHashDecoder
+     * @property {(hash: string) => Uint8Array} base64ToUint8Array
+     * @property {(bytes: Uint8Array) => string} thumbHashToDataURL
+     */
+
+    /**
      * Applies ThumbHash placeholder to an image or container element.
      * @param {HTMLElement} el
-     * @param {Object} [thumbHashDecoder]
+     * @param {ThumbHashDecoder | unknown} [thumbHashDecoder]
      */
     function applyThumbHash(el, thumbHashDecoder) {
-        const decoder =
+        const decoder = /** @type {ThumbHashDecoder | null} */ (
             thumbHashDecoder ||
-            (typeof ThumbHash !== 'undefined' ? ThumbHash : null) ||
-            (typeof window !== 'undefined' && window.ThumbHash ? window.ThumbHash : null) ||
-            (typeof globalThis !== 'undefined' && globalThis.ThumbHash
-                ? globalThis.ThumbHash
-                : null);
+                (typeof ThumbHash !== 'undefined' ? ThumbHash : null) ||
+                (typeof window !== 'undefined' && window.ThumbHash ? window.ThumbHash : null) ||
+                (typeof globalThis !== 'undefined' &&
+                /** @type {Window & typeof globalThis} */ (globalThis).ThumbHash
+                    ? /** @type {Window & typeof globalThis} */ (globalThis).ThumbHash
+                    : null)
+        );
 
         if (!el || !decoder || typeof el.getAttribute !== 'function') {
             return;
@@ -63,7 +71,7 @@
     /**
      * Initializes all elements matching [data-thumbhash] in the given container or document.
      * @param {HTMLElement|Document} [container=document]
-     * @param {Object} [thumbHashDecoder]
+     * @param {ThumbHashDecoder | unknown} [thumbHashDecoder]
      */
     function init(container, thumbHashDecoder) {
         const rootElement = container || (typeof document !== 'undefined' ? document : null);
