@@ -313,31 +313,31 @@
         // Render duplicate sets to allow seamless infinite vertical drift
         const imagesList = [...data.images, ...data.images];
         const thumbhashesList = data.thumbhashes ? [...data.thumbhashes, ...data.thumbhashes] : [];
-        let html = '';
+        trackEl.innerHTML = '';
         for (let i = 0; i < imagesList.length; i++) {
             const src = imagesList[i];
             const hash = thumbhashesList[i] || '';
             const isEager = i < 4;
-            html +=
-                "<a href='" +
-                data.url +
-                "' class='hover-carousel-item' data-page-transition data-destination='project' aria-label='" +
-                data.title +
-                ' thumbnail ' +
-                (i + 1) +
-                "'>" +
-                "<img src='" +
-                src +
-                "'" +
-                (hash ? " data-thumbhash='" + hash + "'" : '') +
-                " alt='" +
-                data.title +
-                "' loading='" +
-                (isEager ? 'eager' : 'lazy') +
-                "' decoding='async' />" +
-                '</a>';
+
+            const a = document.createElement('a');
+            a.href = data.url;
+            a.className = 'hover-carousel-item';
+            a.setAttribute('data-page-transition', '');
+            a.setAttribute('data-destination', 'project');
+            a.setAttribute('aria-label', data.title + ' thumbnail ' + (i + 1));
+
+            const img = document.createElement('img');
+            img.src = src;
+            if (hash) {
+                img.setAttribute('data-thumbhash', hash);
+            }
+            img.alt = data.title;
+            img.setAttribute('loading', isEager ? 'eager' : 'lazy');
+            img.setAttribute('decoding', 'async');
+
+            a.appendChild(img);
+            trackEl.appendChild(a);
         }
-        trackEl.innerHTML = html;
         scrollPos = 0;
         trackEl.style.transform = 'translate3d(0, 0, 0)';
 
