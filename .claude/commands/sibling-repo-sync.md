@@ -16,15 +16,28 @@ Sibling profiles:
 - `~/dev/fund` — static vanilla-JS/CSS dashboard + Python data pipeline; CI
   gate = `make precommit-fix` (web-ci: format + lint + JS/Python tests);
   `make verify` (lint + type + sec + test) is NOT a superset — it misses the
-  pre-commit eslint `--max-warnings=0` hook. Import aliases via import map
-  (`@js/*`); `data/` is pipeline-generated, never hand-edit; complexity
-  ratchet via `eslint-suppressions.json` + Python `xenon`.
+  pre-commit eslint `--max-warnings=0` hook. (Its AGENTS.md is internally
+  inconsistent: non-negotiable #1 says `make verify`, the command table
+  correctly says CI runs `precommit-fix` — trust the command table.) Import
+  aliases via import map (`@js/*`); `data/` is pipeline-generated, never
+  hand-edit; complexity ratchet via `eslint-suppressions.json` + Python
+  `xenon`. Gotchas: `js/charts/imageDrawer.js` and `js/pages/analysis/lab.js`
+  are prettier-dirty at HEAD, so every `precommit-fix` run rewrites them —
+  revert those drive-bys out of your diff. The PR diff-coverage workflow only
+  collects from `js/**/*.js`, so `scripts/*.mjs` never enters lcov. Heavy
+  images are CSS `background:` sites, not `<img>` — adapt responsive patterns
+  via `image-set()` there, not `<picture>`. sharp is a devDependency.
 - `~/dev/anki` — JS + Python (Anki addons); **no** `.pre-commit-config.yaml`;
   CI gate = `make precommit SKIP=1` (fmt-check lint typecheck-js quality-py
   check sync-check); aliases via package.json `imports` (`#js/*`, `#ui/*`);
   Python addon dirs are REAL packages (`__init__.py` present) — import-linter
   works here. Beware: `precommit-fix`'s `YOLO=1`/`MSG=` commit step runs
-  `git add -A`.
+  `git add -A`. Tooling lives in `tools/` (snake_case `.mjs`, node:test tests
+  alongside) — `scripts/` is empty/untracked. GitHub Pages site: heavy images
+  are CSS backgrounds (`assets/backgrounds/*`, `mobile_bg.jpg`); addon-dir
+  PNGs ship to the desktop app and are never web-served. sharp is a
+  devDependency. Pre-existing dead CSS refs exist (e.g. `css/base.css` →
+  nonexistent `position_background.jpg`) — don't "fix" unrelated ones.
 - `~/dev/networking` — JS + Python; **no** `.pre-commit-config.yaml`; CI runs
   `make precommit` (check-only) — use `make precommit-fix` while iterating,
   `make precommit` before the PR; `make precommit-docker` gives macOS/CI
@@ -33,7 +46,12 @@ Sibling profiles:
   by exit code plus reading the tail, not vibes. jest is pinned to v29 (its
   non-negotiable #5); its non-negotiable #6 forbids JULES ROUTINES from
   touching build/lint config — interactive agents acting on explicit user
-  direction are exempt, note it in the PR body.
+  direction are exempt, note it in the PR body. **No web-hosting surface at
+  all** (no CNAME/\_config.yml/Pages workflow; only first-party HTML is
+  chrome-extension pages) — web-serving tooling patterns don't apply; see its
+  `docs/tiered-image-serving.md` for the evaluation. Gotcha: a leftover
+  gitignored `.stryker-tmp/sandbox-*` makes `make precommit` fail with
+  confusing jest "must contain at least one test" errors — delete it freely.
 
 Verify these facts against each repo's current AGENTS.md/Makefile before
 relying on them — they drift.
