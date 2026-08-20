@@ -17,14 +17,10 @@ Sibling profiles:
 - `~/dev/fund` — static vanilla-JS/CSS dashboard + Python data pipeline; CI
   gate = `make precommit-fix` (web-ci: format + lint + JS/Python tests);
   `make verify` (lint + type + sec + test) is NOT a superset — it misses the
-  pre-commit eslint `--max-warnings=0` hook. (Its AGENTS.md is internally
-  inconsistent: non-negotiable #1 says `make verify`, the command table
-  correctly says CI runs `precommit-fix` — trust the command table.) Import
+  pre-commit eslint `--max-warnings=0` hook. Import
   aliases via import map (`@js/*`); `data/` is pipeline-generated, never
   hand-edit; complexity ratchet via `eslint-suppressions.json` + Python
-  `xenon`. Gotchas: `js/charts/imageDrawer.js` and `js/pages/analysis/lab.js`
-  are prettier-dirty at HEAD, so every `precommit-fix` run rewrites them —
-  revert those drive-bys out of your diff. The PR diff-coverage workflow only
+  `xenon`. Gotcha: the PR diff-coverage workflow only
   collects from `js/**/*.js`, so `scripts/*.mjs` never enters lcov. Heavy
   images are CSS `background:` sites, not `<img>` — adapt responsive patterns
   via `image-set()` there, not `<picture>`. sharp is a devDependency.
