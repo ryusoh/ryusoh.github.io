@@ -41,5 +41,8 @@
         "stylelint": "^17.14.1",
         "thumbhash": "^0.1.1",
         "typescript": "^7.0.2"
+    },
+    "dependencies": {
+        "onnxruntime-node": "^1.27.0"
     }
 }

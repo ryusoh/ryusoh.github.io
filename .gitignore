@@ -29,3 +29,6 @@ reports/
 
 # StrykerJS sandbox temp dir (make mutate-js)
 .stryker-tmp/
+
+# Gaze models (weights downloaded at setup time, tracked via MODELS.lock)
+.agents/skills/sequence/models/*.onnx

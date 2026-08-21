@@ -1,0 +1,2 @@
+2f2689b040becf555706d2cb978d2f0e3296ea82413734fba9a856c66c5f2b17  face_detection_short_range.onnx  https://github.com/yakhyo/mediapipe-face-mesh-onnx/releases/download/weights/face_detection_short_range.onnx
+111795f8703cdeb6d0c68a9f3cc966a0f23f8786bb00f4577a11f461fc4276ac  face_landmarker_Nx3x256x256.onnx  https://github.com/yakhyo/mediapipe-face-mesh-onnx/releases/download/weights/face_landmarker_Nx3x256x256.onnx

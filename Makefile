@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract gaze-models
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -25,6 +25,7 @@ help:
 	@echo "  thumbhashes   Batch generate 28-char ThumbHash placeholders for gallery images"
 	@echo "  assets        Run images + thumbhashes generation pipeline"
 	@echo "  page          Build/generate a portfolio page (e.g. make page ID=p5)"
+	@echo "  gaze-models   Download ONNX face models and verify checksums via MODELS.lock"
 
 hooks:
 	@if [ ! -f .pre-commit-config.yaml ]; then \
@@ -187,3 +188,13 @@ endif
 
 extract:
 	@node scripts/extract-page-markdown.mjs $(if $(ID),$(ID),$(EXTRACT_ARGS))
+
+# Download ONNX face models and verify checksums via MODELS.lock
+gaze-models:
+	@mkdir -p .agents/skills/sequence/models
+	@while read -r sha file url; do \
+		[ -z "$$sha" ] && continue; \
+		echo "Downloading $$file..."; \
+		curl -fL "$$url" -o ".agents/skills/sequence/models/$$file"; \
+	done < .agents/skills/sequence/models/MODELS.lock
+	@awk '{print $$1 "  " $$2}' .agents/skills/sequence/models/MODELS.lock | (cd .agents/skills/sequence/models && shasum -a 256 -c)
