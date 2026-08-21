@@ -300,7 +300,7 @@ node .agents/skills/sequence/scripts/inspect_gallery.mjs p5 --report
 
 Sample CLI output:
 
-````text
+```text
 ======================================================================
   FRONTIER GALLERY SEQUENCE INSPECTION: P5 - "SELF PORTRAITS AND BEHIND THE SCENES"
 ======================================================================
@@ -346,7 +346,7 @@ graph TD
         Euler --> JSONOutput["Structured Gaze Digest (JSON / CLI)"]
         EyeContact --> JSONOutput
     end
-````
+```
 
 #### 1. Two-Stage ONNX Architecture
 
