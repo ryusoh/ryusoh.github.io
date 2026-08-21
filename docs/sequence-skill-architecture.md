@@ -204,14 +204,22 @@ The skill is fully self-contained within `.agents/skills/sequence/`:
 ├── SKILL.md                    # Canonical agent instructions, MAD protocol & Visual CoT
 ├── references/
 │   └── principles.md           # Masterclass handbook: Archetypes, Eisenstein montage, Webb slant rhymes, Kawauchi breathing
+├── models/
+│   └── MODELS.lock             # SHA-256 locked ONNX model registry (face detection & mesh)
 └── scripts/
-    └── inspect_gallery.mjs     # Deterministic Node.js CLI: CIELAB, Delta E, Respiratory analyzer, Cost matrix
+    ├── inspect_gallery.mjs     # Deterministic Node.js CLI: CIELAB, Delta E, Respiratory analyzer, Cost matrix
+    ├── gaze.mjs                # Deterministic ONNX Gaze & Head Pose Pre-processor (BlazeFace + Landmarker-478)
+    ├── parser.mjs              # Gallery & Markdown parser module
+    ├── metrics.mjs             # CIELAB, colorimetry & Hamiltonian graph energy math
+    ├── report.mjs              # Visual Sequence Report markdown synthesizer
+    └── charts.mjs              # Braille & ASCII respiratory cadence visualizer
 
 .claude/commands/
 └── sequence.md                 # Generated Claude Code slash command (synced via tools/sync_commands.py)
 
 tests/js/
-└── sequence-skill.test.js      # Jest unit tests for inspect_gallery.mjs and frontier metrics
+├── sequence-skill.test.js      # Jest unit tests for inspect_gallery.mjs and frontier metrics
+└── gaze.test.js                # Hermetic unit tests for gaze.mjs, Procrustes pose math, and ONNX seams
 ```
 
 ```mermaid
@@ -220,15 +228,21 @@ graph TD
 
     subgraph ToolingLayer ["1. Deterministic Neuro-Symbolic Layer"]
         InspectScript["scripts/inspect_gallery.mjs<br>(Node.js + Sharp + js-yaml)"]
+        GazeScript["scripts/gaze.mjs<br>(onnxruntime-node + BlazeFace + 478 Mesh)"]
         FSImages["Disk Images<br>assets/img/pN/*.jpg"]
         FSMd["Gallery Source<br>assets/img/pN/index.md"]
 
         InspectScript -->|Extracts CIELAB & Delta E| FSImages
         InspectScript -->|Parses Frontmatter & Quotes| FSMd
-        InspectScript -->|Emits JSON / Table Digest| AnalysisDigest["Technical & Respiratory Digest<br>(CIELAB, Delta E, Inhalation/Exhalation, Cost Matrix)"]
+        GazeScript -->|Detects 3D Head Pose & Gaze| FSImages
+        GazeScript -->|Parses Sequence Order| FSMd
+
+        InspectScript -->|Color & Pacing Metrics| AnalysisDigest["Technical, Respiratory & Gaze Digest<br>(CIELAB, Delta E, Cadence, Yaw/Pitch/Roll, Eye-Contact)"]
+        GazeScript -->|Yaw/Pitch/Roll & Eye-Contact| AnalysisDigest
     end
 
     Trigger --> InspectScript
+    Trigger --> GazeScript
     AnalysisDigest --> MultimodalLayer
 
     subgraph MultimodalLayer ["2. Multi-Agent Deliberation (MAD) & Visual CoT"]
@@ -286,7 +300,7 @@ node .agents/skills/sequence/scripts/inspect_gallery.mjs p5 --report
 
 Sample CLI output:
 
-```text
+````text
 ======================================================================
   FRONTIER GALLERY SEQUENCE INSPECTION: P5 - "SELF PORTRAITS AND BEHIND THE SCENES"
 ======================================================================
@@ -307,11 +321,90 @@ CURRENT SEQUENCE ORDER, CIELAB TONALITY & RESPIRATORY BREATH:
  [ 3] DSCF8059.JPG                 | LANDSCAPE | 2048x1365 (1.50)  | [Neutral]     | Lum: 112  | Lab: (47.2, -1.84, -1.9)
 ----------------------------------------------------------------------
 RESPIRATORY RHYTHM WARNINGS:
- ⚠️ [Frame #8 - 849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG] Suffocating Weight: 3 consecutive low-key exhalation frames—consider an open luminous interlude.
+  ⚠️ [Frame #8 - 849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG] Suffocating Weight: 3 consecutive low-key exhalation frames—consider an open luminous interlude.
 ======================================================================
 ```
 
-### 6.3 Applying & Publishing Changes
+### 6.3 Deterministic Gaze Vector & Head Pose Estimation (gaze.mjs)
+
+To eliminate hallucinated eye-contact vectors and heuristic head angles during multi-agent deliberation, the skill includes a deterministic local computer-vision pre-processor (`gaze.mjs`) backed by `onnxruntime-node` and `sharp`:
+
+```mermaid
+graph TD
+    subgraph GazePipeline ["Deterministic Gaze Vector Estimation Pipeline (gaze.mjs)"]
+        RawImage["Raw Gallery Image<br>(Disk / Sharp Metadata)"] --> Letterbox["1. 128x128 Letterbox RGB<br>([-1, 1] Normalized Float32)"]
+        Letterbox --> Detector["2. BlazeFace Short-Range Detector<br>(896 SSD Anchors + Weighted NMS)"]
+        Detector --> BBoxROI["3. Rotated Affine Crop<br>(256x256 Float32 Crop ROI)"]
+        BBoxROI --> MeshLandmarker["4. FaceLandmarker-478 ONNX<br>(478 3D Coordinate Tensor)"]
+
+        MeshLandmarker --> Procrustes["5. Umeyama Rigid Alignment (Pure JS)<br>(Jacobi SVD Covariance H = U Σ V^T)"]
+        MeshLandmarker --> IrisOffset["6. Iris Center Normalization<br>(Left 468 & Right 473 within Contours)"]
+
+        Procrustes --> Euler["Tait-Bryan Euler Angles<br>(Yaw, Pitch, Roll in Degrees)"]
+        IrisOffset --> EyeContact["Eye-Contact Classification<br>(|Yaw|≤15°, |Pitch|≤15°, Offset≤0.35)"]
+
+        Euler --> JSONOutput["Structured Gaze Digest (JSON / CLI)"]
+        EyeContact --> JSONOutput
+    end
+````
+
+#### 1. Two-Stage ONNX Architecture
+
+1. **Stage 1 (Face Detection)**: `face_detection_short_range.onnx` receives a 128×128 letterbox tensor with mean 127.5 subtraction. It evaluates 896 anchor candidates with score-weighted NMS to extract face center, dimensions, and 6 keypoints.
+2. **Stage 2 (Dense Landmark Mesh)**: `face_landmarker_Nx3x256x256.onnx` receives a 256×256 rotated affine crop aligned along the eye axis, outputting 478 3D landmark coordinates in crop-scaled metric space.
+
+#### 2. Pure-JS 3D Head Pose Mathematics (Umeyama Orthogonal Procrustes)
+
+The 3D orientation is derived by fitting a 6-point landmark subset against MediaPipe's canonical 3D face model:
+
+- **Landmark Subset**: Nose tip ($1$), Chin ($152$), Left eye outer ($33$), Right eye outer ($263$), Left mouth corner ($61$), Right mouth corner ($291$).
+- **Centering**: Subtract respective barycenters: $\bar{p} = \frac{1}{N}\sum P_i$, $\bar{q} = \frac{1}{N}\sum Q_i$.
+- **Covariance Matrix**: $H = \sum_{i=1}^N (Q_i - \bar{q})(P_i - \bar{p})^T$.
+- **Jacobi SVD**: Decompose $H = U \Sigma V^T$ via classical Jacobi plane rotations.
+- **Rotation Matrix**: $R = U \operatorname{diag}(1, 1, \det(U V^T)) V^T$.
+- **Tait-Bryan Angles**:
+  $$\text{Pitch} = \arcsin(-R_{1,2}), \quad \text{Yaw} = \operatorname{atan2}(R_{0,2}, R_{2,2}), \quad \text{Roll} = \operatorname{atan2}(R_{1,0}, R_{1,1})$$
+
+#### 3. Normalized Iris Vector & Eye-Contact Classification
+
+- **Left Eye**: Iris center index $468$, bounded by contour corners $33, 133, 159, 145$.
+- **Right Eye**: Iris center index $473$, bounded by contour corners $362, 263, 386, 374$.
+- **Normalized Offset**:
+  $$\Delta x = \frac{x_{\text{iris}} - x_{\text{center}}}{w_{\text{eye}} / 2}, \quad \Delta y = \frac{y_{\text{iris}} - y_{\text{center}}}{h_{\text{eye}} / 2}$$
+- **Eye-Contact Invariant**: $\text{eyeContact} = \text{true}$ if and only if:
+  $$|\text{Yaw}| \le 15^\circ \land |\text{Pitch}| \le 15^\circ \land \sqrt{\Delta x_{\text{left}}^2 + \Delta y_{\text{left}}^2} \le 0.35 \land \sqrt{\Delta x_{\text{right}}^2 + \Delta y_{\text{right}}^2} \le 0.35$$
+
+#### 4. CLI Usage & Model Management
+
+```bash
+# 1. Download ONNX models and verify SHA-256 checksums
+make gaze-models
+
+# 2. Formatted terminal inspection of gallery face & gaze vectors
+node .agents/skills/sequence/scripts/gaze.mjs p5
+
+# 3. Structured JSON output for automated pipelines
+node .agents/skills/sequence/scripts/gaze.mjs p5 --json
+```
+
+Sample CLI output:
+
+```text
+[DSCF9004-3.jpg                ] 1 face(s) | Conf: 0.65 | Yaw:  -0.7° | Pitch:  26.1° | Roll: -11.4° | [LOOK-AWAY]    | Latency: 101 ms
+[2025-05-11-0020.JPG           ] 0 faces detected | Latency: 110 ms
+[DSCF9159.jpg                  ] 1 face(s) | Conf: 0.70 | Yaw:   4.1° | Pitch:  41.6° | Roll:  72.2° | [LOOK-AWAY]    | Latency:  95 ms
+```
+
+When models are not installed, the tool exits cleanly with code `0` and emits a actionable JSON payload:
+
+```json
+{
+    "error": "models-not-installed",
+    "hint": "run: make gaze-models"
+}
+```
+
+### 6.4 Applying & Publishing Changes
 
 Once the agent and user agree on the advised sequence:
 
@@ -324,7 +417,7 @@ make page ID=p5
 make precommit-fix
 ```
 
-### 6.4 Report Lifecycle, Idempotency & Future AI Upgrades
+### 6.5 Report Lifecycle, Idempotency & Future AI Upgrades
 
 The `/sequence` architecture enforces a strict **Dual-Layer Separation** between deterministic mathematical physics and non-deterministic multimodal artistic reasoning:
 
@@ -333,6 +426,7 @@ graph TD
     subgraph Layer1 ["Layer 1: Deterministic Computational Engine"]
         Sharp["Sharp Pixel Extraction<br>(Dimensions, Aspect, sRGB Means)"]
         Colorimetry["CIELAB L*a*b* & ΔE₇₆ Conversions<br>(Exact Metric Physics)"]
+        GazeModel["ONNX BlazeFace & 478 Mesh (gaze.mjs)<br>(Deterministic 3D Yaw/Pitch/Roll & Iris Vectors)"]
         Hamiltonian["Hamiltonian Graph Energy & Step Cost<br>(Deterministic Math)"]
         Cadence["Kawauchi Run-Length Cadence Scanner<br>(Deterministic Inhalation/Exhalation)"]
     end
@@ -361,7 +455,7 @@ graph TD
     - **Incremental Merging**: When new photos or outtakes are introduced into `index.md`, the skill preserves existing critiques and generates commentary entries only for the newly added frames.
     - **Full Re-curation**: Passing a new commentary file (`--commentary <path>`) allows testing alternative curatorial voices (e.g. a minimalist Japanese photobook perspective vs. a kinetic American street perspective).
 
-### 6.5 The Intrinsic vs. Relational Commentary Model & Boundary Dynamics
+### 6.6 The Intrinsic vs. Relational Commentary Model & Boundary Dynamics
 
 In photobook montage (Eisenstein, Jason Eskenazi, Alex Webb), moving even a single image across a sequence boundary alters its narrative role:
 
