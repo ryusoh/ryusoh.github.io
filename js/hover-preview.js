@@ -210,6 +210,11 @@
     /**
      * @type {number}
      */
+    let lastRenderedScrollPos = -1;
+
+    /**
+     * @type {number}
+     */
     let singleSetHeight = 0;
 
     /**
@@ -231,8 +236,19 @@
             if (scrollPos >= singleSetHeight) {
                 scrollPos -= singleSetHeight;
             }
-            trackEl.style.transform = `translate3d(0, ${-scrollPos}px, 0)`;
         }
+
+        /**
+         * Bolt Optimization:
+         * - What: Decouple DOM write from the high-frequency `wheel` event and skip updates when idle.
+         * - Why: Directly writing `trackEl.style.transform` inside a wheel event handler triggers synchronous style recalcs out of sync with the paint cycle, causing layout thrashing. Updating it every frame even when unchanged (e.g. paused) wastes CPU.
+         * - Impact: Measurably reduces main thread overhead by grouping style mutations inside the `requestAnimationFrame` cycle and only applying them when the calculated coordinate has actually changed.
+         */
+        if (trackEl && scrollPos !== lastRenderedScrollPos) {
+            trackEl.style.transform = `translate3d(0, ${-scrollPos}px, 0)`;
+            lastRenderedScrollPos = scrollPos;
+        }
+
         /* istanbul ignore else */
         if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
             animationFrameId = window.requestAnimationFrame(updateDrift);
@@ -506,7 +522,6 @@
                 while (scrollPos < 0) {
                     scrollPos += singleSetHeight;
                 }
-                trackEl.style.transform = `translate3d(0, ${-scrollPos}px, 0)`;
             },
             { passive: false }
         );
