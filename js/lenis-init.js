@@ -14,6 +14,10 @@
         );
     }
 
+    /**
+     * @param {Record<string, unknown>=} options
+     * @returns {Lenis | null}
+     */
     function initLenis(options) {
         if (isReducedMotion()) {
             return null;
@@ -22,7 +26,10 @@
         const LenisClass =
             (typeof Lenis !== 'undefined' ? Lenis : null) ||
             (typeof window !== 'undefined' && window.Lenis ? window.Lenis : null) ||
-            (typeof globalThis !== 'undefined' && globalThis.Lenis ? globalThis.Lenis : null);
+            (typeof globalThis !== 'undefined' &&
+            /** @type {Object & { Lenis?: typeof Lenis }} */ (globalThis).Lenis
+                ? /** @type {Object & { Lenis?: typeof Lenis }} */ (globalThis).Lenis
+                : null);
 
         if (!LenisClass) {
             return null;

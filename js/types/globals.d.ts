@@ -15,7 +15,17 @@ declare const gsap: Gsap;
 declare const SplitText: any;
 declare const ThumbHash: unknown;
 
+declare class Lenis {
+    constructor(options?: Record<string, unknown>);
+}
+
 interface Window {
+    Lenis?: typeof Lenis;
+    lenis?: Lenis;
+    LenisInit?: {
+        initLenis: (options?: Record<string, unknown>) => Lenis | null;
+        isReducedMotion: () => boolean;
+    };
     __MobileDockForTesting?: { initMobileDock: () => void };
     SplitText?: any;
     __FontAwesomeLoaderForTesting?: { FontAwesomeLoader: new () => any };
