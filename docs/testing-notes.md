@@ -3,6 +3,34 @@
 Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
 
+## 2026-08-21 — Testing ESM scripts (.mjs) from CommonJS Jest suites without VM modules
+
+**Problem:** Jest in this repo runs under CommonJS (`jest.config.cjs`). Attempting to `await import('../../scripts/foo.mjs')` directly inside a Jest test file triggers `SyntaxError: Cannot use import statement outside a module` because Jest's runtime environment intercepts `import()` without `--experimental-vm-modules`.
+
+**Fix:** Execute the ESM script/module in a clean Node child process using `execFileSync` with `--input-type=module`:
+
+```js
+const { execFileSync } = require('child_process');
+
+function runEsm(code) {
+    const stdout = execFileSync('node', ['--input-type=module', '-e', code], {
+        cwd: REPO_ROOT,
+        encoding: 'utf8',
+    });
+    return JSON.parse(stdout.trim());
+}
+
+test('invokes ESM helper cleanly', () => {
+    const res = runEsm(`
+        import { computeSomething } from './.agents/skills/sequence/scripts/foo.mjs';
+        console.log(JSON.stringify(computeSomething()));
+    `);
+    expect(res).toEqual(...);
+});
+```
+
+This isolates ESM loading completely from Jest's transform pipeline while allowing full hermetic assertions over module exports and JSON returns.
+
 ## 2026-08-18 — Parallel Jest worker collisions: Synthetic project fixtures & shared disk state mutation
 
 **Problem:** In CI or multi-worker runs (`jest --coverage --maxWorkers=N`), tests execute concurrently across separate worker processes. If an E2E test (e.g. `tests/js/page-builder.test.js`) generates a synthetic portfolio directory (`p99/`, `assets/img/p99/`) or runs a compiler that modifies shared repo files (`index.html`, `p1/index.html`, `js/preloader.js`) on disk, parallel acceptance tests (`mobile-overflow.acceptance.test.js`, `thumbhash-consistency.acceptance.test.js`, `header-dock-consistency.acceptance.test.js`) will discover `p99` mid-build or mid-teardown, throwing `ENOENT: no such file or directory, open '.../p99/index.html'` or asserting against temporarily polluted `index.html` navigation links.
