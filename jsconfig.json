@@ -29,7 +29,8 @@
         "js/ga.js",
         "js/init.js",
         "sw.js",
-        "js/mobile-dock.js"
+        "js/mobile-dock.js",
+        "js/scroll-reveal-icon.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
