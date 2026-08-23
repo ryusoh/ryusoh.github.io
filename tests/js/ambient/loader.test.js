@@ -47,6 +47,86 @@ describe('ambient/loader.js', () => {
         jest.restoreAllMocks();
     });
 
+    test('loadLegacyAmbient covers window.CDNLoader missing gracefully during sequence', async () => {
+        let loadLegacyAmbient;
+        jest.isolateModules(() => {
+            require('../../../js/ambient/loader.js');
+            loadLegacyAmbient = window.__AmbientLoaderForTesting.loadLegacyAmbient;
+        });
+
+        // Test line 38 and 46 missing checks
+        window.CDNLoader = {
+            loadScriptSequential: jest.fn().mockResolvedValueOnce().mockResolvedValueOnce(),
+        };
+
+        // First call will return resolved promise, then in then block line 37 we delete CDNLoader
+        const resolvedPromise = Promise.resolve();
+        window.CDNLoader.loadScriptSequential = jest.fn((args) => {
+            if (args[0].includes('sketch.js')) {
+                delete window.CDNLoader;
+                return resolvedPromise;
+            }
+            return Promise.resolve();
+        });
+
+        // The assertion should be that the result of loadLegacyAmbient resolves successfully
+        // despite window.CDNLoader being deleted midway, preventing crashes.
+        await expect(loadLegacyAmbient()).resolves.toBeUndefined();
+    });
+
+    test('loadLegacyAmbient covers window.CDNLoader missing gracefully when CDNLoader is unmounted midway', async () => {
+        let loadLegacyAmbient;
+        jest.isolateModules(() => {
+            require('../../../js/ambient/loader.js');
+            loadLegacyAmbient = window.__AmbientLoaderForTesting.loadLegacyAmbient;
+        });
+
+        window.CDNLoader = {
+            loadScriptSequential: jest.fn((args) => {
+                if (args[0].includes('config/default.js')) {
+                    delete window.CDNLoader;
+                    return Promise.resolve();
+                }
+                return Promise.resolve();
+            }),
+        };
+
+        await expect(loadLegacyAmbient()).resolves.toBeUndefined();
+    });
+
+    test('exits early if window.CDNLoader goes missing after checking shouldSkipLoader', () => {
+        const originalCDNLoader = Object.getOwnPropertyDescriptor(window, 'CDNLoader') || {
+            value: window.CDNLoader,
+            configurable: true,
+        };
+
+        Object.defineProperty(window, 'CDNLoader', {
+            configurable: true,
+            get: jest
+                .fn()
+                .mockReturnValueOnce({}) // for shouldSkipLoader
+                .mockReturnValueOnce(undefined), // for line 114
+        });
+
+        try {
+            expect(() => {
+                jest.isolateModules(() => {
+                    require('../../../js/ambient/loader.js');
+                });
+            }).not.toThrow();
+        } finally {
+            if (originalCDNLoader.get || originalCDNLoader.set) {
+                Object.defineProperty(window, 'CDNLoader', originalCDNLoader);
+            } else {
+                Object.defineProperty(window, 'CDNLoader', {
+                    value: originalCDNLoader.value,
+                    configurable: true,
+                    writable: true,
+                });
+            }
+        }
+    });
+
     test('exits early if prefers-reduced-motion is true', () => {
         window.matchMedia.mockReturnValue({ matches: true });
 
