@@ -99,31 +99,34 @@ describe('ThumbHashInit', () => {
         expect(() => ThumbHashInit.applyThumbHash({})).not.toThrow();
     });
 
-    test('initializes on DOMContentLoaded if loaded in loading state', () => {
-        const fs = require('fs');
-        const path = require('path');
-        const code = fs.readFileSync(path.resolve(__dirname, '../../js/thumbhash-init.js'), 'utf8');
+    test('exits early if container lacks querySelectorAll', () => {
+        expect(() => ThumbHashInit.init({})).not.toThrow();
+        expect(() => ThumbHashInit.init({ querySelectorAll: 'not-a-function' })).not.toThrow();
+    });
 
-        // Set document.readyState to 'loading'
+    test('initializes on DOMContentLoaded if loaded in loading state', () => {
+        const originalReadyState = Object.getOwnPropertyDescriptor(
+            Object.getPrototypeOf(document),
+            'readyState'
+        );
+
         Object.defineProperty(document, 'readyState', { value: 'loading', configurable: true });
         window.ThumbHash = ThumbHash;
 
-        const scriptFn = new Function(
-            'require',
-            'module',
-            'exports',
-            'document',
-            'window',
-            'ThumbHash',
-            code
-        );
-        const mod = { exports: {} };
-        scriptFn(require, mod, mod.exports, document, window, ThumbHash);
+        try {
+            jest.isolateModules(() => {
+                require('../../js/thumbhash-init.js');
+            });
 
-        // Fire DOMContentLoaded
-        document.dispatchEvent(new Event('DOMContentLoaded'));
+            // Fire DOMContentLoaded
+            document.dispatchEvent(new Event('DOMContentLoaded'));
 
-        const img1 = document.getElementById('img1');
-        expect(img1.style.backgroundImage).toMatch(/^url\("data:image\/png;base64,/);
+            const img1 = document.getElementById('img1');
+            expect(img1.style.backgroundImage).toMatch(/^url\("data:image\/png;base64,/);
+        } finally {
+            if (originalReadyState) {
+                delete document.readyState;
+            }
+        }
     });
 });

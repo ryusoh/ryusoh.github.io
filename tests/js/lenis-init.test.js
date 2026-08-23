@@ -84,19 +84,29 @@ describe('LenisInit', () => {
     test('initializes on DOMContentLoaded when document.readyState is loading', () => {
         window.matchMedia = jest.fn().mockReturnValue({ matches: false });
         // Re-eval script with readyState loading
-        const originalReadyState = document.readyState;
+        const originalReadyState = Object.getOwnPropertyDescriptor(
+            Object.getPrototypeOf(document),
+            'readyState'
+        );
         Object.defineProperty(document, 'readyState', {
             value: 'loading',
             configurable: true,
         });
 
-        // Trigger DOMContentLoaded
-        const event = new Event('DOMContentLoaded');
-        document.dispatchEvent(event);
+        try {
+            jest.isolateModules(() => {
+                require('../../js/lenis-init.js');
+            });
 
-        Object.defineProperty(document, 'readyState', {
-            value: originalReadyState,
-            configurable: true,
-        });
+            // Trigger DOMContentLoaded
+            const event = new Event('DOMContentLoaded');
+            document.dispatchEvent(event);
+
+            expect(window.lenis).toBeDefined();
+        } finally {
+            if (originalReadyState) {
+                delete document.readyState;
+            }
+        }
     });
 });
