@@ -516,12 +516,7 @@
                 }
                 event.preventDefault();
                 scrollPos += event.deltaY * 0.8;
-                while (scrollPos >= singleSetHeight) {
-                    scrollPos -= singleSetHeight;
-                }
-                while (scrollPos < 0) {
-                    scrollPos += singleSetHeight;
-                }
+                scrollPos = ((scrollPos % singleSetHeight) + singleSetHeight) % singleSetHeight;
             },
             { passive: false }
         );
