@@ -1484,6 +1484,17 @@ describe('Page Transition Logic', () => {
 
             logSpy.mockRestore();
         });
+
+        it('returns false if window.location.href exceeds length limit', () => {
+            const originalHref = window.location.href;
+            window.history.pushState({}, '', '/?' + 'a'.repeat(2001));
+            expect(api.navigate('http://localhost/test')).toBe(false);
+            window.history.pushState({}, '', originalHref);
+        });
+
+        it('returns false if validation fails on navigate', () => {
+            expect(api.navigate('javascript:alert(1)')).toBe(false);
+        });
     });
 });
 

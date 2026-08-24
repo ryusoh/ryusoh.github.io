@@ -373,6 +373,20 @@ describe('js/block-navigation.js', () => {
             expect(testing.shouldUseElement(child)).toBe(false);
         });
 
+        it('should return false if element is nested inside another block element', () => {
+            const blockquote = document.createElement('blockquote');
+            blockquote.className = 'post-content blockquote';
+            const p = document.createElement('p');
+            blockquote.appendChild(p);
+            document.body.appendChild(blockquote);
+
+            p.matches = (s) => s === '.post-content p';
+
+            expect(testing.shouldUseElement(p)).toBe(false);
+
+            document.body.removeChild(blockquote);
+        });
+
         it('should return true if element has data-block-nav="block"', () => {
             const el = document.createElement('div');
             el.setAttribute('data-block-nav', 'block');
