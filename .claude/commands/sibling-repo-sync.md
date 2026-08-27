@@ -42,7 +42,10 @@ Sibling profiles:
   by exit code plus reading the tail, not vibes. jest is pinned to v29 (its
   non-negotiable #5); its non-negotiable #6 forbids JULES ROUTINES from
   touching build/lint config — interactive agents acting on explicit user
-  direction are exempt, note it in the PR body. **No web-hosting surface at
+  direction are exempt, note it in the PR body. Its `ci.yml` has a "Reject
+  empty pull request" step that hard-fails empty PRs, and its AGENTS.md Lanes
+  table lists Sentinel although `.jules/` has no sentinel persona (stale).
+  **No web-hosting surface at
   all** (no CNAME/\_config.yml/Pages workflow; only first-party HTML is
   chrome-extension pages) — web-serving tooling patterns don't apply; see its
   `docs/tiered-image-serving.md` for the evaluation. Gotcha: a leftover
