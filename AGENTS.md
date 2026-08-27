@@ -58,7 +58,8 @@ rather than assuming a regression.
 7. **Don't write a command/example you haven't actually run this session.** Verify
    behaviour; don't infer it from a name or a `case` label.
 8. **Check open and recently-closed PRs before you start, and don't repeat them.**
-   Run `gh pr list --state all --limit 30` (and read the recent ones). A closed PR
+   Run `python3 tools/prior_prs.py` (lists number, state, labels, title) and read
+   the recent ones. A closed PR
    was closed for a reason; an open one already claims that work. Resubmitting
    similar work wastes the run and gets closed. Pick something new.
 9. **No stream-of-consciousness in the diff.** Your reasoning stays out of
@@ -68,6 +69,11 @@ rather than assuming a regression.
    Enforced deterministically by `make thinking-check`
    (`scripts/check-thinking-comments.js`) over all tracked JS/CSS sources; also
    a blocking pre-commit hook.
+10. **Never open an empty PR.** If the run produces no diff (zero changed
+    files), end the run with no PR — an empty PR can't be merged and costs the
+    reviewer a manual close. This includes when your task's goal turns out to be
+    already satisfied by the current repo state (e.g. a stale task description):
+    a satisfied goal is a no-op, not a PR.
 
 ## You cannot see the rendered page
 
@@ -267,7 +273,11 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   directory-name matching, standard `{{args}}` placeholders, and symlink resolution across all skills.
 - **Jules scheduled routines (unattended)** are a separate system from the
   interactive skills above: their shared contract is this file and their
-  per-routine personas live in `.jules/<name>.md`.
+  per-routine personas live in `.jules/<name>.md`. **Keep each scheduled task's
+  UI prompt a generic persona invocation** (read `AGENTS.md` + the persona, then
+  act as it) — a stale task-specific goal gets satisfied vacuously and Jules
+  still publishes the empty PR (non-negotiable #10). If a lane is finished,
+  pause its schedule instead of leaving a satisfied goal running.
 
 ## Lanes (keep PRs disjoint to avoid collisions)
 
