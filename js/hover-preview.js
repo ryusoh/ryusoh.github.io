@@ -56,7 +56,15 @@
             img.src = src;
             /* istanbul ignore else */
             if (typeof img.decode === 'function') {
-                img.decode().catch(() => {});
+                img.decode().catch((e) => {
+                    if (
+                        typeof window !== 'undefined' &&
+                        window.console &&
+                        typeof window.console.warn === 'function'
+                    ) {
+                        window.console.warn('[HoverPreview] Image decode prefetch failed:', e);
+                    }
+                });
             }
         }
     }
@@ -173,7 +181,16 @@
                 }
                 return parsed;
             })
-            .catch(() => null)
+            .catch((e) => {
+                if (
+                    typeof window !== 'undefined' &&
+                    window.console &&
+                    typeof window.console.warn === 'function'
+                ) {
+                    window.console.warn('[HoverPreview] Project HTML fetch failed:', e);
+                }
+                return null;
+            })
             .finally(() => {
                 fetchPromises.delete(normalizedUrl);
             });
