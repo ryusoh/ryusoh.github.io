@@ -74,6 +74,15 @@ rather than assuming a regression.
     reviewer a manual close. This includes when your task's goal turns out to be
     already satisfied by the current repo state (e.g. a stale task description):
     a satisfied goal is a no-op, not a PR.
+    **The same holds mid-PR: never push an empty or no-op commit** — including
+    add-then-remove placeholder files (`dummy_file.txt`). Before every push,
+    `git show --stat HEAD` must show a real diff that matches the commit
+    message and, when responding to review feedback, actually addresses it.
+    If you have nothing real to push, push nothing. Machine-enforced by
+    `make bot-pr-check` (`tools/check_bot_pr_hygiene.py`, wired into
+    `make precommit`/`precommit-fix`/`check` and the CI "Reject bot PR hygiene
+    violations" step): it fails on bot-authored commits that are empty, add
+    zero-content files, or delete lines in test files.
 
 ## You cannot see the rendered page
 
@@ -153,6 +162,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Generated-commands freshness check                 | `make sync-check`                        |
 | Dependency-structure gate (no circular imports)    | `make depcheck`                          |
 | Stream-of-consciousness scan (comments, tests)     | `make thinking-check`                    |
+| Jules bot commit hygiene gate                      | `make bot-pr-check`                      |
 | Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                         |
 | Synchronize portfolio pages from shell template    | `make sync-pages`                        |
 | Check portfolio pages template synchronization     | `make sync-pages-check`                  |

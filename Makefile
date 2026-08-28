@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check images thumbhashes assets page extract gaze-models
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract gaze-models
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -15,6 +15,7 @@ help:
 	@echo "  lint-fix      Apply ESLint/Stylelint auto-fixes"
 	@echo "  type          JS strict type check (tsc --checkJs on whitelist)"
 	@echo "  thinking-check Stream-of-consciousness scan (comments, abandoned tests)"
+	@echo "  bot-pr-check  Jules bot commit hygiene (empty commits, placeholder files, test deletions)"
 	@echo "  sync-pages    Synchronize portfolio pages with portfolio-shell.html template"
 	@echo "  sync-pages-check Check portfolio pages are in sync with shell template"
 	@echo "  check         Run fmt-check + lint + type + sync-check + sync-pages-check"
@@ -44,7 +45,7 @@ hooks:
 # hook (a missing module previously printed an error yet exited 0).
 PRECOMMIT := $(shell command -v pre-commit 2>/dev/null || (python3 -m pre_commit --version >/dev/null 2>&1 && echo "python3 -m pre_commit"))
 
-precommit: hooks sync-check
+precommit: hooks sync-check bot-pr-check
 	@if [ -f .pre-commit-config.yaml ]; then \
 		if [ -z "$(PRECOMMIT)" ]; then \
 			echo "ERROR: pre-commit is not installed (e.g. brew install pre-commit or pip install pre-commit)."; \
@@ -55,7 +56,7 @@ precommit: hooks sync-check
 		echo "No .pre-commit-config.yaml; skipping pre-commit."; \
 	fi
 
-precommit-fix: hooks sync-check
+precommit-fix: hooks sync-check bot-pr-check
 	@if [ -f .pre-commit-config.yaml ]; then \
 		if [ -z "$(PRECOMMIT)" ]; then \
 			echo "ERROR: pre-commit is not installed (e.g. brew install pre-commit or pip install pre-commit)."; \
@@ -130,13 +131,23 @@ type:
 thinking-check:
 	@node scripts/check-thinking-comments.js
 
+# Bot PR hygiene gate (AGENTS.md non-negotiable #10): deterministic check that
+# every Jules-bot-authored commit in origin/master..HEAD is real — no empty
+# commits, no zero-content placeholder files, no deletions in test files (bot
+# lanes are append-only in tests). Wording alone did not stop anki PR #494's
+# churn commits; this fails the gate instead. Human commits are skipped.
+# Implementation: tools/check_bot_pr_hygiene.py. CI runs the same check via
+# the "Reject bot PR hygiene violations" step in .github/workflows/ci.yml.
+bot-pr-check:
+	@python3 tools/check_bot_pr_hygiene.py
+
 sync-pages:
 	@node scripts/sync-pages.mjs
 
 sync-pages-check:
 	@node scripts/sync-pages.mjs --check
 
-check: fmt-check lint type sync-check sync-pages-check thinking-check
+check: fmt-check lint type sync-check sync-pages-check thinking-check bot-pr-check
 
 lint-fix:
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true

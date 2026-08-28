@@ -55,6 +55,17 @@ jobs:
               with:
                   python-version: '3.12'
 
+            # Machine enforcement of AGENTS.md non-negotiable #10 for
+            # bot-authored commits (wording alone did not stop anki PR #494's
+            # empty churn commits): fails on empty commits, zero-content
+            # placeholder files, and test deletions in any commit by
+            # google-labs-jules[bot]. Requires the full-history checkout above
+            # (fetch-depth: 0) — a shallow checkout hides branch commits
+            # behind the merge commit and the check silently no-ops.
+            - name: Reject bot PR hygiene violations
+              if: ${{ github.event_name == 'pull_request' }}
+              run: python3 tools/check_bot_pr_hygiene.py --base "origin/${{ github.base_ref }}"
+
             - name: Show versions
               run: |
                   node -v
