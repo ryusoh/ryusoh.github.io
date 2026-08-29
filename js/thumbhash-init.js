@@ -13,6 +13,16 @@
      */
 
     /**
+     * @param {string} msg
+     * @param {unknown} e
+     */
+    function logWarning(msg, e) {
+        if (typeof window !== 'undefined' && window.console) {
+            window.console.warn(msg, e);
+        }
+    }
+
+    /**
      * Applies ThumbHash placeholder to an image or container element.
      * @param {HTMLElement} el
      * @param {ThumbHashDecoder | unknown} [thumbHashDecoder]
@@ -63,8 +73,8 @@
             } else {
                 onLoaded();
             }
-        } catch {
-            // Silently fallback if decoding fails
+        } catch (e) {
+            logWarning('ThumbHash decoding failed during init:', e);
         }
     }
 

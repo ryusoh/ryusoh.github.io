@@ -99,6 +99,23 @@ describe('ThumbHashInit', () => {
         expect(() => ThumbHashInit.applyThumbHash({})).not.toThrow();
     });
 
+    test('logs a warning and degrades gracefully on decoding failure', () => {
+        const spy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const img = document.createElement('img');
+        img.setAttribute('data-thumbhash', 'invalid-hash!!!');
+
+        // Mock getAttribute to prevent "dataset.thumbhashApplied" checks from skipping
+        ThumbHashInit.applyThumbHash(img);
+
+        expect(spy).toHaveBeenCalledWith(
+            'ThumbHash decoding failed during init:',
+            expect.any(Error)
+        );
+        expect(img.style.backgroundImage).toBe('');
+
+        spy.mockRestore();
+    });
+
     test('exits early if container lacks querySelectorAll', () => {
         expect(() => ThumbHashInit.init({})).not.toThrow();
         expect(() => ThumbHashInit.init({ querySelectorAll: 'not-a-function' })).not.toThrow();
