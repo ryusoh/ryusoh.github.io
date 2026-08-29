@@ -66,9 +66,7 @@ rather than assuming a regression.
    committed code: no thinking-out-loud comments ("Wait, ...", "Ah, ..."), no
    abandoned stub test bodies. If an approach fails mid-write, delete the
    attempt — don't commit the trail. Code comments state facts about behaviour.
-   Enforced deterministically by `make thinking-check`
-   (`scripts/check-thinking-comments.js`) over all tracked JS/CSS sources; also
-   a blocking pre-commit hook.
+   Enforced by `make thinking-check` — see `docs/gates.md` for wiring.
 10. **Never open an empty PR.** If the run produces no diff (zero changed
     files), end the run with no PR — an empty PR can't be merged and costs the
     reviewer a manual close. This includes when your task's goal turns out to be
@@ -79,10 +77,7 @@ rather than assuming a regression.
     `git show --stat HEAD` must show a real diff that matches the commit
     message and, when responding to review feedback, actually addresses it.
     If you have nothing real to push, push nothing. Machine-enforced by
-    `make bot-pr-check` (`tools/check_bot_pr_hygiene.py`, wired into
-    `make precommit`/`precommit-fix`/`check` and the CI "Reject bot PR hygiene
-    violations" step): it fails on bot-authored commits that are empty, add
-    zero-content files, or delete lines in test files.
+    `make bot-pr-check` — see `docs/gates.md` for wiring.
 
 ## You cannot see the rendered page
 
@@ -177,34 +172,16 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   `.github/workflows/`, verify the major-version tag exists
   (`gh api repos/<owner>/<repo>/git/refs/tags/v<N>`). Major-version tags are
   not guaranteed for every action; a missing tag breaks CI.
-- **Complexity ratchet** — `make lint-js` also gates cyclomatic complexity:
-  ESLint `complexity` errors above 20 with `eslint-suppressions.json`
-  baselining the legacy violations (any NEW or worsened one fails; shrink the
-  baseline with `npx eslint --prune-suppressions`). Never raise the ceiling or
-  hand-edit the suppressions file.
-- **Coverage floor (ratchet)** — `make test` fails when whole-suite coverage
-  drops below `coverageThreshold.global` in `jest.config.cjs`. Raise the floor
-  as coverage improves; never lower it.
-- **CI coverage report is guarded** — web-ci's "Run Jest tests" step runs the
-  full suite via `npm test` (never a bare `npx jest` — that once silently
-  dropped the report), and a "Verify coverage report exists" step fails the
-  build if `coverage/coverage-summary.json` is missing. The `jest-related`
-  pre-commit hook is skipped in CI (`SKIP=jest-related`): scoped
-  `--findRelatedTests --coverage` runs print misleading partial tables
-  (unexecuted files at 0%) and spurious threshold errors.
-- **Dependency-structure gate** — `make lint` also runs `make depcheck`
-  (dependency-cruiser): circular imports fail as errors. Rules live in
-  `.dependency-cruiser.cjs`. If import aliases are ever introduced
-  (`jsconfig.json` `paths` or an import map), resolve them in
-  `.dependency-cruiser.webpack.cjs`, never `options.tsConfig` — the repo has
-  typescript v7 and the tsConfig route prints a spurious
-  "missing-typescript-transpiler" warning on every run.
-- **Mutation testing is deliberately non-blocking** — `make mutate-js`
-  (StrykerJS, incremental, cache in gitignored `reports/`) measures assertion
-  strength but is **not** in `make lint`/`check`/`precommit` or the CI gate;
-  `thresholds.break` is `null` in `stryker.config.json` and the weekly
-  `.github/workflows/mutation.yml` run is `continue-on-error`. A low kill
-  ratio is a signal to write stronger assertions, never a merge blocker.
+- **Complexity ratchet** — `make lint-js` gates ESLint `complexity` above 20;
+  legacy violations are baselined in `eslint-suppressions.json`. Details:
+  `docs/gates.md`.
+- **Coverage ratchet** — `make test` enforces the whole-suite floor in
+  `jest.config.cjs`; CI also verifies `coverage/coverage-summary.json` exists.
+  Details: `docs/gates.md`.
+- **Dependency-structure gate** — `make lint` runs `make depcheck`
+  (dependency-cruiser over `js/` and `sw.js`). Details: `docs/gates.md`.
+- **Mutation testing** — `make mutate-js` is informational only and not part of
+  any gate. Details: `docs/gates.md`.
 - **Jest runs silent** — `console.log` prints nothing. Before debugging an odd or
   flaky JS test, read `docs/testing-notes.md` — it documents dated jsdom/jest
   gotchas specific to this repo (non-configurable `window.location`, silently
@@ -303,14 +280,9 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 If your finding belongs to another lane, **skip it** — that lane will get it.
 
-> **Note on enforcement:** cyclomatic complexity is machine-gated — ESLint's
-> `complexity` rule errors above 20, with `eslint-suppressions.json`
-> baselining the legacy violations (see "Complexity ratchet" above). Coverage
-> has a **whole-suite floor** — the `coverageThreshold.global` ratchet in
-> `jest.config.cjs` (raise it as coverage improves, never lower it) — but no
-> per-diff gate, so Testpilot's targets beyond the floor remain
-> judgment-guided: your real gate there is a green `make precommit-fix` plus
-> the scoped proof your lane requires.
+> **Note on enforcement:** see `docs/gates.md` for how the complexity ratchet
+> and coverage floor are wired. Only the JS type-check (`make type`) is
+> non-blocking; everything else fails the gate.
 
 ## `.jules/` personas — editing rules
 
