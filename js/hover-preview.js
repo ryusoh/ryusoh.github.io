@@ -346,7 +346,7 @@
         // Render duplicate sets to allow seamless infinite vertical drift
         const imagesList = [...data.images, ...data.images];
         const thumbhashesList = data.thumbhashes ? [...data.thumbhashes, ...data.thumbhashes] : [];
-        trackEl.innerHTML = '';
+        trackEl.textContent = '';
         for (let i = 0; i < imagesList.length; i++) {
             const src = imagesList[i];
             const hash = thumbhashesList[i] || '';
