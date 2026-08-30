@@ -32,3 +32,6 @@ reports/
 
 # Gaze models (weights downloaded at setup time, tracked via MODELS.lock)
 .agents/skills/sequence/models/*.onnx
+
+# Agent task state ledgers
+.agents/state/
