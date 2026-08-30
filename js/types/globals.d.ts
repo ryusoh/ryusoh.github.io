@@ -102,6 +102,7 @@ interface Window {
         applyThumbHash: (el: HTMLElement, thumbHashDecoder?: unknown) => void;
         init: (container?: HTMLElement | Document, thumbHashDecoder?: unknown) => void;
     };
+    __PageTransitionForTesting?: unknown;
 }
 
 interface ExtendableEvent extends Event {

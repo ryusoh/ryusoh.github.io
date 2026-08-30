@@ -15,12 +15,20 @@
     const ENTRANCE_DURATION = 280;
     const ENTRANCE_STAGGER = 50;
 
+    /**
+     * @param {string} msg
+     * @param {unknown} [e]
+     */
     function logWarning(msg, e) {
         if (typeof window !== 'undefined' && window?.console?.warn) {
             window.console.warn(msg, e);
         }
     }
 
+    /**
+     * @param {string} msg
+     * @param {unknown} [e]
+     */
     function logError(msg, e) {
         if (typeof window !== 'undefined' && window?.console?.error) {
             if (e) {
@@ -31,6 +39,9 @@
         }
     }
 
+    /**
+     * @param {() => void} fn
+     */
     function ready(fn) {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fn);
@@ -44,6 +55,7 @@
      * - What: Cache `MediaQueryList` object from `window.matchMedia`.
      * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
      * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     * @type {MediaQueryList | null}
      */
     let prefersReducedMotionMediaQuery = null;
 
@@ -80,6 +92,9 @@
         }
     }
 
+    /**
+     * @param {URL} url
+     */
     function updateHistoryUrl(url) {
         if (window.history && typeof window.history.replaceState === 'function') {
             const newUrl = url.pathname + url.search + url.hash;
@@ -106,6 +121,9 @@
         }
     }
 
+    /**
+     * @param {number} value
+     */
     function clampUnit(value) {
         return Math.min(1, Math.max(0, value));
     }
@@ -115,6 +133,10 @@
     // so the custom cursor picks up exactly where the user clicked.
     const CURSOR_STORAGE_KEY = 'customCursorPosition';
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     */
     function storeCursorPositionForTransition(x, y) {
         try {
             if (typeof window.sessionStorage === 'undefined') {
@@ -142,10 +164,18 @@
     // from an app on iOS. The thing you were looking at
     // gently moves away.
 
+    /**
+     * @param {Function} [done]
+     */
     function exitPage(done) {
         // Save current custom cursor position immediately so it persists on the next page
-        if (window.cursorInstances?.cursor?.flushStoredPosition) {
-            window.cursorInstances.cursor.flushStoredPosition();
+        if (window.cursorInstances?.cursor) {
+            const cursor = /** @type {unknown & {flushStoredPosition?: Function}} */ (
+                window.cursorInstances.cursor
+            );
+            if (cursor.flushStoredPosition) {
+                cursor.flushStoredPosition();
+            }
         }
 
         document.documentElement.classList.add('page-transition--exiting');
@@ -169,11 +199,13 @@
         const groups = [['.intro-header', '.post-heading h1'], ['.post-content']];
 
         let delay = 0;
+        /** @type {HTMLElement[]} */
         const allElements = [];
 
         for (let g = 0; g < groups.length; g += 1) {
             const groupDelay = delay;
             for (let i = 0; i < groups[g].length; i += 1) {
+                /** @type {HTMLElement | null} */
                 const el = document.querySelector(groups[g][i]);
                 if (el) {
                     el.style.opacity = '0';
@@ -213,10 +245,16 @@
 
     // --- URL validation (preserved from original) ---
 
+    /**
+     * @param {string} p
+     */
     function isMaliciousProtocol(p) {
         return p === 'javascript:' || p === 'vbscript:' || p === 'data:';
     }
 
+    /**
+     * @param {URL} parsedUrl
+     */
     function isValidProtocol(parsedUrl) {
         const p = (parsedUrl.protocol || '').toLowerCase();
         if (isMaliciousProtocol(p)) {
@@ -230,6 +268,9 @@
         return true;
     }
 
+    /**
+     * @param {URL} parsedUrl
+     */
     function isValidOrigin(parsedUrl) {
         if (parsedUrl.origin !== window.location.origin) {
             logError('[page-transition] Blocked cross-origin navigation');
@@ -238,6 +279,9 @@
         return true;
     }
 
+    /**
+     * @param {string | unknown} url
+     */
     function isUrlLengthValid(url) {
         if (typeof url !== 'string' || url.length > 2000) {
             return false;
@@ -252,11 +296,14 @@
         return true;
     }
 
+    /**
+     * @param {string | unknown} url
+     */
     function getValidatedUrl(url) {
         if (!isUrlLengthValid(url)) {
             return null;
         }
-        const cleanUrl = url.replace(/^[\s\u0000-\u001F]+/g, '');
+        const cleanUrl = /** @type {string} */ (url).replace(/^[\s\u0000-\u001F]+/g, '');
         try {
             const parsedUrl = new window.URL(cleanUrl, window.location.href);
             if (!isValidProtocol(parsedUrl)) {
@@ -272,6 +319,9 @@
         }
     }
 
+    /**
+     * @param {string | unknown} url
+     */
     function isUrlLengthSafe(url) {
         if (typeof url !== 'string' || url.length > 2000) {
             return false;
@@ -286,12 +336,15 @@
         return true;
     }
 
+    /**
+     * @param {string | unknown} url
+     */
     function buildTransitionUrl(url) {
         if (!isUrlLengthSafe(url)) {
             return url;
         }
         try {
-            const nextUrl = new window.URL(url, window.location.href);
+            const nextUrl = new window.URL(/** @type {string} */ (url), window.location.href);
             nextUrl.searchParams.set(TRANSITION_PARAM, '1');
             return nextUrl.toString();
         } catch (e) {
@@ -302,6 +355,9 @@
 
     // --- Navigation ---
 
+    /**
+     * @param {string | unknown} url
+     */
     function navigate(url) {
         const validatedUrl = getValidatedUrl(url);
         if (!validatedUrl) {
@@ -310,18 +366,21 @@
         const targetUrl = buildTransitionUrl(validatedUrl);
 
         if (prefersReducedMotion()) {
-            window.location.assign(targetUrl);
+            window.location.assign(/** @type {string} */ (targetUrl));
             return true;
         }
 
         exitPage(function () {
-            window.location.assign(targetUrl);
+            window.location.assign(/** @type {string} */ (targetUrl));
         });
         return true;
     }
 
     // --- Click handling (event delegation) ---
 
+    /**
+     * @param {Element | null} element
+     */
     function shouldSkipNavBack(element) {
         if (!element) {
             return false;
@@ -332,6 +391,9 @@
         return true;
     }
 
+    /**
+     * @param {MouseEvent} event
+     */
     function isStandardMouseEvent(event) {
         return (
             event.button === 0 &&
@@ -342,6 +404,9 @@
         );
     }
 
+    /**
+     * @param {HTMLAnchorElement} anchor
+     */
     function isEligibleAnchor(anchor) {
         const target = anchor.getAttribute('target');
         if (target && target !== '_self') {
@@ -353,6 +418,9 @@
         return checkAnchorHref(anchor);
     }
 
+    /**
+     * @param {HTMLAnchorElement} anchor
+     */
     function checkAnchorHref(anchor) {
         const href = anchor.getAttribute('href');
         if (!href || href.indexOf('#') === 0) {
@@ -365,6 +433,10 @@
         return true;
     }
 
+    /**
+     * @param {MouseEvent} event
+     * @param {HTMLAnchorElement} anchor
+     */
     function isValidTransitionClick(event, anchor) {
         if (event.defaultPrevented) {
             return false;
@@ -401,6 +473,10 @@
 
         let isAnimating = false;
 
+        /**
+         * @param {MouseEvent} event
+         * @param {HTMLAnchorElement} anchor
+         */
         function handleTransitionClick(event, anchor) {
             if (isAnimating) {
                 return;
@@ -414,19 +490,22 @@
             }
         }
 
-        document.addEventListener('click', function (event) {
+        document.addEventListener('click', function (e) {
+            const event = /** @type {MouseEvent} */ (e);
             const path =
                 typeof event.composedPath === 'function' ? event.composedPath() : [event.target];
+            /** @type {HTMLAnchorElement | null} */
             let anchor = null;
             for (let i = 0; i < path.length; i += 1) {
-                const el = path[i];
+                const el = /** @type {Element} */ (path[i]);
                 if (el && el.tagName === 'A') {
-                    anchor = el;
+                    anchor = /** @type {HTMLAnchorElement} */ (el);
                     break;
                 }
             }
             if (!anchor) {
-                anchor = event.target && event.target.closest ? event.target.closest('a') : null;
+                const targetElement = /** @type {Element} */ (event.target);
+                anchor = targetElement && targetElement.closest ? targetElement.closest('a') : null;
             }
             if (!anchor || !isEligibleAnchor(anchor)) {
                 return;
