@@ -335,6 +335,13 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
   `article blockquote`, `.post-content p`) with `0` margin on inner `<picture>`
   / `<img>` elements so that CSS margin collapsing remains uniform across
   elements with `content-visibility: auto` containment.
+- **Externalized state & transaction boundaries.** On multi-step workflows (action-item
+  sweeps, TDD loops, bug diagnosis), never rely on conversation memory as an execution
+  ledger. Track task progress in disk-backed state files (`.agents/state/`) or in
+  the governing findings document. At each transaction boundary (after commits or gate
+  checks) and on session resumption, follow the skill's `## Resume protocol`: re-anchor
+  working memory directly from authoritative ground truth (`git status`, `git log`,
+  state file) before dispatching tools.
 - **Concurrent agents sharing one worktree.** When you run parallel subagents
   (swarms, background agents) in this checkout: stage only files you changed
   (`git add <specific-files>`, never `git add -A`), never `git stash`,
