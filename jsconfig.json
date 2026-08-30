@@ -30,7 +30,8 @@
         "js/init.js",
         "sw.js",
         "js/mobile-dock.js",
-        "js/scroll-reveal-icon.js"
+        "js/scroll-reveal-icon.js",
+        "js/page-transition.js"
     ],
     "exclude": ["node_modules", "js/vendor"]
 }
