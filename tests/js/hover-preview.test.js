@@ -504,6 +504,17 @@ describe('js/hover-preview.js', () => {
         }).not.toThrow();
     });
 
+    test('renderProjectThumbnails clears previous elements without innerHTML', () => {
+        const { renderProjectThumbnails, getTrackEl } = require('../../js/hover-preview.js');
+        const trackEl = getTrackEl();
+        const dummyChild = document.createElement('div');
+        dummyChild.className = 'dummy-child';
+        trackEl.appendChild(dummyChild);
+
+        renderProjectThumbnails({ url: './p1/', title: 'Test', images: ['/test.jpg'] });
+        expect(trackEl.querySelector('.dummy-child')).toBeNull();
+    });
+
     test('scheduleHide and cancelHide clear active timers properly', () => {
         const {
             scheduleHide,
