@@ -85,6 +85,49 @@
     }
 
     /**
+     * Extracts the title from a parsed document.
+     * @param {Document} doc
+     * @returns {string}
+     */
+    function extractTitle(doc) {
+        const headingEl = doc.querySelector('header.intro-header h1, article h1, #main h1, h1');
+        const titleEl = doc.querySelector('title');
+        return (
+            (headingEl && headingEl.textContent ? headingEl.textContent.trim() : '') ||
+            (titleEl && titleEl.textContent ? titleEl.textContent.trim() : '')
+        );
+    }
+
+    /**
+     * Extracts images and thumbhashes from a parsed document.
+     * @param {Document} doc
+     * @returns {{ images: string[], thumbhashes: string[] }}
+     */
+    function extractImages(doc) {
+        /** @type {string[]} */
+        const images = [];
+        /** @type {string[]} */
+        const thumbhashes = [];
+        const imgElements = doc.querySelectorAll('article img, .post-content img');
+        for (let i = 0; i < imgElements.length; i++) {
+            const img = imgElements[i];
+            if (img.classList.contains('mobile-banner')) {
+                continue;
+            }
+            const rawSrc = img.getAttribute('src');
+            if (rawSrc && !rawSrc.includes('banner') && !rawSrc.includes('icon')) {
+                const thumbSrc = toThumbnailUrl(rawSrc);
+                if (thumbSrc && !images.includes(thumbSrc)) {
+                    images.push(thumbSrc);
+                    const hash = img.getAttribute('data-thumbhash');
+                    thumbhashes.push(hash || '');
+                }
+            }
+        }
+        return { images, thumbhashes };
+    }
+
+    /**
      * Parses HTML content of a project page to extract content images and title.
      * @param {string} html
      * @param {string} pageUrl
@@ -93,36 +136,18 @@
     function parseProjectHtml(html, pageUrl) {
         let title = '';
         /** @type {string[]} */
-        const images = [];
+        let images = [];
         /** @type {string[]} */
-        const thumbhashes = [];
+        let thumbhashes = [];
 
         /* istanbul ignore else */
         if (typeof window !== 'undefined' && typeof window.DOMParser !== 'undefined') {
             const parser = new window.DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            const headingEl = doc.querySelector('header.intro-header h1, article h1, #main h1, h1');
-            const titleEl = doc.querySelector('title');
-            title =
-                (headingEl && headingEl.textContent ? headingEl.textContent.trim() : '') ||
-                (titleEl && titleEl.textContent ? titleEl.textContent.trim() : '');
-
-            const imgElements = doc.querySelectorAll('article img, .post-content img');
-            for (let i = 0; i < imgElements.length; i++) {
-                const img = imgElements[i];
-                if (img.classList.contains('mobile-banner')) {
-                    continue;
-                }
-                const rawSrc = img.getAttribute('src');
-                if (rawSrc && !rawSrc.includes('banner') && !rawSrc.includes('icon')) {
-                    const thumbSrc = toThumbnailUrl(rawSrc);
-                    if (thumbSrc && !images.includes(thumbSrc)) {
-                        images.push(thumbSrc);
-                        const hash = img.getAttribute('data-thumbhash');
-                        thumbhashes.push(hash || '');
-                    }
-                }
-            }
+            title = extractTitle(doc);
+            const extracted = extractImages(doc);
+            images = extracted.images;
+            thumbhashes = extracted.thumbhashes;
         }
 
         return images.length > 0
@@ -330,6 +355,73 @@
     }
 
     /**
+     * Creates a thumbnail anchor element.
+     * @param {{ url: string, title: string }} data
+     * @param {string} src
+     * @param {string} hash
+     * @param {boolean} isEager
+     * @param {number} index
+     * @returns {HTMLAnchorElement}
+     */
+    function createThumbnailElement(data, src, hash, isEager, index) {
+        const a = document.createElement('a');
+        a.href = data.url;
+        a.className = 'hover-carousel-item';
+        a.setAttribute('data-page-transition', '');
+        a.setAttribute('data-destination', 'project');
+        a.setAttribute('aria-label', data.title + ' thumbnail ' + (index + 1));
+
+        const img = document.createElement('img');
+        img.src = src;
+        if (hash) {
+            img.setAttribute('data-thumbhash', hash);
+        }
+        img.alt = data.title;
+        img.setAttribute('loading', isEager ? 'eager' : 'lazy');
+        img.setAttribute('decoding', 'async');
+
+        a.appendChild(img);
+        return a;
+    }
+
+    /**
+     * Applies ThumbHash placeholders using ThumbHashInit if available.
+     * @param {HTMLElement} track
+     */
+    function applyThumbHashPlaceholders(track) {
+        /* istanbul ignore else */
+        if (
+            typeof window !== 'undefined' &&
+            window.ThumbHashInit &&
+            typeof window.ThumbHashInit.init === 'function'
+        ) {
+            window.ThumbHashInit.init(track);
+        }
+    }
+
+    /**
+     * Attaches smooth fade-in listeners to images inside the track.
+     * @param {HTMLElement} track
+     */
+    function attachImageLoadListeners(track) {
+        const imgElements = track.querySelectorAll('img');
+        for (let i = 0; i < imgElements.length; i++) {
+            const img = imgElements[i];
+            if (img.complete && img.naturalWidth > 0) {
+                img.classList.add('is-loaded');
+            } else {
+                img.addEventListener(
+                    'load',
+                    () => {
+                        img.classList.add('is-loaded');
+                    },
+                    { once: true }
+                );
+            }
+        }
+    }
+
+    /**
      * Renders thumbnails for a project into the carousel track.
      * @param {{ url: string, title: string, images: string[], thumbhashes?: string[] }} data
      */
@@ -351,55 +443,17 @@
             const src = imagesList[i];
             const hash = thumbhashesList[i] || '';
             const isEager = i < 4;
-
-            const a = document.createElement('a');
-            a.href = data.url;
-            a.className = 'hover-carousel-item';
-            a.setAttribute('data-page-transition', '');
-            a.setAttribute('data-destination', 'project');
-            a.setAttribute('aria-label', data.title + ' thumbnail ' + (i + 1));
-
-            const img = document.createElement('img');
-            img.src = src;
-            if (hash) {
-                img.setAttribute('data-thumbhash', hash);
-            }
-            img.alt = data.title;
-            img.setAttribute('loading', isEager ? 'eager' : 'lazy');
-            img.setAttribute('decoding', 'async');
-
-            a.appendChild(img);
+            const a = createThumbnailElement(data, src, hash, isEager, i);
             trackEl.appendChild(a);
         }
         scrollPos = 0;
         trackEl.style.transform = 'translate3d(0, 0, 0)';
 
         // Apply ThumbHash placeholders if ThumbHashInit is available
-        /* istanbul ignore else */
-        if (
-            typeof window !== 'undefined' &&
-            window.ThumbHashInit &&
-            typeof window.ThumbHashInit.init === 'function'
-        ) {
-            window.ThumbHashInit.init(trackEl);
-        }
+        applyThumbHashPlaceholders(trackEl);
 
         // Attach smooth fade-in listeners to rendered images
-        const imgElements = trackEl.querySelectorAll('img');
-        for (let i = 0; i < imgElements.length; i++) {
-            const img = imgElements[i];
-            if (img.complete && img.naturalWidth > 0) {
-                img.classList.add('is-loaded');
-            } else {
-                img.addEventListener(
-                    'load',
-                    () => {
-                        img.classList.add('is-loaded');
-                    },
-                    { once: true }
-                );
-            }
-        }
+        attachImageLoadListeners(trackEl);
 
         // Measure once images/DOM is inserted
         measureTrack();
