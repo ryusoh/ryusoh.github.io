@@ -352,9 +352,7 @@ export async function buildPage(pageId, options = {}) {
         const line = lines[i].trim();
 
         if (!line) {
-            if (currentQuoteLines.length > 0) {
-                currentQuoteLines.push('');
-            }
+            await flushQuote();
             continue;
         }
 

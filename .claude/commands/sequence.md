@@ -32,9 +32,10 @@ Read the existing markdown file (e.g. `assets/img/p<N>/index.md`) to extract:
 When the gallery has photographs on disk but no usable sequence in `index.md` (missing file, or text-only content such as a poem), the inspection tool automatically falls back to a directory scan: it reports `sequenceSource: "directory"` and treats the base source images in filename order as the baseline. In this mode:
 
 1. **Compose, don't validate.** There is no prior order to affirm — the Sequence Verdict is _Composed from Raw Materials_.
-2. **Existing text is caesura material.** Read the raw `index.md` yourself: the parser only retains `>`-prefixed blockquote lines as quotes and silently drops plain text. Preserve the author's text **verbatim** — segment it into stanzas and position them as Threshold / Volta / Meditative caesuras per the Pruning Editor doctrine; never rewrite the lines.
-3. **Emit a complete, buildable `index.md`.** Include the YAML frontmatter scaffold (`title`, `description`, `keywords` — see the `new-page` skill for the exact format), one line per image (`FILENAME.jpg | optional caption`), and every retained stanza re-emitted with `>` prefixes so it survives future parsing.
-4. Write the composed file to disk, re-run the inspection against it, then generate the report (Step 4) and build with `make page ID=p<N>` as usual.
+2. **Select, don't exhaust.** The composed sequence is a curation, not an inventory: include only the frames that genuinely serve the narrative arc, and cut the weak, redundant, or off-theme ones. Omitted photographs are not lost — they simply stay out of `index.md`, and the next inspection will surface them as unsequenced candidates / outtakes with optimal-slot evaluations, which is the same lifecycle a normal gallery uses.
+3. **Existing text is caesura material.** Read the raw `index.md` yourself: the parser only retains `>`-prefixed blockquote lines as quotes and silently drops plain text. Preserve the author's text **verbatim** — segment it into stanzas and position them as Threshold / Volta / Meditative caesuras per the Pruning Editor doctrine; never rewrite the lines. Stanzas that no selected image can support may also be cut, but say so explicitly in the rationale.
+4. **Emit a complete, buildable `index.md`.** Include the YAML frontmatter scaffold (`title`, `description`, `keywords` — see the `new-page` skill for the exact format), one line per **selected** image (`FILENAME.jpg | optional caption`), and every retained stanza re-emitted with `>` prefixes so it survives future parsing.
+5. Write the composed file to disk, re-run the inspection against it, then generate the report (Step 4) and build with `make page ID=p<N>` as usual.
 
 ### 2. Multi-Scale Visual Chain-of-Thought (Visual CoT)
 
