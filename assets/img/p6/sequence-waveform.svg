@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 280" width="100%" height="100%">
+  <style>
+    .paper-bg { fill: #ffffff; }
+    .spine-box { fill: #ffffff; stroke: #0f172a; stroke-width: 0.85; }
+    .academic-grid { stroke: #f1f5f9; stroke-width: 0.6; stroke-dasharray: 2 3; }
+    .tick-line { stroke: #0f172a; stroke-width: 0.85; }
+    .fig-heading { fill: #0f172a; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 12.5px; font-weight: bold; letter-spacing: 0.2px; }
+    .axis-title { fill: #334155; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 10.5px; font-style: italic; }
+    .tick-label { fill: #334155; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 9px; font-variant-numeric: tabular-nums; }
+    .threshold-label { fill: #475569; font-family: "Times New Roman", Times, "Nimbus Roman No9 L", "Liberation Serif", serif; font-size: 8.5px; font-style: italic; }
+  </style>
+
+  <rect width="880" height="280" class="paper-bg" />
+
+  <text x="68" y="20" class="fig-heading">Figure 1: Photometric Luminance Waveform L*(t) ∈ [0, 255] and Respiratory Rhythm</text>
+  <rect x="68" y="32" width="672" height="192" class="spine-box" />
+  <rect x="68" y="32" width="672" height="90.35294117647058" fill="#f0f7ff" stroke="none" />
+  <rect x="68" y="167.52941176470588" width="672" height="56.470588235294116" fill="#f8fafc" stroke="none" />
+  <line x1="68" y1="122.35294117647058" x2="740" y2="122.35294117647058" stroke="#93c5fd" stroke-width="0.75" stroke-dasharray="3 3" />
+  <text x="748" y="125.35294117647058" class="threshold-label" fill="#2b5c8f" text-anchor="start">Inhalation (L* ≥ 135)</text>
+  <line x1="68" y1="167.52941176470588" x2="740" y2="167.52941176470588" stroke="#cbd5e1" stroke-width="0.75" stroke-dasharray="3 3" />
+  <text x="748" y="170.52941176470588" class="threshold-label" fill="#475569" text-anchor="start">Exhalation (L* ≤ 75)</text>
+  <text transform="translate(24, 128) rotate(-90)" class="axis-title" text-anchor="middle">Luminance L* ∈ [0, 255]</text>
+  <line x1="68" y1="32" x2="740" y2="32" class="academic-grid" />
+  <line x1="68" y1="32" x2="72.5" y2="32" class="tick-line" />
+  <line x1="735.5" y1="32" x2="740" y2="32" class="tick-line" />
+  <text x="62" y="35" class="tick-label" text-anchor="end">255</text>
+  <line x1="68" y1="122.35294117647058" x2="740" y2="122.35294117647058" class="academic-grid" />
+  <line x1="68" y1="122.35294117647058" x2="72.5" y2="122.35294117647058" class="tick-line" />
+  <line x1="735.5" y1="122.35294117647058" x2="740" y2="122.35294117647058" class="tick-line" />
+  <text x="62" y="125.35294117647058" class="tick-label" text-anchor="end">135</text>
+  <line x1="68" y1="167.52941176470588" x2="740" y2="167.52941176470588" class="academic-grid" />
+  <line x1="68" y1="167.52941176470588" x2="72.5" y2="167.52941176470588" class="tick-line" />
+  <line x1="735.5" y1="167.52941176470588" x2="740" y2="167.52941176470588" class="tick-line" />
+  <text x="62" y="170.52941176470588" class="tick-label" text-anchor="end">75</text>
+  <line x1="68" y1="224" x2="740" y2="224" class="academic-grid" />
+  <line x1="68" y1="224" x2="72.5" y2="224" class="tick-line" />
+  <line x1="735.5" y1="224" x2="740" y2="224" class="tick-line" />
+  <text x="62" y="227" class="tick-label" text-anchor="end">0</text>
+  <path d="M 88 186.35294117647058 L 108.38709677419355 172.8 L 128.7741935483871 163.01176470588234 L 149.16129032258064 169.78823529411764 L 169.5483870967742 169.78823529411764 L 189.93548387096774 126.87058823529412 L 210.32258064516128 176.56470588235294 L 230.70967741935485 159.24705882352941 L 251.09677419354838 169.78823529411764 L 271.48387096774195 172.8 L 291.8709677419355 144.18823529411765 L 312.258064516129 110.30588235294118 L 332.64516129032256 171.2941176470588 L 353.03225806451616 160 L 373.4193548387097 200.65882352941176 L 393.80645161290323 138.91764705882355 L 414.19354838709677 117.83529411764705 L 434.5806451612903 163.76470588235293 L 454.96774193548384 187.10588235294117 L 475.35483870967744 163.01176470588234 L 495.741935483871 174.30588235294118 L 516.1290322580645 197.64705882352942 L 536.516129032258 169.03529411764706 L 556.9032258064516 131.38823529411764 L 577.2903225806451 104.28235294117647 L 597.6774193548388 141.1764705882353 L 618.0645161290323 127.62352941176471 L 638.4516129032259 141.9294117647059 L 658.8387096774194 176.56470588235294 L 679.2258064516129 126.87058823529412 L 699.6129032258065 184.8470588235294 L 720 141.9294117647059" fill="none" stroke="#2b5c8f" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+  <line x1="98.19354838709677" y1="32" x2="98.19354838709677" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="76.19354838709677" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="98.19354838709677" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="138.96774193548387" y1="32" x2="138.96774193548387" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="116.96774193548387" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="138.96774193548387" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="179.74193548387098" y1="32" x2="179.74193548387098" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="157.74193548387098" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="179.74193548387098" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="220.51612903225805" y1="32" x2="220.51612903225805" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="198.51612903225805" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="220.51612903225805" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="261.2903225806452" y1="32" x2="261.2903225806452" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="239.29032258064518" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="261.2903225806452" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="302.06451612903226" y1="32" x2="302.06451612903226" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="280.06451612903226" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="302.06451612903226" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="342.8387096774194" y1="32" x2="342.8387096774194" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="320.8387096774194" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="342.8387096774194" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="383.61290322580646" y1="32" x2="383.61290322580646" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="361.61290322580646" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="383.61290322580646" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="424.38709677419354" y1="32" x2="424.38709677419354" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="402.38709677419354" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="424.38709677419354" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="465.1612903225806" y1="32" x2="465.1612903225806" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="443.1612903225806" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="465.1612903225806" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="505.93548387096774" y1="32" x2="505.93548387096774" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="483.93548387096774" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="505.93548387096774" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="546.7096774193549" y1="32" x2="546.7096774193549" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="524.7096774193549" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="546.7096774193549" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="587.483870967742" y1="32" x2="587.483870967742" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="565.483870967742" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="587.483870967742" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="628.258064516129" y1="32" x2="628.258064516129" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="606.258064516129" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="628.258064516129" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="669.0322580645161" y1="32" x2="669.0322580645161" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="647.0322580645161" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="669.0322580645161" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <line x1="709.8064516129032" y1="32" x2="709.8064516129032" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
+  <rect x="687.8064516129032" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
+  <text x="709.8064516129032" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
+  <circle cx="88" cy="186.35294117647058" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="88" y1="219.5" x2="88" y2="224" class="tick-line" />
+  <text x="88" y="238" class="tick-label" text-anchor="middle">1</text>
+  <circle cx="108.38709677419355" cy="172.8" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="108.38709677419355" y1="219.5" x2="108.38709677419355" y2="224" class="tick-line" />
+  <text x="108.38709677419355" y="238" class="tick-label" text-anchor="middle">2</text>
+  <circle cx="128.7741935483871" cy="163.01176470588234" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="128.7741935483871" y1="219.5" x2="128.7741935483871" y2="224" class="tick-line" />
+  <text x="128.7741935483871" y="238" class="tick-label" text-anchor="middle">3</text>
+  <circle cx="149.16129032258064" cy="169.78823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="149.16129032258064" y1="219.5" x2="149.16129032258064" y2="224" class="tick-line" />
+  <text x="149.16129032258064" y="238" class="tick-label" text-anchor="middle">4</text>
+  <circle cx="169.5483870967742" cy="169.78823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="169.5483870967742" y1="219.5" x2="169.5483870967742" y2="224" class="tick-line" />
+  <text x="169.5483870967742" y="238" class="tick-label" text-anchor="middle">5</text>
+  <circle cx="189.93548387096774" cy="126.87058823529412" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="189.93548387096774" y1="219.5" x2="189.93548387096774" y2="224" class="tick-line" />
+  <text x="189.93548387096774" y="238" class="tick-label" text-anchor="middle">6</text>
+  <circle cx="210.32258064516128" cy="176.56470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="210.32258064516128" y1="219.5" x2="210.32258064516128" y2="224" class="tick-line" />
+  <text x="210.32258064516128" y="238" class="tick-label" text-anchor="middle">7</text>
+  <circle cx="230.70967741935485" cy="159.24705882352941" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="230.70967741935485" y1="219.5" x2="230.70967741935485" y2="224" class="tick-line" />
+  <text x="230.70967741935485" y="238" class="tick-label" text-anchor="middle">8</text>
+  <circle cx="251.09677419354838" cy="169.78823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="251.09677419354838" y1="219.5" x2="251.09677419354838" y2="224" class="tick-line" />
+  <text x="251.09677419354838" y="238" class="tick-label" text-anchor="middle">9</text>
+  <circle cx="271.48387096774195" cy="172.8" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="271.48387096774195" y1="219.5" x2="271.48387096774195" y2="224" class="tick-line" />
+  <text x="271.48387096774195" y="238" class="tick-label" text-anchor="middle">10</text>
+  <circle cx="291.8709677419355" cy="144.18823529411765" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="291.8709677419355" y1="219.5" x2="291.8709677419355" y2="224" class="tick-line" />
+  <text x="291.8709677419355" y="238" class="tick-label" text-anchor="middle">11</text>
+  <circle cx="312.258064516129" cy="110.30588235294118" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="312.258064516129" y1="219.5" x2="312.258064516129" y2="224" class="tick-line" />
+  <text x="312.258064516129" y="238" class="tick-label" text-anchor="middle">12</text>
+  <circle cx="332.64516129032256" cy="171.2941176470588" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="332.64516129032256" y1="219.5" x2="332.64516129032256" y2="224" class="tick-line" />
+  <text x="332.64516129032256" y="238" class="tick-label" text-anchor="middle">13</text>
+  <circle cx="353.03225806451616" cy="160" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="353.03225806451616" y1="219.5" x2="353.03225806451616" y2="224" class="tick-line" />
+  <text x="353.03225806451616" y="238" class="tick-label" text-anchor="middle">14</text>
+  <circle cx="373.4193548387097" cy="200.65882352941176" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="373.4193548387097" y1="219.5" x2="373.4193548387097" y2="224" class="tick-line" />
+  <text x="373.4193548387097" y="238" class="tick-label" text-anchor="middle">15</text>
+  <circle cx="393.80645161290323" cy="138.91764705882355" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="393.80645161290323" y1="219.5" x2="393.80645161290323" y2="224" class="tick-line" />
+  <text x="393.80645161290323" y="238" class="tick-label" text-anchor="middle">16</text>
+  <circle cx="414.19354838709677" cy="117.83529411764705" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="414.19354838709677" y1="219.5" x2="414.19354838709677" y2="224" class="tick-line" />
+  <text x="414.19354838709677" y="238" class="tick-label" text-anchor="middle">17</text>
+  <circle cx="434.5806451612903" cy="163.76470588235293" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="434.5806451612903" y1="219.5" x2="434.5806451612903" y2="224" class="tick-line" />
+  <text x="434.5806451612903" y="238" class="tick-label" text-anchor="middle">18</text>
+  <circle cx="454.96774193548384" cy="187.10588235294117" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="454.96774193548384" y1="219.5" x2="454.96774193548384" y2="224" class="tick-line" />
+  <text x="454.96774193548384" y="238" class="tick-label" text-anchor="middle">19</text>
+  <circle cx="475.35483870967744" cy="163.01176470588234" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="475.35483870967744" y1="219.5" x2="475.35483870967744" y2="224" class="tick-line" />
+  <text x="475.35483870967744" y="238" class="tick-label" text-anchor="middle">20</text>
+  <circle cx="495.741935483871" cy="174.30588235294118" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="495.741935483871" y1="219.5" x2="495.741935483871" y2="224" class="tick-line" />
+  <text x="495.741935483871" y="238" class="tick-label" text-anchor="middle">21</text>
+  <circle cx="516.1290322580645" cy="197.64705882352942" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="516.1290322580645" y1="219.5" x2="516.1290322580645" y2="224" class="tick-line" />
+  <text x="516.1290322580645" y="238" class="tick-label" text-anchor="middle">22</text>
+  <circle cx="536.516129032258" cy="169.03529411764706" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="536.516129032258" y1="219.5" x2="536.516129032258" y2="224" class="tick-line" />
+  <text x="536.516129032258" y="238" class="tick-label" text-anchor="middle">23</text>
+  <circle cx="556.9032258064516" cy="131.38823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="556.9032258064516" y1="219.5" x2="556.9032258064516" y2="224" class="tick-line" />
+  <text x="556.9032258064516" y="238" class="tick-label" text-anchor="middle">24</text>
+  <circle cx="577.2903225806451" cy="104.28235294117647" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="577.2903225806451" y1="219.5" x2="577.2903225806451" y2="224" class="tick-line" />
+  <text x="577.2903225806451" y="238" class="tick-label" text-anchor="middle">25</text>
+  <circle cx="597.6774193548388" cy="141.1764705882353" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="597.6774193548388" y1="219.5" x2="597.6774193548388" y2="224" class="tick-line" />
+  <text x="597.6774193548388" y="238" class="tick-label" text-anchor="middle">26</text>
+  <circle cx="618.0645161290323" cy="127.62352941176471" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="618.0645161290323" y1="219.5" x2="618.0645161290323" y2="224" class="tick-line" />
+  <text x="618.0645161290323" y="238" class="tick-label" text-anchor="middle">27</text>
+  <circle cx="638.4516129032259" cy="141.9294117647059" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="638.4516129032259" y1="219.5" x2="638.4516129032259" y2="224" class="tick-line" />
+  <text x="638.4516129032259" y="238" class="tick-label" text-anchor="middle">28</text>
+  <circle cx="658.8387096774194" cy="176.56470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="658.8387096774194" y1="219.5" x2="658.8387096774194" y2="224" class="tick-line" />
+  <text x="658.8387096774194" y="238" class="tick-label" text-anchor="middle">29</text>
+  <circle cx="679.2258064516129" cy="126.87058823529412" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="679.2258064516129" y1="219.5" x2="679.2258064516129" y2="224" class="tick-line" />
+  <text x="679.2258064516129" y="238" class="tick-label" text-anchor="middle">30</text>
+  <circle cx="699.6129032258065" cy="184.8470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="699.6129032258065" y1="219.5" x2="699.6129032258065" y2="224" class="tick-line" />
+  <text x="699.6129032258065" y="238" class="tick-label" text-anchor="middle">31</text>
+  <circle cx="720" cy="141.9294117647059" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <line x1="720" y1="219.5" x2="720" y2="224" class="tick-line" />
+  <text x="720" y="238" class="tick-label" text-anchor="middle">32</text>
+  <text x="404" y="258" class="axis-title" text-anchor="middle">Sequence Frame Index (i)</text>
+</svg>
