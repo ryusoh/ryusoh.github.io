@@ -131,7 +131,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4', 'p5']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4', 'p6', 'p5']);
         });
 
         test('should preload assets for remaining portfolio pages on p2', () => {
@@ -141,7 +141,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3', 'p4', 'p5']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p3', 'p4', 'p6', 'p5']);
         });
 
         test('should preload assets for remaining portfolio pages on p3', () => {
@@ -151,7 +151,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p4', 'p5']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p4', 'p6', 'p5']);
         });
 
         test('should preload assets for remaining portfolio pages on p4', () => {
@@ -161,7 +161,7 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p5']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p6', 'p5']);
         });
 
         test('should preload assets for remaining portfolio pages on p5', () => {
@@ -171,7 +171,17 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4', 'p6']);
+        });
+
+        test('should preload assets for remaining portfolio pages on p6', () => {
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p6');
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4', 'p5']);
         });
 
         test('should fallback to main for unknown paths', () => {
@@ -181,7 +191,14 @@ describe('AssetPreloader', () => {
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p1', 'p2', 'p3', 'p4', 'p5']);
+            expect(preloader.preloadAssets).toHaveBeenCalledWith([
+                'p1',
+                'p2',
+                'p3',
+                'p4',
+                'p6',
+                'p5',
+            ]);
         });
     });
 

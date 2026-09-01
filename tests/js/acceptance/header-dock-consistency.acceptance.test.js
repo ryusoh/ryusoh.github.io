@@ -73,7 +73,10 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
 
         const golden = structures[0];
         const expectedLinks = getProjectPages().map((p) => `/${p.replace(/\/index\.html$/, '')}/`);
-        expect(golden.portLinks).toEqual(expectedLinks);
+        // Set equality here; the nav display order (which may differ from
+        // numeric page order via sortPagesForNav overrides) is asserted in
+        // page-builder.test.js, while the loop below pins cross-page identity.
+        expect([...golden.portLinks].sort()).toEqual([...expectedLinks].sort());
 
         structures.forEach((item) => {
             expect(item.hasCont).toBe(true);

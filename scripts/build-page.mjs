@@ -17,6 +17,7 @@ import {
     syncIndexNav,
     syncSitemap,
     syncAllPages,
+    sortPagesForNav,
     formatHtml,
 } from './sync-pages.mjs';
 
@@ -503,10 +504,10 @@ export async function buildPage(pageId, options = {}) {
 
     // 4. Render HTML from canonical shell template
     const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
-    const allPages = getProjectPages();
+    let allPages = getProjectPages();
     if (!allPages.includes(cleanId)) {
         allPages.push(cleanId);
-        allPages.sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
+        allPages = sortPagesForNav(allPages);
     }
 
     const rawHtml = renderProjectPage(cleanId, pageData, allPages, template);

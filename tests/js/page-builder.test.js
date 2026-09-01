@@ -32,6 +32,32 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
         expect(output).toContain('Validation passed!');
     });
 
+    test('nav display order places p6 before p5 via the sortPagesForNav override', () => {
+        // p5 is a self-portrait series, so it always trails the street-photography
+        // essays in the nav dock while URLs and directory names stay unchanged.
+        const nodeCode = `
+            import { getProjectPages, sortPagesForNav } from './scripts/sync-pages.mjs';
+            console.log(JSON.stringify({
+                discovered: getProjectPages(),
+                sorted: sortPagesForNav(['p5', 'p6', 'p1']),
+                future: sortPagesForNav(['p5', 'p7', 'p6', 'p1']),
+            }));
+        `;
+        const out = JSON.parse(
+            execFileSync('node', ['--input-type=module', '-e', nodeCode], {
+                cwd: ROOT_DIR,
+                encoding: 'utf8',
+            })
+        );
+        expect(out.sorted).toEqual(['p1', 'p6', 'p5']);
+        // A future p7 essay must also sort before the trailing self-portrait series
+        expect(out.future).toEqual(['p1', 'p6', 'p7', 'p5']);
+        expect(out.discovered.indexOf('p6')).toBeLessThan(out.discovered.indexOf('p5'));
+
+        const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+        expect(indexHtml.indexOf('href="./p6/"')).toBeLessThan(indexHtml.indexOf('href="./p5/"'));
+    });
+
     test('all production pages preserve exact image and blockquote ordering from markdown', () => {
         const extractSequence = (html) => {
             const content = html.match(

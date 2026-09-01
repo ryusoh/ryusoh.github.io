@@ -8,11 +8,33 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const TEMPLATE_PATH = path.join(ROOT_DIR, 'scripts', 'templates', 'portfolio-shell.html');
 
 /**
+ * Nav display-order overrides: a page id maps to the sort position it should
+ * occupy instead of its directory number. p5 is a self-portrait series rather
+ * than a street-photography essay, so it always trails the numbered essays in
+ * the nav dock — any future pN automatically sorts before it.
+ * URLs and directory names are unaffected.
+ */
+const NAV_ORDER_OVERRIDES = { p5: Number.MAX_SAFE_INTEGER };
+
+/**
+ * Sorts page ids into nav display order (numeric, with NAV_ORDER_OVERRIDES applied).
+ * @param {string[]} pages
+ * @returns {string[]}
+ */
+export function sortPagesForNav(pages) {
+    const orderKey = (p) => {
+        const id = p.toLowerCase();
+        return NAV_ORDER_OVERRIDES[id] ?? parseInt(id.slice(1), 10);
+    };
+    return [...pages].sort((a, b) => orderKey(a) - orderKey(b));
+}
+
+/**
  * Discovers all active project pages in the root directory.
  * @returns {string[]} e.g. ['p1', 'p2', 'p3', 'p4']
  */
 export function getProjectPages() {
-    return fs
+    const pages = fs
         .readdirSync(ROOT_DIR, { withFileTypes: true })
         .filter(
             (d) =>
@@ -20,8 +42,8 @@ export function getProjectPages() {
                 /^p\d+$/i.test(d.name) &&
                 fs.existsSync(path.join(ROOT_DIR, d.name, 'index.html'))
         )
-        .map((d) => d.name)
-        .sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
+        .map((d) => d.name);
+    return sortPagesForNav(pages);
 }
 
 /**
