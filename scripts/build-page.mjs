@@ -238,6 +238,20 @@ export function buildPictureElement(pageId, filename, altText, meta, isFirst, cr
 }
 
 /**
+ * Automatically extracts CJK characters and updates the WOFF2 font subset.
+ */
+export function updateFontSubsets() {
+    const scriptPath = path.join(ROOT_DIR, 'tools', 'subset_fonts.py');
+    if (!fs.existsSync(scriptPath)) return false;
+    try {
+        execFileSync('python3', [scriptPath], { stdio: 'inherit' });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Updates js/preloader.js to include the given project page's images.
  */
 export async function updatePreloader(pageId, imageFilenames) {
@@ -502,10 +516,11 @@ export async function buildPage(pageId, options = {}) {
     fs.writeFileSync(htmlPath, formattedHtml, 'utf8');
     console.log(`Generated ${htmlPath}`);
 
-    // 5. Update index.html, all project page navigation docks, and sitemap.xml
+    // 5. Update index.html, all project page navigation docks, sitemap.xml, and font subsets
     if (syncGlobal) {
         await syncAllPages();
         await updatePreloader(cleanId, imageFilenames);
+        updateFontSubsets();
     }
 
     return {
