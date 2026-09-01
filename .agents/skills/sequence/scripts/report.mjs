@@ -183,7 +183,7 @@ export async function generateVisualReport(pageId, options = {}) {
 
     let md = `# Visual Curation & Sequence Report: ${data.gallery.title || pageId.toUpperCase()}\n\n`;
     md += `> **Curation Archetype**: ${archetype}\n>\n`;
-    md += `> **Sequence Status**: ${sequenceOverride ? 'Resequenced Proposal (Optimized)' : respiratory.anomalies.length > 0 ? 'Resequencing Recommended (Cadence Anomalies Detected)' : 'Validated (Existing sequence affirmed as optimal)'}\n>\n`;
+    md += `> **Sequence Status**: ${data.gallery.sequenceSource === 'directory' ? 'Composed from Raw Materials (directory cold-start, filename order baseline)' : sequenceOverride ? 'Resequenced Proposal (Optimized)' : respiratory.anomalies.length > 0 ? 'Resequencing Recommended (Cadence Anomalies Detected)' : 'Validated (Existing sequence affirmed as optimal)'}\n>\n`;
     md += `> **Hamiltonian Sequence Energy**: \`${totalHamiltonianEnergy.toFixed(1)}\` (Avg Step Cost: \`${avgHamiltonianEnergy}\`)\n>\n`;
     md += `> **Respiratory Pacing Score**: \`${respiratory.rhythmScore}/100\` (${respiratory.inhalations} Inhalations, ${respiratory.exhalations} Exhalations, ${respiratory.neutrals} Grounding)\n\n`;
 

@@ -250,6 +250,66 @@ describe('sequence skill automation script', () => {
         }).toThrow();
     });
 
+    test('inspect_gallery falls back to directory scan when index.md has no image entries', () => {
+        const scratchGallery = path.join(SCRATCH_DIR, 'pcold');
+        fs.mkdirSync(scratchGallery, { recursive: true });
+        try {
+            // Two real base-source images plus responsive tiers that must be excluded
+            fs.copyFileSync(
+                path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9004-3.jpg'),
+                path.join(scratchGallery, 'b-second.jpg')
+            );
+            fs.copyFileSync(
+                path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9159.jpg'),
+                path.join(scratchGallery, 'a-first.jpg')
+            );
+            fs.copyFileSync(
+                path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9004-3.jpg'),
+                path.join(scratchGallery, 'a-first-768.jpg')
+            );
+            fs.writeFileSync(
+                path.join(scratchGallery, 'index.md'),
+                'A poem stanza line\nAnother plain text line\n',
+                'utf8'
+            );
+
+            const stdout = execFileSync('node', [INSPECT_SCRIPT, scratchGallery, '--json'], {
+                cwd: REPO_ROOT,
+                encoding: 'utf8',
+            });
+            const data = JSON.parse(stdout);
+
+            expect(data.gallery.sequenceSource).toBe('directory');
+            expect(data.images.map((img) => img.filename)).toEqual(['a-first.jpg', 'b-second.jpg']);
+            expect(data.images[0].exists).toBe(true);
+            expect(data.outtakes).toEqual([]);
+            expect(data.quotes).toEqual([]);
+
+            // Text mode surfaces the cold-start notice
+            const text = execFileSync('node', [INSPECT_SCRIPT, scratchGallery], {
+                cwd: REPO_ROOT,
+                encoding: 'utf8',
+            });
+            expect(text).toContain('Cold-Start');
+            expect(text).toContain('directory scan');
+
+            // A missing index.md entirely behaves the same way
+            fs.unlinkSync(path.join(scratchGallery, 'index.md'));
+            const stdoutNoMd = execFileSync('node', [INSPECT_SCRIPT, scratchGallery, '--json'], {
+                cwd: REPO_ROOT,
+                encoding: 'utf8',
+            });
+            const dataNoMd = JSON.parse(stdoutNoMd);
+            expect(dataNoMd.gallery.sequenceSource).toBe('directory');
+            expect(dataNoMd.images.map((img) => img.filename)).toEqual([
+                'a-first.jpg',
+                'b-second.jpg',
+            ]);
+        } finally {
+            fs.rmSync(scratchGallery, { recursive: true, force: true });
+        }
+    });
+
     test('generateVisualReport generates outtakes section with compliant h3 heading increments', () => {
         const tempReportPath = path.join(SCRATCH_DIR, 'test-outtake-heading-report.md');
         try {

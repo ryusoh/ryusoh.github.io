@@ -80,7 +80,7 @@ Options:
         return;
     }
 
-    const outputData = await inspectGallery(pageId);
+    const outputData = await inspectGallery(pageArg);
     const {
         images: sequencedImages,
         quotes,
@@ -102,6 +102,11 @@ Options:
     console.log(`======================================================================`);
     console.log(`Directory:   ${outputData.gallery.directory}`);
     console.log(`Markdown:    ${outputData.gallery.markdownPath}`);
+    if (outputData.gallery.sequenceSource === 'directory') {
+        console.log(
+            `Cold-Start:  index.md has no image entries — baseline sequence from directory scan (filename order)`
+        );
+    }
     console.log(
         `Images:      ${outputData.gallery.totalImages} active | ${outtakes.length} outtakes`
     );

@@ -250,6 +250,15 @@ export async function inspectGallery(pageArg) {
 
     const { frontmatter, entries } = parseGalleryMarkdown(mdPath);
 
+    // Scan directory for base source images (responsive tiers excluded); used both
+    // for the cold-start fallback below and for unreferenced outtake detection.
+    const allFiles = fs.readdirSync(dir);
+    const candidateExts = /\.(jpe?g|png)$/i;
+    const isBaseSource = (f) =>
+        candidateExts.test(f) && !f.includes('-768') && !f.includes('-1200');
+
+    const sourceImagesOnDisk = allFiles.filter(isBaseSource).sort();
+
     const sequencedImages = [];
     const quotes = [];
     let sequenceIndex = 1;
@@ -273,19 +282,29 @@ export async function inspectGallery(pageArg) {
         }
     }
 
+    // Cold-start fallback: index.md is missing or references no images (e.g. a
+    // text-only poem), so treat the on-disk base sources in filename order as the
+    // baseline sequence to analyze.
+    const sequenceSource = sequencedImages.length === 0 ? 'directory' : 'markdown';
+    if (sequenceSource === 'directory') {
+        for (const f of sourceImagesOnDisk) {
+            const analysis = await analyzeImage(path.join(dir, f));
+            sequencedImages.push({
+                sequenceOrder: sequenceIndex++,
+                filename: f,
+                caption: null,
+                exists: !!analysis,
+                analysis: analysis || { filename: f, error: 'File missing on disk' },
+            });
+        }
+    }
+
     // Pairwise transition analysis across current sequence
     const transitions = calculatePairwiseTransitions(sequencedImages);
 
     // Respiratory Rhythm (Inhalation / Exhalation) with Caesura interlude awareness
     const respiratory = analyzeRespiratoryRhythm(sequencedImages, quotes);
 
-    // Scan directory for all image files to detect unreferenced outtakes
-    const allFiles = fs.readdirSync(dir);
-    const candidateExts = /\.(jpe?g|png)$/i;
-    const isBaseSource = (f) =>
-        candidateExts.test(f) && !f.includes('-768') && !f.includes('-1200');
-
-    const sourceImagesOnDisk = allFiles.filter(isBaseSource);
     const sequencedFilenames = new Set(sequencedImages.map((img) => img.filename.toLowerCase()));
 
     const outtakes = [];
@@ -308,6 +327,7 @@ export async function inspectGallery(pageArg) {
             markdownPath: path.relative(REPO_ROOT, mdPath),
             title: frontmatter.title || 'Untitled',
             description: frontmatter.description || '',
+            sequenceSource,
             totalImages: sequencedImages.length,
             totalOuttakes: outtakes.length,
             totalQuotes: quotes.length,

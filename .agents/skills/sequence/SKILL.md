@@ -28,6 +28,15 @@ Read the existing markdown file (e.g. `assets/img/p<N>/index.md`) to extract:
 - Current image sequence and captions / photo credits (e.g. `@photo.initiator`)
 - Poetic blockquotes, citations, and textual interludes
 
+### Cold-Start & Composition Mode (No Sequenced `index.md`)
+
+When the gallery has photographs on disk but no usable sequence in `index.md` (missing file, or text-only content such as a poem), the inspection tool automatically falls back to a directory scan: it reports `sequenceSource: "directory"` and treats the base source images in filename order as the baseline. In this mode:
+
+1. **Compose, don't validate.** There is no prior order to affirm — the Sequence Verdict is _Composed from Raw Materials_.
+2. **Existing text is caesura material.** Read the raw `index.md` yourself: the parser only retains `>`-prefixed blockquote lines as quotes and silently drops plain text. Preserve the author's text **verbatim** — segment it into stanzas and position them as Threshold / Volta / Meditative caesuras per the Pruning Editor doctrine; never rewrite the lines.
+3. **Emit a complete, buildable `index.md`.** Include the YAML frontmatter scaffold (`title`, `description`, `keywords` — see the `new-page` skill for the exact format), one line per image (`FILENAME.jpg | optional caption`), and every retained stanza re-emitted with `>` prefixes so it survives future parsing.
+4. Write the composed file to disk, re-run the inspection against it, then generate the report (Step 4) and build with `make page ID=p<N>` as usual.
+
 ### 2. Multi-Scale Visual Chain-of-Thought (Visual CoT)
 
 For each image file discovered in the gallery, use `view_file` on the image path (preferring lightweight responsive tiers like `assets/img/p<N>/<stem>-768.webp` or `-1200.webp` when available, falling back to the base file) to execute a 3-pass perceptual evaluation:
@@ -53,7 +62,7 @@ Simulate a collaborative multi-agent editorial council to resolve narrative tens
 
 Present the curation plan and **ALWAYS generate/refresh the dedicated Visual Sequence Report on disk**:
 
-1. **Executive Editorial Vision**: The chosen Storytelling Archetype, overarching narrative thesis, emotional trajectory, and unambiguous **Sequence Verdict** (state clearly whether the existing order is _Validated & Affirmed as Optimal_ or _Resequenced & Optimized_).
+1. **Executive Editorial Vision**: The chosen Storytelling Archetype, overarching narrative thesis, emotional trajectory, and unambiguous **Sequence Verdict** (state clearly whether the existing order is _Validated & Affirmed as Optimal_, _Resequenced & Optimized_, or — for cold-start galleries with no prior sequence — _Composed from Raw Materials_).
 2. **Respiratory & Rhythm Summary**: Total Inhalations vs. Exhalations, pacing score, and cadence balance.
 3. **MANDATORY: Execute Report Generation Script**: The agent MUST run this command during the session to compile all 3 SVG figures and `sequence-report.md` fresh from disk. Never omit this command or leave it for the user to run:
 
