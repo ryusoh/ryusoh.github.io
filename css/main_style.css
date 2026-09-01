@@ -145,6 +145,54 @@ ul {
         U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+@font-face {
+    font-family: 'Glow Sans SC Extended';
+    font-style: normal;
+    font-weight: 400 500;
+    font-display: swap;
+    src:
+        local('GlowSansSC-Extended-Bold'), local('Glow Sans SC Extended Bold'),
+        local('GlowSansSC-Extended-Medium'), local('Glow Sans SC Extended'),
+        local('未来荧黑 宽体 Bold'), local('未来荧黑 宽体'), local('未来荧黑');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+    font-family: 'Glow Sans SC Extended';
+    font-style: normal;
+    font-weight: 600 700;
+    font-display: swap;
+    src:
+        local('GlowSansSC-Extended-Bold'), local('Glow Sans SC Extended Bold'),
+        local('GlowSansSC-Extended-Medium'), local('未来荧黑 宽体 Bold'), local('未来荧黑 Bold');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+    font-family: 'Glow Sans SC Extended';
+    font-style: normal;
+    font-weight: 800 900;
+    font-display: swap;
+    src:
+        local('GlowSansSC-Extended-Heavy'), local('GlowSansSC-Extended-ExtraBold'),
+        local('Glow Sans SC Extended Heavy'), local('Glow Sans SC Extended ExtraBold'),
+        local('GlowSansSC-Extended-Bold');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+    font-family: 'Glow Sans SC Wide';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src:
+        local('Glow Sans SC Wide'), local('GlowSansSC-Wide-Regular'),
+        local('GlowSansSC-Wide-Medium'), local('GlowSansSC-Wide-Bold'),
+        local('GlowSansSC-Wide-ExtraBold'), local('GlowSansSC-Wide'), local('未来荧黑 阔体'),
+        local('未来荧黑 Wide'), local('未来荧黑');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
+
 body {
     position: relative;
     z-index: 1;
@@ -154,7 +202,15 @@ body {
     overflow-y: hidden;
     font:
         13px/1.4 'Syne',
-        'PingFang SC Light',
+        'GlowSansSC-Extended-Bold',
+        'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy',
+        'Glow Sans SC Extended Bold',
+        'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold',
+        '未来荧黑 宽体',
+        '未来荧黑 Extended',
+        '未来荧黑',
         'PingFang SC',
         'Helvetica Neue',
         Helvetica,
@@ -202,7 +258,11 @@ canvas {
     color: var(--text-color);
     overflow-x: hidden;
     overflow-y: auto;
-    font-family: 'Syne', 'PingFang SC Light', 'PingFang SC', 'Helvetica Neue', Helvetica, Arial;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial;
     text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
     contain: layout;
 }
@@ -219,7 +279,11 @@ canvas {
 
 #main h1 {
     position: relative;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 40px;
     font-weight: 700;
     line-height: 1;
@@ -267,7 +331,11 @@ canvas {
     column-gap: 10px; /* Space between the label column and the link column */
     align-items: baseline; /* Aligns the text baselines of the span and a, which is usually best for text */
     padding-top: 10px;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 400;
     letter-spacing: 1px;
 }

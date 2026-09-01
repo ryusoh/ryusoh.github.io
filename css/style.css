@@ -27,10 +27,18 @@
     -o-background-size: cover;
 }
 .serif {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .sans-serif {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .animation,
 .post-preview,
@@ -131,6 +139,54 @@
         U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
         U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
+@font-face {
+    font-family: 'Glow Sans SC Extended';
+    font-style: normal;
+    font-weight: 400 500;
+    font-display: swap;
+    src:
+        local('Glow Sans SC Extended'), local('GlowSansSC-Extended-Regular'),
+        local('GlowSansSC-Extended-Medium'), local('GlowSansSC-Extended-Book'),
+        local('未来荧黑 宽体'), local('未来荧黑');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+    font-family: 'Glow Sans SC Extended';
+    font-style: normal;
+    font-weight: 600 700;
+    font-display: swap;
+    src:
+        local('GlowSansSC-Extended-Bold'), local('Glow Sans SC Extended Bold'),
+        local('GlowSansSC-Extended-Medium'), local('未来荧黑 宽体 Bold'), local('未来荧黑 Bold');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+    font-family: 'Glow Sans SC Extended';
+    font-style: normal;
+    font-weight: 800 900;
+    font-display: swap;
+    src:
+        local('GlowSansSC-Extended-Heavy'), local('GlowSansSC-Extended-ExtraBold'),
+        local('Glow Sans SC Extended Heavy'), local('Glow Sans SC Extended ExtraBold'),
+        local('GlowSansSC-Extended-Bold');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+    font-family: 'Glow Sans SC Wide';
+    font-style: normal;
+    font-weight: 400 800;
+    font-display: swap;
+    src:
+        local('Glow Sans SC Wide'), local('GlowSansSC-Wide-Regular'),
+        local('GlowSansSC-Wide-Medium'), local('GlowSansSC-Wide-Bold'),
+        local('GlowSansSC-Wide-ExtraBold'), local('GlowSansSC-Wide'), local('未来荧黑 阔体'),
+        local('未来荧黑 Wide'), local('未来荧黑');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
+}
 html,
 body,
 body * {
@@ -149,7 +205,11 @@ html {
     position: relative;
     font-size: 16px;
     color: var(--text-color);
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
     background: var(--bg-color);
@@ -179,7 +239,11 @@ article p,
     letter-spacing: 0.05em;
     line-height: 1.6;
     margin: var(--gallery-block-gap, 5px) 0;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 1.4em;
 }
@@ -191,7 +255,11 @@ article h1,
 article h2,
 article h3,
 .intro-header h1 {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -200,7 +268,11 @@ article h3,
 article h4,
 article h5,
 article h6 {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -268,7 +340,11 @@ hr.small {
 .intro-header .site-heading h1,
 .intro-header .page-heading h1 {
     margin-top: 0;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 2em;
     color: var(--accent-color);
@@ -288,7 +364,11 @@ hr.small {
     }
 }
 .intro-header .post-heading h1 {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: clamp(24px, 7vw, 40px);
     color: var(--text-color);
@@ -586,10 +666,18 @@ body {
     -o-background-size: cover;
 }
 .serif {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'Glow Sans SC Extended', 'GlowSansSC-Extended-Regular',
+        'GlowSansSC-Extended-Medium', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑',
+        'PingFang SC Light', 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .sans-serif {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'Glow Sans SC Extended', 'GlowSansSC-Extended-Regular',
+        'GlowSansSC-Extended-Medium', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑',
+        'PingFang SC Light', 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .animation,
 .article-container {
@@ -747,7 +835,11 @@ article .image-wrapper picture > img,
     padding: 4px 10px;
     height: 28px;
     box-sizing: border-box;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -874,7 +966,10 @@ article .container-narrow blockquote {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended', '未来荧黑 宽体', '未来荧黑 Extended',
+        '未来荧黑', 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 1.8em;
     font-weight: 700;
     letter-spacing: 0.05em;

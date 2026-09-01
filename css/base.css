@@ -11,10 +11,18 @@
     -o-background-size: cover;
 }
 .serif {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .sans-serif {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .animation,
 .post-preview {
@@ -127,7 +135,11 @@ html {
     width: 100%;
     font-size: 16px;
     color: var(--text-color);
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
     background: var(--bg-color);
@@ -136,7 +148,11 @@ p {
     letter-spacing: 0.05em;
     line-height: 1.6;
     margin: 20px 0;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 1.8em;
 }
@@ -146,7 +162,11 @@ p a {
 h1,
 h2,
 h3 {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -155,7 +175,11 @@ h3 {
 h4,
 h5,
 h6 {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -248,7 +272,11 @@ nav {
 .intro-header .site-heading h1,
 .intro-header .page-heading h1 {
     margin-top: 0;
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 2em;
     color: var(--accent-color);
@@ -268,7 +296,11 @@ nav {
     }
 }
 .intro-header .post-heading h1 {
-    font-family: 'Syne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+        'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
+        'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended Bold', 'Glow Sans SC Extended',
+        '未来荧黑 宽体 Bold', '未来荧黑 宽体', '未来荧黑 Extended', '未来荧黑', 'PingFang SC',
+        'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 40px;
     color: var(--text-color);
