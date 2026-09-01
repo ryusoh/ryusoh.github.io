@@ -21,6 +21,57 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         expect(headerCss).toMatch(/#cont\.is-expanded\s+#nav\s*\{[^}]*display:\s*table/);
     });
 
+    test('expanded mobile dock caps at viewport and scrolls only the nav region, keeping the title fixed', () => {
+        // With 6+ portfolio links the expanded dropdown can exceed the viewport
+        // height; both stylesheets must cap the sheet and make only the <nav>
+        // region scrollable so the "Zhuang Liu" title bar never moves.
+        for (const cssFile of ['css/header.css', 'css/main_style.css']) {
+            const css = fs.readFileSync(path.join(ROOT_DIR, cssFile), 'utf8');
+            const expandedRule = css.match(/#cont\.is-expanded\s*\{[^}]*\}/)?.[0] || '';
+            const navRule = css.match(/#cont\.is-expanded\s+nav\s*\{[^}]*\}/)?.[0] || '';
+
+            expect(expandedRule).toMatch(/max-height:\s*100dvh/);
+            expect(navRule).toMatch(/overflow-y:\s*auto/);
+            expect(navRule).toMatch(/min-height:\s*0/);
+            expect(navRule).toMatch(/overscroll-behavior:\s*contain/);
+            // The scroll container is the nav region, not the sheet itself
+            expect(expandedRule).not.toMatch(/overflow-y:\s*auto/);
+        }
+    });
+
+    test('expanded mobile dock suppresses the fixed banner and footer icon so article titles stay unobstructed', () => {
+        // The expanded sheet can reach the bottom of the viewport where the
+        // fixed mobile banner and footer icon sit; both stylesheets must hide
+        // them while the dock is expanded.
+        for (const cssFile of ['css/header.css', 'css/main_style.css']) {
+            const css = fs.readFileSync(path.join(ROOT_DIR, cssFile), 'utf8');
+            const suppressRule =
+                css.match(
+                    /body:has\(#cont\.is-expanded\)\s+\.mobile-banner[\s\S]*?\{[^}]*\}/
+                )?.[0] || '';
+
+            expect(suppressRule).toContain('footer a');
+            expect(suppressRule).toContain('.project-footer a');
+            expect(suppressRule).toMatch(/opacity:\s*0/);
+            expect(suppressRule).toMatch(/visibility:\s*hidden/);
+        }
+    });
+
+    test('mobile nav titles step down from the desktop 2em so long titles wrap less', () => {
+        // Desktop keeps the golden 2em; the mobile (<450px) override drops to
+        // 1.95em in both stylesheets so 6 long titles fit the expanded sheet.
+        for (const cssFile of ['css/header.css', 'css/main_style.css']) {
+            const css = fs.readFileSync(path.join(ROOT_DIR, cssFile), 'utf8');
+            const mobileBlock =
+                css.match(/@media screen and \(max-width: 449px\)[\s\S]*?\n\}/)?.[0] || '';
+
+            expect(css).toMatch(/#nav\s+\.portfolio-link\s+a[\s\S]*?font-size:\s*2em/);
+            expect(mobileBlock).toMatch(
+                /#nav\s+\.portfolio-link\s+a:link[\s\S]*?font-size:\s*1\.95em/
+            );
+        }
+    });
+
     test('on mobile: single click when collapsed expands; single click when expanded returns home; outside click collapses', () => {
         document.documentElement.innerHTML = `
             <div id="cont">

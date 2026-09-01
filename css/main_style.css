@@ -736,6 +736,38 @@ footer .mobile-banner.is-visible {
         padding-bottom: 24px !important;
         bottom: auto !important;
         pointer-events: auto !important;
+        overflow: hidden !important;
+        /* Cap the expanded sheet at the viewport; the nav links scroll inside
+           their own region (see below) so the title bar never moves. */
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
+    }
+
+    #cont.is-expanded #main {
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+        /* 24px accounts for the expanded sheet's padding-bottom. */
+        max-height: calc(100vh - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+    }
+
+    #cont.is-expanded nav {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior: contain !important;
+    }
+
+    /* The expanded sheet reaches the bottom of the viewport, so suppress the
+       fixed banner and footer icon to keep the article titles unobstructed. */
+    body:has(#cont.is-expanded) .mobile-banner,
+    body:has(#cont.is-expanded) footer a,
+    body:has(#cont.is-expanded) .project-footer a {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transition-delay: 0s !important;
     }
 
     #cont.is-expanded::before {
@@ -813,10 +845,14 @@ footer .mobile-banner.is-visible {
         overflow-wrap: break-word !important;
     }
 
-    #nav .portfolio-link a {
+    #nav .portfolio-link a,
+    #nav .portfolio-link a:link,
+    #nav .portfolio-link a:visited {
         white-space: normal !important;
         word-break: break-word !important;
         overflow-wrap: break-word !important;
+        /* Step down from the desktop 2em so long titles wrap less. */
+        font-size: 1.95em !important;
     }
 
     .social-icons-desktop {
