@@ -10,6 +10,7 @@ const CORE_ASSETS = [
     '/css/header.css',
     '/assets/fonts/syne-latin.woff2',
     '/assets/fonts/syne-latin-ext.woff2',
+    '/assets/fonts/glowsans-sc-extended-bold.subset.woff2',
     '/js/service-worker-register.js',
     '/js/page-transition.js',
     '/js/mobile-dock.js',

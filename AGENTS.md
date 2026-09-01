@@ -164,6 +164,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Build/compile a portfolio page from markdown       | `make page ID=pN`                        |
 | Build responsive AVIF/WebP gallery tiers           | `make images`                            |
 | Generate ThumbHash blur-up placeholders            | `make thumbhashes`                       |
+| Extract CJK characters and generate WOFF2 subset   | `make fonts`                             |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; use
   `make gate` for a faster CI-parity check (check + test, no auto-fix/stage).

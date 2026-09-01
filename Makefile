@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract gaze-models
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract gaze-models fonts
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -27,6 +27,7 @@ help:
 	@echo "  assets        Run images + thumbhashes generation pipeline"
 	@echo "  page          Build/generate a portfolio page (e.g. make page ID=p5)"
 	@echo "  gaze-models   Download ONNX face models and verify checksums via MODELS.lock"
+	@echo "  fonts         Extract CJK characters and generate subsetted WOFF2 webfont"
 
 hooks:
 	@if [ ! -f .pre-commit-config.yaml ]; then \
@@ -209,3 +210,7 @@ gaze-models:
 		curl -fL "$$url" -o ".agents/skills/sequence/models/$$file"; \
 	done < .agents/skills/sequence/models/MODELS.lock
 	@awk '{print $$1 "  " $$2}' .agents/skills/sequence/models/MODELS.lock | (cd .agents/skills/sequence/models && shasum -a 256 -c)
+
+# Character extraction and WOFF2 font subsetting
+fonts:
+	@python3 tools/subset_fonts.py

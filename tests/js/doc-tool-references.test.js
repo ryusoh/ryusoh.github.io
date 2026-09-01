@@ -84,6 +84,7 @@ describe('doc-tool-references', () => {
             'scripts/build-page.mjs',
             'scripts/templates/portfolio-shell.html',
             'tools/sync_commands.py',
+            'tools/subset_fonts.py',
         ];
 
         const missing = coreTools.filter((tool) => !fs.existsSync(path.join(REPO_ROOT, tool)));

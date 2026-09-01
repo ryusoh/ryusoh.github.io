@@ -146,9 +146,13 @@
     font-weight: 400 500;
     font-display: swap;
     src:
-        local('Glow Sans SC Extended'), local('GlowSansSC-Extended-Regular'),
-        local('GlowSansSC-Extended-Medium'), local('GlowSansSC-Extended-Book'),
-        local('未来荧黑 宽体'), local('未来荧黑');
+        local('GlowSansSC-Extended-Bold'),
+        local('Glow Sans SC Extended Bold'),
+        local('Glow Sans SC Extended'),
+        local('未来荧黑 宽体 Bold'),
+        local('未来荧黑 宽体'),
+        local('未来荧黑'),
+        url('../assets/fonts/glowsans-sc-extended-bold.subset.woff2') format('woff2');
     unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
 }
 
@@ -158,8 +162,12 @@
     font-weight: 600 700;
     font-display: swap;
     src:
-        local('GlowSansSC-Extended-Bold'), local('Glow Sans SC Extended Bold'),
-        local('GlowSansSC-Extended-Medium'), local('未来荧黑 宽体 Bold'), local('未来荧黑 Bold');
+        local('GlowSansSC-Extended-Bold'),
+        local('Glow Sans SC Extended Bold'),
+        local('GlowSansSC-Extended-Medium'),
+        local('未来荧黑 宽体 Bold'),
+        local('未来荧黑 Bold'),
+        url('../assets/fonts/glowsans-sc-extended-bold.subset.woff2') format('woff2');
     unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
 }
 
@@ -169,9 +177,12 @@
     font-weight: 800 900;
     font-display: swap;
     src:
-        local('GlowSansSC-Extended-Heavy'), local('GlowSansSC-Extended-ExtraBold'),
-        local('Glow Sans SC Extended Heavy'), local('Glow Sans SC Extended ExtraBold'),
-        local('GlowSansSC-Extended-Bold');
+        local('GlowSansSC-Extended-Heavy'),
+        local('GlowSansSC-Extended-ExtraBold'),
+        local('Glow Sans SC Extended Heavy'),
+        local('Glow Sans SC Extended ExtraBold'),
+        local('GlowSansSC-Extended-Bold'),
+        url('../assets/fonts/glowsans-sc-extended-bold.subset.woff2') format('woff2');
     unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+3000-303F, U+FF00-FFEF;
 }
 
