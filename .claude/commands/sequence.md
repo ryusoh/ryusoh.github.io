@@ -101,5 +101,6 @@ When generating SVG dashboards and visual reports, strictly adhere to IEEE / Nat
     - Harmonic baseline threshold ($C=25$): Forest (`#15803d`).
 4. **Collision-Free Adaptive Geometry**:
     - Figure 2 uses an Inset Legend inside the upper-right spine ($x \in [592, 732], y \in [40, 92]$), leaving the figure title clean and uncrowded.
+    - Figure 2 deterministically thins its centered x-axis transition labels ($i \to i+1$) and per-bar value labels via a fixed glyph-advance model (tabular digit $5.4\text{px}$, `→` $9.9\text{px}$, `.` $2.7\text{px}$ at $9\text{px}$, $4\text{px}$ minimum gap): stride $= \lceil (\text{maxLabelWidth} + \text{gap}) / \text{slotWidth} \rceil$, anchored at the first label with the final label always retained (collision-checked against its neighbor, swapped in for the previous grid point when needed). Tick marks stay at full resolution — only text is thinned.
     - Figure 3 dynamically shortens breath tags when column slot width $< 55\text{px}$ (`[INH]`, `[EXH]`, `[GRD]`) and rounds CIELAB $(a^*, b^*)$ coordinates to integers to prevent label overlapping on dense galleries ($N \ge 16$).
     - Zero emojis anywhere in graphics or formal reports.

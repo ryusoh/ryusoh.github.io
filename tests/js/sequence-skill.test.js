@@ -626,6 +626,76 @@ describe('sequence skill automation script', () => {
         expect(stdout).toContain('SVG_DASHBOARD_PASSED');
     });
 
+    test('transition tension SVG deterministically thins dense x-axis labels to prevent overlap', () => {
+        const testCode = `
+            import { generateTransitionTensionSvg, selectNonOverlappingTickLabels } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
+
+            const results = {};
+
+            // p6-scale density: 31 transitions → 672px / 31 = 21.7px slot pitch,
+            // while the widest label ("10→11") needs ~31.5px + 4px gap
+            const transitions = Array.from({ length: 31 }, (_, j) => ({
+                deltaE: 30 + j,
+                deltaLum: 10,
+                deltaAspect: 0.1,
+                totalCost: 40 + (j % 7),
+            }));
+            const svg = generateTransitionTensionSvg({ gallery: {}, transitions });
+            results.xLabels = [...svg.matchAll(/>(\\d+→\\d+)<\\/text>/g)].map((m) => m[1]);
+            results.valueLabelCount = (svg.match(/font-weight="600"/g) || []).length;
+            // Tick marks stay at full resolution even when labels are thinned
+            results.tickCount = (svg.match(/class="tick-line"/g) || []).length;
+
+            // Sparse gallery: stride 1 keeps every label
+            const sparse = selectNonOverlappingTickLabels(
+                Array.from({ length: 5 }, (_, j) => (j + 1) + '→' + (j + 2)),
+                672 / 5
+            );
+            results.sparse = [...sparse];
+
+            // Dense 60-transition case: final label collides with the grid and
+            // must swap in for the previous grid point
+            const dense = selectNonOverlappingTickLabels(
+                Array.from({ length: 60 }, (_, j) => (j + 1) + '→' + (j + 2)),
+                672 / 60
+            );
+            results.dense = [...dense];
+
+            console.log(JSON.stringify(results));
+        `;
+        const stdout = execFileSync('node', ['--input-type=module', '-e', testCode], {
+            cwd: REPO_ROOT,
+            encoding: 'utf8',
+        });
+        const out = JSON.parse(stdout);
+
+        // Stride-2 grid anchored at 1→2, final transition always labeled
+        expect(out.xLabels).toEqual([
+            '1→2',
+            '3→4',
+            '5→6',
+            '7→8',
+            '9→10',
+            '11→12',
+            '13→14',
+            '15→16',
+            '17→18',
+            '19→20',
+            '21→22',
+            '23→24',
+            '25→26',
+            '27→28',
+            '29→30',
+            '31→32',
+        ]);
+        expect(out.xLabels).not.toContain('10→11');
+        // Value labels above bars are thinned with the same deterministic rule
+        expect(out.valueLabelCount).toBe(16);
+        expect(out.tickCount).toBeGreaterThan(31);
+        expect(out.sparse).toEqual([0, 1, 2, 3, 4]);
+        expect(out.dense).toEqual([0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 59]);
+    });
+
     test('inspect_gallery --report writes modular SVGs alongside report', () => {
         const tempReportPath = path.join(SCRATCH_DIR, 'test-chart-report.md');
         const expectedWaveformPath = path.join(SCRATCH_DIR, 'sequence-waveform.svg');

@@ -140,6 +140,62 @@ export function generateLuminanceWaveformSvg({
 }
 
 /**
+ * Fixed glyph-advance model (px) for 9px tabular-nums sans tick labels.
+ * Deterministic estimates: digits at 9px system sans ≈ 5.4px advance,
+ * the '→' arrow ≈ 9.9px, '.' ≈ 2.7px.
+ */
+const TICK_DIGIT_W = 5.4;
+const TICK_ARROW_W = 9.9;
+const TICK_DOT_W = 2.7;
+const TICK_MIN_GAP = 4;
+
+function estimateTickLabelWidth(text) {
+    let w = 0;
+    for (const ch of String(text)) {
+        if (ch === '→') w += TICK_ARROW_W;
+        else if (ch === '.') w += TICK_DOT_W;
+        else w += TICK_DIGIT_W;
+    }
+    return w;
+}
+
+/**
+ * Deterministically selects which centered tick labels to draw so no two
+ * adjacent labels overlap. Strategy: a stride grid anchored at index 0 with
+ * stride = ceil((maxLabelWidth + MIN_GAP) / slotWidth), plus the final label —
+ * collision-checked against its neighbor and swapped in for the previous grid
+ * point when it would collide (the widened gap still exceeds one stride, so
+ * safety is preserved). Tick marks are unaffected; only text is thinned.
+ * @param {string[]} texts label text per slot
+ * @param {number} slotWidth horizontal pitch between slot centers (px)
+ * @returns {Set<number>} slot indices to label
+ */
+export function selectNonOverlappingTickLabels(texts, slotWidth) {
+    const n = texts.length;
+    if (n === 0 || slotWidth <= 0) return new Set();
+    const widths = texts.map(estimateTickLabelWidth);
+    const maxW = Math.max(...widths);
+    const stride = Math.max(1, Math.ceil((maxW + TICK_MIN_GAP) / slotWidth));
+
+    const kept = [];
+    for (let j = 0; j < n; j += stride) {
+        kept.push(j);
+    }
+    const last = n - 1;
+    if (kept[kept.length - 1] !== last) {
+        const prev = kept[kept.length - 1];
+        const fitsBesidePrev =
+            (last - prev) * slotWidth >= (widths[prev] + widths[last]) / 2 + TICK_MIN_GAP;
+        if (fitsBesidePrev) {
+            kept.push(last);
+        } else {
+            kept[kept.length - 1] = last;
+        }
+    }
+    return new Set(kept);
+}
+
+/**
  * Generates standalone Figure 2: Hamiltonian Pairwise Transition Tension SVG (IEEE Publication Standard).
  * @param {object} params
  * @param {object} [params.gallery]
@@ -219,11 +275,7 @@ export function generateTransitionTensionSvg({ gallery = {}, transitions = [] })
         const slotWidth = plotWidth / numTrans;
         const barWidth = Math.min(32, slotWidth * 0.58);
 
-        for (let j = 0; j < numTrans; j++) {
-            const t = transitions[j];
-            const xCenter = leftMargin + (j + 0.5) * slotWidth;
-            const xLeft = xCenter - barWidth / 2;
-
+        const barData = transitions.map((t) => {
             const chromComp =
                 t.chromaticComponent ??
                 Number((Math.min(100, (t.deltaE / 80) * 100) * 0.45).toFixed(1));
@@ -232,6 +284,22 @@ export function generateTransitionTensionSvg({ gallery = {}, transitions = [] })
                 t.aspectComponent ??
                 Number((Math.min(100, ((t.deltaAspect || 0) / 1.0) * 100) * 0.2).toFixed(1));
             const total = t.totalCost ?? Number((chromComp + lumComp + aspComp).toFixed(1));
+            return { chromComp, lumComp, aspComp, total };
+        });
+
+        const xLabelSlots = selectNonOverlappingTickLabels(
+            barData.map((_, j) => `${j + 1}→${j + 2}`),
+            slotWidth
+        );
+        const valueLabelSlots = selectNonOverlappingTickLabels(
+            barData.map((b) => b.total.toFixed(1)),
+            slotWidth
+        );
+
+        for (let j = 0; j < numTrans; j++) {
+            const { chromComp, lumComp, aspComp, total } = barData[j];
+            const xCenter = leftMargin + (j + 0.5) * slotWidth;
+            const xLeft = xCenter - barWidth / 2;
 
             const hChrom = (chromComp / 100) * plotHeight;
             const hLum = (lumComp / 100) * plotHeight;
@@ -256,10 +324,14 @@ export function generateTransitionTensionSvg({ gallery = {}, transitions = [] })
             }
 
             const topY = Math.max(plotTop - 3, plotBottom - hTotal - 4);
-            svg += `  <text x="${xCenter}" y="${topY}" class="tick-label" font-weight="600" text-anchor="middle">${total.toFixed(1)}</text>\n`;
+            if (valueLabelSlots.has(j)) {
+                svg += `  <text x="${xCenter}" y="${topY}" class="tick-label" font-weight="600" text-anchor="middle">${total.toFixed(1)}</text>\n`;
+            }
 
             svg += `  <line x1="${xCenter}" y1="${plotBottom - 4.5}" x2="${xCenter}" y2="${plotBottom}" class="tick-line" />\n`;
-            svg += `  <text x="${xCenter}" y="${plotBottom + 14}" class="tick-label" text-anchor="middle">${j + 1}→${j + 2}</text>\n`;
+            if (xLabelSlots.has(j)) {
+                svg += `  <text x="${xCenter}" y="${plotBottom + 14}" class="tick-label" text-anchor="middle">${j + 1}→${j + 2}</text>\n`;
+            }
         }
     }
 

@@ -155,7 +155,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _「Starlink 的氣球在東南方向的天空被炸成 PM 2.5 了。」_
+> _「Starlink 的氣球在東南方向的天空被炸成 PM2.5 了。」_
 > _單向度的男人在你的身旁喃喃低語_
 
 ---
@@ -200,7 +200,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _你通過觀察風的移動方向驗證光譜的拓撲結構假裝保持疏離_
+> _你通過觀察風的移動方向驗證光譜的幾何結構假裝保持疏離_
 > _你操縱食指快速滑動手機屏幕_
 > _使用西班牙語表達嘲笑_
 
@@ -381,7 +381,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _「嘿， 你知道嗎? Starlink 的氣球在聖獨立廣場的上空爆炸了！」_
+> _「嘿，你知道嗎？Starlink 的氣球在聖獨立廣場的上空爆炸了！」_
 > _動物們在 Market Street 奔走相告_
 
 ---
@@ -472,7 +472,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 > **[Poetic Caesura: Musical Rest]**
 >
 > _你將 iPhone 送進口袋觀察環境假裝鎮定_
-> _顫動著舌根快速運用西班牙語表達諷刺_
+> _顫動著舌根運用西班牙語表達諷刺_
 
 ---
 
@@ -516,7 +516,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _你嘗試登上聯邦大樓魷魚般光滑而黏稠的塔尖向天空舞動雙拳_
+> _你嘗試登上聯邦大樓魷魚般光滑的塔尖向天空舞動雙拳_
 > _卻在橋樑的倒影裡瞥見一個時代的死亡_
 
 ---
@@ -698,7 +698,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _你站立在聯邦大樓魷魚般光滑而黏稠的塔尖假裝看向左邊_
+> _你站立在聯邦大樓魷魚般光滑的塔尖假裝看向左邊_
 > _假裝眺望不存在的地平線_
 
 ---
