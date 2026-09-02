@@ -156,8 +156,14 @@ describe('js/hover-preview.js', () => {
         const notFound = await fetchProjectImages('./404/');
         expect(notFound).toBeNull();
 
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const networkErr = await fetchProjectImages('./error/');
         expect(networkErr).toBeNull();
+        expect(warnSpy).toHaveBeenCalledWith(
+            '[HoverPreview] Project HTML fetch failed:',
+            expect.any(Error)
+        );
+        warnSpy.mockRestore();
     });
 
     test('extractProjectId correctly identifies project IDs', () => {
