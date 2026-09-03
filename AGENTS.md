@@ -77,7 +77,9 @@ rather than assuming a regression.
     `git show --stat HEAD` must show a real diff that matches the commit
     message and, when responding to review feedback, actually addresses it.
     If you have nothing real to push, push nothing. Machine-enforced by
-    `make bot-pr-check` — see `docs/gates.md` for wiring.
+    `make bot-pr-check` (fails on empty commits, zero-content files, test line
+    deletions, stray bot artifacts like `pr_body.txt`, or unauthorized
+    `eslint-suppressions.json` modifications) — see `docs/gates.md` for wiring.
 
 ## You cannot see the rendered page
 
@@ -173,9 +175,10 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   `.github/workflows/`, verify the major-version tag exists
   (`gh api repos/<owner>/<repo>/git/refs/tags/v<N>`). Major-version tags are
   not guaranteed for every action; a missing tag breaks CI.
-- **Complexity ratchet** — `make lint-js` gates ESLint `complexity` above 20;
-  legacy violations are baselined in `eslint-suppressions.json`. Details:
-  `docs/gates.md`.
+- **Complexity ratchet** — `make lint-js` gates ESLint `complexity` above 20 with
+  `eslint-suppressions.json` baselining legacy violations. All legacy violations
+  have been eliminated (`{}`); the baseline is now frozen at 0. Any new suppression
+  or count increase fails `bot-pr-check`. Details: `docs/gates.md`.
 - **Coverage ratchet** — `make test` enforces the whole-suite floor in
   `jest.config.cjs`; CI also verifies `coverage/coverage-summary.json` exists.
   Details: `docs/gates.md`.

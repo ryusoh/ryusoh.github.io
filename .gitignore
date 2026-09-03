@@ -35,3 +35,7 @@ reports/
 
 # Agent task state ledgers
 .agents/state/
+
+# Agent scratch and PR draft files
+pr_body.txt
+pr_description.txt

@@ -49,12 +49,15 @@ The same script runs as the `thinking-check` pre-commit hook in
 
 `make bot-pr-check` runs `tools/check_bot_pr_hygiene.py`, a deterministic check
 over every commit authored by `google-labs-jules[bot]` in
-`origin/master..HEAD` (falling back to `origin/main`). It enforces
-`AGENTS.md` non-negotiable #10/11 by failing bot-authored commits that:
+`origin/master..HEAD` (falling back to `master`). It enforces
+`AGENTS.md` non-negotiable #10 by failing bot-authored commits that:
 
 - change no files (empty commit),
-- touch a file with zero content lines (placeholder/dummy-file pattern), or
-- delete lines from a test file — bot lanes are append-only in tests.
+- touch a file with zero content lines (placeholder/dummy-file pattern),
+- delete lines from a test file — bot lanes are append-only in tests,
+- commit stray bot artifacts (e.g. `pr_body.txt`, scratch/temp files), or
+- touch `eslint-suppressions.json` from a non-refactor lane or increase
+  suppressions (complexity ratchet violation).
 
 Test paths covered: `tests/` directories, `__tests__/` directories,
 `test_*.py`, and `*.test.js`. Human-authored commits are skipped.
@@ -62,7 +65,7 @@ Test paths covered: `tests/` directories, `__tests__/` directories,
 CI runs the same check in the "Reject bot PR hygiene violations" step of
 `.github/workflows/ci.yml`. The checkout uses `fetch-depth: 0` so the branch
 commits are visible behind the merge commit; a shallow checkout would silently
-no-op the check.
+no-op the check. Tests live in `tools/__tests__/test_check_bot_pr_hygiene.py`.
 
 ## Coverage floor and CI coverage report
 
@@ -92,8 +95,10 @@ A "Verify coverage report exists" step fails the build if
 
 `make lint-js` gates cyclomatic complexity with ESLint's `complexity` rule at a
 maximum of 20. Legacy violations are baselined in `eslint-suppressions.json`
-(currently empty for this repo). Any **new** or worsened violation fails the
-gate; shrink the baseline with `npx eslint --prune-suppressions` after a fix.
+(currently empty for this repo: `{}`). Any **new** or worsened violation fails the
+gate; any new suppression or count increase in `eslint-suppressions.json` is
+blocked by `bot-pr-check`. Only Architect (`refactor(...)` commits) may touch
+it to prune via `npx eslint --prune-suppressions`.
 
 Never raise the ceiling or hand-edit `eslint-suppressions.json`.
 
