@@ -23,12 +23,12 @@
     }
 
     /**
-     * Applies ThumbHash placeholder to an image or container element.
-     * @param {HTMLElement} el
+     * Resolves the ThumbHash decoder implementation from arguments or global scope.
      * @param {ThumbHashDecoder | unknown} [thumbHashDecoder]
+     * @returns {ThumbHashDecoder | null}
      */
-    function applyThumbHash(el, thumbHashDecoder) {
-        const decoder = /** @type {ThumbHashDecoder | null} */ (
+    function resolveDecoder(thumbHashDecoder) {
+        return /** @type {ThumbHashDecoder | null} */ (
             thumbHashDecoder ||
                 (typeof ThumbHash !== 'undefined' ? ThumbHash : null) ||
                 (typeof window !== 'undefined' && window.ThumbHash ? window.ThumbHash : null) ||
@@ -37,6 +37,48 @@
                     ? /** @type {Window & typeof globalThis} */ (globalThis).ThumbHash
                     : null)
         );
+    }
+
+    /**
+     * Applies the data URL as a background image or CSS variable.
+     * @param {HTMLElement} el
+     * @param {string} dataUrl
+     */
+    function applyThumbHashStyle(el, dataUrl) {
+        if (el.tagName === 'IMG') {
+            el.style.backgroundImage = `url("${dataUrl}")`;
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundPosition = 'center';
+        } else {
+            el.style.setProperty('--thumbhash', `url("${dataUrl}")`);
+        }
+    }
+
+    /**
+     * Attaches the load listener or triggers it immediately if already loaded.
+     * @param {HTMLElement} el
+     * @param {() => void} onLoaded
+     */
+    function handleLoadedState(el, onLoaded) {
+        if (el.tagName === 'IMG') {
+            const img = /** @type {HTMLImageElement} */ (el);
+            if (img.complete && img.naturalWidth > 0) {
+                onLoaded();
+            } else {
+                img.addEventListener('load', onLoaded, { once: true });
+            }
+        } else {
+            onLoaded();
+        }
+    }
+
+    /**
+     * Applies ThumbHash placeholder to an image or container element.
+     * @param {HTMLElement} el
+     * @param {ThumbHashDecoder | unknown} [thumbHashDecoder]
+     */
+    function applyThumbHash(el, thumbHashDecoder) {
+        const decoder = resolveDecoder(thumbHashDecoder);
 
         if (!el || !decoder || typeof el.getAttribute !== 'function') {
             return;
@@ -50,29 +92,14 @@
             const bytes = decoder.base64ToUint8Array(hash);
             const dataUrl = decoder.thumbHashToDataURL(bytes);
 
-            if (el.tagName === 'IMG') {
-                el.style.backgroundImage = `url("${dataUrl}")`;
-                el.style.backgroundSize = 'cover';
-                el.style.backgroundPosition = 'center';
-            } else {
-                el.style.setProperty('--thumbhash', `url("${dataUrl}")`);
-            }
+            applyThumbHashStyle(el, dataUrl);
             el.dataset.thumbhashApplied = 'true';
 
             const onLoaded = function () {
                 el.classList.add('thumbhash-loaded');
             };
 
-            if (el.tagName === 'IMG') {
-                const img = /** @type {HTMLImageElement} */ (el);
-                if (img.complete && img.naturalWidth > 0) {
-                    onLoaded();
-                } else {
-                    img.addEventListener('load', onLoaded, { once: true });
-                }
-            } else {
-                onLoaded();
-            }
+            handleLoadedState(el, onLoaded);
         } catch (e) {
             logWarning('ThumbHash decoding failed during init:', e);
         }
