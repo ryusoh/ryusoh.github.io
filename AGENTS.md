@@ -116,7 +116,8 @@ There is no machine diff-coverage gate, so this is on your honour:
 
 - If your change adds or alters runtime behaviour (a bug fix, a security fix, a
   behavioural change), **ship a test that fails before and passes after**, covering
-  the changed lines.
+  the changed lines. Bot lanes must be **append-only in tests** (never edit or delete
+  existing test lines; always append new test or describe blocks).
 - Behaviour-preserving changes (refactors, dead-code removal) need no new test —
   keep the existing suite green and coverage un-regressed.
 

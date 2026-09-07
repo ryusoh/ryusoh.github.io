@@ -193,3 +193,18 @@ def test_main_returns_0_on_empty_range(repo: Path) -> None:
 
 def test_main_returns_2_on_missing_base(repo: Path) -> None:
     assert main(["--repo", str(repo), "--base", "no-such-ref"]) == 2
+
+
+def test_bot_uncommitted_test_deletion_flagged(repo: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _write_and_commit(repo, "tests/js/widget.test.js", "a\nb\n", "init test", bot=False)
+    _git(repo, "checkout", "-b", "sentinel-fix")
+    (repo / "tests/js/widget.test.js").write_text("a\n")
+    assert main(["--repo", str(repo), "--base", "master"]) == 1
+    assert "uncommitted test deletion" in capsys.readouterr().out
+
+
+def test_human_uncommitted_test_deletion_ignored(repo: Path) -> None:
+    _git(repo, "checkout", "master")
+    _write_and_commit(repo, "tests/js/widget.test.js", "a\nb\n", "init test", bot=False)
+    (repo / "tests/js/widget.test.js").write_text("a\n")
+    assert main(["--repo", str(repo), "--base", "master"]) == 0

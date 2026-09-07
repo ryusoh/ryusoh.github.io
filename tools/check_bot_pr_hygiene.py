@@ -170,6 +170,58 @@ def find_violations(repo: Path, base: str, head: str = "HEAD") -> list[str]:
     return violations
 
 
+BOT_BRANCH_PREFIXES = (
+    "sentinel-",
+    "architect-",
+    "bolt-",
+    "janitor-",
+    "palette-",
+    "testpilot-",
+    "typist-",
+)
+
+
+def _is_bot_context(repo: Path) -> bool:
+    """Check if the current workspace or branch indicates an unattended bot run."""
+    try:
+        user = _git(repo, "config", "user.name").strip()
+        email = _git(repo, "config", "user.email").strip()
+        if BOT_AUTHOR_MARKER in user or BOT_AUTHOR_MARKER in email:
+            return True
+    except subprocess.CalledProcessError:
+        pass
+    try:
+        branch = _git(repo, "branch", "--show-current").strip()
+        if any(branch.startswith(prefix) for prefix in BOT_BRANCH_PREFIXES):
+            return True
+    except subprocess.CalledProcessError:
+        pass
+    return False
+
+
+def find_uncommitted_violations(repo: Path, base: str = "HEAD") -> list[str]:
+    """Inspect uncommitted working-tree changes against ``base`` for bot violations."""
+    violations = []
+    try:
+        out = _git(repo, "diff", "--numstat", base)
+    except subprocess.CalledProcessError:
+        return []
+    for line in out.splitlines():
+        fields = line.split("\t")
+        if len(fields) >= 3:
+            added, deleted, path = fields[0], fields[1], fields[-1]
+            if deleted not in ("0", "-") and _is_test_path(path):
+                violations.append(
+                    f"uncommitted test deletion: {path} loses {deleted} line(s)"
+                    " — bot lanes are append-only in tests"
+                )
+            if _is_stray_artifact(path):
+                violations.append(
+                    f"uncommitted stray artifact: {path} must not be committed"
+                )
+    return violations
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Fail on empty commits, placeholder files, or test deletions in bot-authored commits.",
@@ -196,11 +248,17 @@ def main(argv: list[str] | None = None) -> int:
             print(f"❌ neither {DEFAULT_BASE} nor {FALLBACK_BASE} found", file=sys.stderr)
             return 2
 
-    if not _git(args.repo, "rev-list", "--no-merges", f"{base}..HEAD").split():
+    revs = _git(args.repo, "rev-list", "--no-merges", f"{base}..HEAD").split()
+    violations = []
+    if _is_bot_context(args.repo):
+        violations.extend(find_uncommitted_violations(args.repo, "HEAD"))
+
+    if revs:
+        violations.extend(find_violations(args.repo, base))
+    elif not violations:
         print("⊘ no commits in range; nothing to check")
         return 0
 
-    violations = find_violations(args.repo, base)
     if violations:
         print("❌ Bot PR hygiene violations (AGENTS.md non-negotiable #10):")
         for violation in violations:

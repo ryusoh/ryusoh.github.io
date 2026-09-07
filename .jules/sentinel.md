@@ -74,6 +74,10 @@ Concentrate on **client-side** defects:
 - **Ship a test that fails before your fix and passes after**, covering the changed
   lines (e.g. asserting the control-character `javascript:` URL is now rejected, or
   the over-long input is refused before parsing).
+- **Append-only in tests:** when adding tests to cover changed lines, you must
+  **never** edit, modify, or delete existing lines in any test file (`tests/js/**`).
+  Always append new `test()` or `describe()` blocks at the bottom of the file.
+  Any line deletion in a test file immediately fails `bot-pr-check` on CI.
 - Don't rerun a failed gate on an unchanged tree — a red gate over an
   untouched worktree cannot go green. `node scripts/gate-guard.js` (`snapshot`
   before the run, `check <hash>` before a retry); unchanged means edit
