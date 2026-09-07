@@ -188,3 +188,46 @@ describe('js/load-animations.js', () => {
         expect(mockTo).toHaveBeenCalled();
     });
 });
+
+describe('load-animations error visibility coverage', () => {
+    test('logs error gracefully when SplitText fails', () => {
+        let domContentLoadedCb = null;
+        jest.spyOn(document, 'addEventListener').mockImplementation((event, fn) => {
+            if (event === 'DOMContentLoaded') {
+                domContentLoadedCb = fn;
+            }
+        });
+
+        document.body.innerHTML = '<div id="headline">Street Photography</div>';
+
+        window.gsap = {
+            timeline: jest.fn().mockReturnValue({ to: jest.fn() }),
+            set: jest.fn(),
+            registerPlugin: jest.fn(),
+        };
+
+        const error = new Error('SplitText failed');
+        window.SplitText = jest.fn().mockImplementation(() => {
+            throw error;
+        });
+
+        const originalWarn = window.console.warn;
+        window.console.warn = jest.fn();
+
+        jest.isolateModules(() => {
+            require('../../js/load-animations.js');
+        });
+
+        domContentLoadedCb();
+
+        expect(window.console.warn).toHaveBeenCalledWith(
+            '[load-animations] SplitText initialization failed, falling back:',
+            error
+        );
+
+        window.console.warn = originalWarn;
+        document.body.innerHTML = '';
+        delete window.SplitText;
+        jest.restoreAllMocks();
+    });
+});
