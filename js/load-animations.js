@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
         typeof window.matchMedia === 'function' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    const getSplitTextClass = () =>
+        (typeof SplitText !== 'undefined' ? SplitText : null) ||
+        (typeof window !== 'undefined' && window.SplitText ? window.SplitText : null);
+
     const startAnimation = () => {
         const background = document.getElementById('mimida');
         const headline = document.getElementById('headline');
@@ -45,11 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
-        const SplitTextClass =
-            (typeof SplitText !== 'undefined' ? SplitText : null) ||
-            (typeof window !== 'undefined' && window.SplitText ? window.SplitText : null);
+        const SplitTextClass = getSplitTextClass();
 
-        if (headline && SplitTextClass && typeof SplitTextClass === 'function') {
+        if (headline && typeof SplitTextClass === 'function') {
             try {
                 if (typeof gsap.registerPlugin === 'function') {
                     gsap.registerPlugin(SplitTextClass);
@@ -75,7 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     gsap.set(headline, { y: 30, opacity: 0 });
                     timeline.to(headline, { y: 0, opacity: 1 }, 0.2);
                 }
-            } catch {
+            } catch (e) {
+                if (typeof window !== 'undefined' && window.console?.warn) {
+                    window.console.warn(
+                        '[load-animations] SplitText initialization failed, falling back:',
+                        e
+                    );
+                }
                 gsap.set(headline, { y: 30, opacity: 0 });
                 timeline.to(headline, { y: 0, opacity: 1 }, 0.2);
             }
