@@ -409,14 +409,6 @@
             const img = imgElements[i];
             if (img.complete && img.naturalWidth > 0) {
                 img.classList.add('is-loaded');
-            } else {
-                img.addEventListener(
-                    'load',
-                    () => {
-                        img.classList.add('is-loaded');
-                    },
-                    { once: true }
-                );
             }
         }
     }
@@ -566,6 +558,16 @@
             trackEl.className = 'hover-carousel-track';
             carouselEl.appendChild(trackEl);
         }
+
+        carouselEl.addEventListener(
+            'load',
+            (e) => {
+                if (e.target && /** @type {HTMLElement} */ (e.target).tagName === 'IMG') {
+                    /** @type {HTMLElement} */ (e.target).classList.add('is-loaded');
+                }
+            },
+            true
+        );
 
         // Carousel container hover interactions
         carouselEl.addEventListener('mouseenter', () => {
