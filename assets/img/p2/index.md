@@ -32,9 +32,9 @@ DSCF3487-3.jpg
 DSCF3445-2.jpg
 DSCF7452.JPG
 
-> All those moments will be lost in time
+> Forever meant nothing
 > <br />
-> Like tears in rain
+> When we had nothing
 
 R0004664.JPG
 DSCF2862-3.jpg
