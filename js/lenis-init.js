@@ -14,6 +14,30 @@
         );
     }
 
+    function resolveLenisClass() {
+        return (
+            (typeof Lenis !== 'undefined' ? Lenis : null) ||
+            (typeof window !== 'undefined' && window.Lenis ? window.Lenis : null) ||
+            (typeof globalThis !== 'undefined' &&
+            /** @type {Object & { Lenis?: typeof Lenis }} */ (globalThis).Lenis
+                ? /** @type {Object & { Lenis?: typeof Lenis }} */ (globalThis).Lenis
+                : null)
+        );
+    }
+
+    /**
+     * @param {unknown} e
+     */
+    function handleLenisInitError(e) {
+        if (
+            typeof window !== 'undefined' &&
+            window.console &&
+            typeof window.console.warn === 'function'
+        ) {
+            window.console.warn('[LenisInit] Lenis instantiation failed:', e);
+        }
+    }
+
     /**
      * @param {Record<string, unknown>=} options
      * @returns {Lenis | null}
@@ -23,13 +47,7 @@
             return null;
         }
 
-        const LenisClass =
-            (typeof Lenis !== 'undefined' ? Lenis : null) ||
-            (typeof window !== 'undefined' && window.Lenis ? window.Lenis : null) ||
-            (typeof globalThis !== 'undefined' &&
-            /** @type {Object & { Lenis?: typeof Lenis }} */ (globalThis).Lenis
-                ? /** @type {Object & { Lenis?: typeof Lenis }} */ (globalThis).Lenis
-                : null);
+        const LenisClass = resolveLenisClass();
 
         if (!LenisClass) {
             return null;
@@ -56,13 +74,7 @@
 
             return lenis;
         } catch (e) {
-            if (
-                typeof window !== 'undefined' &&
-                window.console &&
-                typeof window.console.warn === 'function'
-            ) {
-                window.console.warn('[LenisInit] Lenis instantiation failed:', e);
-            }
+            handleLenisInitError(e);
             return null;
         }
     }
