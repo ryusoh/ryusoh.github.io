@@ -353,8 +353,11 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
 - **Concurrent agents sharing one worktree.** When you run parallel subagents
   (swarms, background agents) in this checkout: stage only files you changed
   (`git add <specific-files>`, never `git add -A`), never `git stash`,
-  `git reset --hard`, or `git commit --no-verify` — a sibling agent's work may
-  be sitting in the same tree. Keep concurrent agents on disjoint file sets; if
+  `git reset --hard`, `git checkout -- <file>`, `git restore <file>`, or
+  `git commit --no-verify` — a sibling agent's work may be sitting in the same
+  tree. Never discard changes on files outside your assigned task/page scope;
+  uncommitted edits in other directories belong to concurrent work streams or
+  the user in another window. Keep concurrent agents on disjoint file sets; if
   a rebase/conflict lands mid-run, resolve only files your task owns. Note that
   `make precommit-fix` itself ends with `git add -u`, which stages **all**
   tracked modifications including a sibling's — another reason to keep file
