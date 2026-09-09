@@ -4,7 +4,7 @@
 >
 > **Sequence Status**: Validated (Existing sequence affirmed as optimal)
 >
-> **Hamiltonian Sequence Energy**: `438.1` (Avg Step Cost: `14.1`)
+> **Hamiltonian Sequence Energy**: `453.7` (Avg Step Cost: `14.6`)
 >
 > **Respiratory Pacing Score**: `100/100` (3 Inhalations, 15 Exhalations, 14 Grounding)
 
@@ -275,11 +275,11 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ![DSCF8998.JPG](../assets/img/p6/DSCF8998-768.webp)
 
-| Attribute                            | Value                                                      |
-| :----------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                | `L*=44.82` — **Neutral** (CIELAB: `44.82, 0, -0.01`)       |
-| **Transition to #12 (DSCF0324.jpg)** | `ΔE₇₆: 17.64` (Color) · `ΔLum: 45` · **Step Cost: `16.1`** |
+| Attribute                            | Value                                                    |
+| :----------------------------------- | :------------------------------------------------------- |
+| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
+| **Tonality & Breath**                | `L*=44.82` — **Neutral** (CIELAB: `44.82, 0, -0.01`)     |
+| **Transition to #12 (DSCF0175.jpg)** | `ΔE₇₆: 8.67` (Color) · `ΔLum: 21` · **Step Cost: `7.8`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -287,7 +287,52 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A stern man in a black wool coat steps through a heavy, ornate neoclassical bronze revolving gate of a financial or corporate institution, staring out with unyielding authority.
 - _Thematic Meaning_: The gatekeepers of the hypermassive order. The ornate bronze filigree and impenetrable glass separate the ruling technocratic elite from the street below.
 - _Composition & Gaze Vectors_: Rigid vertical iron bars and circular bronze medallions framing the upright, imposing stance of the man in the overcoat.
-- _Transition Dynamic_: Neutral luminance bridge (`L*=44.82`) leading across the sixth caesura ('你聽見薩滿女巫的歌聲穿透超巨型計算集群的電流噪音') into the explosive blast.
+- _Transition Dynamic_: Neutral luminance bridge (`L*=44.82`) leading across the sixth caesura ('你將 earpods 插進肺中緊閉雙眼 / 觀察眼皮毛細血管的顏色假裝獲得一種感受') into the terrestrial particle snow.
+
+> **[Poetic Caesura: Musical Rest]**
+>
+> _你將 earpods 插進肺中緊閉雙眼_
+> _觀察眼皮毛細血管的顏色假裝獲得一種感受_
+
+---
+
+### [12/32] DSCF0175.jpg
+
+![DSCF0175.jpg](../assets/img/p6/DSCF0175-768.webp)
+
+| Attribute                            | Value                                                      |
+| :----------------------------------- | :--------------------------------------------------------- |
+| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
+| **Tonality & Breath**                | `L*=36.15` — **Neutral** (CIELAB: `36.15, 0, 0`)           |
+| **Transition to #13 (DSCF0617.jpg)** | `ΔE₇₆: 24.39` (Color) · `ΔLum: 54` · **Step Cost: `21.1`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- _Pacing Role_: Act II: Terrestrial Threshold / The Particle Snow
+- _Visual Subject & Content_: In a dark forest clearing, a figure in a wide-brimmed hat and white top stands over an empty washbasin as dense white particles or snow dust fall through the air like radioactive fallout.
+- _Thematic Meaning_: The quiet, rural boundary where the human body stands defenseless before the falling debris of the cosmos. The empty basin is an archaic vessel of survival amidst the electronic snowfall.
+- _Composition & Gaze Vectors_: Downward gaze of the centered figure aligning with the vertical tree trunks and downward dispersion of falling white specks.
+- _Transition Dynamic_: Neutral luminance step (`L*=36.15`) dropping sharply (ΔE: 24.39) into the ritual skull paint.
+
+---
+
+### [13/32] DSCF0617.jpg
+
+![DSCF0617.jpg](../assets/img/p6/DSCF0617-768.webp)
+
+| Attribute                            | Value                                                    |
+| :----------------------------------- | :------------------------------------------------------- |
+| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
+| **Tonality & Breath**                | `L*=11.76` — **Exhalation** (CIELAB: `11.76, 0, 0`)      |
+| **Transition to #14 (DSCF0324.jpg)** | `ΔE₇₆: 50.7` (Color) · `ΔLum: 120` · **Step Cost: `45`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- _Pacing Role_: Act II: Shaman Transformation / The Calavera Mask
+- _Visual Subject & Content_: In deep chiaroscuro street shadow, a makeup artist paints the black skull eyes of a Calavera (Day of the Dead) mask onto a young woman's face, flanked by floral headdresses and spectators.
+- _Thematic Meaning_: The ritual invocation of mortality and resistance. The skull paint transforms the human face into an ancient ancestral icon standing firm against computational abstraction.
+- _Composition & Gaze Vectors_: Delicate horizontal brush vector approaching the eye socket, contrasted with the vertical rays of the headdress on the right.
+- _Transition Dynamic_: Deepest exhalation anchor of Act II (`L*=11.76`) erupting across the seventh caesura ('你聽見薩滿女巫的歌聲穿透超巨型計算集群的電流噪音將天空染成紅色 / 滾燙的鋼鐵碎片劃破沒落族裔的面龐血流成河') into the atmospheric detonation.
 
 > **[Poetic Caesura: Musical Rest]**
 >
@@ -296,7 +341,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [12/32] DSCF0324.jpg
+### [14/32] DSCF0324.jpg
 
 ![DSCF0324.jpg](../assets/img/p6/DSCF0324-768.webp)
 
@@ -304,7 +349,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :------------------------------------- | :--------------------------------------------------------- |
 | **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
 | **Tonality & Breath**                  | `L*=62.46` — **Inhalation** (CIELAB: `62.46, 0, -0.01`)    |
-| **Transition to #13 (DSCF0658-3.jpg)** | `ΔE₇₆: 32.74` (Color) · `ΔLum: 81` · **Step Cost: `29.5`** |
+| **Transition to #15 (DSCF0658-3.jpg)** | `ΔE₇₆: 32.74` (Color) · `ΔLum: 81` · **Step Cost: `29.5`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -316,15 +361,15 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [13/32] DSCF0658-3.jpg
+### [15/32] DSCF0658-3.jpg
 
 ![DSCF0658-3.jpg](../assets/img/p6/DSCF0658-3-768.webp)
 
-| Attribute                            | Value                                                    |
-| :----------------------------------- | :------------------------------------------------------- |
-| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
-| **Tonality & Breath**                | `L*=29.72` — **Exhalation** (CIELAB: `29.72, 0, 0`)      |
-| **Transition to #14 (DSCF0175.jpg)** | `ΔE₇₆: 6.43` (Color) · `ΔLum: 15` · **Step Cost: `5.7`** |
+| Attribute                              | Value                                                    |
+| :------------------------------------- | :------------------------------------------------------- |
+| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
+| **Tonality & Breath**                  | `L*=29.72` — **Exhalation** (CIELAB: `29.72, 0, 0`)      |
+| **Transition to #16 (DSCF0297-3.jpg)** | `ΔE₇₆: 17.92` (Color) · `ΔLum: 43` · **Step Cost: `16`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -332,52 +377,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A young Black man wearing a camouflage jacket carries a white paper package at night, glancing sharply back over his shoulder with wide, fearful eyes as horizontal light ribbons streak past.
 - _Thematic Meaning_: The visceral fear of surveillance and state apparatus. The courier clutches his fragile parcel as if carrying contraband truth through a militarized, light-streaked city.
 - _Composition & Gaze Vectors_: Tense backward head turn vector pointing toward the right, counterbalanced by his forward-leaning torso and horizontal light streaks.
-- _Transition Dynamic_: Low-key exhalation (`L*=29.72`) leading across the seventh caesura ('你將 earpods 插進肺中緊閉雙眼 / 觀察眼皮毛細血管的顏色') into the rural clearing.
-
-> **[Poetic Caesura: Musical Rest]**
->
-> _你將 earpods 插進肺中緊閉雙眼_
-> _觀察眼皮毛細血管的顏色假裝獲得一種感受_
-
----
-
-### [14/32] DSCF0175.jpg
-
-![DSCF0175.jpg](../assets/img/p6/DSCF0175-768.webp)
-
-| Attribute                            | Value                                                      |
-| :----------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                | `L*=36.15` — **Neutral** (CIELAB: `36.15, 0, 0`)           |
-| **Transition to #15 (DSCF0617.jpg)** | `ΔE₇₆: 24.39` (Color) · `ΔLum: 54` · **Step Cost: `21.1`** |
-
-**Curatorial Rationale & Montage Dynamic**:
-
-- _Pacing Role_: Act III: Terrestrial Threshold / The Particle Snow
-- _Visual Subject & Content_: In a dark forest clearing, a figure in a wide-brimmed hat and white top stands over an empty washbasin as dense white particles or snow dust fall through the air like radioactive fallout.
-- _Thematic Meaning_: The quiet, rural boundary where the human body stands defenseless before the falling debris of the cosmos. The empty basin is an archaic vessel of survival amidst the electronic snowfall.
-- _Composition & Gaze Vectors_: Downward gaze of the centered figure aligning with the vertical tree trunks and downward dispersion of falling white specks.
-- _Transition Dynamic_: Neutral luminance step (`L*=36.15`) dropping sharply (ΔE: 24.39) into the ritual skull paint.
-
----
-
-### [15/32] DSCF0617.jpg
-
-![DSCF0617.jpg](../assets/img/p6/DSCF0617-768.webp)
-
-| Attribute                              | Value                                                      |
-| :------------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                  | `L*=11.76` — **Exhalation** (CIELAB: `11.76, 0, 0`)        |
-| **Transition to #16 (DSCF0297-3.jpg)** | `ΔE₇₆: 35.88` (Color) · `ΔLum: 82` · **Step Cost: `31.4`** |
-
-**Curatorial Rationale & Montage Dynamic**:
-
-- _Pacing Role_: Act III: Shaman Transformation / The Calavera Mask
-- _Visual Subject & Content_: In deep chiaroscuro street shadow, a makeup artist paints the black skull eyes of a Calavera (Day of the Dead) mask onto a young woman's face, flanked by floral headdresses and spectators.
-- _Thematic Meaning_: The ritual invocation of mortality and resistance. The skull paint transforms the human face into an ancient ancestral icon standing firm against computational abstraction.
-- _Composition & Gaze Vectors_: Delicate horizontal brush vector approaching the eye socket, contrasted with the vertical rays of the headdress on the right.
-- _Transition Dynamic_: Deepest exhalation anchor of Act III (`L*=11.76`) erupting across the eighth caesura ('「嘿， 你知道嗎? Starlink 的氣球在聖獨立廣場的上空爆炸了！」') into the screen mob.
+- _Transition Dynamic_: Low-key exhalation (`L*=29.72`) leading across the eighth caesura ('「嘿，你知道嗎？Starlink 的氣球在聖獨立廣場的上空爆炸了！」 / 動物們在 Market Street 奔走相告') into the Market Street screen mob.
 
 > **[Poetic Caesura: Musical Rest]**
 >
@@ -472,7 +472,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 > **[Poetic Caesura: Musical Rest]**
 >
 > _你將 iPhone 送進口袋觀察環境假裝鎮定_
-> _顫動著舌根運用西班牙語表達諷刺_
+> _顫動著舌根使用西班牙語表達諷刺_
 
 ---
 
@@ -512,12 +512,12 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: An older woman with curly hair walks through a dark urban corridor, looking sideways with a cautious, questioning expression as streaks of white light trail across the foreground.
 - _Thematic Meaning_: The quiet isolation of the individual navigating the restless, perpetual motion of the contemporary city.
 - _Composition & Gaze Vectors_: Centered portrait mass framed by horizontal kinetic light bands streaking across the left and right quadrants.
-- _Transition Dynamic_: Low-key exhalation (`L*=27.97`) leading across the eleventh caesura ('你嘗試登上聯邦大樓魷魚般光滑而黏稠的塔尖') into the spectral blur.
+- _Transition Dynamic_: Low-key exhalation (`L*=27.97`) leading across the eleventh caesura ('你嘗試登上聯邦大樓魷魚般光滑的塔尖向天空舞動雙拳 / 卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡') into the spectral blur.
 
 > **[Poetic Caesura: Musical Rest]**
 >
 > _你嘗試登上聯邦大樓魷魚般光滑的塔尖向天空舞動雙拳_
-> _卻在橋樑的倒影裡瞥見一個時代的死亡_
+> _卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡_
 
 ---
 
@@ -779,9 +779,9 @@ The current sequence displays **optimal rhythmic pacing** (100/100) with harmoni
 ![DSCF5369-3.jpg](../assets/img/p6/DSCF5369-3-768.webp)
 
 - **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=19.4` (Exhalation)
-- **Optimal Integration Slot**: Position #15 (`DSCF0175.jpg` → **`DSCF5369-3.jpg`** → `DSCF0617.jpg`)
+- **Optimal Integration Slot**: Position #13 (`DSCF0175.jpg` → **`DSCF5369-3.jpg`** → `DSCF0617.jpg`)
 - **Pacing Impact**: Net ΔEnergy `0` · Local Step Cost `10.6` · Pacing Score `100/100`
-- **Curatorial Suggestion**: Integrates smoothly between #14 (DSCF0175.jpg) and #15 (DSCF0617.jpg)
+- **Curatorial Suggestion**: Integrates smoothly between #12 (DSCF0175.jpg) and #13 (DSCF0617.jpg)
 - **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
 
 ### Candidate: DSCF5373.jpg
@@ -789,9 +789,9 @@ The current sequence displays **optimal rhythmic pacing** (100/100) with harmoni
 ![DSCF5373.jpg](../assets/img/p6/DSCF5373-768.webp)
 
 - **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=12.25` (Exhalation)
-- **Optimal Integration Slot**: Position #15 (`DSCF0175.jpg` → **`DSCF5373.jpg`** → `DSCF0617.jpg`)
+- **Optimal Integration Slot**: Position #13 (`DSCF0175.jpg` → **`DSCF5373.jpg`** → `DSCF0617.jpg`)
 - **Pacing Impact**: Net ΔEnergy `0` · Local Step Cost `10.5` · Pacing Score `100/100`
-- **Curatorial Suggestion**: Integrates smoothly between #14 (DSCF0175.jpg) and #15 (DSCF0617.jpg)
+- **Curatorial Suggestion**: Integrates smoothly between #12 (DSCF0175.jpg) and #13 (DSCF0617.jpg)
 - **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
 
 ### Candidate: DSCF8871-4.JPG

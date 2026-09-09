@@ -422,8 +422,8 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> *All those moments will be lost in time*
-> *Like tears in rain*
+> *Forever meant nothing*
+> *When we had nothing*
 
 ---
 

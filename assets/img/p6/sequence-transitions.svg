@@ -77,25 +77,25 @@
   <rect x="267.64903225806444" y="206.72" width="12.57290322580645" height="17.28" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
   <rect x="267.64903225806444" y="196.736" width="12.57290322580645" height="9.984000000000002" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
   <line x1="273.9354838709677" y1="219.5" x2="273.9354838709677" y2="224" class="tick-line" />
-  <rect x="289.3264516129032" y="204.992" width="12.57290322580645" height="19.008000000000003" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
-  <rect x="289.3264516129032" y="193.088" width="12.57290322580645" height="11.904" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
-  <text x="295.61290322580646" y="189.088" class="tick-label" font-weight="600" text-anchor="middle">16.1</text>
+  <rect x="289.3264516129032" y="214.59199999999998" width="12.57290322580645" height="9.408000000000001" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="289.3264516129032" y="209.02399999999997" width="12.57290322580645" height="5.568" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
+  <text x="295.61290322580646" y="205.024" class="tick-label" font-weight="600" text-anchor="middle">7.8</text>
   <line x1="295.61290322580646" y1="219.5" x2="295.61290322580646" y2="224" class="tick-line" />
   <text x="295.61290322580646" y="238" class="tick-label" text-anchor="middle">11→12</text>
-  <rect x="311.0038709677419" y="188.672" width="12.57290322580645" height="35.328" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
-  <rect x="311.0038709677419" y="167.35999999999999" width="12.57290322580645" height="21.312" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="311.0038709677419" y="197.696" width="12.57290322580645" height="26.303999999999995" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="311.0038709677419" y="183.488" width="12.57290322580645" height="14.208000000000002" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
   <line x1="317.2903225806451" y1="219.5" x2="317.2903225806451" y2="224" class="tick-line" />
-  <rect x="332.6812903225806" y="217.088" width="12.57290322580645" height="6.912000000000001" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
-  <rect x="332.6812903225806" y="213.05599999999998" width="12.57290322580645" height="4.032" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
-  <text x="338.96774193548384" y="209.056" class="tick-label" font-weight="600" text-anchor="middle">5.7</text>
+  <rect x="332.6812903225806" y="169.28" width="12.57290322580645" height="54.72" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="332.6812903225806" y="137.6" width="12.57290322580645" height="31.68" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
+  <text x="338.96774193548384" y="133.6" class="tick-label" font-weight="600" text-anchor="middle">45.0</text>
   <line x1="338.96774193548384" y1="219.5" x2="338.96774193548384" y2="224" class="tick-line" />
   <text x="338.96774193548384" y="238" class="tick-label" text-anchor="middle">13→14</text>
-  <rect x="354.3587096774193" y="197.696" width="12.57290322580645" height="26.303999999999995" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
-  <rect x="354.3587096774193" y="183.488" width="12.57290322580645" height="14.208000000000002" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="354.3587096774193" y="188.672" width="12.57290322580645" height="35.328" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="354.3587096774193" y="167.35999999999999" width="12.57290322580645" height="21.312" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
   <line x1="360.64516129032256" y1="219.5" x2="360.64516129032256" y2="224" class="tick-line" />
-  <rect x="376.03612903225803" y="185.216" width="12.57290322580645" height="38.784" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
-  <rect x="376.03612903225803" y="163.52" width="12.57290322580645" height="21.696" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
-  <text x="382.3225806451613" y="159.712" class="tick-label" font-weight="600" text-anchor="middle">31.4</text>
+  <rect x="376.03612903225803" y="204.608" width="12.57290322580645" height="19.392" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="376.03612903225803" y="193.28" width="12.57290322580645" height="11.328000000000001" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
+  <text x="382.3225806451613" y="189.28" class="tick-label" font-weight="600" text-anchor="middle">16.0</text>
   <line x1="382.3225806451613" y1="219.5" x2="382.3225806451613" y2="224" class="tick-line" />
   <text x="382.3225806451613" y="238" class="tick-label" text-anchor="middle">15→16</text>
   <rect x="397.71354838709675" y="212.096" width="12.57290322580645" height="11.904" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
