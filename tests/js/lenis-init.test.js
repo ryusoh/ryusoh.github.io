@@ -19,6 +19,9 @@ describe('LenisInit', () => {
         MockLenisClass = jest.fn().mockImplementation(() => mockLenisInstance);
         window.Lenis = MockLenisClass;
         delete window.lenis;
+        if (LenisInit._resetCache) {
+            LenisInit._resetCache();
+        }
     });
 
     test('isReducedMotion returns false when media query does not match', () => {
