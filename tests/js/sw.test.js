@@ -493,5 +493,13 @@ describe('Service Worker', () => {
                 expect(mockCaches.match).toHaveBeenCalledWith(event.request);
             });
         });
+
+        describe('Sentinel Security Checks', () => {
+            test('handleFetchCacheFirst returns early if url is too long', () => {
+                event.request.url = 'http://localhost/test.js?' + 'a'.repeat(2001);
+                sw.handleFetchCacheFirst(event, event.request);
+                expect(event.respondWith).not.toHaveBeenCalled();
+            });
+        });
     });
 });

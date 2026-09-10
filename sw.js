@@ -83,6 +83,9 @@ const isValidResponse = (res, req) => {
  * @param {Request} req
  */
 const handleFetchCacheFirst = (event, req) => {
+    if (req.url.length > 2000) {
+        return;
+    }
     const isImgOrFont = isImageOrFontFile(new URL(req.url), req.destination);
     const targetCache = isImgOrFont ? IMAGE_CACHE_NAME : CACHE_NAME;
     event.respondWith(
