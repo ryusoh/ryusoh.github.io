@@ -180,7 +180,21 @@
             return Promise.resolve(null);
         }
 
-        const promise = fetch(normalizedUrl)
+        /** @type {RequestInit} */
+        const fetchOptions = {};
+        /** @type {ReturnType<typeof setTimeout> | null} */
+        let timeoutId = null;
+
+        /* istanbul ignore else */
+        if (typeof window !== 'undefined' && typeof window.AbortController !== 'undefined') {
+            const abortController = new window.AbortController();
+            fetchOptions.signal = abortController.signal;
+            timeoutId = setTimeout(() => {
+                abortController.abort();
+            }, 5000);
+        }
+
+        const promise = fetch(normalizedUrl, fetchOptions)
             .then((res) => {
                 if (!res.ok) {
                     return null;
@@ -217,6 +231,9 @@
                 return null;
             })
             .finally(() => {
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                }
                 fetchPromises.delete(normalizedUrl);
             });
 
