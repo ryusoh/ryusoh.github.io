@@ -11,12 +11,23 @@
 (function () {
     'use strict';
 
+    /** @type {MediaQueryList | null} */
+    let mobileMediaQuery = null;
+
+    /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead during high-frequency scroll events.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks in `processScroll`.
+     */
     function isMobile() {
-        return (
-            typeof window !== 'undefined' &&
-            window.matchMedia &&
-            window.matchMedia('(max-width: 449px)').matches
-        );
+        if (typeof window === 'undefined' || !window.matchMedia) {
+            return false;
+        }
+        if (mobileMediaQuery === null) {
+            mobileMediaQuery = window.matchMedia('(max-width: 449px)');
+        }
+        return mobileMediaQuery ? mobileMediaQuery.matches : false;
     }
 
     function getSafeAreaBlur() {
@@ -231,7 +242,12 @@
         }
     }
 
-    const testing = { initMobileDock };
+    const testing = {
+        initMobileDock,
+        _resetCache: () => {
+            mobileMediaQuery = null;
+        },
+    };
     if (typeof window !== 'undefined') {
         window.__MobileDockForTesting = testing;
     }
