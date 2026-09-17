@@ -99,6 +99,8 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         }));
 
         const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        require('../../../js/mobile-dock.js')._resetCache &&
+            require('../../../js/mobile-dock.js')._resetCache();
         initMobileDock();
 
         const cont = document.getElementById('cont');
@@ -164,6 +166,8 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         }));
 
         const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        require('../../../js/mobile-dock.js')._resetCache &&
+            require('../../../js/mobile-dock.js')._resetCache();
         initMobileDock();
 
         const titleLink = document.querySelector('.brand-title a');
@@ -303,6 +307,8 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         window.scrollY = 0;
 
         const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        require('../../../js/mobile-dock.js')._resetCache &&
+            require('../../../js/mobile-dock.js')._resetCache();
         initMobileDock();
 
         const cont = document.getElementById('cont');
@@ -383,6 +389,8 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         }));
 
         const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        require('../../../js/mobile-dock.js')._resetCache &&
+            require('../../../js/mobile-dock.js')._resetCache();
         initMobileDock();
 
         const cont = document.getElementById('cont');
@@ -429,6 +437,8 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         }));
 
         const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        require('../../../js/mobile-dock.js')._resetCache &&
+            require('../../../js/mobile-dock.js')._resetCache();
         initMobileDock();
 
         const titleLink = document.querySelector('.brand-title a');
@@ -462,6 +472,8 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         }));
 
         const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        require('../../../js/mobile-dock.js')._resetCache &&
+            require('../../../js/mobile-dock.js')._resetCache();
         initMobileDock();
 
         const titleLink = document.querySelector('.brand-title a');
