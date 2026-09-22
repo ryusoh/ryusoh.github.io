@@ -72,6 +72,15 @@ describe('scroll-reveal-icon.js', () => {
         expect(window.IntersectionObserver).not.toHaveBeenCalled();
     });
 
+    test('handles intersecting without banner element', () => {
+        bannerElement.remove();
+        require('../../js/scroll-reveal-icon.js');
+        observerCallback([{ isIntersecting: true, target: iconElement }]);
+        expect(iconElement.classList.contains('is-visible')).toBe(true);
+        observerCallback([{ isIntersecting: false, target: iconElement }]);
+        expect(iconElement.classList.contains('is-visible')).toBe(false);
+    });
+
     test('fallback works without IntersectionObserver', () => {
         delete window.IntersectionObserver;
         require('../../js/scroll-reveal-icon.js');

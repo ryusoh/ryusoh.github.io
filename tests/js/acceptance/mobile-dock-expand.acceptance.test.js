@@ -483,4 +483,38 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         expect(blur.getAttribute('data-existing')).toBe('true');
         expect(blur.classList.contains('is-visible')).toBe(true);
     });
+
+    test('TDD: mobile dock fallback branches for matchMedia and document.body', () => {
+        document.documentElement.innerHTML = `
+            <div id="cont">
+                <header id="site-header">
+                    <h1 class="brand-title">
+                        <a href="/" class="nav-back"><span>Zhuang Liu</span></a>
+                    </h1>
+                </header>
+            </div>
+        `;
+
+        const originalMatchMedia = window.matchMedia;
+        delete window.matchMedia;
+
+        const initMobileDock = require('../../../js/mobile-dock.js').initMobileDock;
+        require('../../../js/mobile-dock.js')._resetCache &&
+            require('../../../js/mobile-dock.js')._resetCache();
+        initMobileDock();
+
+        const cont = document.getElementById('cont');
+        cont.classList.add('is-scrolled-down');
+
+        // Simulating scroll will processScroll and since no matchMedia, it will remove is-scrolled-down from cont.
+        window.dispatchEvent(new Event('scroll'));
+        // processScroll has a ticking requestAnimationFrame that needs to be fired
+        if (window.requestAnimationFrame && window.requestAnimationFrame.mock) {
+            window.requestAnimationFrame.mock.calls.forEach((call) => call[0]());
+            window.requestAnimationFrame.mockClear();
+        }
+        expect(cont.classList.contains('is-scrolled-down')).toBe(false);
+
+        window.matchMedia = originalMatchMedia;
+    });
 });

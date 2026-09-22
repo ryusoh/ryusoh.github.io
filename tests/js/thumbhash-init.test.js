@@ -93,6 +93,12 @@ describe('ThumbHashInit', () => {
         expect(img1.style.backgroundImage).toBe(bg);
     });
 
+    test('exits early if missing getAttribute or data-thumbhash', () => {
+        expect(() => ThumbHashInit.applyThumbHash({ dataset: {} })).not.toThrow();
+        const img = document.createElement('img');
+        expect(() => ThumbHashInit.applyThumbHash(img)).not.toThrow();
+    });
+
     test('gracefully handles missing or invalid inputs', () => {
         expect(() => ThumbHashInit.init(null)).not.toThrow();
         expect(() => ThumbHashInit.applyThumbHash(null)).not.toThrow();
