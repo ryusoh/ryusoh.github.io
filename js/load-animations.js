@@ -19,39 +19,35 @@ document.addEventListener('DOMContentLoaded', () => {
         (typeof SplitText !== 'undefined' ? SplitText : null) ||
         (typeof window !== 'undefined' && window.SplitText ? window.SplitText : null);
 
-    const startAnimation = () => {
-        const background = document.getElementById('mimida');
-        const headline = document.getElementById('headline');
-        const nav = document.getElementById('nav');
-        const elementsToReveal = [headline, nav].filter(Boolean);
+    /**
+     * @param {HTMLElement | null} background
+     * @param {HTMLElement[]} elementsToReveal
+     */
+    const handleReducedMotion = (background, elementsToReveal) => {
+        if (background) {
+            gsap.set(background, { scale: 1 });
+        }
+        if (elementsToReveal.length > 0) {
+            gsap.set(elementsToReveal, { opacity: 1, y: 0 });
+        }
+    };
 
-        if (isReducedMotion()) {
-            if (background) {
-                gsap.set(background, { scale: 1 });
-            }
-            if (elementsToReveal.length > 0) {
-                gsap.set(elementsToReveal, { opacity: 1, y: 0 });
-            }
+    /**
+     * @param {HTMLElement | null} headline
+     * @param {any} timeline
+     * @param {any} SplitTextClass
+     */
+    const animateHeadline = (headline, timeline, SplitTextClass) => {
+        if (!headline) {
             return;
         }
 
-        const timeline = gsap.timeline({
-            defaults: { ease: 'cubic-bezier(0.65, 0.05, 0, 1)', duration: 1.2 },
-        });
+        const fallbackAnimate = () => {
+            gsap.set(headline, { y: 30, opacity: 0 });
+            timeline.to(headline, { y: 0, opacity: 1 }, 0.2);
+        };
 
-        // Background scale down effect
-        if (background) {
-            gsap.set(background, { scale: 1.05 });
-            timeline.to(
-                background,
-                { scale: 1, duration: 2, ease: 'cubic-bezier(0.65, 0.05, 0, 1)' },
-                0
-            );
-        }
-
-        const SplitTextClass = getSplitTextClass();
-
-        if (headline && typeof SplitTextClass === 'function') {
+        if (typeof SplitTextClass === 'function') {
             try {
                 if (typeof gsap.registerPlugin === 'function') {
                     gsap.registerPlugin(SplitTextClass);
@@ -74,8 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         0.2
                     );
                 } else {
-                    gsap.set(headline, { y: 30, opacity: 0 });
-                    timeline.to(headline, { y: 0, opacity: 1 }, 0.2);
+                    fallbackAnimate();
                 }
             } catch (e) {
                 if (typeof window !== 'undefined' && window.console?.warn) {
@@ -84,13 +79,40 @@ document.addEventListener('DOMContentLoaded', () => {
                         e
                     );
                 }
-                gsap.set(headline, { y: 30, opacity: 0 });
-                timeline.to(headline, { y: 0, opacity: 1 }, 0.2);
+                fallbackAnimate();
             }
-        } else if (headline) {
-            gsap.set(headline, { y: 30, opacity: 0 });
-            timeline.to(headline, { y: 0, opacity: 1 }, 0.2);
+        } else {
+            fallbackAnimate();
         }
+    };
+
+    const startAnimation = () => {
+        const background = document.getElementById('mimida');
+        const headline = document.getElementById('headline');
+        const nav = document.getElementById('nav');
+        /** @type {HTMLElement[]} */
+        const elementsToReveal = /** @type {HTMLElement[]} */ ([headline, nav].filter(Boolean));
+
+        if (isReducedMotion()) {
+            handleReducedMotion(background, elementsToReveal);
+            return;
+        }
+
+        const timeline = gsap.timeline({
+            defaults: { ease: 'cubic-bezier(0.65, 0.05, 0, 1)', duration: 1.2 },
+        });
+
+        // Background scale down effect
+        if (background) {
+            gsap.set(background, { scale: 1.05 });
+            timeline.to(
+                background,
+                { scale: 1, duration: 2, ease: 'cubic-bezier(0.65, 0.05, 0, 1)' },
+                0
+            );
+        }
+
+        animateHeadline(headline, timeline, getSplitTextClass());
 
         if (nav) {
             gsap.set(nav, { y: 30, opacity: 0 });
