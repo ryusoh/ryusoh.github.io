@@ -38,19 +38,21 @@ Sibling profiles:
   `make precommit` (check-only) — use `make precommit-fix` while iterating,
   `make precommit` before the PR; `make precommit-docker` gives macOS/CI
   parity (`Dockerfile.precommit` pip-installs `requirements-dev.txt` and runs
-  `npm ci`). `make precommit` exits 0 even when the log looks alarming — judge
-  by exit code plus reading the tail, not vibes. jest is pinned to v29 (its
-  non-negotiable #5); its non-negotiable #6 forbids JULES ROUTINES from
-  touching build/lint config — interactive agents acting on explicit user
-  direction are exempt, note it in the PR body. Its `ci.yml` has a "Reject
-  empty pull request" step that hard-fails empty PRs, and its AGENTS.md Lanes
-  table lists Sentinel although `.jules/` has no sentinel persona (stale).
-  **No web-hosting surface at
-  all** (no CNAME/\_config.yml/Pages workflow; only first-party HTML is
-  chrome-extension pages) — web-serving tooling patterns don't apply; see its
-  `docs/tiered-image-serving.md` for the evaluation. Gotcha: a leftover
-  gitignored `.stryker-tmp/sandbox-*` makes `make precommit` fail with
-  confusing jest "must contain at least one test" errors — delete it freely.
+  `npm ci`; the cold path is the wall-clock pole — colima start + image build
+    - full in-container suites, 10+ min — start Docker first, run it once at
+      the end). `make precommit` exits 0 even when the log looks alarming — judge
+      by exit code plus reading the tail, not vibes. jest is pinned to v29 (its
+      non-negotiable #5); its non-negotiable #6 forbids JULES ROUTINES from
+      touching build/lint config — interactive agents acting on explicit user
+      direction are exempt, note it in the PR body. Its `ci.yml` has a "Reject
+      empty pull request" step that hard-fails empty PRs, and its AGENTS.md Lanes
+      table lists Sentinel although `.jules/` has no sentinel persona (stale).
+      **No web-hosting surface at
+      all** (no CNAME/\_config.yml/Pages workflow; only first-party HTML is
+      chrome-extension pages) — web-serving tooling patterns don't apply; see its
+      `docs/tiered-image-serving.md` for the evaluation. Gotcha: a leftover
+      gitignored `.stryker-tmp/sandbox-*` makes `make precommit` fail with
+      confusing jest "must contain at least one test" errors — delete it freely.
 
 Verify these facts against each repo's current AGENTS.md/Makefile before
 relying on them — they drift.
@@ -104,6 +106,14 @@ Delegate one subagent per repo, in parallel. Brief each with:
    any). **Never commit** — leave changes uncommitted and report: violation
    counts, resolution proof, files changed, probe exit codes, gate result,
    skip decisions with evidence.
+
+**Verification budget.** Scoped checks while iterating (the touched test
+file, prettier, sync-check); run the full CI-parity gate exactly once, at the
+end — it is the wall-clock pole, and a containerized one (networking's
+`precommit-docker`) doubly so. Start Docker early so it warms while you work;
+for docs/persona-only changes, decide whether the container run is warranted
+before queueing it. (2026-09 sync: the networking agent's gate run dwarfed
+the rest of its work.)
 
 ## After the sync
 

@@ -55,7 +55,9 @@ over every commit authored by `google-labs-jules[bot]` in
 - change no files (empty commit),
 - touch a file with zero content lines (placeholder/dummy-file pattern),
 - delete lines from a test file — bot lanes are append-only in tests,
-- commit stray bot artifacts (e.g. `pr_body.txt`, scratch/temp files), or
+- commit stray bot artifacts (PR-draft files like `pr_body.txt`, scratch/temp
+  files, logs (`*.log`), verification-run output (`output.txt`,
+  `*_output.txt`)), or
 - touch `eslint-suppressions.json` from a non-refactor lane or increase
   suppressions (complexity ratchet violation).
 

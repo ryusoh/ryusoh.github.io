@@ -93,6 +93,15 @@ table. Instead:
 
 Conventional Commits per `AGENTS.md`.
 
+- **Publish exactly one commit, staged by name.** Commit the finished change
+  once, verify the final tree (`make precommit-fix`), and push; if anything must
+  change after a push, amend or squash + force-push so the branch always ends as
+  one commit. The hygiene gate (`make bot-pr-check`) checks every commit
+  individually, so a multi-commit branch makes every intermediate mistake
+  permanent (fund#692 failed CI on empty "finalize" pushes despite a clean final
+  tree). Stage with `git add <file>`, never `git add -A` — verification scratch
+  (`*.log`, `*_output.txt`) must never be committed (fund#692 shipped a 474-line
+  `verify_output.txt` in its first commit).
 - Title / commit subject: `test(<scope>): cover <area> low-coverage paths`.
   Imperative, lower-case, ≤ 72 chars, **no emoji, no `Testpilot:` prefix**.
 - Body: each target file before → after coverage; any file skipped and why; "no
@@ -107,4 +116,5 @@ Conventional Commits per `AGENTS.md`.
   `tools/check_bot_pr_hygiene.py` (`make bot-pr-check`, in
   `make precommit`/`precommit-fix`/`check` and the CI "Reject bot PR hygiene
   violations" step) fails on bot commits that are empty, add zero-content
-  files, or delete test lines.
+  files, delete test lines, or commit stray artifacts (`pr_body.txt`, `*.log`,
+  `*_output.txt`).

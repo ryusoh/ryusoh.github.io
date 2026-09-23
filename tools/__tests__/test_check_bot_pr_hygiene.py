@@ -93,6 +93,38 @@ def test_bot_stray_artifact_flagged(repo: Path) -> None:
     assert any("stray artifact" in v and "pr_body.txt" in v for v in violations)
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "verify_output.txt",
+        "output.txt",
+        "jest_run.log",
+        "logs/verify_output.txt",
+        "pr_title.txt",
+        "commit_message.txt",
+    ],
+)
+def test_bot_stray_scratch_and_log_files_flagged(repo: Path, path: str) -> None:
+    """fund#692 shipped a 474-line verify_output.txt; logs and run output are stray."""
+    _write_and_commit(repo, path, "run output\n", "test: add file")
+    violations = find_violations(repo, "master")
+    assert any("stray artifact" in v and path.split("/")[-1] in v for v in violations)
+
+
+@pytest.mark.parametrize("path", ["docs/output.md", "CHANGELOG.md", "js/output.js"])
+def test_similar_named_real_files_not_flagged(repo: Path, path: str) -> None:
+    _write_and_commit(repo, path, "real content\n", "feat: add real file")
+    assert find_violations(repo, "master") == []
+
+
+def test_bot_uncommitted_stray_log_flagged(repo: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _git(repo, "checkout", "-b", "testpilot-coverage")
+    (repo / "verify_output.txt").write_text("474 lines of scratch\n")
+    _git(repo, "add", "verify_output.txt")
+    assert main(["--repo", str(repo), "--base", "master"]) == 1
+    assert "uncommitted stray artifact" in capsys.readouterr().out
+
+
 def test_bot_suppressions_addition_flagged(repo: Path) -> None:
     _write_and_commit(
         repo,

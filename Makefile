@@ -135,7 +135,8 @@ thinking-check:
 # Bot PR hygiene gate (AGENTS.md non-negotiable #10): deterministic check that
 # every Jules-bot-authored commit in origin/master..HEAD is real — no empty
 # commits, no zero-content placeholder files, no deletions in test files (bot
-# lanes are append-only in tests), no stray artifacts (pr_body.txt, scratch files),
+# lanes are append-only in tests), no stray artifacts (pr_body.txt, *.log,
+# *_output.txt, scratch files),
 # and no complexity ratchet violations in eslint-suppressions.json.
 # Human commits are skipped. Implementation: tools/check_bot_pr_hygiene.py.
 # CI runs the same check via the "Reject bot PR hygiene violations" step in

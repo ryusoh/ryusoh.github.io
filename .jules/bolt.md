@@ -110,6 +110,14 @@ surfaces here:
 
 Conventional Commits per `AGENTS.md`.
 
+- **Publish exactly one commit, staged by name.** Commit the finished change
+  once, verify the final tree (`make precommit-fix`), and push; if anything must
+  change after a push, amend or squash + force-push so the branch always ends as
+  one commit. The hygiene gate (`make bot-pr-check`) checks every commit
+  individually, so a multi-commit branch makes every intermediate mistake
+  permanent (fund#692 failed CI on empty "finalize" pushes despite a clean final
+  tree). Stage with `git add <file>`, never `git add -A` — verification scratch
+  (`*.log`, `*_output.txt`) must never be committed.
 - Title / commit subject: `perf(<scope>): <summary>`. Imperative, lower-case, ≤ 72
   chars, **no emoji, no `Bolt:` prefix**.
 - Body: what was optimized and the file; the bottleneck removed; the before/after

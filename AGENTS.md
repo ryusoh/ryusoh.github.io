@@ -76,9 +76,22 @@ rather than assuming a regression.
     add-then-remove placeholder files (`dummy_file.txt`). Before every push,
     `git show --stat HEAD` must show a real diff that matches the commit
     message and, when responding to review feedback, actually addresses it.
-    If you have nothing real to push, push nothing. Machine-enforced by
+    If you have nothing real to push, push nothing.
+    **Publish bot work as a single commit by default.** Commit the finished
+    change once, run `make precommit-fix` on that exact tree, then push; on any
+    revision, amend or squash and force-push so the branch stays one commit
+    (squash: `git reset --soft` to the merge-base with `origin/master`,
+    recommit, then `git push --force-with-lease`). The
+    gate is **per-commit, not net-diff**: a violation reverted by a later commit
+    still fails, and pushing revert commits only adds new violations. Every
+    per-commit failure mode (empty "finalize" pushes, add-then-remove
+    placeholders, stray artifacts like a 474-line `verify_output.txt` —
+    fund#692) is impossible on a one-commit branch, and **staging by name**
+    (`git add <file>`, never `git add -A`) keeps run scratch out of the commit.
+    Machine-enforced by
     `make bot-pr-check` (fails on empty commits, zero-content files, test line
-    deletions, stray bot artifacts like `pr_body.txt`, or unauthorized
+    deletions, stray bot artifacts like `pr_body.txt` / `*.log` /
+    `*_output.txt`, or unauthorized
     `eslint-suppressions.json` modifications) — see `docs/gates.md` for wiring.
 
 ## You cannot see the rendered page
