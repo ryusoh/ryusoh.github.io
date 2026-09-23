@@ -8,6 +8,12 @@ describe('Scroll Reveal', () => {
     let unobserveMock;
     let matchMediaMock;
 
+    afterEach(() => {
+        if (window.__ScrollRevealForTesting && window.__ScrollRevealForTesting._resetCache) {
+            window.__ScrollRevealForTesting._resetCache();
+        }
+    });
+
     beforeEach(() => {
         // Reset DOM
         document.body.innerHTML = '';

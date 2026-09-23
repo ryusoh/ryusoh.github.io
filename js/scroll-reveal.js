@@ -15,12 +15,28 @@
 (function () {
     'use strict';
 
+    /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     * @type {MediaQueryList | null}
+     */
+    let prefersReducedMotionMediaQuery = null;
+
     function shouldSkip() {
         if (!document.body || document.body.getAttribute('data-page-type') !== 'project') {
             return true;
         }
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            return true;
+        if (window.matchMedia) {
+            if (prefersReducedMotionMediaQuery === null) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+            if (prefersReducedMotionMediaQuery && prefersReducedMotionMediaQuery.matches) {
+                return true;
+            }
         }
         return false;
     }
@@ -144,4 +160,12 @@
             }
         });
     });
+
+    if (typeof window !== 'undefined') {
+        window.__ScrollRevealForTesting = {
+            _resetCache: function () {
+                prefersReducedMotionMediaQuery = null;
+            },
+        };
+    }
 })();

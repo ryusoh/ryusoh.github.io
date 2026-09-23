@@ -103,6 +103,9 @@ interface Window {
         init: (container?: HTMLElement | Document, thumbHashDecoder?: unknown) => void;
     };
     __PageTransitionForTesting?: unknown;
+    __ScrollRevealForTesting?: {
+        _resetCache: () => void;
+    };
 }
 
 interface ExtendableEvent extends Event {
