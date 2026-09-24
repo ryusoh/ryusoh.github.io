@@ -102,10 +102,13 @@ def test_bot_stray_artifact_flagged(repo: Path) -> None:
         "logs/verify_output.txt",
         "pr_title.txt",
         "commit_message.txt",
+        "eslint_out.json",
+        "eslint_warn_out.json",
     ],
 )
 def test_bot_stray_scratch_and_log_files_flagged(repo: Path, path: str) -> None:
-    """fund#692 shipped a 474-line verify_output.txt; logs and run output are stray."""
+    """fund#692 shipped a 474-line verify_output.txt and fund#695 shipped ~6 MB
+    of eslint_out.json / eslint_warn_out.json; logs and run output are stray."""
     _write_and_commit(repo, path, "run output\n", "test: add file")
     violations = find_violations(repo, "master")
     assert any("stray artifact" in v and path.split("/")[-1] in v for v in violations)

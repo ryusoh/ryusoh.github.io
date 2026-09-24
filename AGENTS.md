@@ -91,7 +91,7 @@ rather than assuming a regression.
     Machine-enforced by
     `make bot-pr-check` (fails on empty commits, zero-content files, test line
     deletions, stray bot artifacts like `pr_body.txt` / `*.log` /
-    `*_output.txt`, or unauthorized
+    `*_output.txt` / `*_out.json` (fund#695's eslint scratch), or unauthorized
     `eslint-suppressions.json` modifications) — see `docs/gates.md` for wiring.
 
 ## You cannot see the rendered page

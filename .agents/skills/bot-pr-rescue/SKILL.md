@@ -44,7 +44,7 @@ in `ci.yml` `web-ci` (a sub-minute failure is one of these, not tests):
 - **Reject bot PR hygiene violations** — `tools/check_bot_pr_hygiene.py`,
   **per-commit**: empty commits, zero-content files, deleted test lines (bot
   lanes are append-only in tests), stray artifacts (`pr_body.txt`, `*.log`,
-  `*_output.txt`, ...), `eslint-suppressions.json` ratchet. A violation
+  `*_output.txt`, `*_out.json`, ...), `eslint-suppressions.json` ratchet. A violation
   reverted by a later commit still fails — only squashing recovers it.
 
 ## 3. Reproduce locally
@@ -88,23 +88,38 @@ good → salvage (step 5). Content bad → close with a one-line reason.
 
 ## 5. Salvage
 
+Work in the `/tmp/pr<N>` worktree (detached HEAD). Do **not** `git checkout -b`
+a salvage branch in the main worktree — that hijacks the branch the user's
+checkout is on; squash on the detached HEAD and push it directly:
+
 ```bash
 git fetch origin <pr-branch>:refs/remotes/origin/<pr-branch>   # enables --force-with-lease
-git checkout -b pr<N>-salvage pr<N>-head
+cd /tmp/pr<N>
 git reset --soft $(git merge-base origin/master HEAD)
 git -c core.hooksPath=/dev/null commit -m "<conventional subject>
 
 Co-authored-by: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>"
-git push --force-with-lease origin pr<N>-salvage:<pr-branch>
+git push --force-with-lease origin HEAD:<pr-branch>
 gh pr checks <N>                    # wait for web-ci green
 gh pr merge <N> --squash --delete-branch
 git checkout master && git pull --rebase origin master
-git branch -D pr<N>-salvage pr<N>-head
+git branch -D pr<N>-head
 git worktree remove /tmp/pr<N> --force; git worktree remove /tmp/pr<N>-main --force
 ```
 
 The PR title must stay a valid Conventional Commit subject — it becomes the
 squash-merge commit message.
+
+**Gotcha — checks that read the PR title from the event payload replay the OLD
+title on `gh run rerun`.** After retitling, retrigger with a fresh event (a
+force-push, or `gh pr close` + `gh pr reopen`). This repo has no
+`pr-title`/commit-message gate (verified: no `check_commit_message`,
+`commitlint`, or `pr-title` reference in `.github/workflows/` or `Makefile`), so
+validate the title by eye against AGENTS.md's Conventional Commit rules —
+`type(scope): summary`, lower-case scope, ≤ 72 chars (fund#695 failed fund's
+gate on a 73-char camelCase-scope title). When `gh pr edit` fails with GraphQL
+scope errors (`read:org`), use
+`gh api -X PATCH repos/<owner>/<repo>/pulls/<N> -f title="..."` instead.
 
 ## 6. Fix forward (the point of the exercise)
 

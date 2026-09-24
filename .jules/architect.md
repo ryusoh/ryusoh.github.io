@@ -92,10 +92,16 @@ Conventional Commits per `AGENTS.md`.
   individually, so a multi-commit branch makes every intermediate mistake
   permanent (fund#692 failed CI on empty "finalize" pushes despite a clean final
   tree). Stage with `git add <file>`, never `git add -A` — verification scratch
-  (`*.log`, `*_output.txt`) must never be committed.
+  (`*.log`, `*_output.txt`, `*_out.json`) must never be committed. Never
+  redirect linter/gate output into a repo file (`npx eslint ... > eslint_out.json`);
+  read it from stdout or write it under `/tmp`. (fund#695 committed ~6 MB of
+  `eslint_out.json` / `eslint_warn_out.json` and went red in CI.)
 - Title / commit subject: `refactor(<scope>): extract helpers to cut <function>
   complexity`. Imperative, lower-case, ≤ 72 chars, **no emoji, no `Architect:`
-  prefix**.
+  prefix**. Count the assembled subject's characters: for a long function name
+  this template overflows 72 (fund#695's title was 73 chars) — shorten the verb
+  phrase (`cut <function> complexity via helpers`), never the function name, and
+  keep the scope lower-case (`dataService` → `data-service`).
 - Body: function and file; complexity/shape before → after; helpers extracted and
   why; "behaviour preserved, test expectations unchanged"; pasted
   `make precommit-fix` output.
