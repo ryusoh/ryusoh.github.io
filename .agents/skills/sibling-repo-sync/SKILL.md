@@ -24,6 +24,12 @@ Sibling profiles:
   collects from `js/**/*.js`, so `scripts/*.mjs` never enters lcov. Heavy
   images are CSS `background:` sites, not `<img>` — adapt responsive patterns
   via `image-set()` there, not `<picture>`. sharp is a devDependency.
+  Fund has a PR-title gate (`.github/workflows/commit-lint.yml` +
+  `scripts/agents/check_commit_message.py` — ≤72 chars, scope regex
+  lower-case `[a-z0-9._/-]` only) that exists in NO sibling (verified in all
+  three 2026-09): when porting fund persona lessons about commit titles
+  (e.g. fund#695), keep the ≤72-char / lower-case-scope guidance generic and
+  do NOT cite fund's checker command or regex.
 - `~/dev/anki` — JS + Python (Anki addons); **no** `.pre-commit-config.yaml`;
   CI gate = `make precommit SKIP=1` (fmt-check lint typecheck-js quality-py
   check sync-check); aliases via package.json `imports` (`#js/*`, `#ui/*`);
@@ -33,7 +39,8 @@ Sibling profiles:
   alongside) — `scripts/` is empty/untracked. GitHub Pages site: heavy images
   are CSS backgrounds (`assets/backgrounds/*`, `mobile_bg.jpg`); addon-dir
   PNGs ship to the desktop app and are never web-served. sharp is a
-  devDependency. Pre-existing dead CSS refs exist (e.g. `css/base.css` →
+  devDependency. Its architect-lane persona is `.jules/refactoring.md` —
+  there is no `architect.md` (verified 2026-09). Pre-existing dead CSS refs exist (e.g. `css/base.css` →
   nonexistent `position_background.jpg`) — don't "fix" unrelated ones.
 - `~/dev/networking` — JS + Python; **no** `.pre-commit-config.yaml`; CI runs
   `make precommit` (check-only) — use `make precommit-fix` while iterating,
