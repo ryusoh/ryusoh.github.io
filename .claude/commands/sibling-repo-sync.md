@@ -23,8 +23,9 @@ Sibling profiles:
   collects from `js/**/*.js`, so `scripts/*.mjs` never enters lcov. Heavy
   images are CSS `background:` sites, not `<img>` — adapt responsive patterns
   via `image-set()` there, not `<picture>`. sharp is a devDependency.
-  Fund has a PR-title gate (`.github/workflows/commit-lint.yml` +
-  `scripts/agents/check_commit_message.py` — ≤72 chars, scope regex
+  Fund has a PR-title gate (`.github/workflows/commit-lint.yml` + a
+  `check_commit_message.py` helper under fund's `scripts/agents/` dir —
+  ≤72 chars, scope regex
   lower-case `[a-z0-9._/-]` only) that exists in NO sibling (verified in all
   three 2026-09): when porting fund persona lessons about commit titles
   (e.g. fund#695), keep the ≤72-char / lower-case-scope guidance generic and
