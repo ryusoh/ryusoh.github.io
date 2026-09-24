@@ -195,8 +195,10 @@ describe('js/hover-preview.js', () => {
 
     test('isMobileOrTouch correctly checks media queries', () => {
         const { isMobileOrTouch } = require('../../js/hover-preview.js');
+        window.__HoverPreviewForTesting._resetCache();
         expect(isMobileOrTouch()).toBe(false);
 
+        window.__HoverPreviewForTesting._resetCache();
         mockMatchMedia.mockImplementation((query) => {
             if (query === '(max-width: 449px)') {
                 return { matches: true };
@@ -205,6 +207,7 @@ describe('js/hover-preview.js', () => {
         });
         expect(isMobileOrTouch()).toBe(true);
 
+        window.__HoverPreviewForTesting._resetCache();
         mockMatchMedia.mockImplementation((query) => {
             if (query === '(hover: none)') {
                 return { matches: true };

@@ -19,7 +19,18 @@
      */
     const fetchPromises = new Map();
 
+    /** @type {MediaQueryList | null} */
+    let narrowMediaQuery = null;
+
+    /** @type {MediaQueryList | null} */
+    let hoverNoneMediaQuery = null;
+
     /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead during high-frequency events.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     *
      * Checks if current viewport or device is mobile / touch.
      * @returns {boolean}
      */
@@ -27,8 +38,14 @@
         if (typeof window === 'undefined' || !window.matchMedia) {
             return false;
         }
-        const isNarrow = window.matchMedia('(max-width: 449px)').matches;
-        const isHoverNone = window.matchMedia('(hover: none)').matches;
+        if (narrowMediaQuery === null) {
+            narrowMediaQuery = window.matchMedia('(max-width: 449px)');
+        }
+        if (hoverNoneMediaQuery === null) {
+            hoverNoneMediaQuery = window.matchMedia('(hover: none)');
+        }
+        const isNarrow = narrowMediaQuery ? narrowMediaQuery.matches : false;
+        const isHoverNone = hoverNoneMediaQuery ? hoverNoneMediaQuery.matches : false;
         return isNarrow || isHoverNone;
     }
 
@@ -654,6 +671,10 @@
     }
 
     const testing = {
+        _resetCache: () => {
+            narrowMediaQuery = null;
+            hoverNoneMediaQuery = null;
+        },
         projectCache,
         toThumbnailUrl,
         parseProjectHtml,
