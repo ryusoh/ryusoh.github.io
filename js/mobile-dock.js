@@ -190,13 +190,29 @@
             }
         }
 
+        /**
+         * @param {boolean} add
+         */
+        function toggleScrolledDownClass(add) {
+            if (cont) {
+                if (add) {
+                    cont.classList.add('is-scrolled-down');
+                } else {
+                    cont.classList.remove('is-scrolled-down');
+                }
+            }
+            if (document.body) {
+                if (add) {
+                    document.body.classList.add('is-scrolled-down');
+                } else {
+                    document.body.classList.remove('is-scrolled-down');
+                }
+            }
+        }
+
         function processScroll() {
             if (!isMobile()) {
-                if (cont) {
-                    if (cont) {
-                        cont.classList.remove('is-scrolled-down');
-                    }
-                }
+                toggleScrolledDownClass(false);
                 return;
             }
 
@@ -208,24 +224,10 @@
 
             if (isNearTop || isNearBottom || currentScrollY < lastScrollY) {
                 // Scrolling up, at top, or reached bottom -> restore 100% opacity
-                if (cont) {
-                    if (cont) {
-                        cont.classList.remove('is-scrolled-down');
-                    }
-                }
-                if (document.body) {
-                    document.body.classList.remove('is-scrolled-down');
-                }
+                toggleScrolledDownClass(false);
             } else if (isScrollingDown) {
                 // Scrolling down past threshold -> dim title & social icons to 10%
-                if (cont) {
-                    if (cont) {
-                        cont.classList.add('is-scrolled-down');
-                    }
-                }
-                if (document.body) {
-                    document.body.classList.add('is-scrolled-down');
-                }
+                toggleScrolledDownClass(true);
             }
 
             lastScrollY = currentScrollY;
