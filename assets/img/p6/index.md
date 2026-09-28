@@ -74,7 +74,7 @@ DSCF0617.jpg
 DSCF0324.jpg
 DSCF0658-3.jpg
 
-> 「嘿，你知道嗎？Starlink 的氣球在聖獨立廣場的上空爆炸了！」
+> 「嘿，你知道嗎？Starlink 的氣球在聯合廣場的上空爆炸了！」
 > <br />
 > 動物們在 Market Street 奔走相告
 
@@ -109,9 +109,13 @@ DSCF2076.jpg
 DSCF2057.JPG
 DSCF8740-2.jpg
 
-> 你凝視著氣球的碎片閃爍著 C 射線
+> 你凝視 Starlink 氣球的碎片閃爍著 C 射線
 > <br />
 > 從獵戶星座的方向高速地通過
+> <br />
+> 巨大的青蛙吸附著 Salesforce Tower 冰冷的曲面
+> <br />
+> 在劇烈的痙攣與震顫中將坐標系剝落
 
 DSCF9004-6.JPG
 DSCF2964-6.jpg
