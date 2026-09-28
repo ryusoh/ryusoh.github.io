@@ -379,6 +379,23 @@
     // --- Click handling (event delegation) ---
 
     /**
+     * @param {MouseEvent} event
+     * @returns {HTMLAnchorElement | null}
+     */
+    function resolveTargetAnchor(event) {
+        const path =
+            typeof event.composedPath === 'function' ? event.composedPath() : [event.target];
+        for (let i = 0; i < path.length; i += 1) {
+            const el = /** @type {Element} */ (path[i]);
+            if (el && el.tagName === 'A') {
+                return /** @type {HTMLAnchorElement} */ (el);
+            }
+        }
+        const targetElement = /** @type {Element} */ (event.target);
+        return targetElement && targetElement.closest ? targetElement.closest('a') : null;
+    }
+
+    /**
      * @param {Element | null} element
      */
     function shouldSkipNavBack(element) {
@@ -492,21 +509,8 @@
 
         document.addEventListener('click', function (e) {
             const event = /** @type {MouseEvent} */ (e);
-            const path =
-                typeof event.composedPath === 'function' ? event.composedPath() : [event.target];
-            /** @type {HTMLAnchorElement | null} */
-            let anchor = null;
-            for (let i = 0; i < path.length; i += 1) {
-                const el = /** @type {Element} */ (path[i]);
-                if (el && el.tagName === 'A') {
-                    anchor = /** @type {HTMLAnchorElement} */ (el);
-                    break;
-                }
-            }
-            if (!anchor) {
-                const targetElement = /** @type {Element} */ (event.target);
-                anchor = targetElement && targetElement.closest ? targetElement.closest('a') : null;
-            }
+            const anchor = resolveTargetAnchor(event);
+
             if (!anchor || !isEligibleAnchor(anchor)) {
                 return;
             }
@@ -544,6 +548,7 @@
             buildTransitionUrl,
             navigate,
             isValidTransitionClick,
+            resolveTargetAnchor,
         };
     }
 })();
