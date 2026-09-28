@@ -4,7 +4,7 @@
 >
 > **Sequence Status**: Validated (Existing sequence affirmed as optimal)
 >
-> **Hamiltonian Sequence Energy**: `453.7` (Avg Step Cost: `14.6`)
+> **Hamiltonian Sequence Energy**: `440.6` (Avg Step Cost: `14.2`)
 >
 > **Respiratory Pacing Score**: `100/100` (3 Inhalations, 15 Exhalations, 14 Grounding)
 
@@ -81,8 +81,8 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 **Curatorial Rationale & Montage Dynamic**:
 
 - _Pacing Role_: Act I: The Contemplative Surveyor / Alley of Ruins
-- _Visual Subject & Content_: A man in a winter jacket walks with his hands behind his back down a narrow, shadowy residential alley at night, his face calm and resigned under streetlamps.
-- _Thematic Meaning_: The direct human embodiment of Benjamin's Angel of History walking among the ruins of the past. Walking with hands behind his back down a dark residential alley, his posture and backward glance reflect upon the accumulated wreckage of civilization.
+- _Visual Subject & Content_: A man in a winter jacket stands with his hands behind his back at the mouth of a narrow, shadowy residential alley at night, leaning against a parked car beneath tangled overhead wires, his face calm and resigned under the flash.
+- _Thematic Meaning_: The direct human embodiment of Benjamin's Angel of History among the ruins of the past. Standing with hands behind his back at the threshold of a dark residential alley, his posture of withdrawn contemplation reflects upon the accumulated wreckage of civilization.
 - _Composition & Gaze Vectors_: Receding central vanishing point of the alleyway flanked by brick walls, guiding the solitary walking figure away from the metropolitan center.
 - _Transition Dynamic_: Low-key exhalation bridge (`L*=28.85`, ΔE: 5.60) stepping into the accusatory confrontation of the street crowd.
 
@@ -156,7 +156,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 > **[Poetic Caesura: Musical Rest]**
 >
 > _「Starlink 的氣球在東南方向的天空被炸成 PM2.5 了。」_
-> _單向度的男人在你的身旁喃喃低語_
+> _失去景深的男人在你的身旁喃喃低語_
 
 ---
 
@@ -196,7 +196,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A dark profile silhouette of an Asian man with glasses looking rightward into the void, crowned by an ethereal arc of looping white light trails floating above his head against pitch blackness.
 - _Thematic Meaning_: The literal manifestation of Herbert Marcuse's 'One-Dimensional Man'. The glowing light trails above his skull evoke the invisible electromagnetic crown of algorithmic noise whispering into his thoughts.
 - _Composition & Gaze Vectors_: Rightward-pointing profile vector framed by the curved parabolic halo above, surrounded by negative black space.
-- _Transition Dynamic_: Low-key exhalation (`L*=26.65`) leading across the fourth caesura ('你通過觀察風的移動方向驗證光譜的拓撲結構假裝保持疏離') into the surveillance alcove.
+- _Transition Dynamic_: Low-key exhalation (`L*=26.65`) leading across the fourth caesura ('你通過觀察風的移動方向驗證光譜的幾何結構假裝保持疏離') into the surveillance alcove.
 
 > **[Poetic Caesura: Musical Rest]**
 >
@@ -247,7 +247,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 > **[Poetic Caesura: Musical Rest]**
 >
 > _「可是，Starlink 的氣球在東南的方向爆炸了。」_
-> _單向度的男人通過喉結的升降調整分貝_
+> _失去景深的男人通過喉結的升降調整分貝_
 
 ---
 
@@ -291,7 +291,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _你將 earpods 插進肺中緊閉雙眼_
+> _你將 AirPods 插進肺中緊閉雙眼_
 > _觀察眼皮毛細血管的顏色假裝獲得一種感受_
 
 ---
@@ -399,8 +399,8 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 **Curatorial Rationale & Montage Dynamic**:
 
 - _Pacing Role_: Act III: Digital Stampede / Market Street Screen Mobs
-- _Visual Subject & Content_: A high-angle view looking down into a dense nocturnal street crowd: multiple people hold up glowing smartphone screens to film a performance while an older couple dances amidst the digital frenzy.
-- _Thematic Meaning_: The visual embodiment of the eighth caesura: '動物們在 Market Street 奔走相告... 在 WSJ 激昂的議論與批判中對同伴發動踩踏'. Reality is no longer experienced directly, but mediated through digital screens.
+- _Visual Subject & Content_: A high-angle flash view into a dense nocturnal street crowd: raised arms clutching glowing phones punctuate the mass beneath cascading vertical streaks of light, while a man with sunglasses on his shaved head stares downward in the foreground.
+- _Thematic Meaning_: The visual embodiment of the eighth caesura: '動物們在 Market Street 奔走相告... 在 CNBC 激昂的議論與批判中對同伴發動踩踏'. Reality is no longer experienced directly, but mediated through digital screens.
 - _Composition & Gaze Vectors_: Downward diagonal gaze vector across the crowd, punctuated by the glowing rectangular vertical planes of raised smartphone screens.
 - _Transition Dynamic_: Neutral luminance bridge (`L*=47.64`, ΔE: 11.00) rising into the blinding headlight gauntlet.
 
@@ -427,7 +427,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 > **[Poetic Caesura: Musical Rest]**
 >
 > _你看見巨大的青蛙沿著電車的軌道奮力跳躍_
-> _在 WSJ 激昂的議論與批判中對同伴發動踩踏_
+> _在 CNBC 激昂的議論與批判中對同伴發動踩踏_
 
 ---
 
@@ -444,7 +444,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 **Curatorial Rationale & Montage Dynamic**:
 
 - _Pacing Role_: Act III: Feral Vitality / The Child on Shoulders
-- _Visual Subject & Content_: A young man on a dark sidewalk carries a child upside-down over his shoulders, smiling with defiant, feral joy amidst graffiti walls and sweeping white light streamers.
+- _Visual Subject & Content_: A young woman with curly hair on a dark sidewalk carries a small child upside-down over her shoulder, grinning with defiant, feral joy amidst graffiti walls and sweeping white light streamers.
 - _Thematic Meaning_: The invincible resilience of human play and kinship. Even in the shadow of urban decay and dystopian architecture, raw organic joy ruptures the technological gloom.
 - _Composition & Gaze Vectors_: Vertical dynamic posture of the youth, inverted legs of the child forming an energetic cross-pattern with sweeping horizontal light trails.
 - _Transition Dynamic_: Neutral luminance bridge (`L*=34.03`, ΔE: 13.70) stepping down into the dancing throng.
@@ -512,11 +512,11 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: An older woman with curly hair walks through a dark urban corridor, looking sideways with a cautious, questioning expression as streaks of white light trail across the foreground.
 - _Thematic Meaning_: The quiet isolation of the individual navigating the restless, perpetual motion of the contemporary city.
 - _Composition & Gaze Vectors_: Centered portrait mass framed by horizontal kinetic light bands streaking across the left and right quadrants.
-- _Transition Dynamic_: Low-key exhalation (`L*=27.97`) leading across the eleventh caesura ('你嘗試登上聯邦大樓魷魚般光滑的塔尖向天空舞動雙拳 / 卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡') into the spectral blur.
+- _Transition Dynamic_: Low-key exhalation (`L*=27.97`) leading across the eleventh caesura ('你嘗試登上 Salesforce Tower 魷魚般光滑的塔尖向天空舞動雙拳 / 卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡') into the spectral blur.
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _你嘗試登上聯邦大樓魷魚般光滑的塔尖向天空舞動雙拳_
+> _你嘗試登上 Salesforce Tower 魷魚般光滑的塔尖向天空舞動雙拳_
 > _卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡_
 
 ---
@@ -525,11 +525,11 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ![DSCF5378.jpg](../assets/img/p6/DSCF5378-768.webp)
 
-| Attribute                              | Value                                                    |
-| :------------------------------------- | :------------------------------------------------------- |
-| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
-| **Tonality & Breath**                  | `L*=13.71` — **Exhalation** (CIELAB: `13.71, 0, 0`)      |
-| **Transition to #23 (DSCF2964-6.jpg)** | `ΔE₇₆: 17.32` (Color) · `ΔLum: 38` · **Step Cost: `15`** |
+| Attribute                            | Value                                                      |
+| :----------------------------------- | :--------------------------------------------------------- |
+| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
+| **Tonality & Breath**                | `L*=13.71` — **Exhalation** (CIELAB: `13.71, 0, 0`)        |
+| **Transition to #23 (DSCF2076.jpg)** | `ΔE₇₆: 32.73` (Color) · `ΔLum: 75` · **Step Cost: `28.7`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -537,32 +537,32 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: An abstract, ghostly motion-blurred silhouette of a figure turning in the pitch-black void, dissolving into soft smoky textures and faint light trails.
 - _Thematic Meaning_: The dematerialization of the physical body. The human form dissolves into pure kinetic velocity, representing the transition into post-human abstraction.
 - _Composition & Gaze Vectors_: Upward and twisting curved motion vectors rising out of the deep lower-left shadow into the diffuse rightward glow.
-- _Transition Dynamic_: Deep exhalation anchor (`L*=13.71`, ΔE: 17.32) stepping into the rainy city street.
+- _Transition Dynamic_: Deep exhalation anchor (`L*=13.71`, ΔE: 32.73) stepping sharply up into the solemn relic bearer carrying the mask.
 
 ---
 
-### [23/32] DSCF2964-6.jpg
+### [23/32] DSCF2076.jpg
 
-![DSCF2964-6.jpg](../assets/img/p6/DSCF2964-6-768.webp)
+![DSCF2076.jpg](../assets/img/p6/DSCF2076-768.webp)
 
-| Attribute                            | Value                                                      |
-| :----------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                | `L*=31.03` — **Exhalation** (CIELAB: `31.03, 0, 0`)        |
-| **Transition to #24 (DSCF2057.JPG)** | `ΔE₇₆: 20.59` (Color) · `ΔLum: 50` · **Step Cost: `18.4`** |
+| Attribute                            | Value                                                    |
+| :----------------------------------- | :------------------------------------------------------- |
+| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
+| **Tonality & Breath**                | `L*=46.44` — **Neutral** (CIELAB: `46.44, 0, -0.01`)     |
+| **Transition to #24 (DSCF2057.JPG)** | `ΔE₇₆: 5.18` (Color) · `ΔLum: 13` · **Step Cost: `4.7`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
-- _Pacing Role_: Act IV: Rainstorm Resilience / The Umbrella Walkers
-- _Visual Subject & Content_: Two mature women walk closely together under a large black umbrella on a wet asphalt street, their padded coats shimmering with rain reflections as headlights streak past.
-- _Thematic Meaning_: Earthly solidarity against the elements. Beneath the cold downpour of the technocratic city, human companionship provides enduring shelter.
-- _Composition & Gaze Vectors_: Strong protective dome arc of the umbrella shielding the two centered figures, surrounded by horizontal wet pavement reflections.
-- _Transition Dynamic_: Low-key exhalation (`L*=31.03`) leading across the twelfth caesura ('「我們發明了幸福。」 / 單向度的男人說，眨巴著眼') into the dragon procession.
+- _Pacing Role_: Act IV: The Relic Bearer / Carrier of the Mask
+- _Visual Subject & Content_: A man in a plain t-shirt walks along a night street holding a patterned decorative mask, looking forward with a solemn, introspective expression amidst trailing light arcs.
+- _Thematic Meaning_: Carrying the fragile artifacts of human culture through the speed of the modern city. The mask becomes a talisman of forgotten identity.
+- _Composition & Gaze Vectors_: Forward-walking body vector anchored by the held mask in the lower-left, balanced by rushing light ribbons on the upper-left.
+- _Transition Dynamic_: Neutral luminance step (`L*=46.44`) leading across the twelfth caesura ('「我們發明了幸福。」 / 失去景深的男人說，眨巴著眼') into the illuminated dragon procession.
 
 > **[Poetic Caesura: Musical Rest]**
 >
 > _「我們發明了幸福。」_
-> _單向度的男人說，眨巴著眼_
+> _失去景深的男人說，眨巴著眼_
 
 ---
 
@@ -590,11 +590,11 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ![DSCF8740-2.jpg](../assets/img/p6/DSCF8740-2-768.webp)
 
-| Attribute                            | Value                                                      |
-| :----------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                | `L*=65.49` — **Inhalation** (CIELAB: `65.49, 0, -0.01`)    |
-| **Transition to #26 (DSCF2076.jpg)** | `ΔE₇₆: 19.05` (Color) · `ΔLum: 49` · **Step Cost: `17.4`** |
+| Attribute                              | Value                                                     |
+| :------------------------------------- | :-------------------------------------------------------- |
+| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                |
+| **Tonality & Breath**                  | `L*=65.49` — **Inhalation** (CIELAB: `65.49, 0, -0.01`)   |
+| **Transition to #26 (DSCF9004-6.JPG)** | `ΔE₇₆: 11.9` (Color) · `ΔLum: 31` · **Step Cost: `10.9`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -602,7 +602,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Three figures—a person in an 'X'-embroidered beanie, a hooded companion, and an older woman—are bathed in a blazing, horizontal beam of pure white light flashing through the dark.
 - _Thematic Meaning_: The visual climax of the thirteenth caesura: '你凝視著氣球的碎片閃爍著 C 射線從獵戶星座的方向高速地通過'. The cosmic beam unites the disparate street figures in a fleeting instant of transcendent illumination.
 - _Composition & Gaze Vectors_: Blinding horizontal bar of pure light burning across the center, connecting the three human silhouettes in a shared field of radiance.
-- _Transition Dynamic_: Highest Inhalation peak of the entire essay (`L*=65.49`) stepping into the solitary mask bearer.
+- _Transition Dynamic_: Highest Inhalation peak of the entire essay (`L*=65.49`) leading across the thirteenth caesura ('你凝視著氣球的碎片閃爍著 C 射線 / 從獵戶星座的方向高速地通過') into the lost voyager in the data slipstream.
 
 > **[Poetic Caesura: Musical Rest]**
 >
@@ -611,35 +611,15 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [26/32] DSCF2076.jpg
-
-![DSCF2076.jpg](../assets/img/p6/DSCF2076-768.webp)
-
-| Attribute                              | Value                                                    |
-| :------------------------------------- | :------------------------------------------------------- |
-| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
-| **Tonality & Breath**                  | `L*=46.44` — **Neutral** (CIELAB: `46.44, 0, -0.01`)     |
-| **Transition to #27 (DSCF9004-6.JPG)** | `ΔE₇₆: 7.15` (Color) · `ΔLum: 18` · **Step Cost: `6.5`** |
-
-**Curatorial Rationale & Montage Dynamic**:
-
-- _Pacing Role_: Act IV: The Relic Bearer / Carrier of the Mask
-- _Visual Subject & Content_: A man in a plain t-shirt walks along a night street holding a patterned decorative mask, looking forward with a solemn, introspective expression amidst trailing light arcs.
-- _Thematic Meaning_: Carrying the fragile artifacts of human culture through the speed of the modern city. The mask becomes a talisman of forgotten identity.
-- _Composition & Gaze Vectors_: Forward-walking body vector anchored by the held mask in the lower-left, balanced by rushing light ribbons on the upper-left.
-- _Transition Dynamic_: Neutral luminance step (`L*=46.44`, ΔE: 7.15) stepping into the slipstream voyager.
-
----
-
-### [27/32] DSCF9004-6.JPG
+### [26/32] DSCF9004-6.JPG
 
 ![DSCF9004-6.JPG](../assets/img/p6/DSCF9004-6-768.webp)
 
-| Attribute                            | Value                                                    |
-| :----------------------------------- | :------------------------------------------------------- |
-| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
-| **Tonality & Breath**                | `L*=53.59` — **Neutral** (CIELAB: `53.59, 0, -0.01`)     |
-| **Transition to #28 (DSCF0245.jpg)** | `ΔE₇₆: 7.56` (Color) · `ΔLum: 19` · **Step Cost: `6.9`** |
+| Attribute                              | Value                                                      |
+| :------------------------------------- | :--------------------------------------------------------- |
+| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
+| **Tonality & Breath**                  | `L*=53.59` — **Neutral** (CIELAB: `53.59, 0, -0.01`)       |
+| **Transition to #27 (DSCF2964-6.jpg)** | `ΔE₇₆: 22.56` (Color) · `ΔLum: 55` · **Step Cost: `20.2`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -647,7 +627,27 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A middle-aged man with wire-rimmed glasses in a windbreaker walks past a white car, his face frozen in quiet introspection while a torrent of sweeping white light trails rushes around him.
 - _Thematic Meaning_: The lone traveler navigating the non-existent horizon. Bathed in the dazzling electronic clouds, he moves forward through the data slipstream having released all illusions.
 - _Composition & Gaze Vectors_: Rushing parabolic light ribbons wrapping horizontally around the subject, centered on his calm, searching gaze into the distance.
-- _Transition Dynamic_: Neutral luminance bridge (`L*=53.59`) leading across the fourteenth caesura ('你看見嚴肅被消解 / 理性被建構 / 話語場被重塑 / 工具被普遍適用') into the civic fountain.
+- _Transition Dynamic_: Neutral luminance bridge (`L*=53.59`, ΔE: 22.56) stepping down into the rainstorm resilience of the umbrella walkers.
+
+---
+
+### [27/32] DSCF2964-6.jpg
+
+![DSCF2964-6.jpg](../assets/img/p6/DSCF2964-6-768.webp)
+
+| Attribute                              | Value                                                    |
+| :------------------------------------- | :------------------------------------------------------- |
+| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
+| **Tonality & Breath**                  | `L*=31.03` — **Exhalation** (CIELAB: `31.03, 0, 0`)      |
+| **Transition to #28 (DSCF8630-5.jpg)** | `ΔE₇₆: 4.38` (Color) · `ΔLum: 10` · **Step Cost: `3.8`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- _Pacing Role_: Act IV: Rainstorm Resilience / The Umbrella Walkers
+- _Visual Subject & Content_: Two mature women walk closely together under a large black umbrella on a wet asphalt street, their padded coats shimmering with rain reflections as headlights streak past.
+- _Thematic Meaning_: Earthly solidarity against the elements. Beneath the cold downpour of the technocratic city, human companionship provides enduring shelter.
+- _Composition & Gaze Vectors_: Strong protective dome arc of the umbrella shielding the two centered figures, surrounded by horizontal wet pavement reflections.
+- _Transition Dynamic_: Low-key exhalation (`L*=31.03`, ΔE: 4.38) leading across the fourteenth caesura ('你看見嚴肅被消解 / 理性被建構 / 話語場被重塑 / 工具被普遍適用') into the patterned umbrella walker on the non-existent horizon.
 
 > **[Poetic Caesura: Musical Rest]**
 >
@@ -658,15 +658,35 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [28/32] DSCF0245.jpg
+### [28/32] DSCF8630-5.jpg
+
+![DSCF8630-5.jpg](../assets/img/p6/DSCF8630-5-768.webp)
+
+| Attribute                            | Value                                                      |
+| :----------------------------------- | :--------------------------------------------------------- |
+| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
+| **Tonality & Breath**                | `L*=26.65` — **Exhalation** (CIELAB: `26.65, 0, 0`)        |
+| **Transition to #29 (DSCF0245.jpg)** | `ΔE₇₆: 19.38` (Color) · `ΔLum: 46` · **Step Cost: `17.2`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- _Pacing Role_: Act IV: The Non-Existent Horizon / Chinatown Rain
+- _Visual Subject & Content_: An older Asian man in glasses and a cap holds a patterned umbrella in the rain outside a Chinatown bakery ('永興餅家'), glancing cautiously to the left across the wet asphalt.
+- _Thematic Meaning_: The human rhyme of the fifteenth caesura: '你站立在 Salesforce Tower 魷魚般光滑的塔尖假裝看向左邊 / 假裝眺望不存在的地平線'. The search for an authentic horizon grounds itself in the mortal street corner.
+- _Composition & Gaze Vectors_: Strong patterned hemispherical dome of the umbrella sheltering the leftward-tilted head, grounded by the slick wet road reflection below.
+- _Transition Dynamic_: Low-key exhalation (`L*=26.65`, ΔE: 19.38) stepping up into the trumpeting Angelus Novus fountain.
+
+---
+
+### [29/32] DSCF0245.jpg
 
 ![DSCF0245.jpg](../assets/img/p6/DSCF0245-768.webp)
 
-| Attribute                              | Value                                                      |
-| :------------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                  | `L*=46.03` — **Neutral** (CIELAB: `46.03, 0, -0.01`)       |
-| **Transition to #29 (DSCF8630-5.jpg)** | `ΔE₇₆: 19.38` (Color) · `ΔLum: 46` · **Step Cost: `17.2`** |
+| Attribute                            | Value                                                      |
+| :----------------------------------- | :--------------------------------------------------------- |
+| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
+| **Tonality & Breath**                | `L*=46.03` — **Neutral** (CIELAB: `46.03, 0, -0.01`)       |
+| **Transition to #30 (DSCF9277.jpg)** | `ΔE₇₆: 24.33` (Color) · `ΔLum: 57` · **Step Cost: `21.5`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -674,56 +694,16 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: A classical fountain sculpture of an angel blowing a trumpet in front of a monumental civic/corporate building, surrounded by streaks of kinetic light trailing horizontally like cosmic debris.
 - _Thematic Meaning_: The symbolic recapitulation of Walter Benjamin's Angel of History. The stone trumpeter heralds the transformation of human culture into architectural monument and kinetic data.
 - _Composition & Gaze Vectors_: Vertical upward thrust of the trumpeting angel bisecting the frame, intersected by aggressive horizontal light streaks rushing across the background.
-- _Transition Dynamic_: Neutral luminance anchor (`L*=46.03`, ΔE: 19.38) stepping down into the patterned umbrella walker.
-
----
-
-### [29/32] DSCF8630-5.jpg
-
-![DSCF8630-5.jpg](../assets/img/p6/DSCF8630-5-768.webp)
-
-| Attribute                              | Value                                                      |
-| :------------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                  | `L*=26.65` — **Exhalation** (CIELAB: `26.65, 0, 0`)        |
-| **Transition to #30 (DSCF0332_2.jpg)** | `ΔE₇₆: 27.33` (Color) · `ΔLum: 66` · **Step Cost: `24.4`** |
-
-**Curatorial Rationale & Montage Dynamic**:
-
-- _Pacing Role_: Act IV: The Non-Existent Horizon / Chinatown Rain
-- _Visual Subject & Content_: An older Asian man in glasses and a cap holds a patterned umbrella in the rain outside a Chinatown bakery ('永興餅家'), glancing cautiously to the left across the wet asphalt.
-- _Thematic Meaning_: The direct realization of the fifteenth caesura: '你站立在聯邦大樓塔尖假裝看向左邊 / 假裝眺望不存在的地平線'. The search for an authentic horizon grounds itself in the mortal street corner.
-- _Composition & Gaze Vectors_: Strong patterned hemispherical dome of the umbrella sheltering the leftward-tilted head, grounded by the slick wet road reflection below.
-- _Transition Dynamic_: Low-key exhalation (`L*=26.65`) stepping up (ΔE: 27.33) into the spark shower.
+- _Transition Dynamic_: Neutral luminance anchor (`L*=46.03`, ΔE: 24.33) leading across the fifteenth caesura ('你站立在 Salesforce Tower 魷魚般光滑的塔尖假裝看向左邊 / 假裝眺望不存在的地平線') into the centrifugal singularity.
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _你站立在聯邦大樓魷魚般光滑的塔尖假裝看向左邊_
+> _你站立在 Salesforce Tower 魷魚般光滑的塔尖假裝看向左邊_
 > _假裝眺望不存在的地平線_
 
 ---
 
-### [30/32] DSCF0332_2.jpg
-
-![DSCF0332_2.jpg](../assets/img/p6/DSCF0332_2-768.webp)
-
-| Attribute                            | Value                                                      |
-| :----------------------------------- | :--------------------------------------------------------- |
-| **Framing & Aspect**                 | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                | `L*=53.98` — **Neutral** (CIELAB: `53.98, 0, -0.01`)       |
-| **Transition to #31 (DSCF9277.jpg)** | `ΔE₇₆: 32.28` (Color) · `ΔLum: 77` · **Step Cost: `28.7`** |
-
-**Curatorial Rationale & Montage Dynamic**:
-
-- _Pacing Role_: Act IV: The Stunned Witness / Spark Shower
-- _Visual Subject & Content_: A close-up direct flash portrait of an older white-bearded man with wide, startled eyes, his face and body enveloped in a dense shower of streaming white spark trails.
-- _Thematic Meaning_: The final human encounter with the raw elemental fire of the city. The witness stares directly out, overwhelmed yet fully awakened by the blinding cascade of energy.
-- _Composition & Gaze Vectors_: Forward-facing gaze vector holding the center while chaotic, swirling spark filaments whip across the right quadrant.
-- _Transition Dynamic_: Neutral luminance bridge (`L*=53.98`, ΔE: 32.28) plunging steeply into the centrifugal singularity.
-
----
-
-### [31/32] DSCF9277.jpg
+### [30/32] DSCF9277.jpg
 
 ![DSCF9277.jpg](../assets/img/p6/DSCF9277-768.webp)
 
@@ -731,7 +711,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 | :------------------------------------- | :--------------------------------------------------------- |
 | **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
 | **Tonality & Breath**                  | `L*=21.7` — **Exhalation** (CIELAB: `21.7, 0, 0`)          |
-| **Transition to #32 (DSCF0167-2.jpg)** | `ΔE₇₆: 24.33` (Color) · `ΔLum: 57` · **Step Cost: `21.5`** |
+| **Transition to #31 (DSCF0332_2.jpg)** | `ΔE₇₆: 32.28` (Color) · `ΔLum: 77` · **Step Cost: `28.7`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -739,7 +719,27 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: An older man with slicked-back hair in a quilted jacket and patterned tie strides through a dark city street, surrounded by radial zoom motion blur streaking into the black periphery.
 - _Thematic Meaning_: The climactic departure into the hypermassive singularity. Surrounded by centrifugal radial zoom blur streaking into the black void, the traveler is sucked forward at light speed before the final release into deep-time star trails.
 - _Composition & Gaze Vectors_: Centrifugal radial motion lines bursting outward from the center, focusing ultimate dramatic gravity onto the weathered, stoic face of the departing traveler.
-- _Transition Dynamic_: Deep exhalation anchor (`L*=21.70`, ΔE: 24.33) leading across the final meditative caesura ('在耀眼的電子雲層下 / 你失去所有理想 / 也不再記得她頭髮的香味') into the cosmic vortex.
+- _Transition Dynamic_: Deep exhalation anchor (`L*=21.70`, ΔE: 32.28) erupting into the stunned witness of the spark shower.
+
+---
+
+### [31/32] DSCF0332_2.jpg
+
+![DSCF0332_2.jpg](../assets/img/p6/DSCF0332_2-768.webp)
+
+| Attribute                              | Value                                                    |
+| :------------------------------------- | :------------------------------------------------------- |
+| **Framing & Aspect**                   | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
+| **Tonality & Breath**                  | `L*=53.98` — **Neutral** (CIELAB: `53.98, 0, -0.01`)     |
+| **Transition to #32 (DSCF0167-2.jpg)** | `ΔE₇₆: 7.95` (Color) · `ΔLum: 20` · **Step Cost: `7.2`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- _Pacing Role_: Act IV: The Stunned Witness / Spark Shower
+- _Visual Subject & Content_: A close-up direct flash portrait of an older white-bearded man with wide, startled eyes, his face and body enveloped in a dense shower of streaming white spark trails.
+- _Thematic Meaning_: The final human encounter with the raw elemental fire of the city. The witness stares directly out, overwhelmed yet fully awakened by the blinding cascade of energy.
+- _Composition & Gaze Vectors_: Forward-facing gaze vector holding the center while chaotic, swirling spark filaments whip across the right quadrant.
+- _Transition Dynamic_: Neutral luminance bridge (`L*=53.98`, ΔE: 7.95) leading across the final meditative caesura ('在耀眼的電子雲層下 / 你失去所有理想 / 也不再記得她頭髮的香味') into the cosmic vortex.
 
 > **[Poetic Caesura: Musical Rest]**
 >
@@ -779,9 +779,9 @@ The current sequence displays **optimal rhythmic pacing** (100/100) with harmoni
 ![DSCF5369-3.jpg](../assets/img/p6/DSCF5369-3-768.webp)
 
 - **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=19.4` (Exhalation)
-- **Optimal Integration Slot**: Position #13 (`DSCF0175.jpg` → **`DSCF5369-3.jpg`** → `DSCF0617.jpg`)
-- **Pacing Impact**: Net ΔEnergy `0` · Local Step Cost `10.6` · Pacing Score `100/100`
-- **Curatorial Suggestion**: Integrates smoothly between #12 (DSCF0175.jpg) and #13 (DSCF0617.jpg)
+- **Optimal Integration Slot**: Position #22 (`DSCF0656-2.jpg` → **`DSCF5369-3.jpg`** → `DSCF5378.jpg`)
+- **Pacing Impact**: Net ΔEnergy `-0.1` · Local Step Cost `6.1` · Pacing Score `100/100`
+- **Curatorial Suggestion**: Integrates smoothly between #21 (DSCF0656-2.jpg) and #22 (DSCF5378.jpg)
 - **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
 
 ### Candidate: DSCF5373.jpg
@@ -799,9 +799,9 @@ The current sequence displays **optimal rhythmic pacing** (100/100) with harmoni
 ![DSCF8871-4.JPG](../assets/img/p6/DSCF8871-4.JPG)
 
 - **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=21.7` (Exhalation)
-- **Optimal Integration Slot**: Position #2 (`DSCF8985-2.JPG` → **`DSCF8871-4.JPG`** → `DSCF8978.JPG`)
-- **Pacing Impact**: Net ΔEnergy `0` · Local Step Cost `3.5` · Pacing Score `100/100`
-- **Curatorial Suggestion**: Integrates smoothly between #1 (DSCF8985-2.JPG) and #2 (DSCF8978.JPG)
+- **Optimal Integration Slot**: Position #22 (`DSCF0656-2.jpg` → **`DSCF8871-4.JPG`** → `DSCF5378.jpg`)
+- **Pacing Impact**: Net ΔEnergy `-0.1` · Local Step Cost `6.1` · Pacing Score `100/100`
+- **Curatorial Suggestion**: Integrates smoothly between #21 (DSCF0656-2.jpg) and #22 (DSCF5378.jpg)
 - **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
 
 ### Candidate: DSCF8920-2.JPG
@@ -809,9 +809,9 @@ The current sequence displays **optimal rhythmic pacing** (100/100) with harmoni
 ![DSCF8920-2.JPG](../assets/img/p6/DSCF8920-2.JPG)
 
 - **Metrics**: `LANDSCAPE` · `2048×1365` · `L*=21.25` (Exhalation)
-- **Optimal Integration Slot**: Position #2 (`DSCF8985-2.JPG` → **`DSCF8920-2.JPG`** → `DSCF8978.JPG`)
-- **Pacing Impact**: Net ΔEnergy `0` · Local Step Cost `3.5` · Pacing Score `100/100`
-- **Curatorial Suggestion**: Integrates smoothly between #1 (DSCF8985-2.JPG) and #2 (DSCF8978.JPG)
+- **Optimal Integration Slot**: Position #22 (`DSCF0656-2.jpg` → **`DSCF8920-2.JPG`** → `DSCF5378.jpg`)
+- **Pacing Impact**: Net ΔEnergy `-0.1` · Local Step Cost `6.1` · Pacing Score `100/100`
+- **Curatorial Suggestion**: Integrates smoothly between #21 (DSCF0656-2.jpg) and #22 (DSCF5378.jpg)
 - **Curatorial Status**: Unsequenced candidate (review placement simulation above before integrating).
 
 ### Candidate: DSCF8959.JPG
