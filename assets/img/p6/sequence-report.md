@@ -381,7 +381,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> *「嘿，你知道嗎？Starlink 的氣球在聖獨立廣場的上空爆炸了！」*
+> *「嘿，你知道嗎？Starlink 的氣球在聯合廣場的上空爆炸了！」*
 > *動物們在 Market Street 奔走相告*
 
 ---
@@ -606,8 +606,10 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> *你凝視著氣球的碎片閃爍著 C 射線*
+> *你凝視 Starlink 氣球的碎片閃爍著 C 射線*
 > *從獵戶星座的方向高速地通過*
+> *巨大的青蛙吸附著 Salesforce Tower 冰冷的曲面*
+> *在劇烈的痙攣與震顫中將坐標系剝落*
 
 ---
 
