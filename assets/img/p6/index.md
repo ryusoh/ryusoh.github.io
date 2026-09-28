@@ -100,7 +100,7 @@ DSCF0656-2.jpg
 > 卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡
 
 DSCF5378.jpg
-DSCF2964-6.jpg
+DSCF2076.jpg
 
 > 「我們發明了幸福。」
 > <br />
@@ -113,8 +113,8 @@ DSCF8740-2.jpg
 > <br />
 > 從獵戶星座的方向高速地通過
 
-DSCF2076.jpg
 DSCF9004-6.JPG
+DSCF2964-6.jpg
 
 > 你看見嚴肅被消解
 > <br />
@@ -124,15 +124,15 @@ DSCF9004-6.JPG
 > <br />
 > 工具被普遍適用
 
-DSCF0245.jpg
 DSCF8630-5.jpg
+DSCF0245.jpg
 
 > 你站立在 Salesforce Tower 魷魚般光滑的塔尖假裝看向左邊
 > <br />
 > 假裝眺望不存在的地平線
 
-DSCF0332_2.jpg
 DSCF9277.jpg
+DSCF0332_2.jpg
 
 > 在耀眼的電子雲層下
 > <br />
