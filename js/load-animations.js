@@ -10,10 +10,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const isReducedMotion = () =>
-        typeof window !== 'undefined' &&
-        typeof window.matchMedia === 'function' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /**
+     * Bolt Optimization:
+     * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+     * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead.
+     * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     * @type {MediaQueryList | null}
+     */
+    let prefersReducedMotionMediaQuery = null;
+
+    const isReducedMotion = () => {
+        if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+            if (prefersReducedMotionMediaQuery === null) {
+                prefersReducedMotionMediaQuery = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                );
+            }
+            return prefersReducedMotionMediaQuery ? prefersReducedMotionMediaQuery.matches : false;
+        }
+        return false;
+    };
 
     const getSplitTextClass = () =>
         (typeof SplitText !== 'undefined' ? SplitText : null) ||
@@ -128,5 +144,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.fonts.ready.then(startAnimation).catch(startAnimation);
     } else {
         startAnimation();
+    }
+
+    if (typeof window !== 'undefined') {
+        window.__LoadAnimationsForTesting = {
+            _resetCache: () => {
+                prefersReducedMotionMediaQuery = null;
+            },
+        };
     }
 });

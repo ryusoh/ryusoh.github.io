@@ -45,6 +45,9 @@ describe('js/load-animations.js', () => {
         delete window.gsap;
         delete window.SplitText;
         delete document.fonts;
+        if (typeof window !== 'undefined' && window.__LoadAnimationsForTesting) {
+            window.__LoadAnimationsForTesting._resetCache();
+        }
         jest.restoreAllMocks();
     });
 
