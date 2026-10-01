@@ -106,6 +106,9 @@ interface Window {
     __ScrollRevealForTesting?: {
         _resetCache: () => void;
     };
+    __LoadAnimationsForTesting?: {
+        _resetCache: () => void;
+    };
 }
 
 interface ExtendableEvent extends Event {
