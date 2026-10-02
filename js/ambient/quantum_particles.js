@@ -3,14 +3,25 @@
     const POINTER_SMOOTHING = 0.085;
     const PARTICLE_COUNT = 1400;
 
+    /**
+     * @param {Function} fn
+     */
     function ready(fn) {
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', fn, { once: true });
+            document.addEventListener('DOMContentLoaded', /** @type {EventListener} */ (fn), {
+                once: true,
+            });
         } else {
             fn();
         }
     }
 
+    /**
+     * @param {number} value
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     */
     function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -20,6 +31,10 @@
      * - What: Cache `MediaQueryList` object from `window.matchMedia`.
      * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
      * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+     */
+    /**
+     * @param {string} msg
+     * @param {Error|unknown} [e]
      */
     function logSafeWarning(msg, e) {
         if (
@@ -32,6 +47,7 @@
         }
     }
 
+    /** @type {MediaQueryList | null} */
     let prefersReducedMotionMediaQuery = null;
 
     function prefersReducedMotion() {
@@ -77,6 +93,10 @@
         );
     }
 
+    /**
+     * @param {string} msg
+     * @param {Error|unknown} [e]
+     */
     function logWarning(msg, e) {
         if (
             typeof window !== 'undefined' &&
@@ -110,8 +130,16 @@
      * - Why: Reading layout properties (`innerWidth`, `innerHeight`) in a high-frequency event listener like `pointermove` causes main-thread blocking, unnecessary overhead and potential layout thrashing.
      * - Impact: Measurably reduces main-thread blocking time during `pointermove` events by guaranteeing DOM reads happen at most once per `resize` event.
      */
+    /**
+     * @param {keyof Window} prop
+     * @returns {number}
+     */
     function getWindowDim(prop) {
-        return typeof window !== 'undefined' ? Math.max(1, window[prop] || 1) : 1;
+        if (typeof window !== 'undefined') {
+            const val = window[prop];
+            return Math.max(1, typeof val === 'number' ? val : 1);
+        }
+        return 1;
     }
     let cachedWidth = getWindowDim('innerWidth');
     let cachedHeight = getWindowDim('innerHeight');
@@ -121,12 +149,20 @@
         cachedHeight = getWindowDim('innerHeight');
     }
 
+    /**
+     * @param {PointerEvent|MouseEvent} event
+     * @param {import("../vendor/three.module.min.js").Vector2} target
+     */
     function updatePointerTarget(event, target) {
         const px = clamp(event.clientX / cachedWidth, 0, 1);
         const py = clamp(1 - event.clientY / cachedHeight, 0, 1);
         target.set(px, py);
     }
 
+    /**
+     * @param {typeof import("../vendor/three.module.min.js")} THREE
+     * @param {number} [count]
+     */
     function createParticleSystem(THREE, count) {
         const particleCount = Math.max(200, count || PARTICLE_COUNT);
         const positions = new Float32Array(particleCount * 3);
@@ -187,6 +223,9 @@
         return { particles, material };
     }
 
+    /**
+     * @param {typeof import("../vendor/three.module.min.js")} THREE
+     */
     function setupRenderer(THREE) {
         const renderer = new THREE.WebGLRenderer({
             antialias: true,
@@ -207,6 +246,10 @@
         return renderer;
     }
 
+    /**
+     * @param {string | null} forceMode
+     * @returns {number}
+     */
     function getMultiplier(forceMode) {
         if (forceMode === 'trace' || forceMode === 'debug') {
             return 1.5;
@@ -217,6 +260,9 @@
         return 1;
     }
 
+    /**
+     * @param {string | null} forceMode
+     */
     async function initParticles(forceMode) {
         const THREE = await import('../vendor/three.module.min.js');
 
@@ -246,6 +292,9 @@
         let lastPointerY = 0.5;
         let isPointerDirty = false;
 
+        /**
+         * @param {PointerEvent|MouseEvent} event
+         */
         const handlePointer = (event) => {
             lastPointerX = clamp(event.clientX / cachedWidth, 0, 1);
             lastPointerY = clamp(1 - event.clientY / cachedHeight, 0, 1);
@@ -294,6 +343,9 @@
                 : () => Date.now();
         let lastTime = perfNow();
 
+        /**
+         * @param {number} now
+         */
         const render = (now) => {
             const delta = now - lastTime;
             lastTime = now;
@@ -337,13 +389,18 @@
     }
 
     function checkSaveData() {
-        return (
-            typeof navigator !== 'undefined' &&
-            navigator.connection &&
-            navigator.connection.saveData
-        );
+        if (typeof navigator === 'undefined') {
+            return false;
+        }
+        const nav = /** @type {Object & { connection?: { saveData?: boolean } }} */ (navigator);
+        return !!(nav.connection && nav.connection.saveData);
     }
 
+    /**
+     * @param {string | null} forceMode
+     * @param {boolean} forceEnabled
+     * @returns {boolean}
+     */
     function shouldSkipParticles(forceMode, forceEnabled) {
         if (forceEnabled) {
             return false;
@@ -367,13 +424,20 @@
             return;
         }
 
-        if (window.__AmbientQuantumParticlesLoaded) {
+        if (
+            /** @type {Object & { __AmbientQuantumParticlesLoaded?: boolean }} */ (window)
+                .__AmbientQuantumParticlesLoaded
+        ) {
             return;
         }
-        window.__AmbientQuantumParticlesLoaded = true;
+        /** @type {Object & { __AmbientQuantumParticlesLoaded?: boolean }} */ (
+            window
+        ).__AmbientQuantumParticlesLoaded = true;
 
         initParticles(forceMode).catch((error) => {
-            window.__AmbientQuantumParticlesLoaded = false;
+            /** @type {Object & { __AmbientQuantumParticlesLoaded?: boolean }} */ (
+                window
+            ).__AmbientQuantumParticlesLoaded = false;
             if (
                 typeof window !== 'undefined' &&
                 window !== null &&
@@ -407,7 +471,9 @@
     }
 
     if (typeof window !== 'undefined') {
-        window.__QuantumParticlesForTesting = getExports();
+        /** @type {Object & { __QuantumParticlesForTesting?: ReturnType<typeof getExports> }} */ (
+            window
+        ).__QuantumParticlesForTesting = getExports();
     }
     /* eslint-disable no-undef */
     if (typeof module !== 'undefined' && module.exports) {
