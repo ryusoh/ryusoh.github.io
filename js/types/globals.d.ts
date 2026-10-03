@@ -14,6 +14,7 @@ interface Gsap {
 declare const gsap: Gsap;
 declare const SplitText: any;
 declare const ThumbHash: unknown;
+declare const Sketch: any;
 
 declare class Lenis {
     constructor(options?: Record<string, unknown>);
@@ -108,6 +109,18 @@ interface Window {
     };
     __LoadAnimationsForTesting?: {
         _resetCache: () => void;
+    };
+    __ambient?: { config: unknown; instance: unknown };
+    AmbientTransitionController?: {
+        playExit: () => void;
+        playIntro: () => void;
+        maybePlayIntro: () => void;
+    };
+    __AmbientForTesting?: {
+        getConfig: Function;
+        shouldSkip: Function;
+        getAmbientParam: Function;
+        metrics: Function;
     };
 }
 

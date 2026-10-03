@@ -29,6 +29,7 @@
         "js/ga.js",
         "js/init.js",
         "sw.js",
+        "js/ambient/ambient.js",
         "js/mobile-dock.js",
         "js/scroll-reveal-icon.js",
         "js/page-transition.js"

@@ -1,6 +1,43 @@
 // Ambient background effect (localized copy)
 // Expects window.Sketch and optional window.AMBIENT_CONFIG
 (function initAmbient() {
+    /**
+     * @typedef {Object} AmbientConfig
+     * @property {boolean} enabled
+     * @property {number} minWidth
+     * @property {number} maxParticles
+     * @property {number} densityDivisor
+     * @property {{min: number, max: number}} radius
+     * @property {{min: number, max: number}} alpha
+     * @property {number} speed
+     * @property {number} zIndex
+     * @property {string} blend
+     * @property {boolean} [respectReducedMotion]
+     */
+
+    /**
+     * @typedef {Object} Particle
+     * @property {number} x
+     * @property {number} y
+     * @property {number} vx
+     * @property {number} vy
+     * @property {number} r
+     * @property {number} a
+     */
+
+    /**
+     * @typedef {Object} Metrics
+     * @property {number} width
+     * @property {number} height
+     * @property {number} cw
+     * @property {number} ch
+     * @property {number} ratio
+     */
+
+    /**
+     * @param {AmbientConfig} C
+     * @returns {AmbientConfig}
+     */
     function applyDebugOverrides(C) {
         C.zIndex = 999;
         C.radius = { min: C.radius.min * 2, max: C.radius.max * 2 };
@@ -10,6 +47,11 @@
         return C;
     }
 
+    /**
+     * @param {string|null} force
+     * @param {boolean} trace
+     * @returns {AmbientConfig}
+     */
     function getConfig(force, trace) {
         const C = Object.assign(
             {
@@ -37,6 +79,10 @@
      * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead. The cached object's `.matches` property is reactive.
      * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
      */
+    /**
+     * @param {string} msg
+     * @param {unknown} [e]
+     */
     function logWarning(msg, e) {
         if (
             typeof window !== 'undefined' &&
@@ -48,6 +94,10 @@
         }
     }
 
+    /**
+     * @param {string} msg
+     * @param {unknown} [e]
+     */
     function logError(msg, e) {
         if (
             typeof window !== 'undefined' &&
@@ -63,6 +113,7 @@
         }
     }
 
+    /** @type {MediaQueryList | null} */
     let prefersReducedMotionMediaQuery = null;
 
     /**
@@ -99,13 +150,23 @@
         }
     }
 
+    /**
+     * @param {AmbientConfig} C
+     * @param {boolean} reduce
+     * @returns {boolean}
+     */
     function checkMotionAndEnabled(C, reduce) {
         const enabled = C.enabled;
         return !enabled || (reduce && C.respectReducedMotion !== false);
     }
 
+    /**
+     * @param {AmbientConfig} C
+     * @param {string|null} force
+     * @returns {boolean}
+     */
     function shouldSkip(C, force) {
-        if (!window.Sketch) {
+        if (!(/** @type {any} */ (window).Sketch)) {
             return true;
         }
         if (force) {
@@ -138,8 +199,13 @@
         }
     }
 
+    /**
+     * @param {AmbientConfig} C
+     * @param {boolean} trace
+     * @returns {any}
+     */
     function initSketchCanvas(C, trace) {
-        const sketchInstance = window.Sketch.create({
+        const sketchInstance = /** @type {any} */ (window).Sketch.create({
             container: document.body,
             retina: true,
             interval: 2,
@@ -160,12 +226,24 @@
         return sketchInstance;
     }
 
+    /**
+     * @param {any} c
+     * @param {string} clientProp
+     * @param {string} baseProp
+     * @param {number} winVal
+     * @param {number} ratio
+     * @returns {{ cv: number, bv: number }}
+     */
     function getDim(c, clientProp, baseProp, winVal, ratio) {
         const cv = c && c[clientProp] ? c[clientProp] : winVal;
         const bv = c && c[baseProp] ? c[baseProp] : cv * ratio;
         return { cv, bv };
     }
 
+    /**
+     * @param {any} s
+     * @returns {Metrics}
+     */
     function metrics(s) {
         s = s || {};
         const ratio = window.devicePixelRatio || 1;
@@ -179,6 +257,12 @@
         return { width: width, height: height, cw: w.cv, ch: h.cv, ratio: ratio };
     }
 
+    /**
+     * @param {Particle} p
+     * @param {any} s
+     * @param {AmbientConfig} C
+     * @returns {Particle}
+     */
     function resetParticle(p, s, C) {
         /**
          * Bolt Optimization:
@@ -197,10 +281,25 @@
         return p;
     }
 
+    /**
+     * @param {Particle} p
+     * @param {number} w
+     * @param {number} h
+     * @returns {boolean}
+     */
     function isOutOfBounds(p, w, h) {
         return p.x < -10 || p.x > w + 10 || p.y < -10 || p.y > h + 10;
     }
 
+    /**
+     * @param {Particle} p
+     * @param {boolean} exiting
+     * @param {boolean} intro
+     * @param {number} w
+     * @param {number} h
+     * @param {any} s
+     * @param {AmbientConfig} C
+     */
     function updateParticle(p, exiting, intro, w, h, s, C) {
         p.x += p.vx;
         p.y += p.vy;
@@ -213,6 +312,10 @@
         }
     }
 
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     */
     function getFlag(key) {
         try {
             const val = window.sessionStorage.getItem(key);
@@ -226,6 +329,9 @@
         }
     }
 
+    /**
+     * @param {string} key
+     */
     function clearFlag(key) {
         try {
             window.sessionStorage.removeItem(key);
@@ -234,11 +340,17 @@
         }
     }
 
+    /**
+     * @param {AmbientConfig} C
+     * @param {string|null} force
+     * @param {boolean} trace
+     */
     function runAmbient(C, force, trace) {
         const s = initSketchCanvas(C, trace);
 
-        const MAX = C.maxParticles,
-            particles = [];
+        const MAX = C.maxParticles;
+        /** @type {Particle[]} */
+        const particles = [];
         const transitionControl = {
             mode: 'idle',
             start: 0,
@@ -258,6 +370,10 @@
             };
         })();
 
+        /**
+         * @param {any} s
+         * @param {string} opacity
+         */
         function applyCanvasTransition(s, opacity) {
             if (s.canvas) {
                 s.canvas.style.transition = 'opacity 0.4s var(--brand-ease)';
@@ -265,6 +381,10 @@
             }
         }
 
+        /**
+         * @param {Particle[]} particles
+         * @param {AmbientConfig} C
+         */
         function mutateExitParticles(particles, C) {
             for (let i = 0; i < particles.length; i += 1) {
                 const p = particles[i];
@@ -284,6 +404,11 @@
 
         let introTriggered = false;
 
+        /**
+         * @param {Particle[]} particles
+         * @param {AmbientConfig} C
+         * @param {Metrics} m
+         */
         function mutateIntroParticles(particles, C, m) {
             for (let i = 0; i < particles.length; i += 1) {
                 const p = particles[i];
@@ -325,7 +450,7 @@
                 if (i < currentLen && particles[i]) {
                     resetParticle(particles[i], s, C);
                 } else {
-                    particles[i] = resetParticle({}, s, C);
+                    particles[i] = resetParticle(/** @type {Particle} */ ({}), s, C);
                 }
             }
         };
