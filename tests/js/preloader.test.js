@@ -202,6 +202,64 @@ describe('AssetPreloader', () => {
         });
     });
 
+    describe('connection-aware gating', () => {
+        afterEach(() => {
+            delete window.navigator.connection;
+        });
+
+        function setConnection(connection) {
+            Object.defineProperty(window.navigator, 'connection', {
+                configurable: true,
+                value: connection,
+            });
+        }
+
+        test('should skip preloading when saveData is enabled', () => {
+            setConnection({ saveData: true, effectiveType: '4g' });
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).not.toHaveBeenCalled();
+        });
+
+        test.each(['slow-2g', '2g', '3g'])(
+            'should skip preloading on %s effective connection',
+            (effectiveType) => {
+                setConnection({ saveData: false, effectiveType });
+                const preloader = new AssetPreloader();
+                jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+                preloader.preloadForCurrentPage();
+
+                expect(preloader.preloadAssets).not.toHaveBeenCalled();
+            }
+        );
+
+        test('should preload on a fast connection without saveData', () => {
+            setConnection({ saveData: false, effectiveType: '4g' });
+            const preloader = new AssetPreloader();
+            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p1');
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4', 'p6', 'p5']);
+        });
+
+        test('should preload when the Network Information API is unavailable', () => {
+            const preloader = new AssetPreloader();
+            expect(window.navigator.connection).toBeUndefined();
+            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p1');
+            jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
+
+            preloader.preloadForCurrentPage();
+
+            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4', 'p6', 'p5']);
+        });
+    });
+
     describe('asset set completeness regression', () => {
         test('every image directory has a non-empty asset set', () => {
             const preloader = new AssetPreloader();
@@ -376,5 +434,34 @@ describe('coverage helper', () => {
 
             jest.restoreAllMocks();
         });
+    });
+
+    test('connection gating branches in the instrumented copy', () => {
+        jest.isolateModules(() => {
+            require('../../js/preloader.js');
+            const AssetPreloaderClass = window.__AssetPreloaderForTesting.AssetPreloader;
+            const p = new AssetPreloaderClass();
+
+            const connections = [
+                { saveData: true, effectiveType: '4g' },
+                { saveData: false, effectiveType: '3g' },
+                { saveData: false, effectiveType: '4g' },
+                undefined,
+            ];
+            for (const connection of connections) {
+                if (connection === undefined) {
+                    delete navigator.connection;
+                } else {
+                    Object.defineProperty(navigator, 'connection', {
+                        value: connection,
+                        configurable: true,
+                    });
+                }
+                p.preloadForCurrentPage();
+            }
+            delete navigator.connection;
+        });
+
+        jest.restoreAllMocks();
     });
 });

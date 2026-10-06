@@ -16,6 +16,17 @@ declare const SplitText: any;
 declare const ThumbHash: unknown;
 declare const Sketch: any;
 
+interface NetworkInformation {
+    saveData?: boolean;
+    effectiveType?: string;
+}
+
+interface Navigator {
+    connection?: NetworkInformation;
+    mozConnection?: NetworkInformation;
+    webkitConnection?: NetworkInformation;
+}
+
 declare class Lenis {
     constructor(options?: Record<string, unknown>);
 }

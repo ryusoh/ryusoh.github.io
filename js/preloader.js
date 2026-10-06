@@ -257,9 +257,29 @@
         }
 
         /**
+         * Cross-page preloading is skipped on metered or slow connections so the
+         * ~150 background image requests don't compete with the current page's images.
+         * @returns {boolean} - Whether background preloading is appropriate
+         */
+        shouldPreload() {
+            const connection =
+                navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (!connection) {
+                return true;
+            }
+            if (connection.saveData) {
+                return false;
+            }
+            return !['slow-2g', '2g', '3g'].includes(connection.effectiveType ?? '');
+        }
+
+        /**
          * Preload assets for other pages based on current page
          */
         preloadForCurrentPage() {
+            if (!this.shouldPreload()) {
+                return;
+            }
             const currentPage = this.getCurrentPageKey();
             const allPages = Object.keys(this.assetSets);
 
