@@ -128,13 +128,11 @@ that requires the mirror below.
 7. **Deploy cadence**: re-run the sync script whenever `make images`
    regenerates tiers or new pages are added (`make page ID=pN`).
 
-## Side findings (unrelated cleanup, not yet done)
+## Side findings (cleaned up 2026-10-06)
 
-- `assets/img/mobile_background.{webp,avif,jpg}` (~3.4 MB) are
-  **unreferenced** — all breakpoints in `css/main_style.css` use
-  `desktop_background.*`; only stale `.stryker-tmp/` sandboxes mention
-  mobile_background. Safe to delete (confirmed with the user during the
-  investigation; deletion deferred).
-- The CSP meta still whitelists `fonts.googleapis.com` / `fonts.gstatic.com`
-  (style-src/font-src) though nothing fetches from them anymore — harmless
-  allowance, can be tightened opportunistically.
+- Deleted unreferenced `assets/img/mobile_background.{webp,avif,jpg}`
+  (~3.4 MB) — all breakpoints in `css/main_style.css` use
+  `desktop_background.*`.
+- Removed `fonts.googleapis.com` / `fonts.gstatic.com` from the CSP
+  style-src/font-src in `index.html` and the portfolio template (nothing
+  fetches from them since the Google Fonts links were dropped).
