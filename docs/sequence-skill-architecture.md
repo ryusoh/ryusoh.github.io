@@ -361,9 +361,9 @@ The 3D orientation is derived by fitting a 6-point landmark subset against Media
 - **Centering**: Subtract respective barycenters: $\bar{p} = \frac{1}{N}\sum P_i$, $\bar{q} = \frac{1}{N}\sum Q_i$.
 - **Covariance Matrix**: $H = \sum_{i=1}^N (Q_i - \bar{q})(P_i - \bar{p})^T$.
 - **Jacobi SVD**: Decompose $H = U \Sigma V^T$ via classical Jacobi plane rotations.
-- **Rotation Matrix**: $R = U \operatorname{diag}(1, 1, \det(U V^T)) V^T$.
+- **Rotation Matrix**: $R = U \mathrm{diag}(1, 1, \det(U V^T)) V^T$.
 - **Tait-Bryan Angles**:
-  $$\text{Pitch} = \arcsin(-R_{1,2}), \quad \text{Yaw} = \operatorname{atan2}(R_{0,2}, R_{2,2}), \quad \text{Roll} = \operatorname{atan2}(R_{1,0}, R_{1,1})$$
+  $$\text{Pitch} = \arcsin(-R_{1,2}), \quad \text{Yaw} = \mathrm{atan2}(R_{0,2}, R_{2,2}), \quad \text{Roll} = \mathrm{atan2}(R_{1,0}, R_{1,1})$$
 
 #### 3. Normalized Iris Vector & Eye-Contact Classification
 
