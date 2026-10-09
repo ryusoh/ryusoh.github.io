@@ -37,7 +37,7 @@
   <line x1="68" y1="224" x2="72.5" y2="224" class="tick-line" />
   <line x1="735.5" y1="224" x2="740" y2="224" class="tick-line" />
   <text x="62" y="227" class="tick-label" text-anchor="end">0</text>
-  <path d="M 88 186.35294117647058 L 108.38709677419355 172.8 L 128.7741935483871 163.01176470588234 L 149.16129032258064 169.78823529411764 L 169.5483870967742 169.78823529411764 L 189.93548387096774 126.87058823529412 L 210.32258064516128 176.56470588235294 L 230.70967741935485 159.24705882352941 L 251.09677419354838 169.78823529411764 L 271.48387096774195 172.8 L 291.8709677419355 144.18823529411765 L 312.258064516129 160 L 332.64516129032256 200.65882352941176 L 353.03225806451616 110.30588235294118 L 373.4193548387097 171.2941176470588 L 393.80645161290323 138.91764705882355 L 414.19354838709677 117.83529411764705 L 434.5806451612903 163.76470588235293 L 454.96774193548384 187.10588235294117 L 475.35483870967744 163.01176470588234 L 495.741935483871 174.30588235294118 L 516.1290322580645 197.64705882352942 L 536.516129032258 141.1764705882353 L 556.9032258064516 131.38823529411764 L 577.2903225806451 104.28235294117647 L 597.6774193548388 127.62352941176471 L 618.0645161290323 169.03529411764706 L 638.4516129032259 176.56470588235294 L 658.8387096774194 141.9294117647059 L 679.2258064516129 184.8470588235294 L 699.6129032258065 126.87058823529412 L 720 141.9294117647059" fill="none" stroke="#2b5c8f" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+  <path d="M 88 186.35294117647058 L 108.38709677419355 172.8 L 128.7741935483871 163.01176470588234 L 149.16129032258064 156.98823529411766 L 169.5483870967742 169.78823529411764 L 189.93548387096774 126.87058823529412 L 210.32258064516128 176.56470588235294 L 230.70967741935485 153.2235294117647 L 251.09677419354838 159.24705882352941 L 271.48387096774195 94.49411764705883 L 291.8709677419355 144.18823529411765 L 312.258064516129 160 L 332.64516129032256 200.65882352941176 L 353.03225806451616 110.30588235294118 L 373.4193548387097 171.2941176470588 L 393.80645161290323 138.91764705882355 L 414.19354838709677 117.83529411764705 L 434.5806451612903 163.76470588235293 L 454.96774193548384 187.10588235294117 L 475.35483870967744 169.78823529411764 L 495.741935483871 163.01176470588234 L 516.1290322580645 197.64705882352942 L 536.516129032258 116.32941176470588 L 556.9032258064516 131.38823529411764 L 577.2903225806451 184.8470588235294 L 597.6774193548388 169.03529411764706 L 618.0645161290323 127.62352941176471 L 638.4516129032259 129.12941176470588 L 658.8387096774194 141.9294117647059 L 679.2258064516129 132.14117647058822 L 699.6129032258065 126.87058823529412 L 720 141.9294117647059" fill="none" stroke="#2b5c8f" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
   <line x1="98.19354838709677" y1="32" x2="98.19354838709677" y2="224" stroke="#475569" stroke-width="0.75" stroke-dasharray="3 3" />
   <rect x="76.19354838709677" y="36" width="44" height="13" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" rx="2" />
   <text x="98.19354838709677" y="45" class="threshold-label" fill="#334155" text-anchor="middle">Caesura</text>
@@ -95,7 +95,7 @@
   <circle cx="128.7741935483871" cy="163.01176470588234" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="128.7741935483871" y1="219.5" x2="128.7741935483871" y2="224" class="tick-line" />
   <text x="128.7741935483871" y="238" class="tick-label" text-anchor="middle">3</text>
-  <circle cx="149.16129032258064" cy="169.78823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="149.16129032258064" cy="156.98823529411766" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="149.16129032258064" y1="219.5" x2="149.16129032258064" y2="224" class="tick-line" />
   <text x="149.16129032258064" y="238" class="tick-label" text-anchor="middle">4</text>
   <circle cx="169.5483870967742" cy="169.78823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
@@ -107,13 +107,13 @@
   <circle cx="210.32258064516128" cy="176.56470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="210.32258064516128" y1="219.5" x2="210.32258064516128" y2="224" class="tick-line" />
   <text x="210.32258064516128" y="238" class="tick-label" text-anchor="middle">7</text>
-  <circle cx="230.70967741935485" cy="159.24705882352941" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="230.70967741935485" cy="153.2235294117647" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="230.70967741935485" y1="219.5" x2="230.70967741935485" y2="224" class="tick-line" />
   <text x="230.70967741935485" y="238" class="tick-label" text-anchor="middle">8</text>
-  <circle cx="251.09677419354838" cy="169.78823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="251.09677419354838" cy="159.24705882352941" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="251.09677419354838" y1="219.5" x2="251.09677419354838" y2="224" class="tick-line" />
   <text x="251.09677419354838" y="238" class="tick-label" text-anchor="middle">9</text>
-  <circle cx="271.48387096774195" cy="172.8" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="271.48387096774195" cy="94.49411764705883" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="271.48387096774195" y1="219.5" x2="271.48387096774195" y2="224" class="tick-line" />
   <text x="271.48387096774195" y="238" class="tick-label" text-anchor="middle">10</text>
   <circle cx="291.8709677419355" cy="144.18823529411765" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
@@ -143,37 +143,37 @@
   <circle cx="454.96774193548384" cy="187.10588235294117" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="454.96774193548384" y1="219.5" x2="454.96774193548384" y2="224" class="tick-line" />
   <text x="454.96774193548384" y="238" class="tick-label" text-anchor="middle">19</text>
-  <circle cx="475.35483870967744" cy="163.01176470588234" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="475.35483870967744" cy="169.78823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="475.35483870967744" y1="219.5" x2="475.35483870967744" y2="224" class="tick-line" />
   <text x="475.35483870967744" y="238" class="tick-label" text-anchor="middle">20</text>
-  <circle cx="495.741935483871" cy="174.30588235294118" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="495.741935483871" cy="163.01176470588234" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="495.741935483871" y1="219.5" x2="495.741935483871" y2="224" class="tick-line" />
   <text x="495.741935483871" y="238" class="tick-label" text-anchor="middle">21</text>
   <circle cx="516.1290322580645" cy="197.64705882352942" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="516.1290322580645" y1="219.5" x2="516.1290322580645" y2="224" class="tick-line" />
   <text x="516.1290322580645" y="238" class="tick-label" text-anchor="middle">22</text>
-  <circle cx="536.516129032258" cy="141.1764705882353" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="536.516129032258" cy="116.32941176470588" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="536.516129032258" y1="219.5" x2="536.516129032258" y2="224" class="tick-line" />
   <text x="536.516129032258" y="238" class="tick-label" text-anchor="middle">23</text>
   <circle cx="556.9032258064516" cy="131.38823529411764" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="556.9032258064516" y1="219.5" x2="556.9032258064516" y2="224" class="tick-line" />
   <text x="556.9032258064516" y="238" class="tick-label" text-anchor="middle">24</text>
-  <circle cx="577.2903225806451" cy="104.28235294117647" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="577.2903225806451" cy="184.8470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="577.2903225806451" y1="219.5" x2="577.2903225806451" y2="224" class="tick-line" />
   <text x="577.2903225806451" y="238" class="tick-label" text-anchor="middle">25</text>
-  <circle cx="597.6774193548388" cy="127.62352941176471" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="597.6774193548388" cy="169.03529411764706" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="597.6774193548388" y1="219.5" x2="597.6774193548388" y2="224" class="tick-line" />
   <text x="597.6774193548388" y="238" class="tick-label" text-anchor="middle">26</text>
-  <circle cx="618.0645161290323" cy="169.03529411764706" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="618.0645161290323" cy="127.62352941176471" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="618.0645161290323" y1="219.5" x2="618.0645161290323" y2="224" class="tick-line" />
   <text x="618.0645161290323" y="238" class="tick-label" text-anchor="middle">27</text>
-  <circle cx="638.4516129032259" cy="176.56470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="638.4516129032259" cy="129.12941176470588" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="638.4516129032259" y1="219.5" x2="638.4516129032259" y2="224" class="tick-line" />
   <text x="638.4516129032259" y="238" class="tick-label" text-anchor="middle">28</text>
   <circle cx="658.8387096774194" cy="141.9294117647059" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="658.8387096774194" y1="219.5" x2="658.8387096774194" y2="224" class="tick-line" />
   <text x="658.8387096774194" y="238" class="tick-label" text-anchor="middle">29</text>
-  <circle cx="679.2258064516129" cy="184.8470588235294" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
+  <circle cx="679.2258064516129" cy="132.14117647058822" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
   <line x1="679.2258064516129" y1="219.5" x2="679.2258064516129" y2="224" class="tick-line" />
   <text x="679.2258064516129" y="238" class="tick-label" text-anchor="middle">30</text>
   <circle cx="699.6129032258065" cy="126.87058823529412" r="3.0" fill="#2b5c8f" stroke="#ffffff" stroke-width="1.0" />
