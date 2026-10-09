@@ -120,8 +120,12 @@ that requires the mirror below.
    #3), idempotent via `aliyun oss cp -r -u --include`. Prerequisites:
    `brew install aliyun-cli` (installed 2026-10-09) and
    `aliyun configure` with a RAM AccessKey scoped to the bucket,
-   region `cn-hangzhou`. **Remaining: create the RAM AccessKey, configure,
-   and run the first sync.**
+   region `cn-hangzhou`. ✅ Done 2026-10-09: RAM user `oss-mirror-sync`
+   (policy `tpl-oss-bucket-put-object` + a bucket-level `ListObjects`
+   statement — the CLI's `-u` check needs it); first sync uploaded 782
+   tier files, 202 MB in 66 s. Mirror verified 2026-10-09: object URL
+   returns 200 with empty or `*.lyeutsaon.com` referer, 403 for foreign
+   referers (anti-hotlink works), 404 for missing objects.
 4. **Generator + fallback wiring**: ✅ Done 2026-10-09.
     - `scripts/build-page.mjs` emits
       `data-fallbacks='["<oss-origin>/assets/img/<pageId>/<base>-1200.webp"]'`
@@ -137,11 +141,12 @@ that requires the mirror below.
    in `index.html` and the portfolio template; pages regenerated via
    `make page ID=pN` for all six (regeneration also covers the template
    CSP).
-6. **Verify**: `make precommit-fix` green (814 tests). **Remaining:** run
-   the first sync, then from a mainland connection (VPN off) measure a
-   gallery page end-to-end and force a fallback (e.g. block the primary
-   origin) to see the mirror take over; ideally have the original reporter
-   retest at ~22:00.
+6. **Verify**: `make precommit-fix` green (814 tests); mirror fetch matrix
+   verified (200/403/404 — see item 3). **Remaining:** push the fallback
+   commits, then from a mainland connection (VPN off) force a primary
+   failure (e.g. block `www.lyeutsaon.com` in /etc/hosts or devtools) and
+   confirm gallery images load from the mirror; ideally have the original
+   reporter retest at ~22:00.
 7. **Deploy cadence**: re-run `make sync-mirror` whenever `make images`
    regenerates tiers or new pages are added (`make page ID=pN`).
 
