@@ -66,8 +66,10 @@ precommit-fix: hooks sync-check bot-pr-check
 		echo "Running pre-commit auto-fixes..."; \
 		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --hook-stage manual || true; \
 		echo "Staging auto-fixed files..."; \
-		git add -u; \
-		echo "Running full Jest suite + coverage floor ratchet (CI parity)..."; \
+		git add -u && \
+		echo "Re-running hooks check-only (auto-fixers are idempotent, so any failure here is real; jest-related skipped — npm test below runs the full suite)..." && \
+		PRE_COMMIT_NO_CONCURRENCY=1 SKIP=jest-related $(PRECOMMIT) run --all-files --hook-stage manual && \
+		echo "Running full Jest suite + coverage floor ratchet (CI parity)..." && \
 		npm test; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \

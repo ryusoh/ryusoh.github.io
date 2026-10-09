@@ -4,6 +4,21 @@ Implementation detail and day-one measurements for the repository's preventive
 gates. The binding rules still live in `AGENTS.md`; this doc is the reference
 for how each gate is wired and why.
 
+## `make precommit-fix` hook phases
+
+`precommit-fix` runs the hooks twice: an auto-fix pass
+(`pre-commit run --all-files --hook-stage manual || true` — the `|| true`
+tolerates Prettier/`eslint --fix` exiting non-zero when they rewrite files),
+then `git add -u`, then a **check-only re-run without `|| true`** (with
+`SKIP=jest-related`, since the full Jest suite runs immediately after —
+without that skip the test hook runs three times per gate). Because the
+auto-fixers are idempotent, any failure in the second pass is a real gate
+failure and fails the target — so a green `precommit-fix` is trustworthy
+again. (Before 2026-10-09 the first pass was the only pass: a `tsc` error in
+`js/preloader.js` once exited 0 from `precommit-fix` and then failed the
+commit-time hook minutes later.) `make precommit` remains the pure check-only
+CI-parity target.
+
 ## Dependency-structure gate (`make depcheck`)
 
 `make lint` runs `make depcheck`, which runs dependency-cruiser over `js/` and
