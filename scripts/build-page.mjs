@@ -26,6 +26,8 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const TEMPLATE_PATH = path.join(ROOT_DIR, 'scripts', 'templates', 'portfolio-shell.html');
 const SIZES_ATTR = '(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px';
+/* OSS image mirror for mainland-China fallback; see docs/china-image-mirror-plan.md */
+const MIRROR_ORIGIN = 'https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com';
 
 /**
  * Sanitizes GPS coordinates and hardware serial numbers from a source JPEG image if present.
@@ -165,6 +167,9 @@ export function buildPictureElement(pageId, filename, altText, meta, isFirst, cr
     const loadingAttr = isFirst ? ' fetchpriority="high"' : ' loading="lazy"';
     const avifSrcset = `/assets/img/${pageId}/${meta.baseName}-768.avif 768w, /assets/img/${pageId}/${meta.baseName}-1200.avif 1200w, /assets/img/${pageId}/${meta.baseName}.avif 2048w`;
     const webpSrcset = `/assets/img/${pageId}/${meta.baseName}-768.webp 768w, /assets/img/${pageId}/${meta.baseName}-1200.webp 1200w, /assets/img/${pageId}/${meta.baseName}.webp 2048w`;
+    /* Cross-origin retry target when the primary origin fails (see
+     * docs/china-image-mirror-plan.md); handled by js/loader/imageFallback.js. */
+    const mirrorFallback = ` data-fallbacks='["${MIRROR_ORIGIN}/assets/img/${pageId}/${meta.baseName}-1200.webp"]'`;
 
     let creditHtml = '';
     if (credit) {
@@ -200,7 +205,7 @@ export function buildPictureElement(pageId, filename, altText, meta, isFirst, cr
                 sizes="${SIZES_ATTR}"
             />
             <img
-                data-thumbhash="${meta.hashBase64}"
+                data-thumbhash="${meta.hashBase64}"${mirrorFallback}
                 style="background-image: url('${meta.dataUrl}'); background-size: cover; background-position: center;"
                 src="/assets/img/${pageId}/${filename}"
                 alt="${altText}"${loadingAttr}
@@ -226,7 +231,7 @@ export function buildPictureElement(pageId, filename, altText, meta, isFirst, cr
             sizes="${SIZES_ATTR}"
         />
         <img
-            data-thumbhash="${meta.hashBase64}"
+            data-thumbhash="${meta.hashBase64}"${mirrorFallback}
             style="background-image: url('${meta.dataUrl}'); background-size: cover; background-position: center;"
             src="/assets/img/${pageId}/${filename}"
             alt="${altText}"${loadingAttr}

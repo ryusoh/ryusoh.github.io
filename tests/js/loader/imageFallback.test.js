@@ -139,6 +139,36 @@ describe('imageFallback.js', () => {
         expect(imgElement.__fallbackIndex).toBe(2);
     });
 
+    it('should strip picture sources and srcset so the fallback src wins inside <picture>', () => {
+        document.body.innerHTML = `
+            <picture>
+                <source type="image/avif" srcset="/a-768.avif 768w" sizes="100vw">
+                <source type="image/webp" srcset="/a-768.webp 768w" sizes="100vw">
+                <img id="pic-img" src="/a.jpg" srcset="/a-1200.jpg 1200w" sizes="100vw"
+                     data-fallbacks='["https://mirror.example.com/a-1200.webp"]'>
+            </picture>
+        `;
+        const picImg = document.getElementById('pic-img');
+        imageFallback.initFallback(picImg);
+
+        picImg.dispatchEvent(new Event('error', { bubbles: true }));
+
+        expect(picImg.closest('picture').querySelectorAll('source')).toHaveLength(0);
+        expect(picImg.hasAttribute('srcset')).toBe(false);
+        expect(picImg.hasAttribute('sizes')).toBe(false);
+        expect(picImg.getAttribute('src')).toBe('https://mirror.example.com/a-1200.webp');
+    });
+
+    it('should leave plain images without a picture parent untouched', () => {
+        imgElement.__fallbackIndex = 0;
+        imgElement.src = 'initial.png';
+
+        imgElement.dispatchEvent(new Event('error', { bubbles: true }));
+
+        expect(imgElement.closest('picture')).toBeNull();
+        expect(imgElement.src).toBe('url1.png');
+    });
+
     it('should sanitize fallback array and remove non-string elements', () => {
         imgElement.setAttribute('data-fallbacks', '["url1.png", 123, "url2.png"]');
         const list = imageFallback.parseFallbacks(imgElement);

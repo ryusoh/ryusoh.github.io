@@ -108,6 +108,18 @@
                     const list = el.__fallbackList;
                     const index = el.__fallbackIndex || 0;
                     if (index < list.length) {
+                        /* Inside <picture>, setting img.src re-runs source
+                         * selection and would re-pick the failed <source>
+                         * srcset; strip the sources so the fallback src wins. */
+                        const picture = el.closest('picture');
+                        if (picture) {
+                            const sources = picture.querySelectorAll('source');
+                            for (let i = 0; i < sources.length; i++) {
+                                sources[i].remove();
+                            }
+                        }
+                        el.removeAttribute('srcset');
+                        el.removeAttribute('sizes');
                         el.src = list[index];
                         el.__fallbackIndex = index + 1;
                     }

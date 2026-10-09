@@ -201,6 +201,12 @@ test_sample.jpg | by @test.photographer
             expect(html).toContain('class="photo-credit"');
             expect(html).toContain('href="https://www.instagram.com/test.photographer/"');
             expect(html).toContain('data-thumbhash=');
+            expect(html).toContain(
+                `data-fallbacks='["https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com/assets/img/${testPageId}/test_sample-1200.webp"]'`
+            );
+            expect(html).toContain(
+                "img-src 'self' data: https://www.google-analytics.com https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com"
+            );
             expect(html).toContain(`href="/${testPageId}/"`);
             expect(html).toContain('aria-current="page"');
 
