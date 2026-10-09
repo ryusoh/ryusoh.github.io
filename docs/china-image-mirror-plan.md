@@ -53,13 +53,18 @@ that requires the mirror below.
 - **Primary stays GitHub Pages** — overseas visitors see zero change
   (EdgeOne full-site CDN was rejected: independent reviews rate its
   EU/Americas performance "average", and its free plan is raffle-gated).
-- **Fallback: Alibaba Cloud OSS bucket, Shanghai region, public read,**
+- **Fallback: Alibaba Cloud OSS bucket, Hangzhou region, public read,**
   accessed via the default endpoint URL
-  `https://<bucket>.oss-cn-shanghai.aliyuncs.com/assets/img/...`.
+  `https://<bucket>.oss-cn-hangzhou.aliyuncs.com/assets/img/...`.
+    - Region choice: any eastern mainland region is equivalent for a
+      nationwide audience (same Alibaba backbone/peering, same mainland
+      pricing); Hangzhou chosen because the site owner lives there, which
+      marginally speeds up admin uploads/syncs.
     - Default endpoint URLs need **no ICP filing** (ICP only applies when
       binding a custom domain to mainland hosting/CDN).
-    - Measured TTFB from Shanghai: **69 ms** (vs ~600–900 ms to GitHub Pages).
-      Tencent COS Shanghai measured 222 ms — acceptable alternative.
+    - Measured TTFB from Shanghai: **69 ms** to `oss-cn-shanghai`
+      (vs ~600–900 ms to GitHub Pages). Tencent COS Shanghai measured
+      222 ms — acceptable alternative.
     - Gallery `<img>` tags gain `data-fallbacks` entries pointing at the
       mirror; `js/loader/imageFallback.js` retries there only when the
       primary fails. Only failing (typically mainland, peak-hour) requests
@@ -103,7 +108,7 @@ that requires the mirror below.
 
 1. **Register** Alibaba Cloud (China) account + real-name verification
    (~10 min via Alipay/ID). Enable OSS.
-2. **Create bucket**: region `oss-cn-shanghai`, standard storage, local
+2. **Create bucket**: region `oss-cn-hangzhou`, standard storage, local
    redundancy, **public read**, versioning off. Note the endpoint URL.
 3. **Sync script** (`scripts/`): upload the **derived tiers** of
    `assets/img/` (see "Cost guardrails" #3) to the bucket, preserving
