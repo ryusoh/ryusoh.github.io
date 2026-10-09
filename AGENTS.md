@@ -94,6 +94,14 @@ rather than assuming a regression.
     deletions, stray bot artifacts like `pr_body.txt` / `*.log` /
     `*_output.txt` / `*_out.json` (fund#695's eslint scratch), or unauthorized
     `eslint-suppressions.json` modifications) — see `docs/gates.md` for wiring.
+11. **Absolute ban on destructive git commands.** Never run `git checkout -- <file>`,
+    `git restore <file>`, `git reset --hard`, or `git clean` without explicit user
+    confirmation. Multiple agents, background routines, and the human share this
+    repository concurrently. Uncommitted modifications in the working tree or index
+    often belong to a concurrent agent or user session in another window. Discarding
+    changes or assuming diffs outside your immediate task scope are "stray debris"
+    destroys active work. Stage only files you own (`git add <file>`), never revert
+    foreign files, and never assume exclusive ownership of the working tree.
 
 ## You cannot see the rendered page
 
@@ -343,6 +351,12 @@ Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
 
 ## Working rules (interactive agents)
 
+- **NEVER run destructive discard commands (`git checkout -- <file>`, `git restore <file>`, `git reset --hard`, `git clean`).**
+  Multiple agents or the human operate concurrently in this repository. Never
+  assume that an uncommitted diff in `git status` is debris from your own command
+  — it belongs to active work from another session. Discarding changes on files
+  outside your assigned task scope destroys uncommitted work. If unexpected diffs
+  appear, do not touch them; report them or ask the user.
 - Work directly on `master`. **Commit/push only when explicitly asked.**
 - **Don't write a command or example into docs/code that you haven't actually
   run this session.** Verify it first — don't infer behaviour from a name or a
