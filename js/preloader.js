@@ -147,6 +147,7 @@
                     '/assets/img/p5/DSCF9004-3.jpg',
                     '/assets/img/p5/2025-05-11-0020.JPG',
                     '/assets/img/p5/DSCF8059.JPG',
+                    '/assets/img/p5/6adf762fee94f2f49e98757c54749236.JPG',
                     '/assets/img/p5/DSCF1557-3.JPG',
                     '/assets/img/p5/DSCF5407-2.jpg',
                     '/assets/img/p5/DSCF8149-7.JPG',
