@@ -57,7 +57,7 @@ DSCF7178.JPG
 > <br />
 > 失去景深的男人通過喉結的升降調整分貝
 
-DSCF8968-2.JPG
+DSCF1664.jpg
 DSCF8998.JPG
 
 > 你將 AirPods 插進肺中緊閉雙眼

@@ -119,7 +119,7 @@
                     '/assets/img/p6/DSCF0548-3.jpg',
                     '/assets/img/p6/DSCF1741.jpg',
                     '/assets/img/p6/DSCF7178.JPG',
-                    '/assets/img/p6/DSCF8968-2.JPG',
+                    '/assets/img/p6/DSCF1664.jpg',
                     '/assets/img/p6/DSCF8998.JPG',
                     '/assets/img/p6/DSCF0175.jpg',
                     '/assets/img/p6/DSCF0617.jpg',
