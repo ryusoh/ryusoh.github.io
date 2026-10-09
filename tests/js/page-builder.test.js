@@ -128,7 +128,7 @@ describe('Page Builder, Synchronizer & Validator E2E Suite', () => {
     });
 
     describe('Ephemeral Synthetic Project Page Build E2E Test', () => {
-        const testPageId = 'p99';
+        const testPageId = 'p98';
         const testImgDir = path.join(ROOT_DIR, 'assets', 'img', testPageId);
         const testPageDir = path.join(ROOT_DIR, testPageId);
         const testMdPath = path.join(testImgDir, 'index.md');

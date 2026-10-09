@@ -285,7 +285,7 @@ describe('AssetPreloader', () => {
                 .filter(
                     (d) =>
                         /^p\d+$/i.test(d) &&
-                        d.toLowerCase() !== 'p99' &&
+                        !['p99', 'p98'].includes(d.toLowerCase()) &&
                         fs.existsSync(path.join(projectRoot, d, 'index.html'))
                 );
 
