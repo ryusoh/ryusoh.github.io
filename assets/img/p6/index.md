@@ -35,7 +35,7 @@ DSCF0283-2.jpg
 > 通過監測河流的顏色推算外界信息
 
 DSCF9002-2.JPG
-DSCF3362-3.jpg
+DSCF1649.jpg
 
 > 「Starlink 的氣球在東南方向的天空被炸成 PM2.5 了。」
 > <br />
@@ -93,7 +93,7 @@ DSCF7027-6.JPG
 > 顫動著舌根使用西班牙語表達諷刺
 
 DSCF8873-3.JPG
-DSCF0656-2.jpg
+DSCF3362-3.jpg
 
 > 你嘗試登上 Salesforce Tower 魷魚般光滑的塔尖向天空舞動雙拳
 > <br />
