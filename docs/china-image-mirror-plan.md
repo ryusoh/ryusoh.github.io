@@ -109,7 +109,9 @@ that requires the mirror below.
 1. **Register** Alibaba Cloud (China) account + real-name verification
    (~10 min via Alipay/ID). Enable OSS.
 2. **Create bucket**: region `oss-cn-hangzhou`, standard storage, local
-   redundancy, **public read**, versioning off. Note the endpoint URL.
+   redundancy (LRS — the mirror is rebuildable from git, and ZRS is a
+   one-way, pricier option), **public read**, versioning off. Note the
+   endpoint URL.
 3. **Sync script** (`scripts/`): upload the **derived tiers** of
    `assets/img/` (see "Cost guardrails" #3) to the bucket, preserving
    paths. Use `ossutil` or the OSS SDK; make it idempotent (skip unchanged
