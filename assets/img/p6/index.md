@@ -50,8 +50,8 @@ DSCF0548-3.jpg
 > <br />
 > 使用西班牙語表達嘲笑
 
+DSCF1741.jpg
 DSCF7178.JPG
-DSCF7190.JPG
 
 > 「可是，Starlink 的氣球在東南的方向爆炸了。」
 > <br />
