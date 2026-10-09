@@ -551,7 +551,7 @@ describe('sequence skill automation script', () => {
 
             // Test modular generators
             const f1Svg = generateLuminanceWaveformSvg({
-                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                gallery: { pageId: 'p99', title: 'Synthetic Test Fixture' },
                 images: mockImages,
                 respiratory: mockResp,
                 quotes: mockQuotes,
@@ -561,7 +561,7 @@ describe('sequence skill automation script', () => {
             }
 
             const f2Svg = generateTransitionTensionSvg({
-                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                gallery: { pageId: 'p99', title: 'Synthetic Test Fixture' },
                 transitions: mockTransitions,
             });
             if (!f2Svg.includes('Figure 2: Pairwise Hamiltonian Transition Tension') || !f2Svg.includes('Chromatic ΔE (45%)')) {
@@ -569,7 +569,7 @@ describe('sequence skill automation script', () => {
             }
 
             const f3Svg = generateColorimetrySpectrumSvg({
-                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                gallery: { pageId: 'p99', title: 'Synthetic Test Fixture' },
                 images: mockImages,
             });
             if (!f3Svg.includes('Figure 3: Colorimetric CIELAB Spectrum') || !f3Svg.includes('rgb(40, 45, 50)')) {
@@ -577,7 +577,7 @@ describe('sequence skill automation script', () => {
             }
 
             const svg = generateSequenceChartsSvg({
-                gallery: { pageId: 'p5', title: 'Self Portraits' },
+                gallery: { pageId: 'p99', title: 'Synthetic Test Fixture' },
                 images: mockImages,
                 transitions: mockTransitions,
                 respiratory: mockResp,
@@ -746,7 +746,7 @@ describe('sequence skill automation script', () => {
         const denseTestCode = `
             import { generateColorimetrySpectrumSvg } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
             const svg = generateColorimetrySpectrumSvg({
-                gallery: { pageId: 'p4', title: 'Dense Gallery' },
+                gallery: { pageId: 'p99', title: 'Dense Gallery' },
                 images: ${JSON.stringify(denseImages)},
             });
             if (!svg.includes('[INH]') || !svg.includes('[EXH]') || !svg.includes('[GRD]')) {
@@ -782,10 +782,10 @@ describe('sequence skill automation script', () => {
             const diff = deltaE({ L: 50, a: 0, b: 0 }, { L: 55, a: 0, b: 0 });
             if (diff !== 5) throw new Error('metrics.mjs deltaE failed');
 
-            const { pageId } = resolveGalleryPath('p5');
-            if (pageId !== 'p5') throw new Error('parser.mjs resolveGalleryPath failed');
+            const { pageId } = resolveGalleryPath('p99');
+            if (pageId !== 'p99') throw new Error('parser.mjs resolveGalleryPath failed');
 
-            const waveform = generateLuminanceWaveformSvg({ gallery: { pageId: 'p5' }, images: [] });
+            const waveform = generateLuminanceWaveformSvg({ gallery: { pageId: 'p99' }, images: [] });
             if (!waveform.includes('Figure 1')) throw new Error('charts.mjs waveform failed');
 
             if (typeof generateVisualReport !== 'function') throw new Error('report.mjs generateVisualReport failed');
@@ -929,5 +929,14 @@ describe('sequence skill automation script', () => {
             encoding: 'utf8',
         });
         expect(stdout).toContain('TRANSITION_RESOLVER_PASSED');
+    });
+
+    test('test suites do not execute inspection or gaze scripts directly against production galleries (p1-p6)', () => {
+        const gazeTestCode = fs.readFileSync(path.join(REPO_ROOT, 'tests/js/gaze.test.js'), 'utf8');
+        const seqTestCode = fs.readFileSync(path.join(__dirname, 'sequence-skill.test.js'), 'utf8');
+
+        // Prevent execFileSync invocations targeting p1..p6
+        expect(gazeTestCode).not.toMatch(/execFileSync\([^)]*GAZE_SCRIPT\s*,\s*\[['"]p[1-6]['"]/);
+        expect(seqTestCode).not.toMatch(/execFileSync\([^)]*INSPECT_SCRIPT\s*,\s*\[['"]p[1-6]['"]/);
     });
 });

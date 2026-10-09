@@ -3,6 +3,39 @@
 Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
 
+## 2026-10-09 — Never couple unit tests to production galleries (`p1`–`p6`); use synthetic fixtures (`p99` / `p98`)
+
+**Problem:** Tests in `tests/js/gaze.test.js` and `tests/js/sequence-skill.test.js`
+originally asserted against living production galleries (`p3`, `p5`), hardcoding
+exact image counts (e.g. 12 images, 11 transitions) and specific filenames
+(`DSCF9004-3.jpg`, `DSCF9159.jpg`). When an artist curates, adds, replaces, or
+sequences photos in a production portfolio, these tests immediately break even
+though the underlying code has no regression. Furthermore, temporary builder
+tests colliding on the same fixture ID risk deleting test assets during teardown.
+
+**Fix:** Partition gallery identifiers strictly into three tiers:
+
+1. **Production Galleries (`p1`–`p6`)**: Living portfolio content. **Never**
+   write unit or integration tests that hardcode image counts, filenames, or
+   transitions against these. Acceptance tests may scan them only for site-wide
+   structural invariants (e.g., banner presence, mobile overflow, dock markup).
+2. **Canonical Synthetic Fixture (`p99`)**: Permanent, version-controlled fixture
+   at `assets/img/p99/`. Contains synthetic images with known dimensions and
+   calibrated tonal profiles (`test1.jpg` Exhalation $L^* \approx 14$, `test2.jpg`
+   Inhalation $L^* \approx 87$, `test3.jpg` Mid-tone $L^* \approx 51$, and
+   `test_outtake.jpg`), along with static `index.md` and `commentary.json`. All
+   unit tests for sequence analysis, gaze estimation, and report generation must
+   target `p99`. When invoking report generation CLI scripts in tests, always
+   pass `--report <scratchPath>` to avoid dirtying `assets/img/p99/` with SVG
+   artifacts.
+3. **Ephemeral Builder Workspace (`p98`)**: Reserved exclusively for dynamic
+   page-builder tests (`tests/js/page-builder.test.js`) that create and teardown
+   temporary HTML, markdown, and image directories.
+4. **Asset & Acceptance Filters**: `scripts/build-images.mjs`,
+   `scripts/generate-thumbhashes.mjs`, and all acceptance test scanners must
+   explicitly filter out both `p99` and `p98` so synthetic test assets are never
+   built into production tiers or crawled as public portfolio entries.
+
 ## 2026-10-09 — `vm.runInContext` suites accrue zero coverage; extend the "coverage helper" test
 
 **Problem:** Suites like `tests/js/preloader.test.js` load the source via

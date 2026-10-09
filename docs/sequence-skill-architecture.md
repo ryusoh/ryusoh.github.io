@@ -506,3 +506,23 @@ When an image is shifted across a **Poetic Caesura (Blockquote)** (e.g. moving f
     - Running full 4-agent multi-agent debate loops with MCTS for 25+ images requires multiple multimodal LLM calls. For interactive CLI usage, a 2-agent (Curator + Critic) pruned beam search provides ~90% of the aesthetic optimization at 10% of token latency.
 2. **Deterministic Gaze Vector Estimation**:
     - While luminance and CIELAB color histograms are computed via `sharp`, automated gaze vector calculation currently relies on the VLM's multi-modal visual attention. Integrating lightweight local face/pose estimation models (e.g. MediaPipe in Node) as deterministic pre-processors remains an area for future tooling exploration. Spike/implementation: see `docs/gaze-vector-action-items.md` (executor report) — status: implemented.
+
+---
+
+## 9. Hermetic Testing & Synthetic Fixture Architecture (`p99`)
+
+To ensure test stability as artists actively curate, add, delete, and re-sequence production galleries, all sequence analysis and gaze vectoring tests must run against hermetic synthetic fixtures rather than production galleries:
+
+1. **The Canonical Fixture (`assets/img/p99/`)**:
+    - `index.md`: Fixed sequence of 3 test images (`test1.jpg`, `test2.jpg | @test.photographer`, `test3.jpg`) with 1 poetic caesura quote.
+    - `commentary.json`: Deterministic commentary mapping curatorial roles, subject vectors, and transitions.
+    - Synthetic Images:
+        - `test1.jpg` (300×200, Exhalation $L^* \approx 14$) & `test1-768.webp`
+        - `test2.jpg` (300×200, Inhalation $L^* \approx 87$) & `test2-768.webp`
+        - `test3.jpg` (300×200, Neutral mid-tone $L^* \approx 51$) & `test3-768.webp`
+        - `test_outtake.jpg` (300×200, unsequenced candidate frame)
+2. **Hermetic Test Rule**:
+    - Never write unit tests asserting on production galleries (`p1`–`p6`). Any change to a production photo essay (swapping an image, adding a frame) would immediately break coupled tests.
+    - Always run unit and CLI tests against `p99`. When testing report generation, pass `--report <scratchPath>` to avoid creating untracked SVG or markdown files in `assets/img/p99/`.
+3. **Pipeline Isolation**:
+    - Asset optimization scripts (`scripts/build-images.mjs`, `scripts/generate-thumbhashes.mjs`) and acceptance test suites (`tests/js/acceptance/*`) explicitly exclude `p99` and ephemeral `p98` so synthetic test assets do not pollute production builds or site health scans.

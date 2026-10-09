@@ -223,7 +223,7 @@ describe('Deterministic Gaze Vector Pre-processor (gaze.mjs)', () => {
         });
 
         test('CLI exits 0 and prints models-not-installed JSON when models are missing', () => {
-            const stdout = execFileSync('node', [GAZE_SCRIPT, 'p1'], {
+            const stdout = execFileSync('node', [GAZE_SCRIPT, 'p99'], {
                 cwd: REPO_ROOT,
                 env: {
                     ...process.env,
@@ -278,16 +278,16 @@ describe('Deterministic Gaze Vector Pre-processor (gaze.mjs)', () => {
 
     // Opt-in smoke test: un-skipped manually when models are present locally
     describe.skip('Opt-in Local ONNX Smoke Test', () => {
-        test('runs end-to-end against real models on gallery p5', () => {
+        test('runs end-to-end against real models on gallery p99', () => {
             const res = runEsm(`
                 import { estimateGazeForGallery } from './.agents/skills/sequence/scripts/gaze.mjs';
-                const results = await estimateGazeForGallery('p5');
+                const results = await estimateGazeForGallery('p99');
                 console.log(JSON.stringify(results));
             `);
 
             expect(Array.isArray(res)).toBe(true);
-            expect(res.length).toBe(12);
-            expect(res[0].image).toBe('DSCF9004-3.jpg');
+            expect(res.length).toBe(3);
+            expect(res[0].image).toBe('test1.jpg');
         });
     });
 });

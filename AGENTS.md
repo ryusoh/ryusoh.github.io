@@ -224,6 +224,11 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   `location.assign` calls to a mockable stub at load time instead of fighting
   jsdom's non-configurable `Location`. Finding that pattern up front beats
   rediscovering it after a few failed mocking attempts.
+- **Never write tests asserting on production portfolio galleries (`p1`–`p6`)** —
+  production galleries are living content; adding, deleting, or reordering photos
+  breaks tests. Use the canonical synthetic fixture `p99` (`assets/img/p99/`) for
+  tests requiring gallery assets, or `p98` for ephemeral builder workspaces.
+  Details: `docs/testing-notes.md`.
 
 ## Layout
 
@@ -236,9 +241,12 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 - `jsconfig.json` — the `tsc --checkJs` strict-mode whitelist; see
   `docs/js-typing-strategy.md` before touching it.
 - `css/` — stylesheets.
-- `p1/`–`p4/`, `index.html` — static page entries; the `p*` pages are
+- `p1/`–`p6/`, `index.html` — static page entries; the `p*` pages are
   image-heavy portfolio galleries generated from `assets/img/p*/index.md`
   via canonical template `scripts/templates/portfolio-shell.html`.
+- `assets/img/p99/` — canonical static fixture for sequence and gaze tests
+  (never touch during normal runs; never assert against production galleries
+  `p1`–`p6` in tests).
 - `scripts/templates/portfolio-shell.html` — canonical shell for all `p*/index.html`
   galleries. Any added scripts, styles, or header/dock changes must be made
   here, followed by `make sync-pages`.
