@@ -134,7 +134,7 @@
                     '/assets/img/p6/DSCF5378.jpg',
                     '/assets/img/p6/DSCF2076.jpg',
                     '/assets/img/p6/DSCF2057.JPG',
-                    '/assets/img/p6/DSCF8740-2.jpg',
+                    '/assets/img/p6/DSCF1916-2.jpg',
                     '/assets/img/p6/DSCF9004-6.JPG',
                     '/assets/img/p6/DSCF2964-6.jpg',
                     '/assets/img/p6/DSCF1906-2.jpg',
