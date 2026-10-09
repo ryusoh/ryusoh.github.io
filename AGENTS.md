@@ -44,7 +44,8 @@ rather than assuming a regression.
    a red gate on an unchanged tree — a failed gate over an untouched worktree
    cannot go green, so edit something first. `node scripts/gate-guard.js`
    enforces this: `snapshot` before the run, `check <hash>` before a retry
-   (exit 1 = unchanged).
+   (exit 1 = unchanged). (Hook phase details: `precommit-fix` auto-fixes,
+   stages, then re-runs hooks check-only — see `docs/gates.md`.)
 2. **One concern, smallest possible diff.** No drive-by edits, no scope creep.
    Diff size is inversely proportional to approval — keep it tiny.
 3. **Stay in your lane** (see "Lanes" below). If two routines touch the same files,
@@ -189,6 +190,11 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   `.github/workflows/`, verify the major-version tag exists
   (`gh api repos/<owner>/<repo>/git/refs/tags/v<N>`). Major-version tags are
   not guaranteed for every action; a missing tag breaks CI.
+- **Workflow `run:` blocks with `set -o pipefail`** — never write
+  `producer | grep -q pat` (or pipe into `head`/`sed q`): `grep -q` exits on
+  first match, the writer dies with SIGPIPE, and pipefail reports 141 even on
+  success. Use `grep -q pat <<< "$var"` and `awk 'NR==1'` (reads all input)
+  instead. Rehearse the block locally with the same flags before committing.
 - **Complexity ratchet** — `make lint-js` gates ESLint `complexity` above 20 with
   `eslint-suppressions.json` baselining legacy violations. All legacy violations
   have been eliminated (`{}`); the baseline is now frozen at 0. Any new suppression

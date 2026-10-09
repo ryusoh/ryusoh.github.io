@@ -3,6 +3,28 @@
 Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
 
+## 2026-10-09 — `vm.runInContext` suites accrue zero coverage; extend the "coverage helper" test
+
+**Problem:** Suites like `tests/js/preloader.test.js` load the source via
+`vm.createContext` + `vm.runInContext` (to control the sandbox). Istanbul only
+instruments code that goes through Jest's `require`/transform pipeline, so
+behavior exercised through the vm context reports **0%** — the file's coverage
+comes entirely from a trailing `describe('coverage helper')` test that does
+`require('../../js/<file>.js')` (instrumented) and pokes the branches. New
+branches added to the source show up as uncovered lines even when vm-based
+tests exercise them.
+
+**Fix:** when you add behavior to such a file, extend the coverage-helper test
+with an instrumented-`require` pass over the new branches (see
+`tests/js/preloader.test.js` "connection gating branches in the instrumented
+copy"). Two adjacent traps: (1) the helper's first test wraps its body in
+`jest.isolateModules(() => { ... })`, so appending a `test()` right after that
+call leaves it nested inside the running test — jest-circus fails with "Tests
+cannot be nested"; read the file tail and count what the closing `});`s
+actually close before inserting. (2) In the helper, mock state like
+`navigator.connection` needs `Object.defineProperty(..., configurable: true)`
+plus cleanup, since the real `navigator` is shared across tests.
+
 ## 2026-08-21 — Testing ESM scripts (.mjs) from CommonJS Jest suites without VM modules
 
 **Problem:** Jest in this repo runs under CommonJS (`jest.config.cjs`). Attempting to `await import('../../scripts/foo.mjs')` directly inside a Jest test file triggers `SyntaxError: Cannot use import statement outside a module` because Jest's runtime environment intercepts `import()` without `--experimental-vm-modules`.

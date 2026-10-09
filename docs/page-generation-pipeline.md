@@ -198,6 +198,11 @@ For each image referenced in `index.md`:
     - Resize to 100x100 box with `{ fit: 'inside' }`, `.ensureAlpha()`, raw RGBA.
     - Compute ThumbHash binary hash, 28-character base64 hash, and base64 PNG data-URI background.
 
+Note: `make page` also runs the CJK font-subset step (`updateFontSubsets`),
+so rebuilding pages after adding CJK text anywhere in the corpus can dirty
+`assets/fonts/glowsans-sc-extended-bold.subset.woff2` as a side effect of an
+unrelated edit — commit that regeneration separately (observed 2026-10-09).
+
 ### 4.2 HTML Templating (`scripts/build-page.mjs`)
 
 Compiles `p<N>/index.html` using the canonical portfolio shell template

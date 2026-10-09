@@ -150,6 +150,11 @@ that requires the mirror below.
 7. **Deploy cadence**: re-run `make sync-mirror` whenever `make images`
    regenerates tiers or new pages are added (`make page ID=pN`).
 
+Note for verification runs from a mainland connection: `github.com` git
+operations (push/fetch) are blocked/unstable on a direct connection while
+GitHub Pages keeps serving fine — do git operations with the VPN on, and
+site/mirror probing with it off.
+
 ## Side findings (cleaned up 2026-10-06)
 
 - Deleted unreferenced `assets/img/mobile_background.{webp,avif,jpg}`
