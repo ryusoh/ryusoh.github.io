@@ -241,15 +241,17 @@ describe('Deterministic Gaze Vector Pre-processor (gaze.mjs)', () => {
     });
 
     describe('Gallery Image Resolution', () => {
-        test('resolveGalleryImages handles pageId "p5" and resolves active index.md images', () => {
+        test('resolveGalleryImages handles canonical pageId "p99" and resolves active index.md images', () => {
             const res = runEsm(`
                 import { resolveGalleryImages } from './.agents/skills/sequence/scripts/gaze.mjs';
-                const gal = resolveGalleryImages('p5');
+                const gal = resolveGalleryImages('p99');
                 console.log(JSON.stringify(gal));
             `);
 
-            expect(res.images.length).toBe(12);
-            expect(res.images[0]).toContain('DSCF9004-3.jpg');
+            expect(res.images.length).toBe(3);
+            expect(res.images[0]).toContain('test1.jpg');
+            expect(res.images[1]).toContain('test2.jpg');
+            expect(res.images[2]).toContain('test3.jpg');
         });
 
         test('resolveGalleryImages throws for non-existent gallery', () => {

@@ -24,18 +24,18 @@ describe('sequence skill automation script', () => {
         expect(fs.existsSync(INSPECT_SCRIPT)).toBe(true);
     });
 
-    test('inspect_gallery parses p5 gallery and returns structured JSON with frontier metrics', () => {
-        const stdout = execFileSync('node', [INSPECT_SCRIPT, 'p5', '--json'], {
+    test('inspect_gallery parses canonical p99 gallery and returns structured JSON with frontier metrics', () => {
+        const stdout = execFileSync('node', [INSPECT_SCRIPT, 'p99', '--json'], {
             cwd: REPO_ROOT,
             encoding: 'utf8',
         });
 
         const data = JSON.parse(stdout);
         expect(data).toHaveProperty('gallery');
-        expect(data.gallery.pageId).toBe('p5');
-        expect(data.gallery.title).toBe('SELF PORTRAITS AND BEHIND THE SCENES');
-        expect(data.gallery.totalImages).toBe(12);
-        expect(data.gallery.totalQuotes).toBe(3);
+        expect(data.gallery.pageId).toBe('p99');
+        expect(data.gallery.title).toBe('CANONICAL TEST GALLERY');
+        expect(data.gallery.totalImages).toBe(3);
+        expect(data.gallery.totalQuotes).toBe(1);
 
         // Frontier respiratory rhythm
         expect(data).toHaveProperty('respiratoryRhythm');
@@ -44,18 +44,18 @@ describe('sequence skill automation script', () => {
 
         // Frontier pairwise transitions
         expect(data).toHaveProperty('transitions');
-        expect(data.transitions.length).toBe(11);
+        expect(data.transitions.length).toBe(2);
         expect(data.transitions[0]).toHaveProperty('deltaE');
         expect(data.transitions[0]).toHaveProperty('deltaLum');
         expect(data.transitions[0]).toHaveProperty('totalCost');
 
         // Images array
         expect(Array.isArray(data.images)).toBe(true);
-        expect(data.images.length).toBe(12);
+        expect(data.images.length).toBe(3);
 
         // Check image analysis fields
         const firstImg = data.images[0];
-        expect(firstImg.filename).toBe('DSCF9004-3.jpg');
+        expect(firstImg.filename).toBe('test1.jpg');
         expect(firstImg.exists).toBe(true);
         expect(firstImg.analysis.aspectRatio).toBe('1.50');
         expect(firstImg.analysis.orientation).toBe('landscape');
@@ -66,17 +66,17 @@ describe('sequence skill automation script', () => {
 
         // Check quotes
         expect(Array.isArray(data.quotes)).toBe(true);
-        expect(data.quotes.length).toBe(3);
+        expect(data.quotes.length).toBe(1);
     });
 
     test('inspect_gallery runs in formatted text mode without errors', () => {
-        const stdout = execFileSync('node', [INSPECT_SCRIPT, 'p5'], {
+        const stdout = execFileSync('node', [INSPECT_SCRIPT, 'p99'], {
             cwd: REPO_ROOT,
             encoding: 'utf8',
         });
 
-        expect(stdout).toContain('FRONTIER GALLERY SEQUENCE INSPECTION: P5');
-        expect(stdout).toContain('DSCF9004-3.jpg');
+        expect(stdout).toContain('FRONTIER GALLERY SEQUENCE INSPECTION: P99');
+        expect(stdout).toContain('test1.jpg');
         expect(stdout).toContain('Transition to #2');
         expect(stdout).toContain('Caesura Interlude');
     });
@@ -86,14 +86,14 @@ describe('sequence skill automation script', () => {
         try {
             const stdout = execFileSync(
                 'node',
-                [INSPECT_SCRIPT, 'p5', '--report', tempReportPath],
+                [INSPECT_SCRIPT, 'p99', '--report', tempReportPath],
                 {
                     cwd: REPO_ROOT,
                     encoding: 'utf8',
                 }
             );
 
-            expect(stdout).toContain('Generated Visual Sequence Report for P5');
+            expect(stdout).toContain('Generated Visual Sequence Report for P99');
             expect(fs.existsSync(tempReportPath)).toBe(true);
 
             const report = fs.readFileSync(tempReportPath, 'utf8');
@@ -103,10 +103,10 @@ describe('sequence skill automation script', () => {
             const expectedImgUrl = path
                 .relative(
                     SCRATCH_DIR,
-                    path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9004-3-768.webp')
+                    path.join(REPO_ROOT, 'assets', 'img', 'p99', 'test1-768.webp')
                 )
                 .replace(/\\/g, '/');
-            expect(report).toContain(`![DSCF9004-3.jpg](${expectedImgUrl})`);
+            expect(report).toContain(`![test1.jpg](${expectedImgUrl})`);
             expect(report).toContain('Framing & Aspect');
             expect(report).toContain('Tonality & Breath');
             expect(report).toContain('Poetic Caesura');
@@ -121,7 +121,7 @@ describe('sequence skill automation script', () => {
             // TDD: Photo credit must not be used as Curatorial Rationale body
             expect(report).toContain('Caption / Photo Credit');
             expect(report).not.toMatch(
-                /\*\*Curatorial Rationale & Montage Dynamic\*\*:\s*@photo\.initiator/
+                /\*\*Curatorial Rationale & Montage Dynamic\*\*:\s*@test\.photographer/
             );
 
             // TDD: Curatorial Proposals & Interlude Recommendations (optimal sequence)
@@ -146,17 +146,11 @@ describe('sequence skill automation script', () => {
         const tempReportPath = path.join(SCRATCH_DIR, 'test-anom-report.md');
         try {
             // Un-optimized sequence with 3 consecutive dark frames to trigger Suffocating Weight
-            const unoptimized = [
-                'DSCF9004-3.jpg',
-                'DSCF8149-7.JPG',
-                'DSCF8231.JPG',
-                '849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG',
-                'DSCF0525.jpg',
-            ];
+            const unoptimized = ['test1.jpg', 'test1.jpg', 'test1.jpg', 'test2.jpg'];
 
             const script = `
                 import { generateVisualReport } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
-                const res = await generateVisualReport('p5', {
+                const res = await generateVisualReport('p99', {
                     outputPath: ${JSON.stringify(tempReportPath)},
                     sequenceOverride: ${JSON.stringify(unoptimized)}
                 });
@@ -204,7 +198,7 @@ describe('sequence skill automation script', () => {
 
         try {
             const customCommentary = {
-                'DSCF9004-3.jpg': {
+                'test1.jpg': {
                     role: 'Custom Test Role',
                     subject: 'Subject Test description',
                     meaning: 'Custom Meaning Test',
@@ -216,7 +210,7 @@ describe('sequence skill automation script', () => {
 
             execFileSync(
                 'node',
-                [INSPECT_SCRIPT, 'p5', '--report', tempReportPath, '--commentary', tempCommPath],
+                [INSPECT_SCRIPT, 'p99', '--report', tempReportPath, '--commentary', tempCommPath],
                 {
                     cwd: REPO_ROOT,
                     encoding: 'utf8',
@@ -256,15 +250,15 @@ describe('sequence skill automation script', () => {
         try {
             // Two real base-source images plus responsive tiers that must be excluded
             fs.copyFileSync(
-                path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9004-3.jpg'),
+                path.join(REPO_ROOT, 'assets', 'img', 'p99', 'test1.jpg'),
                 path.join(scratchGallery, 'b-second.jpg')
             );
             fs.copyFileSync(
-                path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9159.jpg'),
+                path.join(REPO_ROOT, 'assets', 'img', 'p99', 'test2.jpg'),
                 path.join(scratchGallery, 'a-first.jpg')
             );
             fs.copyFileSync(
-                path.join(REPO_ROOT, 'assets', 'img', 'p5', 'DSCF9004-3.jpg'),
+                path.join(REPO_ROOT, 'assets', 'img', 'p99', 'test1.jpg'),
                 path.join(scratchGallery, 'a-first-768.jpg')
             );
             fs.writeFileSync(
@@ -313,7 +307,7 @@ describe('sequence skill automation script', () => {
     test('generateVisualReport generates outtakes section with compliant h3 heading increments', () => {
         const tempReportPath = path.join(SCRATCH_DIR, 'test-outtake-heading-report.md');
         try {
-            execFileSync('node', [INSPECT_SCRIPT, 'p3', '--report', tempReportPath], {
+            execFileSync('node', [INSPECT_SCRIPT, 'p99', '--report', tempReportPath], {
                 cwd: REPO_ROOT,
                 encoding: 'utf8',
             });
@@ -321,7 +315,7 @@ describe('sequence skill automation script', () => {
             expect(fs.existsSync(tempReportPath)).toBe(true);
             const report = fs.readFileSync(tempReportPath, 'utf8');
             expect(report).toContain('## 4. Unsequenced Candidates & Outtakes');
-            expect(report).toContain('### Candidate: DSCF2056-2.jpg');
+            expect(report).toContain('### Candidate: test_outtake.jpg');
             expect(report).not.toMatch(/#### Candidate:/);
 
             // Verify heading increments in the generated report. Calling the full
@@ -346,26 +340,13 @@ describe('sequence skill automation script', () => {
         const tempReportPath = path.join(SCRATCH_DIR, 'test-dynamic-role-report.md');
 
         try {
-            // Reorder: Move DSCF9159.jpg (originally Frame 12 Coda) to Frame 1 Opener,
-            // and DSCF9004-3.jpg (originally Frame 1 Opener) to Frame 12 Coda.
-            const reorderedSequence = [
-                'DSCF9159.jpg',
-                '2025-05-11-0020.JPG',
-                'DSCF8059.JPG',
-                'DSCF1557-3.JPG',
-                'DSCF5407-2.jpg',
-                'DSCF8149-7.JPG',
-                'DSCF8231.JPG',
-                'DSCF0525.jpg',
-                '849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG',
-                'DSCF6274.JPG',
-                'IMG760.jpg',
-                'DSCF9004-3.jpg',
-            ];
+            // Reorder: Move test3.jpg (originally Frame 3 Coda) to Frame 1 Opener,
+            // and test1.jpg (originally Frame 1 Opener) to Frame 3 Coda.
+            const reorderedSequence = ['test3.jpg', 'test2.jpg', 'test1.jpg'];
 
             const script = `
                 import { generateVisualReport } from './.agents/skills/sequence/scripts/inspect_gallery.mjs';
-                await generateVisualReport('p5', {
+                await generateVisualReport('p99', {
                     outputPath: ${JSON.stringify(tempReportPath)},
                     sequenceOverride: ${JSON.stringify(reorderedSequence)}
                 });
@@ -379,20 +360,20 @@ describe('sequence skill automation script', () => {
             expect(fs.existsSync(tempReportPath)).toBe(true);
             const report = fs.readFileSync(tempReportPath, 'utf8');
 
-            // DSCF9159 at Frame 1 should now have an Overture role (adapted dynamically)
+            // test3 at Frame 1 should now have an Overture role (adapted dynamically)
             // while preserving its intrinsic visual subject and meaning
             expect(report).toMatch(
-                /### \[1\/12\] DSCF9159\.jpg[\s\S]*?[_*]Pacing Role[_*]: Act I: The Overture/
+                /### \[1\/3\] test3\.jpg[\s\S]*?[_*]Pacing Role[_*]: Act I: The Overture/
             );
-            expect(report).toContain('eating yogurt with a spoon late at night');
-            expect(report).toContain('quiet, unadorned humanity');
+            expect(report).toContain('Synthetic test coda subject.');
+            expect(report).toContain('Synthetic test coda meaning.');
 
-            // DSCF9004-3 at Frame 12 should now have a Coda role (adapted dynamically)
+            // test1 at Frame 3 should now have a Coda role (adapted dynamically)
             // while preserving its intrinsic visual subject
             expect(report).toMatch(
-                /### \[12\/12\] DSCF9004-3\.jpg[\s\S]*?[_*]Pacing Role[_*]: Act IV: Coda/
+                /### \[3\/3\] test1\.jpg[\s\S]*?[_*]Pacing Role[_*]: Act IV: Coda/
             );
-            expect(report).toContain('white helmet with both hands covering the face');
+            expect(report).toContain('Synthetic test overture subject.');
         } finally {
             if (fs.existsSync(tempReportPath)) {
                 fs.unlinkSync(tempReportPath);
@@ -485,9 +466,9 @@ describe('sequence skill automation script', () => {
             if (emptyResp.rhythmScore !== 100 || emptyResp.anomalies.length !== 0) throw new Error('empty respiratory failed');
 
             // 6. resolvePreviewFilename candidate resolution
-            const p5Dir = path.resolve(process.cwd(), 'assets', 'img', 'p5');
-            const resolvedWebp = resolvePreviewFilename(p5Dir, 'DSCF9004-3.jpg');
-            if (resolvedWebp !== 'DSCF9004-3-768.webp') throw new Error(\`resolvePreviewFilename failed: expected DSCF9004-3-768.webp, got \${resolvedWebp}\`);
+            const p99Dir = path.resolve(process.cwd(), 'assets', 'img', 'p99');
+            const resolvedWebp = resolvePreviewFilename(p99Dir, 'test1.jpg');
+            if (resolvedWebp !== 'test1-768.webp') throw new Error(\`resolvePreviewFilename failed: expected test1-768.webp, got \${resolvedWebp}\`);
 
             const fallbackNonExistent = resolvePreviewFilename('/tmp', 'nonexistent.jpg');
             if (fallbackNonExistent !== 'nonexistent.jpg') throw new Error(\`resolvePreviewFilename fallback failed: got \${fallbackNonExistent}\`);
@@ -703,7 +684,7 @@ describe('sequence skill automation script', () => {
         const expectedColorimetryPath = path.join(SCRATCH_DIR, 'sequence-colorimetry.svg');
 
         try {
-            execFileSync('node', [INSPECT_SCRIPT, 'p5', '--report', tempReportPath], {
+            execFileSync('node', [INSPECT_SCRIPT, 'p99', '--report', tempReportPath], {
                 cwd: REPO_ROOT,
                 encoding: 'utf8',
             });
