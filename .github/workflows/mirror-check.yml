@@ -1,0 +1,50 @@
+name: Mirror check
+
+# Weekly probe of the OSS image fallback mirror (docs/china-image-mirror-plan.md).
+# Runs from a US runner: it verifies the mirror is alive, serves correct bytes,
+# and stays hotlink-protected — it cannot measure mainland-China reachability.
+
+on:
+    schedule:
+        - cron: '17 13 * * 3' # Wednesdays 13:17 UTC = 21:17 China time
+    workflow_dispatch:
+
+jobs:
+    mirror-check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Probe live fallbacks and mirror
+              run: |
+                  set -euo pipefail
+                  MIRROR_ORIGIN="https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com"
+                  PAGE_URL="https://www.lyeutsaon.com/p1/"
+
+                  html=$(curl -fsS -m 30 "$PAGE_URL")
+
+                  # No `echo | grep -q` pipes: under pipefail, grep -q exiting on
+                  # first match SIGPIPEs the writer and the pipeline reports 141.
+                  grep -q "data-fallbacks='\[\"$MIRROR_ORIGIN" <<< "$html" \
+                      || { echo "FAIL: $PAGE_URL has no mirror data-fallbacks"; exit 1; }
+
+                  grep -o 'img-src [^;]*' <<< "$html" | grep -q 'lyeutsaon\.oss-cn-hangzhou\.aliyuncs\.com' \
+                      || { echo "FAIL: CSP img-src missing mirror origin"; exit 1; }
+
+                  url=$(grep -o "data-fallbacks='\[\"[^\"]*" <<< "$html" | awk 'NR==1 {sub(/.*\["/, ""); print}')
+                  primary="https://www.lyeutsaon.com${url#"$MIRROR_ORIGIN"}"
+                  echo "probing $url"
+
+                  code=$(curl -sS -o /dev/null -m 30 -w '%{http_code}' "$url")
+                  [ "$code" = 200 ] || { echo "FAIL: mirror returned $code (want 200)"; exit 1; }
+
+                  m=$(curl -sSI -m 30 "$url" | grep -i '^content-length' | tr -d '\r' | awk '{print $2}')
+                  p=$(curl -sSI -m 30 "$primary" | grep -i '^content-length' | tr -d '\r' | awk '{print $2}')
+                  [ -n "$m" ] && [ "$m" = "$p" ] \
+                      || { echo "FAIL: size mismatch mirror=$m primary=$p"; exit 1; }
+
+                  code=$(curl -sS -o /dev/null -m 30 -H 'Referer: https://evil.example/' -w '%{http_code}' "$url")
+                  [ "$code" = 403 ] || { echo "FAIL: hotlink referer returned $code (want 403)"; exit 1; }
+
+                  code=$(curl -sS -o /dev/null -m 30 -w '%{http_code}' "$MIRROR_ORIGIN/assets/img/p1/__nonexistent__-1200.webp")
+                  [ "$code" = 404 ] || { echo "FAIL: missing object returned $code (want 404)"; exit 1; }
+
+                  echo "OK: fallbacks present, CSP allows mirror, bytes match ($m), hotlink blocked, 404 sane"
