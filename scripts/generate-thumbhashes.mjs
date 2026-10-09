@@ -8,7 +8,7 @@ function getProjectPages() {
     if (!fs.existsSync(assetsDir)) return ['p1', 'p2', 'p3', 'p4'];
     return fs
         .readdirSync(assetsDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory() && /^p\d+$/i.test(d.name))
+        .filter((d) => d.isDirectory() && /^p\d+$/i.test(d.name) && d.name.toLowerCase() !== 'p99')
         .map((d) => d.name)
         .sort((a, b) => {
             const numA = parseInt(a.slice(1), 10);

@@ -1,0 +1,23 @@
+{
+  "test1.jpg": {
+    "role": "Act I: The Overture / Initial Frame",
+    "subject": "Synthetic test overture subject.",
+    "meaning": "Synthetic test overture meaning.",
+    "vector": "Inward centered vector.",
+    "transition": "Transition from test1 to test2."
+  },
+  "test2.jpg": {
+    "role": "Act II: Narrative Expansion",
+    "subject": "Synthetic test expansion subject.",
+    "meaning": "Synthetic test expansion meaning.",
+    "vector": "Upward diagonal vector.",
+    "transition": "Transition from test2 to test3."
+  },
+  "test3.jpg": {
+    "role": "Act IV: Coda / Final Resolution",
+    "subject": "Synthetic test coda subject.",
+    "meaning": "Synthetic test coda meaning.",
+    "vector": "Horizontal resting vector.",
+    "transition": "Final contemplative resting frame."
+  }
+}
