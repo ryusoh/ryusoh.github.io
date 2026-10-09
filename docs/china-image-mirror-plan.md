@@ -107,32 +107,42 @@ that requires the mirror below.
 ## Action items (in order)
 
 1. **Register** Alibaba Cloud (China) account + real-name verification
-   (~10 min via Alipay/ID). Enable OSS.
+   (~10 min via Alipay/ID). Enable OSS. ✅ Done 2026-10-09.
 2. **Create bucket**: region `oss-cn-hangzhou`, standard storage, local
    redundancy (LRS — the mirror is rebuildable from git, and ZRS is a
-   one-way, pricier option), **public read**, versioning off. Note the
-   endpoint URL.
-3. **Sync script** (`scripts/`): upload the **derived tiers** of
-   `assets/img/` (see "Cost guardrails" #3) to the bucket, preserving
-   paths. Use `ossutil` or the OSS SDK; make it idempotent (skip unchanged
-   by size/etag) so it can run in CI or via `make images`.
-4. **Generator + fallback wiring**:
-    - `scripts/build-page.mjs` / `scripts/templates/portfolio-shell.html`:
-      emit `data-fallbacks='["<oss-url>"]'` on gallery `<img>` tags
-      (mirror URL derived from the primary src by origin swap).
-    - Verify `js/loader/imageFallback.js` handles `<picture>`/srcset
-      correctly (it swaps `img.src`; confirm srcset sources don't keep
-      winning after the swap — may need to clear `srcset` on fallback).
-    - Tests: extend `tests/js/` coverage for the new fallback path
-      (fail-before/pass-after per repo rules).
-5. **CSP update** (easy to forget): `img-src` in the CSP meta of
-   `index.html` and all `p*/index.html` (via the template) currently allows
-   only `'self' data:` — add the OSS origin or fallback images will be
-   blocked by CSP. Then `make sync-pages`.
-6. **Verify**: `make precommit-fix` green; then from a mainland connection
-   (VPN off) measure a gallery page end-to-end; ideally have the original
-   reporter retest at ~22:00.
-7. **Deploy cadence**: re-run the sync script whenever `make images`
+   one-way, pricier option), **public read**, versioning off. ✅ Done
+   2026-10-09: `https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com`
+   (Block Public Access disabled, 公共读 ACL, Referer whitelist
+   `*.lyeutsaon.com` + empty referer + query-string truncation, billing
+   alerts 50/80/100% of ¥100 + low-balance alert).
+3. **Sync script**: ✅ `scripts/sync-mirror.sh` (`make sync-mirror`) —
+   uploads only `*.avif`/`*.webp` (derived tiers; see "Cost guardrails"
+   #3), idempotent via `aliyun oss cp -r -u --include`. Prerequisites:
+   `brew install aliyun-cli` (installed 2026-10-09) and
+   `aliyun configure` with a RAM AccessKey scoped to the bucket,
+   region `cn-hangzhou`. **Remaining: create the RAM AccessKey, configure,
+   and run the first sync.**
+4. **Generator + fallback wiring**: ✅ Done 2026-10-09.
+    - `scripts/build-page.mjs` emits
+      `data-fallbacks='["<oss-origin>/assets/img/<pageId>/<base>-1200.webp"]'`
+      on every gallery `<img>` (origin constant `MIRROR_ORIGIN`).
+    - `js/loader/imageFallback.js` strips sibling `<source>` elements and
+      `srcset`/`sizes` on fallback — required because setting `img.src`
+      inside `<picture>` re-runs source selection and would re-pick the
+      failed origin.
+    - Tests: `tests/js/loader/imageFallback.test.js` (picture stripping)
+      and `tests/js/page-builder.test.js` (generated markup carries the
+      fallback + CSP origin).
+5. **CSP update**: ✅ Done 2026-10-09 — the OSS origin added to `img-src`
+   in `index.html` and the portfolio template; pages regenerated via
+   `make page ID=pN` for all six (regeneration also covers the template
+   CSP).
+6. **Verify**: `make precommit-fix` green (814 tests). **Remaining:** run
+   the first sync, then from a mainland connection (VPN off) measure a
+   gallery page end-to-end and force a fallback (e.g. block the primary
+   origin) to see the mirror take over; ideally have the original reporter
+   retest at ~22:00.
+7. **Deploy cadence**: re-run `make sync-mirror` whenever `make images`
    regenerates tiers or new pages are added (`make page ID=pN`).
 
 ## Side findings (cleaned up 2026-10-06)
