@@ -100,14 +100,14 @@ DSCF0656-2.jpg
 > 卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡
 
 DSCF5378.jpg
-DSCF9277.jpg
+DSCF1924.jpg
 
 > 「我們發明了幸福。」
 > <br />
 > 失去景深的男人說，眨巴著眼
 
 DSCF2057.JPG
-DSCF1916-2.jpg
+DSCF9277.jpg
 
 > 你凝視 Starlink 氣球的碎片閃爍著 C 射線
 > <br />
@@ -135,8 +135,8 @@ DSCF0245.jpg
 > <br />
 > 假裝眺望不存在的地平線
 
+DSCF1916-2.jpg
 DSCF0332_2.jpg
-DSCF1924.jpg
 
 > 在耀眼的電子雲層下
 > <br />
