@@ -465,13 +465,13 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 - *Pacing Role*: Act IV: The Ecstatic Panopticon / Phones at the Concert
 - *Visual Subject & Content*: A street concert crowd seen from above: a woman in the foreground grimaces at her own iPhone screen while arms around her raise glowing phones toward the stage, a suited man in a striped hat performing at the edge.
-- *Thematic Meaning*: Celebration already converted into content: the communal dance filmed rather than felt, the exact behavioral rhyme of the iPhone caesura that follows ('送進口袋觀察環境假裝鎮定').
+- *Thematic Meaning*: Celebration already converted into content: the communal dance filmed rather than felt, the exact behavioral rhyme of the iPhone caesura that follows ('送進口袋假裝鎮定').
 - *Composition & Gaze Vectors*: Radial cluster of raised arms and glowing rectangles orbiting the central foreground face; the performer's profile closes the right edge.
 - *Transition Dynamic*: Deep exhalation (`L*=20.33`) leading across the iPhone caesura into the solitary cyclist.
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> *你將 iPhone 送進口袋觀察環境假裝鎮定*
+> *你將 iPhone 送進口袋假裝鎮定*
 > *顫動著舌根使用西班牙語表達諷刺*
 
 ---
@@ -606,8 +606,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> *你凝視 Starlink 氣球的碎片閃爍著 C 射線*
-> *從獵戶星座的方向高速地通過*
+> *你凝視 Starlink 氣球的碎片閃爍著 C 射線從獵戶星座的方向高速地通過*
 > *巨大的青蛙吸附著 Salesforce Tower 冰冷的曲面*
 > *在劇烈的痙攣與震顫中將坐標系剝落*
 
