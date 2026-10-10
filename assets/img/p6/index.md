@@ -88,7 +88,7 @@ DSCF1119.jpg
 DSCF7202-2.JPG
 DSCF7027-6.JPG
 
-> 你將 iPhone 送進口袋觀察環境假裝鎮定
+> 你將 iPhone 送進口袋假裝鎮定
 > <br />
 > 顫動著舌根使用西班牙語表達諷刺
 
@@ -109,9 +109,7 @@ DSCF1924.jpg
 DSCF2057.JPG
 DSCF9277.jpg
 
-> 你凝視 Starlink 氣球的碎片閃爍著 C 射線
-> <br />
-> 從獵戶星座的方向高速地通過
+> 你凝視 Starlink 氣球的碎片閃爍著 C 射線從獵戶星座的方向高速地通過
 > <br />
 > 巨大的青蛙吸附著 Salesforce Tower 冰冷的曲面
 > <br />
