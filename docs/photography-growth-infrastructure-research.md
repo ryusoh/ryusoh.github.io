@@ -587,13 +587,14 @@ Anchors verified against the working tree on 2026-10-11 (commit `a98d82c`).
 
 #### 2. [skip] Contact-sheet ledger generator (Proposal 1)
 
-Needs design decisions a cheap model should not make: input convention for a
-shoot's frames (filesystem layout of an outing), contact-sheet output format
-(HTML contact sheet vs JSON digest), and where per-frame edit rationales live.
-Pointer: reuse `inspect_gallery.mjs` / `gaze.mjs` under
-`.agents/skills/sequence/scripts/` for scoring; output goes under the now-
-gitignored `contact-sheets/` (WO 1). Route to a stronger model with §2 Proposal 1
-as the spec.
+**Designed 2026-10-11: see `docs/contact-sheet-ledger-design.md`** — input
+convention, digest schema (v1), local/public split, privacy filter, and phase
+plan (A: harvest XMP; B: marking UI; 2: gaze) are settled there. Still tagged
+`[skip]` for cheap executors because it is new runtime logic requiring new
+tests; route to a stronger model via the TDD skill with the design doc as the
+spec. Scoring reuses `metrics.mjs` under `.agents/skills/sequence/scripts/`;
+local output goes under the gitignored `contact-sheets/` (WO 1), public digests
+under tracked `contact-sheet-ledger/`.
 
 #### 3. [low] Eye-gym card-seed CSV from the verified taxonomy (Proposal 2 bootstrap)
 
