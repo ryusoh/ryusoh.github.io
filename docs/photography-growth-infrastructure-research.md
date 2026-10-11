@@ -536,3 +536,162 @@ archive/backup protocol; no written long-horizon strategy.
    their own baseline.
 6. **Benjamin citation** rests on secondary summaries only; the 1935 essay text
    itself was not fetched this session.
+
+---
+
+## 6. Action items
+
+Work orders implementing the proposals above, ranked by expected impact.
+Anchors verified against the working tree on 2026-10-11 (commit `a98d82c`).
+
+### Preamble — rules for the implementer
+
+- Work **one item at a time**, in order. **Commit after each item; never push.**
+  Stage by name (`git add <file>`), never `git add -A`.
+- `Find` strings are exact unique anchors from the current file. If one does not
+  match byte-for-byte, **STOP and report** — do not improvise or fuzzy-match.
+- Line numbers are dated (2026-10-11) and may drift; trust the `Find` text, not
+  the numbers.
+- Never edit `js/vendor/` or any `*.min.js` (third-party code is not ours).
+- After any `.md` edit run `./scripts/run-npx.sh prettier -w <file>`, then
+  `./scripts/run-npx.sh markdownlint <file>`.
+- Follow Conventional Commits for each per-item commit (e.g.
+  `docs: add archive protocol skeleton`).
+
+### Work orders
+
+#### 1. [trivial] Gitignore the private corpora (enables Proposals 1 and 2)
+
+- **File:** `.gitignore`
+- **Find:**
+
+    ```text
+    # Agent scratch and PR draft files
+    pr_body.txt
+    pr_description.txt
+    ```
+
+- **Change:** append after `pr_description.txt`, with one blank line before the
+  comment:
+
+    ```text
+    # Private practice corpora (never commit: in-copyright study images, rejects)
+    contact-sheets/
+    eye-gym/corpus/
+    ```
+
+- **Verify:** `git check-ignore -v contact-sheets/x eye-gym/corpus/x` prints two
+  lines, each citing `.gitignore`.
+- **Guardrail:** ignore `eye-gym/corpus/` only — `eye-gym/` itself stays tracked
+  so card metadata (WO 3) can be committed.
+
+#### 2. [skip] Contact-sheet ledger generator (Proposal 1)
+
+Needs design decisions a cheap model should not make: input convention for a
+shoot's frames (filesystem layout of an outing), contact-sheet output format
+(HTML contact sheet vs JSON digest), and where per-frame edit rationales live.
+Pointer: reuse `inspect_gallery.mjs` / `gaze.mjs` under
+`.agents/skills/sequence/scripts/` for scoring; output goes under the now-
+gitignored `contact-sheets/` (WO 1). Route to a stronger model with §2 Proposal 1
+as the spec.
+
+#### 3. [low] Eye-gym card-seed CSV from the verified taxonomy (Proposal 2 bootstrap)
+
+- **File:** `eye-gym/cards.csv` (new file; create the directory).
+- **Change:** create with exactly this content (mechanism names taken verbatim
+  from headings in `.agents/skills/sequence/references/principles.md`, verified
+  this session):
+
+    ```csv
+    front_image,mechanism,back_note
+    ,Polyphonic Choreography (Webb/Winogrand),
+    ,Humanist / Social Manifesto (Frank/Moriyama),
+    ,Lyrical / Rhapsodic Odyssey (Parke/diCorcia),
+    ,Chiaroscuro / Spectral Search (Hido/Leiter),
+    ,Meta-Reflective / Confessional Arc (Friedlander/Brassai),
+    ,Eisenstein five tiers of montage,
+    ,Webb slant rhymes,
+    ,Kawauchi respiratory rhythm (inhalation/exhalation),
+    ,Eskenazi elliptical white space,
+    ,Poetic blockquotes as caesuras,
+    ```
+
+    Rows with empty `front_image` are mechanism slots awaiting curated images;
+    filling them is a human curation task, not a work order.
+
+- **Verify:** `awk -F, 'NF!=3{exit 1}' eye-gym/cards.csv` exits 0 and
+  `wc -l eye-gym/cards.csv` prints 11.
+- **Guardrail:** the CSV is text-only and tracked; images go in the gitignored
+  `eye-gym/corpus/` from WO 1. Never stage files under `eye-gym/corpus/`.
+
+#### 4. [skip] Adversarial critique mode + calibration log (Proposal 3)
+
+Extends the `/sequence` skill with a `--contact-sheet` mode and an append-only
+`calibration.json` disagreement log. Design decisions (critic prompt protocol,
+log schema, where the log lives) need a stronger model. Pointer: depends on WO 2's
+output convention; the gaze pipeline's deferred "VLM-vs-model agreement
+calibration" in `docs/gaze-vector-action-items.md` §6 is the methodology
+template.
+
+#### 5. [skip] `scripts/shoot-log.mjs` EXIF ledger (Proposal 4)
+
+New runtime logic → needs new tests, so out of scope for a cheap executor.
+Pointer: `scripts/build-page.mjs:34-42` already shells out to `exiftool` with a
+fail-open fallback and `:104-105` uses `sharp(input).metadata()` — reuse both
+idioms. Ledger entries append to a dated JSONL under the gitignored corpora or
+`.agents/state/` per the repo's state-ledger philosophy.
+
+#### 6. [low] Archive protocol doc skeleton (Proposal 5)
+
+- **File:** `docs/archive-protocol.md` (new).
+- **Change:** create with this skeleton (compose 1–2 sentences per section from
+  §2 Proposal 5; do not invent tools the repo doesn't have):
+
+    ```markdown
+    # Personal archive protocol
+
+    **Status:** living document
+    Scope: lifetime body of photographic work (RAW + JPEG masters).
+
+    ## Masters and formats
+
+    ## 3-2-1 backup layout
+
+    ## Metadata at ingest
+
+    ## Verification schedule (checksum audits)
+
+    ## README for the future reader
+    ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w docs/archive-protocol.md` then
+  `./scripts/run-npx.sh markdownlint docs/archive-protocol.md` — both clean.
+- **Guardrail:** this doc describes policy only; do not add scripts here.
+
+#### 7. [low] Practice strategy doc skeleton (Proposal 7)
+
+- **File:** `docs/practice-strategy.md` (new).
+- **Change:** create with this skeleton (headings only; the human fills the
+  content — strategy is a principal's decision, not an executor's):
+
+    ```markdown
+    # Practice strategy (revisited annually)
+
+    ## Secrets — what I see that no one is photographing
+
+    ## Monopoly of one — the niche I compound in
+
+    ## The definite plan — 30-year arc, current-year milestones
+
+    ## Annual review log
+    ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w docs/practice-strategy.md` then
+  `./scripts/run-npx.sh markdownlint docs/practice-strategy.md` — both clean.
+
+#### 8. [skip] Publishing cadence (Proposal 6)
+
+No code. The cadence value itself (one sequenced gallery per N months) is a
+human commitment decision; once chosen, execution rides the existing
+`make page ID=pN` pipeline. Record the chosen cadence in
+`docs/practice-strategy.md` (WO 7) rather than in tooling.
