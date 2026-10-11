@@ -1,6 +1,7 @@
 # Contact-sheet ledger — design
 
-**Status:** design (nothing built yet)
+**Status:** phase A landed 2026-10-11 (`scripts/contact-sheet.mjs`,
+`tests/js/contact-sheet.test.js`); phases B and 2 pending.
 **Date:** 2026-10-11
 **Parent:** `docs/photography-growth-infrastructure-research.md` §2 Proposal 1,
 §6 WO 2. Unblocks §6 WO 4 (critique mode consumes this output convention).
@@ -117,10 +118,10 @@ Field rules:
 
 ## Phases and verification
 
-- **Phase A (v1):** CLI + privacy filter + digest writer + JSON→HTML renderer.
-  Ships with `tests/js/` coverage on synthetic fixtures only (p99 discipline —
-  never write into production asset dirs; scratch under gitignored paths).
-  Adds `contact-sheet-ledger/` to the `AGENTS.md` layout list when it lands.
+- **Phase A (v1): landed 2026-10-11** — CLI (`scripts/contact-sheet.mjs`) +
+  privacy filter + digest writer + JSON→HTML renderer, covered by
+  `tests/js/contact-sheet.test.js` on synthetic fixtures (exiftool shimmed via
+  PATH, CI-safe). `contact-sheet-ledger/` added to the `AGENTS.md` layout list.
 - **Phase B (v1.5):** marking UI + merge-back command. Deferred until wanted.
 - **Phase 2:** gaze scoring fills the reserved `gaze` slot; re-render HTML.
 
