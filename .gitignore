@@ -39,3 +39,7 @@ reports/
 # Agent scratch and PR draft files
 pr_body.txt
 pr_description.txt
+
+# Private practice corpora (never commit: in-copyright study images, rejects)
+contact-sheets/
+eye-gym/corpus/
