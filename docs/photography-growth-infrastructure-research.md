@@ -631,11 +631,12 @@ deferred until wanted.
 #### 4. Adversarial critique mode + calibration log (Proposal 3) — implemented
 
 **Landed 2026-10-12** per `docs/critique-calibration-design.md`:
-`--critique <slug>` / `--resolve` on `scripts/contact-sheet.mjs`; layer-0
-digest-heuristic critic (gaze eye contact) with an injectable critic seam;
-append-only private `contact-sheet-ledger/calibration.jsonl` logging both
-disagreement directions. The VLM montage layer (D3 layer 1) and deep per-frame
-critique (layer 2) remain open questions in the design doc.
+`--critique` / `--montage` / `--resolve` on `scripts/contact-sheet.mjs`;
+layer-0 digest-heuristic critic (gaze eye contact) plus layer-1 agent-driven
+montage review via a verdicts-file seam (no VLM API — the session model is the
+critic, same pattern as the `/sequence` council); append-only private
+`contact-sheet-ledger/calibration.jsonl` logging both disagreement directions.
+Layer 2 (per-frame deep critique) remains an open question in the design doc.
 
 #### 5. Longitudinal stats layer (Proposal 4) — implemented
 

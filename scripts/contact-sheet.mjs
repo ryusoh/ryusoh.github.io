@@ -754,11 +754,107 @@ export function renderLongitudinalMd({ rows, totals }) {
 }
 
 /**
+ * WO 4 layer 1 (docs/critique-calibration-design.md D3): the montage critic is
+ * agent-driven, not an API call — the session model is the VLM, consistent with
+ * the /sequence council pattern. This tool's part is mechanical: tile a sheet's
+ * thumbs into labeled grid pages under contact-sheets/<slug>/montage/ (private)
+ * for the agent to review. Frames without thumbs are skipped and reported.
+ */
+const MONTAGE_CELL_W = 480;
+const MONTAGE_CELL_H = 320;
+const MONTAGE_LABEL_H = 24;
+const MONTAGE_COLS = 3;
+const MONTAGE_ROWS = 4;
+
+function montageLabelSvg(text) {
+    const svg =
+        `<svg width="${MONTAGE_CELL_W}" height="${MONTAGE_LABEL_H}">` +
+        '<rect width="100%" height="100%" fill="#000"/>' +
+        `<text x="6" y="17" font-family="monospace" font-size="13" fill="#fff">${esc(text)}</text>` +
+        '</svg>';
+    return Buffer.from(svg);
+}
+
+export async function buildMontage(slug, { repoRoot = REPO_ROOT } = {}) {
+    const sheet = loadLocalSheet(repoRoot, slug);
+    const sheetDir = path.join(repoRoot, 'contact-sheets', slug);
+    const cells = [];
+    for (const frame of sheet.frames) {
+        const thumbPath = path.join(sheetDir, thumbName(frame.file));
+        if (fs.existsSync(thumbPath)) cells.push({ file: frame.file, thumbPath });
+    }
+    if (cells.length === 0) {
+        throw new Error(`contact-sheet: no thumbs for slug "${slug}" (run --sync first)`);
+    }
+    const montageDir = path.join(sheetDir, 'montage');
+    fs.rmSync(montageDir, { recursive: true, force: true });
+    fs.mkdirSync(montageDir, { recursive: true });
+    const perPage = MONTAGE_COLS * MONTAGE_ROWS;
+    let pages = 0;
+    for (let p = 0; p * perPage < cells.length; p++) {
+        const pageCells = cells.slice(p * perPage, (p + 1) * perPage);
+        const composites = [];
+        for (let i = 0; i < pageCells.length; i++) {
+            const x = (i % MONTAGE_COLS) * MONTAGE_CELL_W;
+            const y = Math.floor(i / MONTAGE_COLS) * (MONTAGE_CELL_H + MONTAGE_LABEL_H);
+            composites.push({
+                input: await sharp(pageCells[i].thumbPath)
+                    .resize(MONTAGE_CELL_W, MONTAGE_CELL_H, {
+                        fit: 'contain',
+                        background: '#111',
+                    })
+                    .toBuffer(),
+                left: x,
+                top: y,
+            });
+            composites.push({
+                input: montageLabelSvg(pageCells[i].file),
+                left: x,
+                top: y + MONTAGE_CELL_H,
+            });
+        }
+        await sharp({
+            create: {
+                width: MONTAGE_COLS * MONTAGE_CELL_W,
+                height: MONTAGE_ROWS * (MONTAGE_CELL_H + MONTAGE_LABEL_H),
+                channels: 3,
+                background: '#000',
+            },
+        })
+            .composite(composites)
+            .jpeg({ quality: 85 })
+            .toFile(path.join(montageDir, `page-${p + 1}.jpg`));
+        pages++;
+    }
+    return { slug, pages, cells: cells.length, skipped: sheet.frames.length - cells.length };
+}
+
+/** Loads and validates a layer-1 verdicts file: { "<file>": { verdict: "keep"|"cut", evidence?: [...] } }. */
+function loadVerdicts(verdictsPath) {
+    let parsed;
+    try {
+        parsed = JSON.parse(fs.readFileSync(verdictsPath, 'utf8'));
+    } catch {
+        throw new Error(`contact-sheet: cannot read verdicts file: ${verdictsPath}`);
+    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('contact-sheet: verdicts file must be a JSON object keyed by file name');
+    }
+    for (const [file, v] of Object.entries(parsed)) {
+        if (!v || (v.verdict !== 'keep' && v.verdict !== 'cut')) {
+            throw new Error(`contact-sheet: verdicts["${file}"] needs verdict "keep" or "cut"`);
+        }
+    }
+    return parsed;
+}
+
+/**
  * WO 4, layer 0 (docs/critique-calibration-design.md D3): the default machine
  * critic is digest heuristics only — no model calls. A frame with gaze eye
  * contact is argued "keep" (the strongest nomination signal the deterministic
- * pipeline produces); everything else is "cut". The future VLM montage layer
- * replaces this heuristic; the injectable `critic` parameter is the seam.
+ * pipeline produces); everything else is "cut". Layer 1 supplies verdicts via
+ * `verdicts` (agent-reviewed montage); the injectable `critic` parameter is the
+ * seam for any future automated critic.
  */
 export function defaultCritic(frame) {
     const eyeContact = frame.gaze ? frame.gaze.eyeContactCount : 0;
@@ -778,19 +874,40 @@ function calibrationLogPath(repoRoot) {
  * disagreements to the private calibration.jsonl (D5). `source` records the
  * direction: a kept select the critic rejects is a `select-audit`; a passed
  * frame the critic would keep is a `nomination`.
+ *
+ * Critic precedence: `verdicts` (layer-1 agent montage review; frames without
+ * a verdict are skipped — no layer-0 fallback) > injected `critic` >
+ * layer-0 `defaultCritic`.
  */
-export function critiqueSheet(slug, { repoRoot = REPO_ROOT, critic = defaultCritic, now } = {}) {
+export function critiqueSheet(slug, { repoRoot = REPO_ROOT, critic, verdicts, now } = {}) {
     validateSlug(slug);
     const digestPath = path.join(repoRoot, 'contact-sheet-ledger', `${slug}.json`);
     if (!fs.existsSync(digestPath)) {
         throw new Error(`contact-sheet: no ledger digest for slug "${slug}"`);
     }
     const digest = JSON.parse(fs.readFileSync(digestPath, 'utf8'));
+    let activeCritic = critic || defaultCritic;
+    if (verdicts) {
+        const known = new Set(digest.frames.map((f) => f.file));
+        const unknown = Object.keys(verdicts).filter((f) => !known.has(f));
+        if (unknown.length > 0) {
+            throw new Error(
+                `contact-sheet: verdicts reference unknown frames: ${unknown.join(', ')}`
+            );
+        }
+        activeCritic = (frame) => {
+            const v = verdicts[frame.file];
+            if (!v) return null;
+            return { verdict: v.verdict, evidence: Array.isArray(v.evidence) ? v.evidence : [] };
+        };
+    }
     const ts = (now || new Date()).toISOString();
     const records = [];
     for (const frame of digest.frames) {
         const human = frame.selection.decision === 'select' ? 'keep' : 'cut';
-        const { verdict, evidence } = critic(frame);
+        const res = activeCritic(frame);
+        if (!res) continue;
+        const { verdict, evidence } = res;
         if (verdict === human) continue;
         records.push({
             ts,
@@ -1030,6 +1147,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const critiqueSlug = flagValue('--critique');
     const resolveSlug = flagValue('--resolve');
     const resolveReason = flagValue('--reason');
+    const montageSlug = flagValue('--montage');
+    const verdictsPath = flagValue('--verdicts');
     const valueFlags = new Set([
         '--slug',
         '--reconcile',
@@ -1048,6 +1167,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         '--critique',
         '--resolve',
         '--reason',
+        '--montage',
+        '--verdicts',
     ]);
     const positionals = args.filter((a, i) => !a.startsWith('--') && !valueFlags.has(args[i - 1]));
     const dirArg = positionals[0];
@@ -1063,7 +1184,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         '       node scripts/contact-sheet.mjs --gaze <slug|all>\n' +
         '       node scripts/contact-sheet.mjs --stats [--year YYYY]\n' +
         '       node scripts/contact-sheet.mjs --longitudinal [--year YYYY]\n' +
-        '       node scripts/contact-sheet.mjs --critique <slug>\n' +
+        '       node scripts/contact-sheet.mjs --montage <slug>\n' +
+        '       node scripts/contact-sheet.mjs --critique <slug> [--verdicts <file.json>]\n' +
         '       node scripts/contact-sheet.mjs --resolve <slug> --file <name> --reason <text>';
     const buildValid =
         Boolean(dirArg) &&
@@ -1078,6 +1200,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         !longitudinalRequested &&
         !critiqueSlug &&
         !resolveSlug &&
+        !montageSlug &&
         Boolean(slug) !== split;
     const syncValid =
         syncRequested && Boolean(dirArg) && !slug && !split && !reconcileDir && !galleriesRequested;
@@ -1091,6 +1214,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         longitudinalRequested,
         Boolean(critiqueSlug),
         Boolean(resolveSlug),
+        Boolean(montageSlug),
     ].filter(Boolean).length;
     const annotateValid = Boolean(annotateSlug && annotateFile) && annotateNote !== null;
     const annotateDayValid =
@@ -1098,21 +1222,33 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         (dayMood !== null || dayHours !== null || dayLocation !== null) &&
         !annotateSlug;
     const resolveValid = Boolean(resolveSlug && annotateFile) && resolveReason !== null;
+    const verdictsMisplaced = Boolean(verdictsPath) && !critiqueSlug;
     const valid =
-        buildValid ||
-        syncValid ||
-        (utilityCount === 1 &&
-            (!annotateSlug || annotateValid) &&
-            !annotateDaySlug &&
-            (!resolveSlug || resolveValid)) ||
-        (annotateDayValid && utilityCount === 0);
+        !verdictsMisplaced &&
+        (buildValid ||
+            syncValid ||
+            (utilityCount === 1 &&
+                (!annotateSlug || annotateValid) &&
+                !annotateDaySlug &&
+                (!resolveSlug || resolveValid)) ||
+            (annotateDayValid && utilityCount === 0));
     if (help || !valid) {
         console.error(usage);
         process.exit(help ? 0 : 1);
     }
     (async () => {
+        if (montageSlug) {
+            const r = await buildMontage(montageSlug);
+            console.log(
+                `contact-sheet: montage ${montageSlug}: ${r.pages} page(s), ${r.cells} cells` +
+                    (r.skipped ? ` (${r.skipped} skipped, no thumb)` : '')
+            );
+            return;
+        }
         if (critiqueSlug) {
-            const r = critiqueSheet(critiqueSlug);
+            const r = critiqueSheet(critiqueSlug, {
+                verdicts: verdictsPath ? loadVerdicts(verdictsPath) : undefined,
+            });
             console.log(
                 `contact-sheet: critique on ${critiqueSlug}: ${r.disagreements} disagreement(s) appended to calibration.jsonl`
             );

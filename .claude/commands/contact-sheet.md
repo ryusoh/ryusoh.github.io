@@ -80,12 +80,16 @@ where the evidence exists.
 Run only after the human edit is settled in the ledger (never before — the
 log must record independent judgments, see `docs/critique-calibration-design.md`):
 
-1. `node scripts/contact-sheet.mjs --critique <day>` — the machine critic
-   (layer-0 digest heuristics: gaze eye contact) appends only human↔machine
-   disagreements — `select-audit` (kept select the critic rejects) and
-   `nomination` (passed frame the critic would keep) — to the private
-   `contact-sheet-ledger/calibration.jsonl`.
-2. Eyeball the disagreements, then backfill the reason:
+1. `node scripts/contact-sheet.mjs --montage <day>` — tiles the sheet thumbs
+   into labeled grid pages at `contact-sheets/<day>/montage/page-N.jpg`.
+2. Review the montage pages plus the digest; write a verdicts file
+   `{ "<file>": { "verdict": "keep" | "cut", "evidence": ["…"] } }` — only for
+   frames worth challenging (weak selects) or nominating (overlooked rejects).
+3. `node scripts/contact-sheet.mjs --critique <day> --verdicts <file.json>` —
+   appends only human↔machine disagreements (`select-audit` / `nomination`) to
+   the private `contact-sheet-ledger/calibration.jsonl`. Without `--verdicts`
+   the layer-0 heuristic critic runs instead (gaze eye contact ⇒ keep).
+4. Eyeball the disagreements, then backfill the reason:
    `node scripts/contact-sheet.mjs --resolve <day> --file DSCF1234.RAF --reason "kept for the gesture"`
 
 Re-running any step is idempotent — sheets and digests are regenerated from

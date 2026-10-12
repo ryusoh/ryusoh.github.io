@@ -177,6 +177,7 @@ describe('contact-sheet.mjs phase A', () => {
             'defaultCritic',
             'critiqueSheet',
             'resolveCalibration',
+            'buildMontage',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -969,5 +970,128 @@ describe('contact-sheet.mjs phase A', () => {
         }
         expect(err).toBeDefined();
         expect(String(err.stderr)).toContain('Usage:');
+    });
+
+    test('critiqueSheet verdicts mode: layer-1 verdicts only, no layer-0 fallback', () => {
+        const root = path.join(tmp, 'verdicts-root');
+        seedCritiqueLedger(root);
+        const out = runJson(`m.critiqueSheet('2026-10-13', {
+            repoRoot: ${JSON.stringify(root)},
+            now: new Date('2026-10-13T13:00:00Z'),
+            verdicts: { 'A.RAF': { verdict: 'cut', evidence: ['weak geometry'] } },
+        })`);
+        expect(out).toEqual({ slug: '2026-10-13', disagreements: 1 });
+        const records = fs
+            .readFileSync(path.join(root, 'contact-sheet-ledger', 'calibration.jsonl'), 'utf8')
+            .trim()
+            .split('\n')
+            .map((l) => JSON.parse(l));
+        expect(records).toEqual([
+            {
+                ts: '2026-10-13T13:00:00.000Z',
+                slug: '2026-10-13',
+                file: 'A.RAF',
+                machine: 'cut',
+                human: 'keep',
+                evidence: ['weak geometry'],
+                humanReason: null,
+                source: 'select-audit',
+            },
+        ]);
+        // B.RAF has gaze eye contact, so layer 0 would nominate it; verdicts
+        // mode must not fall back to the default critic.
+        expect(records.some((r) => r.file === 'B.RAF')).toBe(false);
+    });
+
+    test('critiqueSheet rejects verdicts referencing unknown frames', () => {
+        const root = path.join(tmp, 'verdicts-err-root');
+        seedCritiqueLedger(root);
+        const got = runJson(
+            `(() => { try { m.critiqueSheet('2026-10-13', { repoRoot: ${JSON.stringify(root)}, verdicts: { 'NOPE.RAF': { verdict: 'keep' } } }); return 'no-throw'; } catch (e) { return e.message; } })()`
+        );
+        expect(got).toContain('unknown frames');
+        expect(got).toContain('NOPE.RAF');
+    });
+
+    test('buildMontage tiles thumbs into labeled grid pages, skipping missing thumbs', async () => {
+        const root = path.join(tmp, 'montage-root');
+        const sheetDir = path.join(root, 'contact-sheets', '2026-10-14');
+        fs.mkdirSync(path.join(sheetDir, 'thumbs'), { recursive: true });
+        const files = [];
+        for (let i = 0; i < 14; i++) {
+            files.push(`DSCF${String(i).padStart(4, '0')}.RAF`);
+        }
+        // 14 frames, 13 thumbs → 13 cells on 2 pages, 1 skipped
+        for (let i = 0; i < 13; i++) {
+            await sharp({
+                create: {
+                    width: 64,
+                    height: 48,
+                    channels: 3,
+                    background: { r: (i * 20) % 255, g: 40, b: 80 },
+                },
+            })
+                .jpeg()
+                .toFile(path.join(sheetDir, 'thumbs', `${files[i]}.jpg`));
+        }
+        fs.writeFileSync(
+            path.join(sheetDir, 'sheet.json'),
+            JSON.stringify({
+                slug: '2026-10-14',
+                frames: files.map((file) => ({ file, captureTime: null })),
+            })
+        );
+        const out = runJson(
+            `(async () => await m.buildMontage('2026-10-14', { repoRoot: ${JSON.stringify(root)} }))()`
+        );
+        expect(out).toEqual({ slug: '2026-10-14', pages: 2, cells: 13, skipped: 1 });
+        const page1 = path.join(sheetDir, 'montage', 'page-1.jpg');
+        const page2 = path.join(sheetDir, 'montage', 'page-2.jpg');
+        for (const page of [page1, page2]) {
+            const meta = await sharp(page).metadata();
+            expect(meta.width).toBe(1440);
+            expect(meta.height).toBe(1376);
+        }
+    });
+
+    test('buildMontage fails closed without thumbs or local sheet', () => {
+        const root = path.join(tmp, 'montage-err-root');
+        fs.mkdirSync(path.join(root, 'contact-sheets', '2026-10-14'), { recursive: true });
+        fs.writeFileSync(
+            path.join(root, 'contact-sheets', '2026-10-14', 'sheet.json'),
+            JSON.stringify({ slug: '2026-10-14', frames: [{ file: 'A.RAF' }] })
+        );
+        const rootJson = JSON.stringify(root);
+        const got = runJson(`(async () => [
+            await (async () => { try { await m.buildMontage('2026-10-14', { repoRoot: ${rootJson} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+            await (async () => { try { await m.buildMontage('2099-01-01', { repoRoot: ${rootJson} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+        ])()`);
+        expect(got[0]).toContain('no thumbs');
+        expect(got[1]).toContain('no local sheet');
+    });
+
+    test('CLI --montage/--verdicts error paths', () => {
+        const run = (cliArgs) => {
+            try {
+                execFileSync('node', [SCRIPT_PATH, ...cliArgs], {
+                    cwd: ROOT_DIR,
+                    encoding: 'utf8',
+                    stdio: ['ignore', 'pipe', 'pipe'],
+                });
+                return { stderr: '' };
+            } catch (e) {
+                return { stderr: String(e.stderr) };
+            }
+        };
+        expect(run(['--montage', '2099-01-01']).stderr).toContain('no local sheet');
+        expect(run(['--critique', '2099-01-01', '--verdicts', 'no-such.json']).stderr).toContain(
+            'cannot read verdicts file'
+        );
+        const badVerdicts = path.join(tmp, 'bad-verdicts.json');
+        fs.writeFileSync(badVerdicts, '[1,2]');
+        expect(run(['--critique', '2099-01-01', '--verdicts', badVerdicts]).stderr).toContain(
+            'must be a JSON object'
+        );
+        expect(run(['--verdicts', badVerdicts]).stderr).toContain('Usage:');
     });
 });

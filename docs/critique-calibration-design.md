@@ -1,9 +1,8 @@
 # Adversarial critique + calibration log — design
 
-**Status:** layer 0 (digest-heuristic critic + private calibration log +
-`--resolve` backfill) landed 2026-10-12 (`scripts/contact-sheet.mjs`,
-`--critique` / `--resolve`); the VLM montage layer (D3 layer 1) and per-frame
-deep critique (layer 2) remain open.
+**Status:** layers 0 and 1 landed 2026-10-12 (`scripts/contact-sheet.mjs`:
+`--critique`, `--montage`, `--resolve`); per-frame deep critique (layer 2)
+remains open.
 **Parent:** `docs/photography-growth-infrastructure-research.md` §2 Proposal 3,
 §6 WO 4. Consumes the ledger output convention in
 `docs/contact-sheet-ledger-design.md`.
@@ -40,16 +39,27 @@ is a long-horizon empirical map of the _punctum_.
   second look. Logs `machine-keeps / human-cut`. Without this direction the
   system can only flatter the edit, never reveal blind spots.
 
-### D3 — Cost protocol: deterministic first, one VLM call per outing
+### D3 — Cost protocol: deterministic first, agent montage second
 
 - **Layer 0 (free):** the ledger digest (metrics, gaze, EXIF) nominates
-  outliers — e.g. eye contact in a frame the human cut.
-- **Layer 1 (cheap):** one composite grid montage per outing (a flat JPEG tile
-  of the sheet thumbs, akin to `--render` output) plus the digest JSON → a
-  single VLM call: "which ≤3 rejected frames deserve a second look; which
-  selects are weakest?" Budget: ~1–2 calls per outing.
+  outliers — e.g. eye contact in a frame the human cut. Implemented as
+  `defaultCritic` (gaze eye contact ⇒ keep).
+- **Layer 1 (cheap, landed 2026-10-12): agent-driven montage review, not an
+  API call.** Options considered: local 7B-class VLM (weak on dense montage
+  grids; heavyweight runtime dependency), cloud VLM API (photos leave the
+  machine, against D3's privacy posture; key management; per-call cost),
+  agent-driven (the session model is already a frontier VLM with vision, and
+  the `/sequence` council is agent-executed too). Chosen: agent-driven.
+  Mechanics: `--montage <slug>` tiles the sheet thumbs into labeled grid pages
+  (3×4 cells of 480×320 + filename strip, ~12 frames/page) under
+  `contact-sheets/<slug>/montage/`; the agent reviews the pages plus the digest
+  and writes a verdicts file (`{ "<file>": { "verdict": "keep"|"cut",
+"evidence": [...] } }`); `--critique <slug> --verdicts <file.json>` ingests
+  it and logs only disagreements. Frames without a verdict are skipped (no
+  layer-0 fallback), so the two layers never mix in one run. The same
+  verdicts-file seam accepts output from any future automated VLM.
 - **Layer 2 (on demand only):** per-frame full-resolution critique of specific
-  selects the human wants stress-tested.
+  selects the human wants stress-tested. Still open.
 
 ### D4 — Critic prompt: reuse the personas, not the protocol
 
@@ -87,8 +97,7 @@ is a long-horizon empirical map of the _punctum_.
 
 ## Open questions
 
-- VLM choice for layer 1 (needs vision). Whether the layer-0 digest alone is a
-  strong enough nominator is empirical: measure nomination yield over the
-  backlog before tuning.
+- Whether the layer-0 digest alone is a strong enough nominator is empirical:
+  measure nomination yield over the backlog before tuning.
 - Whether layer-2 deep critique belongs in this tool or inside the `/sequence`
   skill proper.
