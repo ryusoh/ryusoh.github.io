@@ -160,6 +160,11 @@ describe('contact-sheet.mjs phase A', () => {
             'reconcileExports',
             'reconcileGalleries',
             'syncLedger',
+            'annotateSheet',
+            'renderLocalSheet',
+            'computeStats',
+            'loadDigests',
+            'fillGaze',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -527,6 +532,107 @@ describe('contact-sheet.mjs phase A', () => {
             exported: true,
             published: 'p3',
         });
+    });
+
+    test('computeStats aggregates digests with optional year filter', () => {
+        const got = runJson(`(() => {
+            const digests = [
+                { slug: '2026-01-01', frames: [
+                    { selection: { decision: 'select', exported: true, published: 'p1' } },
+                    { selection: { decision: 'pass', exported: false, published: null } },
+                ] },
+                { slug: '2025-12-31', frames: [
+                    { selection: { decision: 'pass', exported: false, published: null } },
+                ] },
+            ];
+            return { all: m.computeStats(digests), y2026: m.computeStats(digests, { year: 2026 }) };
+        })()`);
+        expect(got.all.totals).toEqual({
+            outings: 2,
+            frames: 3,
+            selects: 1,
+            exported: 1,
+            published: 1,
+        });
+        expect(got.all.rows).toHaveLength(2);
+        expect(got.y2026.rows.map((r) => r.slug)).toEqual(['2026-01-01']);
+        expect(got.y2026.totals.frames).toBe(2);
+    });
+
+    test('annotateSheet sets a rationale on one frame and persists to local sheet, digest, HTML', () => {
+        const out = runJson(
+            `m.annotateSheet('2026-10-12', 'IMG_0010.JPG', 'near miss: horizon cuts the subject', { repoRoot: ${JSON.stringify(outRoot)} })`
+        );
+        expect(out).toEqual({ slug: '2026-10-12', file: 'IMG_0010.JPG' });
+        const local = JSON.parse(
+            fs.readFileSync(
+                path.join(outRoot, 'contact-sheets', '2026-10-12', 'sheet.json'),
+                'utf8'
+            )
+        );
+        expect(local.frames.find((f) => f.file === 'IMG_0010.JPG').rationale).toBe(
+            'near miss: horizon cuts the subject'
+        );
+        const digestRaw = fs.readFileSync(
+            path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'),
+            'utf8'
+        );
+        expect(digestRaw).not.toContain('privateNote');
+        const digest = JSON.parse(digestRaw);
+        expect(digest.frames.find((f) => f.file === 'IMG_0010.JPG').rationale).toBe(
+            'near miss: horizon cuts the subject'
+        );
+        const html = fs.readFileSync(
+            path.join(outRoot, 'contact-sheets', '2026-10-12', 'index.html'),
+            'utf8'
+        );
+        expect(html).toContain('near miss: horizon cuts the subject');
+    });
+
+    test('annotateSheet rejects unknown frames and path-traversal slugs', () => {
+        const got = runJson(`[
+            (() => { try { m.annotateSheet('2026-10-12', 'NOPE.JPG', 'x', { repoRoot: ${JSON.stringify(outRoot)} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+            (() => { try { m.annotateSheet('../evil', 'IMG_0010.JPG', 'x', { repoRoot: ${JSON.stringify(outRoot)} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+        ]`);
+        expect(got[0]).toContain('no frame');
+        expect(got[1]).toContain('invalid slug');
+    });
+
+    test('renderLocalSheet re-renders HTML from sheet.json', () => {
+        const out = runJson(
+            `m.renderLocalSheet('2026-10-12', { repoRoot: ${JSON.stringify(outRoot)} })`
+        );
+        expect(out).toEqual({ slug: '2026-10-12' });
+        const html = fs.readFileSync(
+            path.join(outRoot, 'contact-sheets', '2026-10-12', 'index.html'),
+            'utf8'
+        );
+        expect(html).toContain('IMG_0010.JPG');
+    });
+
+    test('fillGaze fills the reserved gaze slot and persists to digest + HTML', () => {
+        const out = runJson(`(async () => {
+            const gazeRuntime = {
+                sessions: {},
+                estimate: async () => ({
+                    modelVersion: 'fake-v0',
+                    faces: [{ eyeContact: true }, { eyeContact: false }],
+                }),
+            };
+            return await m.fillGaze('2026-10-12', { repoRoot: ${JSON.stringify(outRoot)}, gazeRuntime });
+        })()`);
+        expect(out).toEqual({ sheets: 1, framesScored: 2 });
+        const digest = JSON.parse(
+            fs.readFileSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'), 'utf8')
+        );
+        expect(digest.frames[0].gaze.faceCount).toBe(2);
+        expect(digest.frames[0].gaze.eyeContactCount).toBe(1);
+        expect(digest.frames[0].gaze.modelVersion).toBe('fake-v0');
+        const html = fs.readFileSync(
+            path.join(outRoot, 'contact-sheets', '2026-10-12', 'index.html'),
+            'utf8'
+        );
+        expect(html).toContain('faces 2 · eye contact 1');
     });
 
     test('CLI rejects --slug together with --split', () => {

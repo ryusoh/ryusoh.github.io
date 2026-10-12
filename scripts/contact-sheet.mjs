@@ -505,6 +505,141 @@ export async function reconcileGalleries(
     return { galleriesScanned: jpegs.length, ...stats };
 }
 
+function validateSlug(slug) {
+    if (!SLUG_RE.test(String(slug || ''))) {
+        throw new Error(`contact-sheet: invalid slug "${slug}"`);
+    }
+}
+
+function localSheetPath(repoRoot, slug) {
+    return path.join(repoRoot, 'contact-sheets', slug, 'sheet.json');
+}
+
+function loadLocalSheet(repoRoot, slug) {
+    validateSlug(slug);
+    const p = localSheetPath(repoRoot, slug);
+    if (!fs.existsSync(p)) {
+        throw new Error(`contact-sheet: no local sheet for slug "${slug}" (run --sync first)`);
+    }
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+}
+
+/** Rewrites the ledger digest from a local sheet (privateNote stripped) and re-renders its HTML. */
+function persistLocalSheet(repoRoot, sheet) {
+    fs.writeFileSync(localSheetPath(repoRoot, sheet.slug), `${JSON.stringify(sheet, null, 2)}\n`);
+    const digest = { ...sheet, frames: sheet.frames.map(({ privateNote, ...rest }) => rest) };
+    const ledgerDir = path.join(repoRoot, 'contact-sheet-ledger');
+    fs.mkdirSync(ledgerDir, { recursive: true });
+    fs.writeFileSync(
+        path.join(ledgerDir, `${sheet.slug}.json`),
+        `${JSON.stringify(digest, null, 2)}\n`
+    );
+    fs.writeFileSync(
+        path.join(repoRoot, 'contact-sheets', sheet.slug, 'index.html'),
+        renderSheetHtml(sheet)
+    );
+}
+
+/** Sets the rationale (craft note) on one frame of a local sheet; null clears it. */
+export function annotateSheet(slug, file, note, { repoRoot = REPO_ROOT } = {}) {
+    const sheet = loadLocalSheet(repoRoot, slug);
+    const frame = sheet.frames.find((f) => f.file === file);
+    if (!frame) {
+        throw new Error(`contact-sheet: no frame "${file}" in sheet "${slug}"`);
+    }
+    frame.rationale = note || null;
+    persistLocalSheet(repoRoot, sheet);
+    return { slug, file };
+}
+
+/** Re-renders a local sheet's HTML from its sheet.json (after hand edits). */
+export function renderLocalSheet(slug, { repoRoot = REPO_ROOT } = {}) {
+    const sheet = loadLocalSheet(repoRoot, slug);
+    fs.writeFileSync(
+        path.join(repoRoot, 'contact-sheets', sheet.slug, 'index.html'),
+        renderSheetHtml(sheet)
+    );
+    return { slug: sheet.slug };
+}
+
+/** Aggregates digests into per-day rows plus totals; optional year filter. */
+export function computeStats(digests, { year } = {}) {
+    const rows = [];
+    const totals = { outings: 0, frames: 0, selects: 0, exported: 0, published: 0 };
+    for (const d of digests) {
+        if (year && !d.slug.startsWith(`${year}-`)) continue;
+        const selects = d.frames.filter((f) => f.selection.decision === 'select').length;
+        const exported = d.frames.filter((f) => f.selection.exported).length;
+        const published = d.frames.filter((f) => f.selection.published).length;
+        rows.push({ slug: d.slug, frames: d.frames.length, selects, exported, published });
+        totals.outings++;
+        totals.frames += d.frames.length;
+        totals.selects += selects;
+        totals.exported += exported;
+        totals.published += published;
+    }
+    return { rows, totals };
+}
+
+/** Loads every digest in the ledger, sorted by slug. */
+export function loadDigests({ repoRoot = REPO_ROOT } = {}) {
+    const ledgerDir = path.join(repoRoot, 'contact-sheet-ledger');
+    if (!fs.existsSync(ledgerDir)) return [];
+    return fs
+        .readdirSync(ledgerDir)
+        .filter((f) => f.endsWith('.json'))
+        .sort()
+        .map((f) => JSON.parse(fs.readFileSync(path.join(ledgerDir, f), 'utf8')));
+}
+
+async function defaultGazeRuntime() {
+    const gaze = await import('../.agents/skills/sequence/scripts/gaze.mjs');
+    const sessions = await gaze.createSessions();
+    return { sessions, estimate: (p, s) => gaze.estimateGazeForImage(p, s) };
+}
+
+/**
+ * Phase 2: fills the reserved gaze slot per frame by running the two-stage
+ * ONNX gaze pipeline over the sheet's thumbs, then persists and re-renders.
+ * slugOrAll is a slug or "all". The runtime is injectable for tests.
+ */
+export async function fillGaze(slugOrAll, { repoRoot = REPO_ROOT, gazeRuntime } = {}) {
+    const sheetsDir = path.join(repoRoot, 'contact-sheets');
+    const slugs =
+        slugOrAll === 'all'
+            ? fs
+                  .readdirSync(sheetsDir, { withFileTypes: true })
+                  .filter((e) => e.isDirectory() && fs.existsSync(localSheetPath(repoRoot, e.name)))
+                  .map((e) => e.name)
+                  .sort()
+            : [slugOrAll];
+    if (slugs.length === 0) {
+        throw new Error('contact-sheet: no local sheets found (run --sync first)');
+    }
+    const runtime = gazeRuntime || (await defaultGazeRuntime());
+    let framesScored = 0;
+    for (const slug of slugs) {
+        const sheet = loadLocalSheet(repoRoot, slug);
+        for (const frame of sheet.frames) {
+            const thumb = path.join(sheetsDir, slug, 'thumbs', `${frame.file}.jpg`);
+            if (!fs.existsSync(thumb)) continue;
+            const result = await runtime.estimate(thumb, runtime.sessions);
+            frame.gaze = {
+                modelVersion: result.modelVersion,
+                faceCount: result.faces.length,
+                eyeContactCount: result.faces.filter((f) => f.eyeContact).length,
+                faces: result.faces,
+            };
+            framesScored++;
+            if (framesScored % 25 === 0) {
+                console.error(`contact-sheet: gaze ${framesScored} frames`);
+            }
+        }
+        persistLocalSheet(repoRoot, sheet);
+    }
+    return { sheets: slugs.length, framesScored };
+}
+
 /**
  * The full ritual in one call: split a folder into per-day outings, write all
  * outputs, then reconcile against the Lightroom export folder and published
@@ -539,10 +674,17 @@ export function renderSheetHtml(sheet) {
                 f.metrics.cielab !== null
                     ? `<img src="${esc(thumbName(f.file))}" alt="${esc(f.file)}" loading="lazy">`
                     : '<div class="no-thumb">no preview</div>';
-            const stats =
+            const statsParts = [
                 f.metrics.cielab !== null
                     ? `L* ${f.metrics.luminance} · ΔE₇₆ ${f.metrics.deltaEPrev ?? '—'}`
-                    : 'no metrics';
+                    : 'no metrics',
+            ];
+            if (f.gaze) {
+                statsParts.push(
+                    `faces ${f.gaze.faceCount} · eye contact ${f.gaze.eyeContactCount}`
+                );
+            }
+            const stats = statsParts.join(' · ');
             const rationale = f.rationale ? `<p class="rationale">${esc(f.rationale)}</p>` : '';
             return (
                 `<figure class="${cls}">${visual}<figcaption>` +
@@ -612,23 +754,42 @@ export function writeOutputs(sheet, thumbs, { repoRoot = REPO_ROOT } = {}) {
 // Direct CLI invocation
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const args = process.argv.slice(2);
-    const slugIdx = args.indexOf('--slug') + 1;
-    const slug = slugIdx > 0 ? args[slugIdx] : null;
-    const recIdx = args.indexOf('--reconcile') + 1;
-    const reconcileDir = recIdx > 0 ? args[recIdx] : null;
-    const galIdx = args.indexOf('--reconcile-galleries');
-    const galleriesRequested = galIdx >= 0;
+    const flagValue = (flag) => {
+        const i = args.indexOf(flag);
+        return i >= 0 && args[i + 1] !== undefined ? args[i + 1] : null;
+    };
+    const slug = flagValue('--slug');
+    const reconcileDir = flagValue('--reconcile');
+    const galleriesRequested = args.includes('--reconcile-galleries');
     const galleriesDir =
-        galleriesRequested && args[galIdx + 1] && !args[galIdx + 1].startsWith('--')
-            ? args[galIdx + 1]
+        galleriesRequested &&
+        args[args.indexOf('--reconcile-galleries') + 1] &&
+        !args[args.indexOf('--reconcile-galleries') + 1].startsWith('--')
+            ? args[args.indexOf('--reconcile-galleries') + 1]
             : undefined;
     const split = args.includes('--split');
     const syncRequested = args.includes('--sync');
-    const exportDirIdx = args.indexOf('--export-dir') + 1;
-    const exportDir = exportDirIdx > 0 ? args[exportDirIdx] : undefined;
-    const galleryRootIdx = args.indexOf('--gallery-root') + 1;
-    const galleryRoot = galleryRootIdx > 0 ? args[galleryRootIdx] : undefined;
-    const valueFlags = new Set(['--slug', '--reconcile', '--export-dir', '--gallery-root']);
+    const exportDir = flagValue('--export-dir') || undefined;
+    const galleryRoot = flagValue('--gallery-root') || undefined;
+    const annotateSlug = flagValue('--annotate');
+    const annotateFile = flagValue('--file');
+    const annotateNote = flagValue('--note');
+    const renderSlug = flagValue('--render');
+    const gazeSlug = flagValue('--gaze');
+    const statsRequested = args.includes('--stats');
+    const year = flagValue('--year');
+    const valueFlags = new Set([
+        '--slug',
+        '--reconcile',
+        '--export-dir',
+        '--gallery-root',
+        '--annotate',
+        '--file',
+        '--note',
+        '--render',
+        '--gaze',
+        '--year',
+    ]);
     const positionals = args.filter((a, i) => !a.startsWith('--') && !valueFlags.has(args[i - 1]));
     const dirArg = positionals[0];
     const help = args.includes('--help') || args.includes('-h');
@@ -636,62 +797,109 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         'Usage: node scripts/contact-sheet.mjs <dir> (--slug <YYYY-MM-DD-slug> | --split)\n' +
         '       node scripts/contact-sheet.mjs --sync <dir> [--export-dir <path>] [--gallery-root <path>]\n' +
         '       node scripts/contact-sheet.mjs --reconcile <exportDir>\n' +
-        '       node scripts/contact-sheet.mjs --reconcile-galleries [galleryRoot]';
-    const otherModes = Boolean(reconcileDir) || galleriesRequested || split || Boolean(slug);
-    const reconcileValid =
-        Boolean(reconcileDir) && !slug && !split && !galleriesRequested && !syncRequested;
-    const galleriesValid = galleriesRequested && !slug && !split && !reconcileDir && !syncRequested;
-    const syncValid = syncRequested && Boolean(dirArg) && !otherModes;
+        '       node scripts/contact-sheet.mjs --reconcile-galleries [galleryRoot]\n' +
+        '       node scripts/contact-sheet.mjs --annotate <slug> --file <name> --note <text>\n' +
+        '       node scripts/contact-sheet.mjs --render <slug>\n' +
+        '       node scripts/contact-sheet.mjs --gaze <slug|all>\n' +
+        '       node scripts/contact-sheet.mjs --stats [--year YYYY]';
     const buildValid =
+        Boolean(dirArg) &&
         !syncRequested &&
         !reconcileDir &&
         !galleriesRequested &&
-        Boolean(dirArg) &&
+        !annotateSlug &&
+        !renderSlug &&
+        !gazeSlug &&
+        !statsRequested &&
         Boolean(slug) !== split;
-    if (help || (!reconcileValid && !galleriesValid && !syncValid && !buildValid)) {
+    const syncValid =
+        syncRequested && Boolean(dirArg) && !slug && !split && !reconcileDir && !galleriesRequested;
+    const utilityCount = [
+        Boolean(reconcileDir),
+        galleriesRequested,
+        Boolean(annotateSlug),
+        Boolean(renderSlug),
+        Boolean(gazeSlug),
+        statsRequested,
+    ].filter(Boolean).length;
+    const annotateValid = Boolean(annotateSlug && annotateFile) && annotateNote !== null;
+    const valid =
+        buildValid || syncValid || (utilityCount === 1 && (!annotateSlug || annotateValid));
+    if (help || !valid) {
         console.error(usage);
         process.exit(help ? 0 : 1);
     }
-    const run = syncRequested
-        ? syncLedger(dirArg, { exportDir, galleryRoot }).then((r) => {
-              for (const { sheet } of r.sheets) {
-                  console.log(`contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`);
-              }
-              console.log(
-                  `contact-sheet: ${r.sheets.length} outings ledgered; exports: ${r.exports.framesMarked} marked; galleries: ${r.galleries.framesMarked} marked`
-              );
-          })
-        : reconcileDir
-          ? reconcileExports(reconcileDir).then((r) => {
+    (async () => {
+        if (statsRequested) {
+            const { rows, totals } = computeStats(loadDigests(), { year: year || undefined });
+            for (const r of rows) {
                 console.log(
-                    `contact-sheet: reconciled ${r.exportsScanned} exports against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
+                    `${r.slug} | frames: ${r.frames} | select: ${r.selects} | exported: ${r.exported} | published: ${r.published}`
                 );
-            })
-          : galleriesRequested
-            ? reconcileGalleries(galleriesDir).then((r) => {
-                  console.log(
-                      `contact-sheet: reconciled ${r.galleriesScanned} gallery images against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
-                  );
-              })
-            : split
-              ? buildOutingSheets(dirArg).then((sheets) => {
-                    for (const { sheet, thumbs } of sheets) {
-                        writeOutputs(sheet, thumbs);
-                        console.log(
-                            `contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`
-                        );
-                    }
-                    console.log(
-                        `contact-sheet: ${sheets.length} outings → contact-sheets/<day>/ + contact-sheet-ledger/<day>.json`
-                    );
-                })
-              : buildSheet(dirArg, { slug }).then(({ sheet, thumbs }) => {
-                    writeOutputs(sheet, thumbs);
-                    console.log(
-                        `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
-                    );
-                });
-    run.catch((err) => {
+            }
+            console.log(
+                `TOTAL | outings: ${totals.outings} | frames: ${totals.frames} | select: ${totals.selects} | exported: ${totals.exported} | published: ${totals.published}`
+            );
+            return;
+        }
+        if (annotateSlug) {
+            annotateSheet(annotateSlug, annotateFile, annotateNote);
+            console.log(`contact-sheet: annotated ${annotateFile} in ${annotateSlug}`);
+            return;
+        }
+        if (renderSlug) {
+            renderLocalSheet(renderSlug);
+            console.log(`contact-sheet: re-rendered contact-sheets/${renderSlug}/index.html`);
+            return;
+        }
+        if (gazeSlug) {
+            const r = await fillGaze(gazeSlug);
+            console.log(
+                `contact-sheet: gaze scored ${r.framesScored} frames across ${r.sheets} sheet(s)`
+            );
+            return;
+        }
+        if (reconcileDir) {
+            const r = await reconcileExports(reconcileDir);
+            console.log(
+                `contact-sheet: reconciled ${r.exportsScanned} exports against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
+            );
+            return;
+        }
+        if (galleriesRequested) {
+            const r = await reconcileGalleries(galleriesDir);
+            console.log(
+                `contact-sheet: reconciled ${r.galleriesScanned} gallery images against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
+            );
+            return;
+        }
+        if (syncRequested) {
+            const r = await syncLedger(dirArg, { exportDir, galleryRoot });
+            for (const { sheet } of r.sheets) {
+                console.log(`contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`);
+            }
+            console.log(
+                `contact-sheet: ${r.sheets.length} outings ledgered; exports: ${r.exports.framesMarked} marked; galleries: ${r.galleries.framesMarked} marked`
+            );
+            return;
+        }
+        if (split) {
+            const sheets = await buildOutingSheets(dirArg);
+            for (const { sheet, thumbs } of sheets) {
+                writeOutputs(sheet, thumbs);
+                console.log(`contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`);
+            }
+            console.log(
+                `contact-sheet: ${sheets.length} outings → contact-sheets/<day>/ + contact-sheet-ledger/<day>.json`
+            );
+            return;
+        }
+        const { sheet, thumbs } = await buildSheet(dirArg, { slug });
+        writeOutputs(sheet, thumbs);
+        console.log(
+            `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
+        );
+    })().catch((err) => {
         console.error(err.message || err);
         process.exit(1);
     });
