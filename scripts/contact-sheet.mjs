@@ -753,6 +753,89 @@ export function renderLongitudinalMd({ rows, totals }) {
     return `${lines.join('\n')}\n`;
 }
 
+/**
+ * WO 4, layer 0 (docs/critique-calibration-design.md D3): the default machine
+ * critic is digest heuristics only — no model calls. A frame with gaze eye
+ * contact is argued "keep" (the strongest nomination signal the deterministic
+ * pipeline produces); everything else is "cut". The future VLM montage layer
+ * replaces this heuristic; the injectable `critic` parameter is the seam.
+ */
+export function defaultCritic(frame) {
+    const eyeContact = frame.gaze ? frame.gaze.eyeContactCount : 0;
+    if (eyeContact > 0) {
+        return { verdict: 'keep', evidence: ['gaze:eye-contact'] };
+    }
+    return { verdict: 'cut', evidence: [] };
+}
+
+function calibrationLogPath(repoRoot) {
+    return path.join(repoRoot, 'contact-sheet-ledger', 'calibration.jsonl');
+}
+
+/**
+ * WO 4: runs the machine critic over one ledger digest after the human edit
+ * (blinding — critique-calibration design D1) and appends only the
+ * disagreements to the private calibration.jsonl (D5). `source` records the
+ * direction: a kept select the critic rejects is a `select-audit`; a passed
+ * frame the critic would keep is a `nomination`.
+ */
+export function critiqueSheet(slug, { repoRoot = REPO_ROOT, critic = defaultCritic, now } = {}) {
+    validateSlug(slug);
+    const digestPath = path.join(repoRoot, 'contact-sheet-ledger', `${slug}.json`);
+    if (!fs.existsSync(digestPath)) {
+        throw new Error(`contact-sheet: no ledger digest for slug "${slug}"`);
+    }
+    const digest = JSON.parse(fs.readFileSync(digestPath, 'utf8'));
+    const ts = (now || new Date()).toISOString();
+    const records = [];
+    for (const frame of digest.frames) {
+        const human = frame.selection.decision === 'select' ? 'keep' : 'cut';
+        const { verdict, evidence } = critic(frame);
+        if (verdict === human) continue;
+        records.push({
+            ts,
+            slug,
+            file: frame.file,
+            machine: verdict,
+            human,
+            evidence,
+            humanReason: null,
+            source: human === 'keep' ? 'select-audit' : 'nomination',
+        });
+    }
+    if (records.length > 0) {
+        fs.appendFileSync(
+            calibrationLogPath(repoRoot),
+            `${records.map((r) => JSON.stringify(r)).join('\n')}\n`
+        );
+    }
+    return { slug, disagreements: records.length };
+}
+
+/** Backfills the human's reason onto every calibration record for one frame. */
+export function resolveCalibration(slug, file, reason, { repoRoot = REPO_ROOT } = {}) {
+    validateSlug(slug);
+    const logPath = calibrationLogPath(repoRoot);
+    if (!fs.existsSync(logPath)) {
+        throw new Error(`contact-sheet: no calibration log at ${logPath} (run --critique first)`);
+    }
+    const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(Boolean);
+    let resolved = 0;
+    const updated = lines.map((line) => {
+        const rec = JSON.parse(line);
+        if (rec.slug === slug && rec.file === file) {
+            rec.humanReason = reason || null;
+            resolved++;
+        }
+        return JSON.stringify(rec);
+    });
+    if (resolved === 0) {
+        throw new Error(`contact-sheet: no calibration record for "${file}" in "${slug}"`);
+    }
+    fs.writeFileSync(logPath, `${updated.join('\n')}\n`);
+    return { slug, file, resolved };
+}
+
 async function defaultGazeRuntime() {
     const gaze = await import('../.agents/skills/sequence/scripts/gaze.mjs');
     const sessions = await gaze.createSessions();
@@ -944,6 +1027,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const dayHours = flagValue('--hours');
     const dayLocation = flagValue('--location');
     const longitudinalRequested = args.includes('--longitudinal');
+    const critiqueSlug = flagValue('--critique');
+    const resolveSlug = flagValue('--resolve');
+    const resolveReason = flagValue('--reason');
     const valueFlags = new Set([
         '--slug',
         '--reconcile',
@@ -959,6 +1045,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         '--mood',
         '--hours',
         '--location',
+        '--critique',
+        '--resolve',
+        '--reason',
     ]);
     const positionals = args.filter((a, i) => !a.startsWith('--') && !valueFlags.has(args[i - 1]));
     const dirArg = positionals[0];
@@ -973,7 +1062,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         '       node scripts/contact-sheet.mjs --render <slug>\n' +
         '       node scripts/contact-sheet.mjs --gaze <slug|all>\n' +
         '       node scripts/contact-sheet.mjs --stats [--year YYYY]\n' +
-        '       node scripts/contact-sheet.mjs --longitudinal [--year YYYY]';
+        '       node scripts/contact-sheet.mjs --longitudinal [--year YYYY]\n' +
+        '       node scripts/contact-sheet.mjs --critique <slug>\n' +
+        '       node scripts/contact-sheet.mjs --resolve <slug> --file <name> --reason <text>';
     const buildValid =
         Boolean(dirArg) &&
         !syncRequested &&
@@ -985,6 +1076,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         !statsRequested &&
         !annotateDaySlug &&
         !longitudinalRequested &&
+        !critiqueSlug &&
+        !resolveSlug &&
         Boolean(slug) !== split;
     const syncValid =
         syncRequested && Boolean(dirArg) && !slug && !split && !reconcileDir && !galleriesRequested;
@@ -996,22 +1089,42 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         Boolean(gazeSlug),
         statsRequested,
         longitudinalRequested,
+        Boolean(critiqueSlug),
+        Boolean(resolveSlug),
     ].filter(Boolean).length;
     const annotateValid = Boolean(annotateSlug && annotateFile) && annotateNote !== null;
     const annotateDayValid =
         Boolean(annotateDaySlug) &&
         (dayMood !== null || dayHours !== null || dayLocation !== null) &&
         !annotateSlug;
+    const resolveValid = Boolean(resolveSlug && annotateFile) && resolveReason !== null;
     const valid =
         buildValid ||
         syncValid ||
-        (utilityCount === 1 && (!annotateSlug || annotateValid) && !annotateDaySlug) ||
+        (utilityCount === 1 &&
+            (!annotateSlug || annotateValid) &&
+            !annotateDaySlug &&
+            (!resolveSlug || resolveValid)) ||
         (annotateDayValid && utilityCount === 0);
     if (help || !valid) {
         console.error(usage);
         process.exit(help ? 0 : 1);
     }
     (async () => {
+        if (critiqueSlug) {
+            const r = critiqueSheet(critiqueSlug);
+            console.log(
+                `contact-sheet: critique on ${critiqueSlug}: ${r.disagreements} disagreement(s) appended to calibration.jsonl`
+            );
+            return;
+        }
+        if (resolveSlug) {
+            const r = resolveCalibration(resolveSlug, annotateFile, resolveReason);
+            console.log(
+                `contact-sheet: resolved ${r.resolved} calibration record(s) for ${annotateFile} in ${resolveSlug}`
+            );
+            return;
+        }
         if (annotateDaySlug) {
             annotateDay(annotateDaySlug, { mood: dayMood, hours: dayHours, location: dayLocation });
             console.log(`contact-sheet: annotated day fields on ${annotateDaySlug}`);

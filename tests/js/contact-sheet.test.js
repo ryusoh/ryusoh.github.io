@@ -174,6 +174,9 @@ describe('contact-sheet.mjs phase A', () => {
             'renderLongitudinalMd',
             'sceneCount',
             'SCENE_GAP_MS',
+            'defaultCritic',
+            'critiqueSheet',
+            'resolveCalibration',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -810,5 +813,161 @@ describe('contact-sheet.mjs phase A', () => {
             stdio: ['ignore', 'pipe', 'pipe'],
         });
         expect(out).toContain('# Longitudinal shoot report');
+    });
+
+    /** Writes a digest with one frame per disagreement direction into a fresh tmp ledger. */
+    function seedCritiqueLedger(root) {
+        fs.mkdirSync(path.join(root, 'contact-sheet-ledger'), { recursive: true });
+        const frame = (file, decision, gaze) => ({
+            file,
+            captureTime: '2026-10-13T10:00:00',
+            selection: { decision, signal: null, exported: false, published: null },
+            gaze,
+        });
+        fs.writeFileSync(
+            path.join(root, 'contact-sheet-ledger', '2026-10-13.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                slug: '2026-10-13',
+                frames: [
+                    frame('A.RAF', 'select', null),
+                    frame('B.RAF', 'pass', { faceCount: 1, eyeContactCount: 1, faces: [] }),
+                    frame('C.RAF', 'select', { faceCount: 1, eyeContactCount: 1, faces: [] }),
+                    frame('D.RAF', 'pass', null),
+                ],
+            })
+        );
+    }
+
+    test('defaultCritic keeps frames with gaze eye contact, cuts the rest', () => {
+        const got = runJson(`[
+            m.defaultCritic({ gaze: { eyeContactCount: 1 } }),
+            m.defaultCritic({ gaze: { eyeContactCount: 0 } }),
+            m.defaultCritic({ gaze: null }),
+        ]`);
+        expect(got).toEqual([
+            { verdict: 'keep', evidence: ['gaze:eye-contact'] },
+            { verdict: 'cut', evidence: [] },
+            { verdict: 'cut', evidence: [] },
+        ]);
+    });
+
+    test('critiqueSheet appends only disagreements in both directions', () => {
+        const root = path.join(tmp, 'critique-root');
+        seedCritiqueLedger(root);
+        const out = runJson(
+            `m.critiqueSheet('2026-10-13', { repoRoot: ${JSON.stringify(root)}, now: new Date('2026-10-13T12:00:00Z') })`
+        );
+        expect(out).toEqual({ slug: '2026-10-13', disagreements: 2 });
+        const logPath = path.join(root, 'contact-sheet-ledger', 'calibration.jsonl');
+        const records = fs
+            .readFileSync(logPath, 'utf8')
+            .trim()
+            .split('\n')
+            .map((l) => JSON.parse(l));
+        expect(records).toEqual([
+            {
+                ts: '2026-10-13T12:00:00.000Z',
+                slug: '2026-10-13',
+                file: 'A.RAF',
+                machine: 'cut',
+                human: 'keep',
+                evidence: [],
+                humanReason: null,
+                source: 'select-audit',
+            },
+            {
+                ts: '2026-10-13T12:00:00.000Z',
+                slug: '2026-10-13',
+                file: 'B.RAF',
+                machine: 'keep',
+                human: 'cut',
+                evidence: ['gaze:eye-contact'],
+                humanReason: null,
+                source: 'nomination',
+            },
+        ]);
+        // append-only: a second run doubles the log, never rewrites it
+        runJson(`m.critiqueSheet('2026-10-13', { repoRoot: ${JSON.stringify(root)} })`);
+        expect(fs.readFileSync(logPath, 'utf8').trim().split('\n')).toHaveLength(4);
+    });
+
+    test('critiqueSheet accepts an injected critic and rejects bad input', () => {
+        const root = path.join(tmp, 'critique-critic-root');
+        seedCritiqueLedger(root);
+        const rootJson = JSON.stringify(root);
+        const out = runJson(
+            `m.critiqueSheet('2026-10-13', { repoRoot: ${rootJson}, critic: () => ({ verdict: 'cut', evidence: ['test'] }) })`
+        );
+        expect(out.disagreements).toBe(2);
+        const records = fs
+            .readFileSync(path.join(root, 'contact-sheet-ledger', 'calibration.jsonl'), 'utf8')
+            .trim()
+            .split('\n')
+            .map((l) => JSON.parse(l));
+        expect(records.every((r) => r.evidence.join() === 'test')).toBe(true);
+        expect(records.map((r) => r.source)).toEqual(['select-audit', 'select-audit']);
+
+        const got = runJson(`[
+            (() => { try { m.critiqueSheet('2099-01-01', { repoRoot: ${rootJson} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+            (() => { try { m.critiqueSheet('../evil', { repoRoot: ${rootJson} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+        ]`);
+        expect(got[0]).toContain('no ledger digest');
+        expect(got[1]).toContain('invalid slug');
+    });
+
+    test('resolveCalibration backfills humanReason and fails closed', () => {
+        const root = path.join(tmp, 'resolve-root');
+        seedCritiqueLedger(root);
+        const rootJson = JSON.stringify(root);
+        runJson(`m.critiqueSheet('2026-10-13', { repoRoot: ${rootJson} })`);
+        const out = runJson(
+            `m.resolveCalibration('2026-10-13', 'A.RAF', 'kept for the gesture', { repoRoot: ${rootJson} })`
+        );
+        expect(out).toEqual({ slug: '2026-10-13', file: 'A.RAF', resolved: 1 });
+        const records = fs
+            .readFileSync(path.join(root, 'contact-sheet-ledger', 'calibration.jsonl'), 'utf8')
+            .trim()
+            .split('\n')
+            .map((l) => JSON.parse(l));
+        expect(records.find((r) => r.file === 'A.RAF').humanReason).toBe('kept for the gesture');
+        expect(records.find((r) => r.file === 'B.RAF').humanReason).toBeNull();
+
+        const got = runJson(`[
+            (() => { try { m.resolveCalibration('2026-10-13', 'NOPE.RAF', 'x', { repoRoot: ${rootJson} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+            (() => { try { m.resolveCalibration('2099-01-01', 'A.RAF', 'x', { repoRoot: ${rootJson} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+            (() => { try { m.resolveCalibration('2026-10-13', 'A.RAF', 'x', { repoRoot: ${JSON.stringify(path.join(tmp, 'no-such-root'))} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+        ]`);
+        expect(got[0]).toContain('no calibration record');
+        expect(got[1]).toContain('no calibration record');
+        expect(got[2]).toContain('no calibration log');
+    });
+
+    test('CLI --critique errors on a missing digest; --resolve requires --reason', () => {
+        let err;
+        try {
+            execFileSync('node', [SCRIPT_PATH, '--critique', '2099-01-01'], {
+                cwd: ROOT_DIR,
+                encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'],
+            });
+        } catch (e) {
+            err = e;
+        }
+        expect(err).toBeDefined();
+        expect(String(err.stderr)).toContain('no ledger digest');
+
+        err = undefined;
+        try {
+            execFileSync('node', [SCRIPT_PATH, '--resolve', '2026-10-13', '--file', 'A.RAF'], {
+                cwd: ROOT_DIR,
+                encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'],
+            });
+        } catch (e) {
+            err = e;
+        }
+        expect(err).toBeDefined();
+        expect(String(err.stderr)).toContain('Usage:');
     });
 });
