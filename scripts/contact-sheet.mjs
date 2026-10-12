@@ -318,6 +318,13 @@ function assembleSheet(absDir, records, { slug, now } = {}) {
 
 /** Builds the sheet object for one outing directory. */
 export async function buildSheet(dir, { slug, env, now } = {}) {
+    // Validate before any I/O: a bad slug must fail fast (and identically on
+    // machines without exiftool, e.g. CI).
+    if (!SLUG_RE.test(String(slug || ''))) {
+        throw new Error(
+            `contact-sheet: invalid slug "${slug}" (use YYYY-MM-DD-slug, path separators rejected)`
+        );
+    }
     const { absDir, records } = await harvestFrameRecords(dir, env);
     return assembleSheet(absDir, records, { slug, now });
 }

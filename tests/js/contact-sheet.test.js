@@ -353,9 +353,15 @@ describe('contact-sheet.mjs phase A', () => {
     });
 
     test('buildSheet rejects path-traversal slugs', () => {
+        // Empty PATH pins the ordering: validation must fire before exiftool,
+        // otherwise this is the exiftool error message instead (CI has no
+        // exiftool — this is the exact failure seen there).
         const msg = runJson(`(async () => {
             try {
-                await m.buildSheet(${JSON.stringify(srcDir)}, { slug: '../evil' });
+                await m.buildSheet(${JSON.stringify(srcDir)}, {
+                    slug: '../evil',
+                    env: { PATH: ${JSON.stringify(path.join(tmp, 'empty-bin'))} },
+                });
                 return 'no-throw';
             } catch (e) {
                 return e.message;
