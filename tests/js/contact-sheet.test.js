@@ -21,6 +21,10 @@ function runModule(code) {
     return execFileSync('node', ['--input-type=module', '-e', full], {
         cwd: ROOT_DIR,
         encoding: 'utf8',
+        // Pipe stderr so expected-failure tests (fail-closed exiftool check,
+        // usage errors) don't leak alarming stacks into jest/commit output;
+        // err.stderr remains available for assertions when the child throws.
+        stdio: ['ignore', 'pipe', 'pipe'],
     });
 }
 
@@ -641,6 +645,7 @@ describe('contact-sheet.mjs phase A', () => {
             execFileSync('node', [SCRIPT_PATH, srcDir, '--slug', 'x', '--split'], {
                 cwd: ROOT_DIR,
                 encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'],
             });
         } catch (e) {
             err = e;
@@ -652,7 +657,11 @@ describe('contact-sheet.mjs phase A', () => {
     test('CLI prints usage without arguments', () => {
         let err;
         try {
-            execFileSync('node', [SCRIPT_PATH], { cwd: ROOT_DIR, encoding: 'utf8' });
+            execFileSync('node', [SCRIPT_PATH], {
+                cwd: ROOT_DIR,
+                encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'],
+            });
         } catch (e) {
             err = e;
         }
