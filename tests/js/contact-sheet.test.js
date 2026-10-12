@@ -38,6 +38,9 @@ describe('contact-sheet.mjs phase A', () => {
     let srcDir;
     let outRoot;
     let shimEnv;
+    let syncSrc;
+    let syncExportDir;
+    let syncGalleryRoot;
 
     beforeAll(async () => {
         tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'contact-sheet-'));
@@ -75,6 +78,24 @@ describe('contact-sheet.mjs phase A', () => {
         );
         // macOS AppleDouble junk as found on FAT32 SD cards — must be ignored.
         fs.writeFileSync(path.join(srcDir, '._DSCF0009.RAF'), Buffer.from('JUNK'));
+
+        // Second fixture: a fresh outing for the --sync full-ritual test.
+        syncSrc = path.join(tmp, 'sync-outing');
+        fs.mkdirSync(syncSrc);
+        for (const [name, background] of [
+            ['IMG_0010.JPG', { r: 200, g: 100, b: 50 }],
+            ['IMG_0011.JPG', { r: 50, g: 100, b: 200 }],
+        ]) {
+            await sharp({ create: { width: 48, height: 48, channels: 3, background } })
+                .jpeg()
+                .toFile(path.join(syncSrc, name));
+        }
+        syncExportDir = path.join(tmp, 'sync-export');
+        fs.mkdirSync(syncExportDir);
+        fs.writeFileSync(path.join(syncExportDir, 'IMG_0010.jpg'), 'x');
+        syncGalleryRoot = path.join(tmp, 'sync-galleries');
+        fs.mkdirSync(path.join(syncGalleryRoot, 'p3'), { recursive: true });
+        fs.writeFileSync(path.join(syncGalleryRoot, 'p3', 'IMG_0011.jpg'), 'x');
 
         const previewPath = path.join(tmp, 'preview.jpg');
         await sharp({
@@ -138,6 +159,7 @@ describe('contact-sheet.mjs phase A', () => {
             'buildOutingSheets',
             'reconcileExports',
             'reconcileGalleries',
+            'syncLedger',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -470,6 +492,41 @@ describe('contact-sheet.mjs phase A', () => {
             )
         );
         expect(local.frames.find((f) => f.file === 'IMG_0001.JPG').selection.published).toBe('p2');
+    });
+
+    test('syncLedger runs the full ritual: split, write, reconcile exports + galleries', () => {
+        const out = runJson(`(async () => {
+            const r = await m.syncLedger(${JSON.stringify(syncSrc)}, {
+                env: ${JSON.stringify(shimEnv)},
+                repoRoot: ${JSON.stringify(outRoot)},
+                exportDir: ${JSON.stringify(syncExportDir)},
+                galleryRoot: ${JSON.stringify(syncGalleryRoot)},
+            });
+            return {
+                outings: r.sheets.map(({ sheet }) => ({ slug: sheet.slug, n: sheet.source.frameCount })),
+                exportMarks: r.exports.framesMarked,
+                galleryMarks: r.galleries.framesMarked,
+            };
+        })()`);
+        expect(out.outings).toEqual([{ slug: '2026-10-12', n: 2 }]);
+        expect(out.exportMarks).toBe(1);
+        expect(out.galleryMarks).toBe(1);
+        const digest = JSON.parse(
+            fs.readFileSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'), 'utf8')
+        );
+        expect(digest.frames.map((f) => f.file)).toEqual(['IMG_0010.JPG', 'IMG_0011.JPG']);
+        expect(digest.frames[0].selection).toEqual({
+            decision: 'select',
+            signal: 'exported',
+            exported: true,
+            published: null,
+        });
+        expect(digest.frames[1].selection).toEqual({
+            decision: 'select',
+            signal: 'published',
+            exported: true,
+            published: 'p3',
+        });
     });
 
     test('CLI rejects --slug together with --split', () => {

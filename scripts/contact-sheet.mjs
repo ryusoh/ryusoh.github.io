@@ -15,6 +15,7 @@
  */
 
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -504,6 +505,27 @@ export async function reconcileGalleries(
     return { galleriesScanned: jpegs.length, ...stats };
 }
 
+/**
+ * The full ritual in one call: split a folder into per-day outings, write all
+ * outputs, then reconcile against the Lightroom export folder and published
+ * galleries. Returns { sheets, exports, galleries }.
+ */
+export async function syncLedger(
+    dir,
+    { env, now, repoRoot = REPO_ROOT, exportDir, galleryRoot } = {}
+) {
+    const sheets = await buildOutingSheets(dir, { env, now });
+    for (const { sheet, thumbs } of sheets) {
+        writeOutputs(sheet, thumbs, { repoRoot });
+    }
+    const exportsStats = await reconcileExports(
+        exportDir || path.join(os.homedir(), 'Desktop', 'Export'),
+        { env, repoRoot }
+    );
+    const galleriesStats = await reconcileGalleries(galleryRoot, { env, repoRoot });
+    return { sheets, exports: exportsStats, galleries: galleriesStats };
+}
+
 /** Renders a sheet object to a self-contained static HTML contact sheet. */
 export function renderSheetHtml(sheet) {
     const cells = sheet.frames
@@ -601,50 +623,74 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
             ? args[galIdx + 1]
             : undefined;
     const split = args.includes('--split');
-    const dirArg = args.find((a) => !a.startsWith('--'));
+    const syncRequested = args.includes('--sync');
+    const exportDirIdx = args.indexOf('--export-dir') + 1;
+    const exportDir = exportDirIdx > 0 ? args[exportDirIdx] : undefined;
+    const galleryRootIdx = args.indexOf('--gallery-root') + 1;
+    const galleryRoot = galleryRootIdx > 0 ? args[galleryRootIdx] : undefined;
+    const valueFlags = new Set(['--slug', '--reconcile', '--export-dir', '--gallery-root']);
+    const positionals = args.filter((a, i) => !a.startsWith('--') && !valueFlags.has(args[i - 1]));
+    const dirArg = positionals[0];
     const help = args.includes('--help') || args.includes('-h');
     const usage =
         'Usage: node scripts/contact-sheet.mjs <dir> (--slug <YYYY-MM-DD-slug> | --split)\n' +
+        '       node scripts/contact-sheet.mjs --sync <dir> [--export-dir <path>] [--gallery-root <path>]\n' +
         '       node scripts/contact-sheet.mjs --reconcile <exportDir>\n' +
         '       node scripts/contact-sheet.mjs --reconcile-galleries [galleryRoot]';
-    const reconcileValid = Boolean(reconcileDir) && !slug && !split && !galleriesRequested;
-    const galleriesValid = galleriesRequested && !slug && !split && !reconcileDir;
+    const otherModes = Boolean(reconcileDir) || galleriesRequested || split || Boolean(slug);
+    const reconcileValid =
+        Boolean(reconcileDir) && !slug && !split && !galleriesRequested && !syncRequested;
+    const galleriesValid = galleriesRequested && !slug && !split && !reconcileDir && !syncRequested;
+    const syncValid = syncRequested && Boolean(dirArg) && !otherModes;
     const buildValid =
-        !reconcileDir && !galleriesRequested && Boolean(dirArg) && Boolean(slug) !== split;
-    if (help || (!reconcileValid && !galleriesValid && !buildValid)) {
+        !syncRequested &&
+        !reconcileDir &&
+        !galleriesRequested &&
+        Boolean(dirArg) &&
+        Boolean(slug) !== split;
+    if (help || (!reconcileValid && !galleriesValid && !syncValid && !buildValid)) {
         console.error(usage);
         process.exit(help ? 0 : 1);
     }
-    const run = reconcileDir
-        ? reconcileExports(reconcileDir).then((r) => {
+    const run = syncRequested
+        ? syncLedger(dirArg, { exportDir, galleryRoot }).then((r) => {
+              for (const { sheet } of r.sheets) {
+                  console.log(`contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`);
+              }
               console.log(
-                  `contact-sheet: reconciled ${r.exportsScanned} exports against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
+                  `contact-sheet: ${r.sheets.length} outings ledgered; exports: ${r.exports.framesMarked} marked; galleries: ${r.galleries.framesMarked} marked`
               );
           })
-        : galleriesRequested
-          ? reconcileGalleries(galleriesDir).then((r) => {
+        : reconcileDir
+          ? reconcileExports(reconcileDir).then((r) => {
                 console.log(
-                    `contact-sheet: reconciled ${r.galleriesScanned} gallery images against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
+                    `contact-sheet: reconciled ${r.exportsScanned} exports against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
                 );
             })
-          : split
-            ? buildOutingSheets(dirArg).then((sheets) => {
-                  for (const { sheet, thumbs } of sheets) {
-                      writeOutputs(sheet, thumbs);
-                      console.log(
-                          `contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`
-                      );
-                  }
+          : galleriesRequested
+            ? reconcileGalleries(galleriesDir).then((r) => {
                   console.log(
-                      `contact-sheet: ${sheets.length} outings → contact-sheets/<day>/ + contact-sheet-ledger/<day>.json`
+                      `contact-sheet: reconciled ${r.galleriesScanned} gallery images against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
                   );
               })
-            : buildSheet(dirArg, { slug }).then(({ sheet, thumbs }) => {
-                  writeOutputs(sheet, thumbs);
-                  console.log(
-                      `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
-                  );
-              });
+            : split
+              ? buildOutingSheets(dirArg).then((sheets) => {
+                    for (const { sheet, thumbs } of sheets) {
+                        writeOutputs(sheet, thumbs);
+                        console.log(
+                            `contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`
+                        );
+                    }
+                    console.log(
+                        `contact-sheet: ${sheets.length} outings → contact-sheets/<day>/ + contact-sheet-ledger/<day>.json`
+                    );
+                })
+              : buildSheet(dirArg, { slug }).then(({ sheet, thumbs }) => {
+                    writeOutputs(sheet, thumbs);
+                    console.log(
+                        `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
+                    );
+                });
     run.catch((err) => {
         console.error(err.message || err);
         process.exit(1);
