@@ -138,7 +138,10 @@ Scale check: a working deck is ~200–500 images (≈10 per formal mechanism in
 `principles.md`), and study thumbnails of ~800px suffice — perceptual-learning
 studies use far cruder stimuli. Initial curation is a weekend, then slow
 accretion; the scheduling software (Anki, or a small local SM-2 page reusing the
-repo's thumbhash/responsive-tier pipeline) is a solved problem.
+repo's thumbhash/responsive-tier pipeline) is a solved problem. **Decided
+2026-10-12:** real Anki — no custom SM-2 tooling; the repo keeps only card
+source material (`eye-gym/cards.csv` + the gitignored corpus). Sourcing guide
+for the master-image tier: `eye-gym/magnum-members.md`.
 
 **Theory backing.** Kellman (perceptual learning), Cepeda/Wozniak (spacing),
 Roediger & Karpicke (retrieval practice). Note the honest limitation from the
@@ -627,20 +630,26 @@ under tracked `contact-sheet-ledger/`.
 
 #### 4. [skip] Adversarial critique mode + calibration log (Proposal 3)
 
-Extends the `/sequence` skill with a `--contact-sheet` mode and an append-only
-`calibration.json` disagreement log. Design decisions (critic prompt protocol,
-log schema, where the log lives) need a stronger model. Pointer: depends on WO 2's
-output convention; the gaze pipeline's deferred "VLM-vs-model agreement
-calibration" in `docs/gaze-vector-action-items.md` §6 is the methodology
-template.
+**Designed 2026-10-12: see `docs/critique-calibration-design.md`** — timing
+(after the fact, never at import, for blinding), two-direction protocol (audit
+selects + nominate from rejects), cost layers (digest → one VLM montage call
+per outing → on-demand full-res), prompt strategy (reuse council personas, not
+the deliberation protocol), and the private `contact-sheet-ledger/calibration.jsonl`
+schema are settled there. Still tagged `[skip]` for cheap executors because it
+is new runtime logic requiring new tests; route to a stronger model via the TDD
+skill with the design doc as the spec.
 
-#### 5. [skip] `scripts/shoot-log.mjs` EXIF ledger (Proposal 4)
+#### 5. [skip] Longitudinal stats layer (Proposal 4)
 
-New runtime logic → needs new tests, so out of scope for a cheap executor.
-Pointer: `scripts/build-page.mjs:34-42` already shells out to `exiftool` with a
+**Designed 2026-10-12 as phase 3 of the contact-sheet tool** — no separate
+`scripts/shoot-log.mjs`; one tool, one ledger. See
+`docs/contact-sheet-ledger-design.md` "Phases and verification" phase 3:
+`--longitudinal` (cross-slug aggregation, monthly report) and `--annotate-day`
+(mood, hours walked, location on the digest). Still `[skip]` for cheap
+executors (new runtime logic, new tests). Historical pointer:
+`scripts/build-page.mjs:34-42` already shells out to `exiftool` with a
 fail-open fallback and `:104-105` uses `sharp(input).metadata()` — reuse both
-idioms. Ledger entries append to a dated JSONL under the gitignored corpora or
-`.agents/state/` per the repo's state-ledger philosophy.
+idioms if implementation ever splits out.
 
 #### 6. [low] Archive protocol doc skeleton (Proposal 5)
 
@@ -692,7 +701,8 @@ idioms. Ledger entries append to a dated JSONL under the gitignored corpora or
 
 #### 8. [skip] Publishing cadence (Proposal 6)
 
-No code. The cadence value itself (one sequenced gallery per N months) is a
-human commitment decision; once chosen, execution rides the existing
-`make page ID=pN` pipeline. Record the chosen cadence in
-`docs/practice-strategy.md` (WO 7) rather than in tooling.
+**Back burner as of 2026-10-12** (user decision). No code. The cadence value
+itself (one sequenced gallery per N months) is a human commitment decision;
+once chosen, execution rides the existing `make page ID=pN` pipeline. Record
+the chosen cadence in `docs/practice-strategy.md` (WO 7) rather than in
+tooling.
