@@ -163,7 +163,10 @@ Field rules:
   `tests/js/contact-sheet.test.js` on synthetic fixtures (exiftool shimmed via
   PATH, CI-safe). `contact-sheet-ledger/` added to the `AGENTS.md` layout list.
 - **Phase B (v1.5):** marking UI + merge-back command. Deferred until wanted.
-- **Phase 2:** gaze scoring fills the reserved `gaze` slot; re-render HTML.
+- **Phase 2: landed 2026-10-12** — `--gaze <slug|all>` fills the reserved slot
+  via the sequence skill's ONNX pipeline over sheet thumbs (920 frames in ~15s;
+  178 with faces, 23 with eye contact on the first real card). Also landed:
+  `--annotate` (per-frame rationales), `--render`, `--stats [--year]`.
 
 ## Open questions
 

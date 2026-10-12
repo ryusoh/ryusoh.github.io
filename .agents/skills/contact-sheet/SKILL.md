@@ -43,20 +43,10 @@ where the evidence exists.
 
 ## After it runs
 
-1. Print the funnel table (verified command):
+1. Print the funnel table:
 
     ```sh
-    node -e "
-    const fs = require('fs');
-    const files = fs.readdirSync('contact-sheet-ledger').filter((f) => f.endsWith('.json')).sort();
-    for (const f of files) {
-        const d = JSON.parse(fs.readFileSync('contact-sheet-ledger/' + f, 'utf8'));
-        const selects = d.frames.filter((x) => x.selection.decision === 'select').length;
-        const exported = d.frames.filter((x) => x.selection.exported).length;
-        const published = d.frames.filter((x) => x.selection.published).map((x) => x.selection.published);
-        console.log(d.slug, '| frames:', d.frames.length, '| select:', selects, '| exported:', exported, '| published:', published.length ? published.join(',') : '-');
-    }
-    "
+    node scripts/contact-sheet.mjs --stats
     ```
 
 2. Point the user at the sheets to eyeball (`open contact-sheets/<day>/index.html`)
@@ -72,6 +62,14 @@ where the evidence exists.
 - After exporting from Lightroom:
   `node scripts/contact-sheet.mjs --reconcile ~/Desktop/Export`
 - After a gallery ships: `node scripts/contact-sheet.mjs --reconcile-galleries`
+- Jot a craft note on a frame (near-miss autopsy, why a select worked):
+  `node scripts/contact-sheet.mjs --annotate <day> --file DSCF1234.RAF --note "…"`
+- Re-render a sheet after hand-editing its `sheet.json`:
+  `node scripts/contact-sheet.mjs --render <day>`
+- Fill gaze scores (face/eye-contact per frame) over one sheet or all:
+  `node scripts/contact-sheet.mjs --gaze <day>` / `--gaze all`
+- Funnel table, optionally one year:
+  `node scripts/contact-sheet.mjs --stats [--year 2026]`
 
 Re-running any step is idempotent — sheets and digests are regenerated from
 scratch, reconcile marks are only counted when they change.
