@@ -152,6 +152,35 @@ function normalizeBatchJson(raw) {
 }
 
 /**
+ * Reads a tag from a -G1 exiftool entry regardless of which group reported it
+ * (ExifIFD on RAF/JPEG, EXIF or XMP-exif elsewhere), preferring EXIF-family
+ * groups over fallbacks like Composite.
+ */
+function tagValue(entry, tag) {
+    if (!entry) return null;
+    for (const group of ['ExifIFD', 'EXIF', 'XMP-exif']) {
+        const key = `${group}:${tag}`;
+        if (entry[key] !== undefined) return entry[key];
+    }
+    for (const key of Object.keys(entry)) {
+        if (key === tag || key.endsWith(`:${tag}`)) return entry[key];
+    }
+    return null;
+}
+
+/** Parses numeric exiftool values, tolerating unit suffixes ("18.0 mm"). */
+function parseNumber(v) {
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'number') return v;
+    const m = /^-?[\d.]+/.exec(String(v));
+    return m ? Number(m[0]) : null;
+}
+
+function stringOrNull(v) {
+    return v === null || v === undefined ? null : String(v);
+}
+
+/**
  * Reads a directory of frames: EXIF batch, selection traces, preview pixels,
  * thumbnails, and per-frame colorimetry. Returns unsorted intermediate records
  * plus the resolved directory.
@@ -203,13 +232,13 @@ async function harvestFrameRecords(dir, env) {
 
         records.push({
             file: frame.file,
-            captureTime: exiftoolDateToIso(entry['EXIF:DateTimeOriginal']),
+            captureTime: exiftoolDateToIso(tagValue(entry, 'DateTimeOriginal')),
             exif: {
-                focalLength: entry['EXIF:FocalLength'] ?? null,
-                aperture: entry['EXIF:FNumber'] ?? null,
-                shutter: entry['EXIF:ExposureTime'] ?? null,
-                iso: entry['EXIF:ISO'] ?? null,
-                lens: entry['EXIF:LensModel'] ?? null,
+                focalLength: parseNumber(tagValue(entry, 'FocalLength')),
+                aperture: parseNumber(tagValue(entry, 'FNumber')),
+                shutter: stringOrNull(tagValue(entry, 'ExposureTime')),
+                iso: parseNumber(tagValue(entry, 'ISO')),
+                lens: stringOrNull(tagValue(entry, 'LensModel')),
             },
             selected,
             lab,
@@ -367,7 +396,7 @@ export async function reconcileExports(exportDir, { env, repoRoot = REPO_ROOT } 
     for (const e of batch) {
         const key = frameMatchKey(
             e.SourceFile ? path.basename(e.SourceFile) : '',
-            exiftoolDateToIso(e['EXIF:DateTimeOriginal'])
+            exiftoolDateToIso(tagValue(e, 'DateTimeOriginal'))
         );
         if (key) exported.add(key);
     }

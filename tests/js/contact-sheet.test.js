@@ -97,12 +97,12 @@ describe('contact-sheet.mjs phase A', () => {
             "    const n = parseInt((base.match(/(\\d+)/) || [0, '0'])[1], 10);",
             '    const entry = {',
             '      SourceFile: f,',
-            "      'EXIF:FocalLength': 35,",
-            "      'EXIF:FNumber': 5.6,",
-            "      'EXIF:ExposureTime': '1/250',",
-            "      'EXIF:ISO': 400,",
-            "      'EXIF:LensModel': 'XF35mmF2 R WR',",
-            "      'EXIF:DateTimeOriginal': (n >= 4 ? '2026:10:12' : '2026:10:11') + ' 21:03:' + String(40 + n).padStart(2, '0'),",
+            "      'ExifIFD:FocalLength': '18.0 mm',",
+            "      'ExifIFD:FNumber': 5.6,",
+            "      'ExifIFD:ExposureTime': '1/250',",
+            "      'ExifIFD:ISO': 400,",
+            "      'ExifIFD:LensModel': 'XF35mmF2 R WR',",
+            "      'ExifIFD:DateTimeOriginal': (n >= 4 ? '2026:10:12' : '2026:10:11') + ' 21:03:' + String(40 + n).padStart(2, '0'),",
             '    };',
             "    if (base === 'IMG_0002.JPG') entry['XMP-crs:Contrast'] = 0;",
             '    return entry;',
@@ -225,7 +225,7 @@ describe('contact-sheet.mjs phase A', () => {
         ]);
         expect(sheet.frames[0].captureTime).toBe('2026-10-11T21:03:41');
         expect(sheet.frames[0].exif).toEqual({
-            focalLength: 35,
+            focalLength: 18,
             aperture: 5.6,
             shutter: '1/250',
             iso: 400,
