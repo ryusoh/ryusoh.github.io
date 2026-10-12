@@ -188,6 +188,11 @@ describe('page-transition.js', () => {
         test('returns false for elements without a classList', () => {
             expect(shouldSkipNavBack({})).toBe(false); // Plain object
             expect(shouldSkipNavBack({ className: 'nav-back' })).toBe(false); // No classList property
+
+            // Mock element without classList (like older SVG elements)
+            const mockEl = document.createElement('div');
+            Object.defineProperty(mockEl, 'classList', { value: undefined });
+            expect(shouldSkipNavBack(mockEl)).toBe(false);
         });
 
         test('returns false for elements without the nav-back class', () => {
@@ -466,6 +471,13 @@ describe('page-transition.js', () => {
     });
 
     describe('checkAnchorHref edge cases', () => {
+        test('returns false if url matches window.location.href', () => {
+            const anchor = document.createElement('a');
+            anchor.href = window.location.href;
+            const result = window.__PageTransitionForTesting.checkAnchorHref(anchor);
+            expect(result).toBe(false);
+        });
+
         test('returns false if href evaluates to false', () => {
             const anchor = document.createElement('a');
             jest.spyOn(anchor, 'getAttribute').mockReturnValue(null);
@@ -868,6 +880,11 @@ describe('page-transition.js', () => {
             window.location.hash = '#' + 'a'.repeat(2000);
             expect(buildTransitionUrl('/test')).toBe('/test');
             window.location.hash = '';
+        });
+
+        test('returns url untouched if target url is longer than 2000 characters', () => {
+            const longUrl = '/test?' + 'a'.repeat(2000);
+            expect(buildTransitionUrl(longUrl)).toBe(longUrl);
         });
 
         test('should gracefully handle URL parsing errors', () => {
