@@ -559,6 +559,30 @@ export function annotateSheet(slug, file, note, { repoRoot = REPO_ROOT } = {}) {
     return { slug, file };
 }
 
+/** Self-reported day fields (phase 3): deliberate-practice condition variables EXIF cannot supply. */
+const DAY_FIELD_KEYS = ['mood', 'hours', 'location'];
+
+/** Merges self-reported day fields onto a local sheet; persists digest + HTML. */
+export function annotateDay(slug, fields, { repoRoot = REPO_ROOT } = {}) {
+    const sheet = loadLocalSheet(repoRoot, slug);
+    const day = { ...(sheet.day || {}) };
+    for (const key of DAY_FIELD_KEYS) {
+        if (fields[key] === undefined || fields[key] === null) continue;
+        if (key === 'hours') {
+            const hours = Number(fields.hours);
+            if (!Number.isFinite(hours) || hours < 0) {
+                throw new Error('contact-sheet: --hours must be a non-negative number');
+            }
+            day.hours = hours;
+        } else {
+            day[key] = String(fields[key]);
+        }
+    }
+    sheet.day = day;
+    persistLocalSheet(repoRoot, sheet);
+    return { slug, day };
+}
+
 /** Re-renders a local sheet's HTML from its sheet.json (after hand edits). */
 export function renderLocalSheet(slug, { repoRoot = REPO_ROOT } = {}) {
     const sheet = loadLocalSheet(repoRoot, slug);
@@ -597,6 +621,136 @@ export function loadDigests({ repoRoot = REPO_ROOT } = {}) {
         .filter((f) => f.endsWith('.json'))
         .sort()
         .map((f) => JSON.parse(fs.readFileSync(path.join(ledgerDir, f), 'utf8')));
+}
+
+/**
+ * Phase 3: working-the-scene depth. Consecutive frames with captureTime form
+ * one scene; a gap larger than SCENE_GAP_MS starts a new scene. Frames without
+ * captureTime are excluded from scene math.
+ */
+export const SCENE_GAP_MS = 120 * 1000;
+
+export function sceneCount(frames) {
+    const timed = frames
+        .filter((f) => f.captureTime)
+        .sort((a, b) => (a.captureTime < b.captureTime ? -1 : 1));
+    let scenes = 0;
+    let prev = null;
+    for (const f of timed) {
+        const t = Date.parse(f.captureTime);
+        if (prev === null || t - prev > SCENE_GAP_MS) scenes++;
+        prev = t;
+    }
+    return scenes;
+}
+
+/** Month bucket for a slug: YYYY-MM prefix, or "undated" for non-date slugs. */
+function monthOf(slug) {
+    return /^\d{4}-\d{2}/.test(slug) ? slug.slice(0, 7) : 'undated';
+}
+
+/**
+ * Phase 3: cross-outing aggregation (WO 5). Per calendar month: funnel counts,
+ * keep rate, frames-per-scene depth, focal-length and hour-of-day histograms.
+ * Optional year filter matches slug prefix. Pure function over loaded digests.
+ */
+export function computeLongitudinal(digests, { year } = {}) {
+    const months = new Map();
+    for (const d of digests) {
+        if (year && !d.slug.startsWith(`${year}-`)) continue;
+        const key = monthOf(d.slug);
+        if (!months.has(key)) {
+            months.set(key, {
+                month: key,
+                outings: 0,
+                frames: 0,
+                timedFrames: 0,
+                selects: 0,
+                exported: 0,
+                published: 0,
+                scenes: 0,
+                focal: new Map(),
+                hours: new Map(),
+            });
+        }
+        const agg = months.get(key);
+        agg.outings++;
+        const timed = d.frames.filter((f) => f.captureTime);
+        agg.timedFrames += timed.length;
+        agg.scenes += sceneCount(timed);
+        for (const f of d.frames) {
+            agg.frames++;
+            if (f.selection.decision === 'select') agg.selects++;
+            if (f.selection.exported) agg.exported++;
+            if (f.selection.published) agg.published++;
+            const fl = f.exif ? f.exif.focalLength : null;
+            if (fl !== null && fl !== undefined) {
+                agg.focal.set(fl, (agg.focal.get(fl) || 0) + 1);
+            }
+            const hour = f.captureTime ? f.captureTime.slice(11, 13) : null;
+            if (hour) agg.hours.set(hour, (agg.hours.get(hour) || 0) + 1);
+        }
+    }
+    const rows = [...months.keys()].sort().map((key) => {
+        const agg = months.get(key);
+        return {
+            month: agg.month,
+            outings: agg.outings,
+            frames: agg.frames,
+            selects: agg.selects,
+            exported: agg.exported,
+            published: agg.published,
+            keepRate: agg.frames ? round3(agg.selects / agg.frames) : null,
+            framesPerScene: agg.scenes ? round3(agg.timedFrames / agg.scenes) : null,
+            scenes: agg.scenes,
+            focal: [...agg.focal.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .map(([focalLength, frames]) => ({ focalLength, frames })),
+            hours: [...agg.hours.entries()].sort().map(([hour, frames]) => ({ hour, frames })),
+        };
+    });
+    const totals = rows.reduce(
+        (acc, r) => ({
+            months: acc.months + 1,
+            outings: acc.outings + r.outings,
+            frames: acc.frames + r.frames,
+            selects: acc.selects + r.selects,
+            exported: acc.exported + r.exported,
+            published: acc.published + r.published,
+        }),
+        { months: 0, outings: 0, frames: 0, selects: 0, exported: 0, published: 0 }
+    );
+    return { rows, totals };
+}
+
+/** Renders the longitudinal aggregate as a monthly markdown report. */
+export function renderLongitudinalMd({ rows, totals }) {
+    const pct = (n, d) => (d ? `${round3((n / d) * 100)}%` : '—');
+    const lines = [
+        '# Longitudinal shoot report',
+        '',
+        '| Month | Outings | Frames | Selects | Keep rate | Exported | Published | Frames/scene |',
+        '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+    ];
+    for (const r of rows) {
+        lines.push(
+            `| ${r.month} | ${r.outings} | ${r.frames} | ${r.selects} | ${pct(r.selects, r.frames)} | ${r.exported} | ${r.published} | ${r.framesPerScene ?? '—'} |`
+        );
+    }
+    lines.push(
+        `| **total** | ${totals.outings} | ${totals.frames} | ${totals.selects} | ${pct(totals.selects, totals.frames)} | ${totals.exported} | ${totals.published} | — |`
+    );
+    for (const r of rows) {
+        lines.push('', `## ${r.month}`, '');
+        const focal = r.focal.map((f) => `${f.focalLength}mm ×${f.frames}`).join(', ');
+        const hours = r.hours.map((h) => `${h.hour}:00 ×${h.frames}`).join(', ');
+        lines.push(`- Focal lengths: ${focal || '—'}`);
+        lines.push(`- Hours: ${hours || '—'}`);
+        if (r.framesPerScene !== null) {
+            lines.push(`- Scenes: ${r.scenes} (avg ${r.framesPerScene} frames/scene)`);
+        }
+    }
+    return `${lines.join('\n')}\n`;
 }
 
 async function defaultGazeRuntime() {
@@ -785,6 +939,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const gazeSlug = flagValue('--gaze');
     const statsRequested = args.includes('--stats');
     const year = flagValue('--year');
+    const annotateDaySlug = flagValue('--annotate-day');
+    const dayMood = flagValue('--mood');
+    const dayHours = flagValue('--hours');
+    const dayLocation = flagValue('--location');
+    const longitudinalRequested = args.includes('--longitudinal');
     const valueFlags = new Set([
         '--slug',
         '--reconcile',
@@ -796,6 +955,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         '--render',
         '--gaze',
         '--year',
+        '--annotate-day',
+        '--mood',
+        '--hours',
+        '--location',
     ]);
     const positionals = args.filter((a, i) => !a.startsWith('--') && !valueFlags.has(args[i - 1]));
     const dirArg = positionals[0];
@@ -806,9 +969,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         '       node scripts/contact-sheet.mjs --reconcile <exportDir>\n' +
         '       node scripts/contact-sheet.mjs --reconcile-galleries [galleryRoot]\n' +
         '       node scripts/contact-sheet.mjs --annotate <slug> --file <name> --note <text>\n' +
+        '       node scripts/contact-sheet.mjs --annotate-day <slug> [--mood <t>] [--hours <n>] [--location <t>]\n' +
         '       node scripts/contact-sheet.mjs --render <slug>\n' +
         '       node scripts/contact-sheet.mjs --gaze <slug|all>\n' +
-        '       node scripts/contact-sheet.mjs --stats [--year YYYY]';
+        '       node scripts/contact-sheet.mjs --stats [--year YYYY]\n' +
+        '       node scripts/contact-sheet.mjs --longitudinal [--year YYYY]';
     const buildValid =
         Boolean(dirArg) &&
         !syncRequested &&
@@ -818,6 +983,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         !renderSlug &&
         !gazeSlug &&
         !statsRequested &&
+        !annotateDaySlug &&
+        !longitudinalRequested &&
         Boolean(slug) !== split;
     const syncValid =
         syncRequested && Boolean(dirArg) && !slug && !split && !reconcileDir && !galleriesRequested;
@@ -828,15 +995,36 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         Boolean(renderSlug),
         Boolean(gazeSlug),
         statsRequested,
+        longitudinalRequested,
     ].filter(Boolean).length;
     const annotateValid = Boolean(annotateSlug && annotateFile) && annotateNote !== null;
+    const annotateDayValid =
+        Boolean(annotateDaySlug) &&
+        (dayMood !== null || dayHours !== null || dayLocation !== null) &&
+        !annotateSlug;
     const valid =
-        buildValid || syncValid || (utilityCount === 1 && (!annotateSlug || annotateValid));
+        buildValid ||
+        syncValid ||
+        (utilityCount === 1 && (!annotateSlug || annotateValid) && !annotateDaySlug) ||
+        (annotateDayValid && utilityCount === 0);
     if (help || !valid) {
         console.error(usage);
         process.exit(help ? 0 : 1);
     }
     (async () => {
+        if (annotateDaySlug) {
+            annotateDay(annotateDaySlug, { mood: dayMood, hours: dayHours, location: dayLocation });
+            console.log(`contact-sheet: annotated day fields on ${annotateDaySlug}`);
+            return;
+        }
+        if (longitudinalRequested) {
+            process.stdout.write(
+                renderLongitudinalMd(
+                    computeLongitudinal(loadDigests(), { year: year || undefined })
+                )
+            );
+            return;
+        }
         if (statsRequested) {
             const { rows, totals } = computeStats(loadDigests(), { year: year || undefined });
             for (const r of rows) {

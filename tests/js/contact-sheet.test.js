@@ -169,6 +169,11 @@ describe('contact-sheet.mjs phase A', () => {
             'computeStats',
             'loadDigests',
             'fillGaze',
+            'annotateDay',
+            'computeLongitudinal',
+            'renderLongitudinalMd',
+            'sceneCount',
+            'SCENE_GAP_MS',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -673,5 +678,137 @@ describe('contact-sheet.mjs phase A', () => {
         }
         expect(err).toBeDefined();
         expect(String(err.stderr)).toContain('Usage:');
+    });
+
+    test('annotateDay merges self-reported fields onto local sheet and digest', () => {
+        const root = JSON.stringify(outRoot);
+        const first = runJson(
+            `m.annotateDay('2026-10-12', { mood: 'restless', location: 'shibuya' }, { repoRoot: ${root} })`
+        );
+        expect(first.day).toEqual({ mood: 'restless', location: 'shibuya' });
+        const second = runJson(
+            `m.annotateDay('2026-10-12', { hours: 4.5 }, { repoRoot: ${root} })`
+        );
+        expect(second.day).toEqual({ mood: 'restless', location: 'shibuya', hours: 4.5 });
+        const digest = JSON.parse(
+            fs.readFileSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'), 'utf8')
+        );
+        expect(digest.day).toEqual({ mood: 'restless', location: 'shibuya', hours: 4.5 });
+    });
+
+    test('annotateDay rejects negative or non-numeric hours', () => {
+        const got = runJson(`[
+            (() => { try { m.annotateDay('2026-10-12', { hours: -1 }, { repoRoot: ${JSON.stringify(outRoot)} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+            (() => { try { m.annotateDay('2026-10-12', { hours: 'abc' }, { repoRoot: ${JSON.stringify(outRoot)} }); return 'no-throw'; } catch (e) { return e.message; } })(),
+        ]`);
+        expect(got[0]).toContain('--hours');
+        expect(got[1]).toContain('--hours');
+    });
+
+    test('computeLongitudinal aggregates monthly funnel, scenes, focal and hour histograms', () => {
+        const sel = (captureTime, focalLength) => ({
+            captureTime,
+            exif: { focalLength },
+            selection: { decision: 'select', exported: true, published: null },
+        });
+        const pass = (captureTime, focalLength) => ({
+            captureTime,
+            exif: { focalLength },
+            selection: { decision: 'pass', exported: false, published: null },
+        });
+        const digests = [
+            {
+                slug: '2026-10-11',
+                frames: [
+                    sel('2026-10-11T21:03:40', 18),
+                    sel('2026-10-11T21:03:50', 18),
+                    pass('2026-10-11T23:30:00', 35),
+                ],
+            },
+            {
+                slug: '2026-10-20',
+                frames: [
+                    pass('2026-10-20T08:00:00', 18),
+                    pass('2026-10-20T08:00:30', 18),
+                    pass('2026-10-20T08:05:00', 18),
+                ],
+            },
+            { slug: '2025-11-01', frames: [sel('2025-11-01T10:00:00', 23)] },
+            { slug: 'undated', frames: [pass(null, 18)] },
+        ];
+        const got = runJson(`(() => {
+            const digests = ${JSON.stringify(digests)};
+            return {
+                all: m.computeLongitudinal(digests),
+                y2026: m.computeLongitudinal(digests, { year: 2026 }),
+            };
+        })()`);
+        expect(got.all.rows.map((r) => r.month)).toEqual(['2025-11', '2026-10', 'undated']);
+        const oct = got.all.rows.find((r) => r.month === '2026-10');
+        expect(oct.outings).toBe(2);
+        expect(oct.frames).toBe(6);
+        expect(oct.selects).toBe(2);
+        expect(oct.keepRate).toBe(0.333);
+        expect(oct.scenes).toBe(4);
+        expect(oct.framesPerScene).toBe(1.5);
+        expect(oct.focal).toEqual([
+            { focalLength: 18, frames: 5 },
+            { focalLength: 35, frames: 1 },
+        ]);
+        expect(oct.hours).toEqual([
+            { hour: '08', frames: 3 },
+            { hour: '21', frames: 2 },
+            { hour: '23', frames: 1 },
+        ]);
+        expect(got.all.rows.find((r) => r.month === 'undated').framesPerScene).toBeNull();
+        expect(got.y2026.rows.map((r) => r.month)).toEqual(['2026-10']);
+        expect(got.y2026.totals).toEqual({
+            months: 1,
+            outings: 2,
+            frames: 6,
+            selects: 2,
+            exported: 2,
+            published: 0,
+        });
+    });
+
+    test('renderLongitudinalMd renders a monthly markdown report', () => {
+        const md = runJson(`(() => {
+            const digests = [
+                { slug: '2026-10-11', frames: [
+                    { captureTime: '2026-10-11T21:03:40', exif: { focalLength: 18 },
+                      selection: { decision: 'select', exported: false, published: null } },
+                ] },
+            ];
+            return m.renderLongitudinalMd(m.computeLongitudinal(digests));
+        })()`);
+        expect(md).toContain('# Longitudinal shoot report');
+        expect(md).toContain('| 2026-10 |');
+        expect(md).toContain('| **total** |');
+        expect(md).toContain('## 2026-10');
+        expect(md).toContain('18mm ×1');
+        expect(md).toContain('21:00 ×1');
+    });
+
+    test('CLI --annotate-day without fields and --longitudinal print report', () => {
+        let err;
+        try {
+            execFileSync('node', [SCRIPT_PATH, '--annotate-day', '2026-10-12'], {
+                cwd: ROOT_DIR,
+                encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'],
+            });
+        } catch (e) {
+            err = e;
+        }
+        expect(err).toBeDefined();
+        expect(String(err.stderr)).toContain('Usage:');
+
+        const out = execFileSync('node', [SCRIPT_PATH, '--longitudinal'], {
+            cwd: ROOT_DIR,
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        expect(out).toContain('# Longitudinal shoot report');
     });
 });
