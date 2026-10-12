@@ -34,6 +34,9 @@ derived, re-renderable view.
   slug; frames with no capture time group under `undated` with a warning.
   Explicit `--slug` keeps single-sheet behavior for per-outing folders.
   (Settled 2026-10-12 after testing against a real 920-frame card folder.)
+- The full ritual is one command: `--sync <dir>` = per-day split + export
+  reconcile + gallery reconcile (added 2026-10-12). The `/contact-sheet`
+  skill wraps it so the ritual needs no memorizing.
 - Dotfiles are ignored — macOS AppleDouble `._*.RAF` files on FAT32 cards must
   never be counted as frames (found during the same 920-frame test).
 
