@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract gaze-models fonts sync-mirror
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -26,6 +26,11 @@ help:
 	@echo "  thumbhashes   Batch generate 28-char ThumbHash placeholders for gallery images"
 	@echo "  assets        Run images + thumbhashes generation pipeline"
 	@echo "  page          Build/generate a portfolio page (e.g. make page ID=p5)"
+	@echo "  ledger-sync   Ledger a card/photo folder into per-day contact sheets (make ledger-sync DIR=<dir>)"
+	@echo "  ledger-stats  Contact-sheet funnel table (make ledger-stats [YEAR=2026])"
+	@echo "  ledger-longitudinal Monthly longitudinal report (make ledger-longitudinal [YEAR=2026])"
+	@echo "  ledger-montage Tile a sheet's thumbs into critique grid pages (make ledger-montage SLUG=<day>)"
+	@echo "  ledger-critique Run the critic on a sheet (make ledger-critique SLUG=<day> [VERDICTS=<file.json>])"
 	@echo "  gaze-models   Download ONNX face models and verify checksums via MODELS.lock"
 	@echo "  fonts         Extract CJK characters and generate subsetted WOFF2 webfont"
 
@@ -208,6 +213,24 @@ endif
 
 extract:
 	@node scripts/extract-page-markdown.mjs $(if $(ID),$(ID),$(EXTRACT_ARGS))
+
+# Contact-sheet ledger (private practice tooling; docs/contact-sheet-ledger-design.md).
+# Variable-passing idiom, same as make page ID=pN. Dash-flag and free-text forms
+# (--note, --reason) call the CLI directly: node scripts/contact-sheet.mjs --help
+ledger-sync:
+	@node scripts/contact-sheet.mjs --sync "$(DIR)"
+
+ledger-stats:
+	@node scripts/contact-sheet.mjs --stats $(if $(YEAR),--year $(YEAR),)
+
+ledger-longitudinal:
+	@node scripts/contact-sheet.mjs --longitudinal $(if $(YEAR),--year $(YEAR),)
+
+ledger-montage:
+	@node scripts/contact-sheet.mjs --montage "$(SLUG)"
+
+ledger-critique:
+	@node scripts/contact-sheet.mjs --critique "$(SLUG)" $(if $(VERDICTS),--verdicts "$(VERDICTS)",)
 
 # Download ONNX face models and verify checksums via MODELS.lock
 gaze-models:

@@ -169,27 +169,28 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 
 ## Command interface — prefer `make` (matches CI)
 
-| Need                                               | Command                                  |
-| -------------------------------------------------- | ---------------------------------------- |
-| Full gate (format + lint + type + Jest + coverage) | `make precommit-fix`                     |
-| CI parity without auto-fix/stage                   | `make gate`                              |
-| Format-check + lint + type only (quick CI parity)  | `make check`                             |
-| Auto-fix format + lint                             | `make fix`                               |
-| Full Jest suite + coverage report                  | `make test`                              |
-| Scoped JS test (fast, while iterating)             | `npx jest <path/to/test>`                |
-| Lint JS / CSS individually                         | `make lint-js` / `make lint-css`         |
-| JS strict type check (whitelist)                   | `make type` / `npx tsc -p jsconfig.json` |
-| Generated-commands freshness check                 | `make sync-check`                        |
-| Dependency-structure gate (no circular imports)    | `make depcheck`                          |
-| Stream-of-consciousness scan (comments, tests)     | `make thinking-check`                    |
-| Jules bot commit hygiene gate                      | `make bot-pr-check`                      |
-| Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                         |
-| Synchronize portfolio pages from shell template    | `make sync-pages`                        |
-| Check portfolio pages template synchronization     | `make sync-pages-check`                  |
-| Build/compile a portfolio page from markdown       | `make page ID=pN`                        |
-| Build responsive AVIF/WebP gallery tiers           | `make images`                            |
-| Generate ThumbHash blur-up placeholders            | `make thumbhashes`                       |
-| Extract CJK characters and generate WOFF2 subset   | `make fonts`                             |
+| Need                                               | Command                                            |
+| -------------------------------------------------- | -------------------------------------------------- |
+| Full gate (format + lint + type + Jest + coverage) | `make precommit-fix`                               |
+| CI parity without auto-fix/stage                   | `make gate`                                        |
+| Format-check + lint + type only (quick CI parity)  | `make check`                                       |
+| Auto-fix format + lint                             | `make fix`                                         |
+| Full Jest suite + coverage report                  | `make test`                                        |
+| Scoped JS test (fast, while iterating)             | `npx jest <path/to/test>`                          |
+| Lint JS / CSS individually                         | `make lint-js` / `make lint-css`                   |
+| JS strict type check (whitelist)                   | `make type` / `npx tsc -p jsconfig.json`           |
+| Generated-commands freshness check                 | `make sync-check`                                  |
+| Dependency-structure gate (no circular imports)    | `make depcheck`                                    |
+| Stream-of-consciousness scan (comments, tests)     | `make thinking-check`                              |
+| Jules bot commit hygiene gate                      | `make bot-pr-check`                                |
+| Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                                   |
+| Synchronize portfolio pages from shell template    | `make sync-pages`                                  |
+| Check portfolio pages template synchronization     | `make sync-pages-check`                            |
+| Build/compile a portfolio page from markdown       | `make page ID=pN`                                  |
+| Contact-sheet ledger (private practice tooling)    | `make ledger-stats` / `make ledger-sync DIR=<dir>` |
+| Build responsive AVIF/WebP gallery tiers           | `make images`                                      |
+| Generate ThumbHash blur-up placeholders            | `make thumbhashes`                                 |
+| Extract CJK characters and generate WOFF2 subset   | `make fonts`                                       |
 
 - Use scoped `npx jest <file>` for the tight edit→verify loop; use
   `make gate` for a faster CI-parity check (check + test, no auto-fix/stage).
