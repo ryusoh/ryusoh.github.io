@@ -17,7 +17,7 @@ if ! command -v npx >/dev/null 2>&1; then
 fi
 
 if [ "${FORCE_NPX:-0}" = "1" ]; then
-    exec npx "$@"
+    exec npx --loglevel=error "$@"
 fi
 
 HOST=${NPM_REGISTRY_HOST:-registry.npmjs.org}
@@ -43,4 +43,10 @@ if [ "$?" -ne 0 ]; then
     exit 0
 fi
 
-exec npx "$@"
+# Hooks force color (FORCE_COLOR=1); a user-level NO_COLOR would make node
+# print a warning per spawned process, so it yields when color is forced.
+if [ -n "${FORCE_COLOR:-}" ]; then
+    unset NO_COLOR
+fi
+
+exec npx --loglevel=error "$@"
