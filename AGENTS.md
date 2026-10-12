@@ -255,9 +255,9 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 - `assets/img/p99/` — canonical static fixture for sequence and gaze tests
   (never touch during normal runs; never assert against production galleries
   `p1`–`p6` in tests).
-- `contact-sheet-ledger/` — public per-shoot edit digests produced by
+- `contact-sheet-ledger/` — gitignored per-shoot edit digests produced by
   `scripts/contact-sheet.mjs` (schema: `docs/contact-sheet-ledger-design.md`);
-  local thumbs/sheets live in the gitignored `contact-sheets/`.
+  local-first by design, public only via deliberately curated aggregates.
 - `scripts/templates/portfolio-shell.html` — canonical shell for all `p*/index.html`
   galleries. Any added scripts, styles, or header/dock changes must be made
   here, followed by `make sync-pages`.

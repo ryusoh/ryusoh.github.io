@@ -78,22 +78,26 @@ derived, re-renderable view.
   `exported`, and upgrades `pass` → `select` with signal `published`. This
   closes the funnel: shot → edited → exported → published. (Added 2026-10-12.)
 
-### D3 — Output: split local material from public digest
+### D3 — Output: local-first; public only via curated aggregates
 
 - `contact-sheets/<slug>/` (gitignored, WO 1): `thumbs/`, `index.html`, and a
   full local `sheet.json` — working material, disposable.
-- `contact-sheet-ledger/<slug>.json` (tracked, public): the long-term digest —
+- `contact-sheet-ledger/<slug>.json` (gitignored): the long-term digest —
   small text, diffable across decades ("how did my eye change" as a diff of
-  digests), cross-machine durable via git.
-- Public-by-default is deliberate: the repo already publishes
-  `sequence-report.md` curatorial reasoning; the ledger extends that
-  proof-of-process to the full edit.
-- **Privacy filter at digest-write time:** strip GPS, all serial numbers, and
-  any location fields (same field policy as `sanitizeImageMetadata`).
-  `captureTime` stays (the site already treats EXIF as testimony).
-- **Rationales are public and permanent** (git history). Write them as craft
-  notes. A `privateNote` field is reserved in the schema, kept only in the
-  gitignored local `sheet.json`, for anything else.
+  digests). For cross-machine durability it can become its own private git
+  repo; it is never committed to this public repo.
+- **Revised 2026-10-12 — was public-by-default, now local-first.** The
+  private→public direction stays open forever while the reverse is
+  impossible; a public funnel risks Goodhart distortion of the very behavior
+  it measures (the failures are the data — a scoreboard you perform for stops
+  being honest); and per-day digests leak long-term activity patterns. The
+  Magnum contact sheets themselves were published decades after the fact —
+  working documents first, retrospective later. Public proof-of-process is
+  better served by deliberately curated aggregates (e.g. a yearly funnel
+  summary) than by raw per-day digests.
+- **Privacy filter at digest-write time** still applies as defense in depth
+  (no GPS, no serials — same field policy as `sanitizeImageMetadata`).
+- `privateNote` remains local-only (in `contact-sheets/<slug>/sheet.json`).
 
 ### D4 — Schema versioning and additive phases
 

@@ -40,6 +40,7 @@ reports/
 pr_body.txt
 pr_description.txt
 
-# Private practice corpora (never commit: in-copyright study images, rejects)
+# Private practice corpora (never commit: in-copyright study images, rejects, ledger)
 contact-sheets/
+contact-sheet-ledger/
 eye-gym/corpus/
