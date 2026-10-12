@@ -28,6 +28,14 @@ derived, re-renderable view.
 - The tool reads in place and writes only derivatives; it never mutates the
   source directory. Master storage remains the archive protocol's concern
   (`docs/archive-protocol.md`).
+- Cards are offloaded infrequently, so a folder may span months of outings.
+  `--split` segments such a folder **by calendar day** (one day = one outing,
+  in camera-local time), emitting one sheet + digest per day with the date as
+  slug; frames with no capture time group under `undated` with a warning.
+  Explicit `--slug` keeps single-sheet behavior for per-outing folders.
+  (Settled 2026-10-12 after testing against a real 920-frame card folder.)
+- Dotfiles are ignored — macOS AppleDouble `._*.RAF` files on FAT32 cards must
+  never be counted as frames (found during the same 920-frame test).
 
 ### D2 — Selection: harvest first (phase A), marking UI second (phase B)
 

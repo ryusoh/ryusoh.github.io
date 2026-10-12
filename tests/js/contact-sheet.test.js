@@ -73,6 +73,8 @@ describe('contact-sheet.mjs phase A', () => {
             path.join(srcDir, 'IMG_0005.RAF.xmp'),
             '<x:xmpmeta xmlns:x="adobe:ns:meta/"><xmp:Rating>0</xmp:Rating></xmpmeta>'
         );
+        // macOS AppleDouble junk as found on FAT32 SD cards — must be ignored.
+        fs.writeFileSync(path.join(srcDir, '._DSCF0009.RAF'), Buffer.from('JUNK'));
 
         const previewPath = path.join(tmp, 'preview.jpg');
         await sharp({
@@ -100,7 +102,7 @@ describe('contact-sheet.mjs phase A', () => {
             "      'EXIF:ExposureTime': '1/250',",
             "      'EXIF:ISO': 400,",
             "      'EXIF:LensModel': 'XF35mmF2 R WR',",
-            "      'EXIF:DateTimeOriginal': '2026:10:11 21:03:' + String(40 + n).padStart(2, '0'),",
+            "      'EXIF:DateTimeOriginal': (n >= 4 ? '2026:10:12' : '2026:10:11') + ' 21:03:' + String(40 + n).padStart(2, '0'),",
             '    };',
             "    if (base === 'IMG_0002.JPG') entry['XMP-crs:Contrast'] = 0;",
             '    return entry;',
@@ -132,6 +134,7 @@ describe('contact-sheet.mjs phase A', () => {
         const keys = runJson('Object.keys(m)');
         for (const k of [
             'buildSheet',
+            'buildOutingSheets',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -305,6 +308,45 @@ describe('contact-sheet.mjs phase A', () => {
             }
         })()`);
         expect(msg).toContain('slug');
+    });
+
+    test('buildOutingSheets splits a folder into per-day outings', () => {
+        const out = runModule(`(async () => {
+            const sheets = await m.buildOutingSheets(${JSON.stringify(srcDir)}, { env: ${JSON.stringify(shimEnv)} });
+            for (const { sheet, thumbs } of sheets) {
+                m.writeOutputs(sheet, thumbs, { repoRoot: ${JSON.stringify(outRoot)} });
+            }
+            console.log(JSON.stringify(sheets.map(({ sheet }) => ({
+                slug: sheet.slug,
+                n: sheet.source.frameCount,
+                files: sheet.frames.map((f) => f.file),
+            }))));
+        })();`);
+        const summaries = JSON.parse(out);
+        expect(summaries.map((s) => s.slug)).toEqual(['2026-10-11', '2026-10-12']);
+        expect(summaries[0].n).toBe(3);
+        expect(summaries[1].n).toBe(2);
+        expect(summaries[1].files).toEqual(['IMG_0004.RAF', 'IMG_0005.RAF']);
+        expect(fs.existsSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-11.json'))).toBe(
+            true
+        );
+        expect(fs.existsSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'))).toBe(
+            true
+        );
+    });
+
+    test('CLI rejects --slug together with --split', () => {
+        let err;
+        try {
+            execFileSync('node', [SCRIPT_PATH, srcDir, '--slug', 'x', '--split'], {
+                cwd: ROOT_DIR,
+                encoding: 'utf8',
+            });
+        } catch (e) {
+            err = e;
+        }
+        expect(err).toBeDefined();
+        expect(String(err.stderr)).toContain('Usage:');
     });
 
     test('CLI prints usage without arguments', () => {

@@ -39,3 +39,11 @@ tests/fixtures/sequence-scratch/
 # Untracked local editor workspace file; whole-repo `make fmt-check` shouldn't
 # fail on a personal file CI never sees.
 dev.code-workspace
+
+# Contact-sheet working material — gitignored, generated thumbs/HTML/JSON
+# (scripts/contact-sheet.mjs). Whole-repo prettier must not fail on it.
+contact-sheets/
+
+# Generated ledger digests (JSON.stringify output is not prettier-stable);
+# they are machine-written artifacts, like coverage/ and reports/.
+contact-sheet-ledger/

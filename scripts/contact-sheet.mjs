@@ -72,7 +72,7 @@ function ensureExiftool(env) {
 export function listFrames(dir) {
     return fs
         .readdirSync(dir, { withFileTypes: true })
-        .filter((e) => e.isFile())
+        .filter((e) => e.isFile() && !e.name.startsWith('.'))
         .map((e) => {
             const ext = path.extname(e.name).toLowerCase();
             return { file: e.name, ext, isRaw: RAW_EXTENSIONS.has(ext) };
@@ -152,16 +152,11 @@ function normalizeBatchJson(raw) {
 }
 
 /**
- * Builds the sheet object for one outing directory.
- * Returns { sheet, thumbs } where thumbs is [{ file, buffer|null }] aligned
- * with sheet.frames.
+ * Reads a directory of frames: EXIF batch, selection traces, preview pixels,
+ * thumbnails, and per-frame colorimetry. Returns unsorted intermediate records
+ * plus the resolved directory.
  */
-export async function buildSheet(dir, { slug, env, now } = {}) {
-    if (!SLUG_RE.test(String(slug || ''))) {
-        throw new Error(
-            `contact-sheet: invalid slug "${slug}" (use YYYY-MM-DD-slug, path separators rejected)`
-        );
-    }
+async function harvestFrameRecords(dir, env) {
     const absDir = path.resolve(dir);
     if (!fs.existsSync(absDir) || !fs.statSync(absDir).isDirectory()) {
         throw new Error(`contact-sheet: not a directory: ${dir}`);
@@ -180,7 +175,8 @@ export async function buildSheet(dir, { slug, env, now } = {}) {
     );
     const exifByPath = new Map(batch.map((e) => [path.resolve(e.SourceFile), e]));
 
-    const intermediates = [];
+    const records = [];
+    let done = 0;
     for (const frame of frames) {
         const entry = exifByPath.get(path.resolve(frame.absPath)) || {};
         const sidecar = readSidecar(frame.absPath);
@@ -205,7 +201,7 @@ export async function buildSheet(dir, { slug, env, now } = {}) {
             }
         }
 
-        intermediates.push({
+        records.push({
             file: frame.file,
             captureTime: exiftoolDateToIso(entry['EXIF:DateTimeOriginal']),
             exif: {
@@ -219,9 +215,16 @@ export async function buildSheet(dir, { slug, env, now } = {}) {
             lab,
             thumbBuffer,
         });
+        done++;
+        if (done % 50 === 0) {
+            console.error(`contact-sheet: ${done}/${frames.length} frames`);
+        }
     }
+    return { absDir, records };
+}
 
-    intermediates.sort((a, b) => {
+function sortRecords(records) {
+    records.sort((a, b) => {
         const ta = a.captureTime || '~';
         const tb = b.captureTime || '~';
         return ta === tb
@@ -230,9 +233,23 @@ export async function buildSheet(dir, { slug, env, now } = {}) {
               ? -1
               : 1;
     });
+}
+
+/**
+ * Assembles a sheet object from intermediate records.
+ * Returns { sheet, thumbs } where thumbs is [{ file, buffer|null }] aligned
+ * with sheet.frames.
+ */
+function assembleSheet(absDir, records, { slug, now } = {}) {
+    if (!SLUG_RE.test(String(slug || ''))) {
+        throw new Error(
+            `contact-sheet: invalid slug "${slug}" (use YYYY-MM-DD-slug, path separators rejected)`
+        );
+    }
+    sortRecords(records);
 
     let prevLab = null;
-    const sheetFrames = intermediates.map((f) => {
+    const sheetFrames = records.map((f) => {
         const deltaEPrev = f.lab && prevLab ? round3(deltaE(prevLab, f.lab)) : null;
         if (f.lab) prevLab = f.lab;
         return {
@@ -263,8 +280,37 @@ export async function buildSheet(dir, { slug, env, now } = {}) {
     };
     return {
         sheet,
-        thumbs: sheetFrames.map((f, i) => ({ file: f.file, buffer: intermediates[i].thumbBuffer })),
+        thumbs: sheetFrames.map((f, i) => ({ file: f.file, buffer: records[i].thumbBuffer })),
     };
+}
+
+/** Builds the sheet object for one outing directory. */
+export async function buildSheet(dir, { slug, env, now } = {}) {
+    const { absDir, records } = await harvestFrameRecords(dir, env);
+    return assembleSheet(absDir, records, { slug, now });
+}
+
+/**
+ * Splits a multi-outing directory into per-day sheets (one calendar day = one
+ * outing, in camera-local time). Frames without capture time group under
+ * "undated". Returns [{ sheet, thumbs }] sorted by day.
+ */
+export async function buildOutingSheets(dir, { env, now } = {}) {
+    const { absDir, records } = await harvestFrameRecords(dir, env);
+    const byDay = new Map();
+    for (const r of records) {
+        if (!r.captureTime) {
+            console.error(
+                `contact-sheet: warning: ${r.file} has no capture time; grouped under "undated"`
+            );
+        }
+        const day = r.captureTime ? r.captureTime.slice(0, 10) : 'undated';
+        if (!byDay.has(day)) byDay.set(day, []);
+        byDay.get(day).push(r);
+    }
+    return [...byDay.keys()]
+        .sort()
+        .map((day) => assembleSheet(absDir, byDay.get(day), { slug: day, now }));
 }
 
 function esc(s) {
@@ -360,20 +406,33 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const args = process.argv.slice(2);
     const slugIdx = args.indexOf('--slug') + 1;
     const slug = slugIdx > 0 ? args[slugIdx] : null;
+    const split = args.includes('--split');
     const dirArg = args.find((a) => !a.startsWith('--'));
-    if (args.includes('--help') || args.includes('-h') || !dirArg || !slug) {
-        console.error('Usage: node scripts/contact-sheet.mjs <dir> --slug <YYYY-MM-DD-slug>');
-        process.exit(args.includes('--help') || args.includes('-h') ? 0 : 1);
+    const help = args.includes('--help') || args.includes('-h');
+    const usage =
+        'Usage: node scripts/contact-sheet.mjs <dir> (--slug <YYYY-MM-DD-slug> | --split)';
+    if (help || !dirArg || (!slug && !split) || (slug && split)) {
+        console.error(usage);
+        process.exit(help ? 0 : 1);
     }
-    buildSheet(dirArg, { slug })
-        .then(({ sheet, thumbs }) => {
-            writeOutputs(sheet, thumbs);
-            console.log(
-                `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
-            );
-        })
-        .catch((err) => {
-            console.error(err.message || err);
-            process.exit(1);
-        });
+    const run = split
+        ? buildOutingSheets(dirArg).then((sheets) => {
+              for (const { sheet, thumbs } of sheets) {
+                  writeOutputs(sheet, thumbs);
+                  console.log(`contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`);
+              }
+              console.log(
+                  `contact-sheet: ${sheets.length} outings → contact-sheets/<day>/ + contact-sheet-ledger/<day>.json`
+              );
+          })
+        : buildSheet(dirArg, { slug }).then(({ sheet, thumbs }) => {
+              writeOutputs(sheet, thumbs);
+              console.log(
+                  `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
+              );
+          });
+    run.catch((err) => {
+        console.error(err.message || err);
+        process.exit(1);
+    });
 }
