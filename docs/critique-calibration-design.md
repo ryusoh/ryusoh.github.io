@@ -1,6 +1,9 @@
 # Adversarial critique + calibration log — design
 
-**Status:** designed 2026-10-12, not yet implemented.
+**Status:** layer 0 (digest-heuristic critic + private calibration log +
+`--resolve` backfill) landed 2026-10-12 (`scripts/contact-sheet.mjs`,
+`--critique` / `--resolve`); the VLM montage layer (D3 layer 1) and per-frame
+deep critique (layer 2) remain open.
 **Parent:** `docs/photography-growth-infrastructure-research.md` §2 Proposal 3,
 §6 WO 4. Consumes the ledger output convention in
 `docs/contact-sheet-ledger-design.md`.

@@ -70,6 +70,24 @@ where the evidence exists.
   `node scripts/contact-sheet.mjs --gaze <day>` / `--gaze all`
 - Funnel table, optionally one year:
   `node scripts/contact-sheet.mjs --stats [--year 2026]`
+- Longitudinal report across outings (monthly funnel, keep-rate trend,
+  focal-length and hour-of-day histograms, frames-per-scene depth):
+  `node scripts/contact-sheet.mjs --longitudinal [--year 2026]`
+- Self-reported day fields (mood, hours walked, location — mergeable):
+  `node scripts/contact-sheet.mjs --annotate-day <day> [--mood "…"] [--hours 4] [--location "…"]`
+
+## Critique loop (WO 4)
+
+Run only after the human edit is settled in the ledger (never before — the
+log must record independent judgments, see `docs/critique-calibration-design.md`):
+
+1. `node scripts/contact-sheet.mjs --critique <day>` — the machine critic
+   (layer-0 digest heuristics: gaze eye contact) appends only human↔machine
+   disagreements — `select-audit` (kept select the critic rejects) and
+   `nomination` (passed frame the critic would keep) — to the private
+   `contact-sheet-ledger/calibration.jsonl`.
+2. Eyeball the disagreements, then backfill the reason:
+   `node scripts/contact-sheet.mjs --resolve <day> --file DSCF1234.RAF --reason "kept for the gesture"`
 
 Re-running any step is idempotent — sheets and digests are regenerated from
 scratch, reconcile marks are only counted when they change.

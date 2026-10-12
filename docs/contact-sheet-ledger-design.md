@@ -1,8 +1,10 @@
 # Contact-sheet ledger — design
 
 **Status:** phase A landed 2026-10-11 (`scripts/contact-sheet.mjs`,
-`tests/js/contact-sheet.test.js`); phase 2 landed 2026-10-12; phase B pending;
-phase 3 (longitudinal layer) designed 2026-10-12, not yet implemented.
+`tests/js/contact-sheet.test.js`); phase 2 landed 2026-10-12; phase 3
+(longitudinal layer) landed 2026-10-12; phase B pending. The adversarial
+critique consumer (WO 4) landed 2026-10-12 — see
+`docs/critique-calibration-design.md`.
 **Date:** 2026-10-11
 **Parent:** `docs/photography-growth-infrastructure-research.md` §2 Proposal 1,
 §6 WO 2. Unblocks §6 WO 4 (critique mode consumes this output convention).
@@ -168,8 +170,8 @@ Field rules:
   via the sequence skill's ONNX pipeline over sheet thumbs (920 frames in ~15s;
   178 with faces, 23 with eye contact on the first real card). Also landed:
   `--annotate` (per-frame rationales), `--render`, `--stats [--year]`.
-- **Phase 3 (WO 5 longitudinal layer): designed 2026-10-12, not yet
-  implemented** — `--longitudinal` aggregates across slugs (keep-rate trend,
+- **Phase 3 (WO 5 longitudinal layer): landed 2026-10-12** —
+  `--longitudinal` aggregates across slugs (keep-rate trend,
   focal-length drift, time-of-day histogram, frames-per-scene depth) into a
   monthly markdown report; `--annotate-day <slug>` stores self-reported day
   fields (mood, hours walked, location) on the digest. No separate
@@ -178,6 +180,10 @@ Field rules:
   keys). The self-reported fields are the part EXIF cannot supply, and the
   deliberate-practice literature's condition variables (mood, hours) belong at
   day granularity, not frame granularity.
+- **Phase 4 (WO 4 critique consumer): landed 2026-10-12** —
+  `--critique <slug>` / `--resolve` on the same CLI, consuming these digests
+  and appending disagreements to `contact-sheet-ledger/calibration.jsonl`.
+  Design and blinding rationale: `docs/critique-calibration-design.md`.
 
 ## Open questions
 

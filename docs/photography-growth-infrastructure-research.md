@@ -588,16 +588,16 @@ Anchors verified against the working tree on 2026-10-11 (commit `a98d82c`).
 - **Guardrail:** ignore `eye-gym/corpus/` only — `eye-gym/` itself stays tracked
   so card metadata (WO 3) can be committed.
 
-#### 2. [skip] Contact-sheet ledger generator (Proposal 1)
+#### 2. Contact-sheet ledger generator (Proposal 1) — implemented
 
-**Designed 2026-10-11: see `docs/contact-sheet-ledger-design.md`** — input
+**Landed 2026-10-11/12: see `docs/contact-sheet-ledger-design.md`** — input
 convention, digest schema (v1), local/public split, privacy filter, and phase
-plan (A: harvest XMP; B: marking UI; 2: gaze) are settled there. Still tagged
-`[skip]` for cheap executors because it is new runtime logic requiring new
-tests; route to a stronger model via the TDD skill with the design doc as the
-spec. Scoring reuses `metrics.mjs` under `.agents/skills/sequence/scripts/`;
-local output goes under the gitignored `contact-sheets/` (WO 1), public digests
-under tracked `contact-sheet-ledger/`.
+plan settled there; phases A, 2, 3, and 4 are implemented in
+`scripts/contact-sheet.mjs` + `tests/js/contact-sheet.test.js`. Scoring reuses
+`metrics.mjs` under `.agents/skills/sequence/scripts/`; local output goes under
+the gitignored `contact-sheets/`, digests under the gitignored
+`contact-sheet-ledger/` (private nested repo). Phase B (marking UI) remains
+deferred until wanted.
 
 #### 3. [low] Eye-gym card-seed CSV from the verified taxonomy (Proposal 2 bootstrap)
 
@@ -628,28 +628,23 @@ under tracked `contact-sheet-ledger/`.
 - **Guardrail:** the CSV is text-only and tracked; images go in the gitignored
   `eye-gym/corpus/` from WO 1. Never stage files under `eye-gym/corpus/`.
 
-#### 4. [skip] Adversarial critique mode + calibration log (Proposal 3)
+#### 4. Adversarial critique mode + calibration log (Proposal 3) — implemented
 
-**Designed 2026-10-12: see `docs/critique-calibration-design.md`** — timing
-(after the fact, never at import, for blinding), two-direction protocol (audit
-selects + nominate from rejects), cost layers (digest → one VLM montage call
-per outing → on-demand full-res), prompt strategy (reuse council personas, not
-the deliberation protocol), and the private `contact-sheet-ledger/calibration.jsonl`
-schema are settled there. Still tagged `[skip]` for cheap executors because it
-is new runtime logic requiring new tests; route to a stronger model via the TDD
-skill with the design doc as the spec.
+**Landed 2026-10-12** per `docs/critique-calibration-design.md`:
+`--critique <slug>` / `--resolve` on `scripts/contact-sheet.mjs`; layer-0
+digest-heuristic critic (gaze eye contact) with an injectable critic seam;
+append-only private `contact-sheet-ledger/calibration.jsonl` logging both
+disagreement directions. The VLM montage layer (D3 layer 1) and deep per-frame
+critique (layer 2) remain open questions in the design doc.
 
-#### 5. [skip] Longitudinal stats layer (Proposal 4)
+#### 5. Longitudinal stats layer (Proposal 4) — implemented
 
-**Designed 2026-10-12 as phase 3 of the contact-sheet tool** — no separate
-`scripts/shoot-log.mjs`; one tool, one ledger. See
-`docs/contact-sheet-ledger-design.md` "Phases and verification" phase 3:
-`--longitudinal` (cross-slug aggregation, monthly report) and `--annotate-day`
-(mood, hours walked, location on the digest). Still `[skip]` for cheap
-executors (new runtime logic, new tests). Historical pointer:
-`scripts/build-page.mjs:34-42` already shells out to `exiftool` with a
-fail-open fallback and `:104-105` uses `sharp(input).metadata()` — reuse both
-idioms if implementation ever splits out.
+**Landed 2026-10-12 as phase 3 of the contact-sheet tool** — no separate
+`scripts/shoot-log.mjs`; one tool, one ledger. `--longitudinal` (cross-slug
+aggregation into a monthly markdown report: funnel, keep-rate trend,
+focal-length and hour-of-day histograms, frames-per-scene depth) and
+`--annotate-day` (mood, hours walked, location on the digest). See
+`docs/contact-sheet-ledger-design.md` "Phases and verification" phase 3.
 
 #### 6. [low] Archive protocol doc skeleton (Proposal 5)
 
