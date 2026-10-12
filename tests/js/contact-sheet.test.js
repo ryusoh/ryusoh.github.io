@@ -135,6 +135,7 @@ describe('contact-sheet.mjs phase A', () => {
         for (const k of [
             'buildSheet',
             'buildOutingSheets',
+            'reconcileExports',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -233,10 +234,26 @@ describe('contact-sheet.mjs phase A', () => {
 
         // Selection inference: shim XMP-crs key (JPEG), crs sidecar (RAW),
         // plain non-crs sidecar must stay pass.
-        expect(sheet.frames[1].selection).toEqual({ decision: 'select', signal: 'xmp-develop' });
-        expect(sheet.frames[3].selection).toEqual({ decision: 'select', signal: 'xmp-develop' });
-        expect(sheet.frames[4].selection).toEqual({ decision: 'pass', signal: null });
-        expect(sheet.frames[0].selection).toEqual({ decision: 'pass', signal: null });
+        expect(sheet.frames[1].selection).toEqual({
+            decision: 'select',
+            signal: 'xmp-develop',
+            exported: false,
+        });
+        expect(sheet.frames[3].selection).toEqual({
+            decision: 'select',
+            signal: 'xmp-develop',
+            exported: false,
+        });
+        expect(sheet.frames[4].selection).toEqual({
+            decision: 'pass',
+            signal: null,
+            exported: false,
+        });
+        expect(sheet.frames[0].selection).toEqual({
+            decision: 'pass',
+            signal: null,
+            exported: false,
+        });
 
         // Metrics over extracted previews: red is dark in L*, green is bright,
         // and the second frame carries a ΔE to its predecessor.
@@ -333,6 +350,61 @@ describe('contact-sheet.mjs phase A', () => {
         expect(fs.existsSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'))).toBe(
             true
         );
+    });
+
+    test('reconcileExports marks exported frames across digests and local sheets', () => {
+        const exportDir = path.join(tmp, 'Export');
+        fs.mkdirSync(path.join(exportDir, 'sub'), { recursive: true });
+        fs.writeFileSync(path.join(exportDir, 'IMG_0002.jpg'), 'x');
+        fs.writeFileSync(path.join(exportDir, 'sub', 'IMG_0004-2.jpg'), 'x');
+        fs.writeFileSync(path.join(exportDir, 'IMG_0005.jpg'), 'x');
+        fs.writeFileSync(path.join(exportDir, 'MISC0007.jpg'), 'x');
+        const out = runJson(`(async () => {
+            return await m.reconcileExports(${JSON.stringify(exportDir)}, {
+                env: ${JSON.stringify(shimEnv)},
+                repoRoot: ${JSON.stringify(outRoot)},
+            });
+        })()`);
+        expect(out).toEqual({
+            exportsScanned: 4,
+            digestsScanned: 3,
+            digestsUpdated: 3,
+            framesMarked: 6,
+        });
+
+        const d12 = JSON.parse(
+            fs.readFileSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'), 'utf8')
+        );
+        // pass → select upgrade via the export signal
+        expect(d12.frames.find((f) => f.file === 'IMG_0005.RAF').selection).toEqual({
+            decision: 'select',
+            signal: 'exported',
+            exported: true,
+        });
+        // already-select frames keep their original signal
+        expect(d12.frames.find((f) => f.file === 'IMG_0004.RAF').selection).toEqual({
+            decision: 'select',
+            signal: 'xmp-develop',
+            exported: true,
+        });
+        // untouched frames stay pass
+        expect(d12.frames.find((f) => f.file === 'IMG_0001.JPG')).toBeUndefined();
+
+        // local sheet updated and HTML re-rendered
+        const local = JSON.parse(
+            fs.readFileSync(
+                path.join(outRoot, 'contact-sheets', '2026-10-12', 'sheet.json'),
+                'utf8'
+            )
+        );
+        expect(local.frames.find((f) => f.file === 'IMG_0005.RAF').selection.decision).toBe(
+            'select'
+        );
+        const html = fs.readFileSync(
+            path.join(outRoot, 'contact-sheets', '2026-10-12', 'index.html'),
+            'utf8'
+        );
+        expect(html).toContain('SELECT');
     });
 
     test('CLI rejects --slug together with --split', () => {

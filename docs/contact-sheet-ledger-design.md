@@ -60,6 +60,15 @@ derived, re-renderable view.
 - Known miss: a frame opened in Lightroom but never edited writes no XMP and
   reads as `pass`. Accepted — an explicit pick in Lightroom would close the
   gap, but nothing in the flow requires it.
+- **Second selection signal — exports.** Lightroom exports land in
+  `~/Desktop/Export` (recursively, including project subfolders) and preserve
+  EXIF capture time. `--reconcile <exportDir>` walks the export tree, matches
+  JPEGs back to digest frames by variant-stripped stem + capture time (the
+  `DSCF0003-2.jpg` pattern is a re-edit of `DSCF0003`; DSCF counter resets
+  across cards make basename-only matching unsafe), sets
+  `selection.exported: true`, and upgrades `pass` → `select` with signal
+  `exported`. This backfills selects for shoots that predate the XMP
+  auto-write setting. (Added 2026-10-12.)
 
 ### D3 — Output: split local material from public digest
 
@@ -105,7 +114,7 @@ derived, re-renderable view.
                 "iso": null,
                 "lens": null
             },
-            "selection": { "decision": "pass", "signal": null },
+            "selection": { "decision": "pass", "signal": null, "exported": false },
             "rationale": null,
             "metrics": { "luminance": null, "cielab": null, "deltaEPrev": null },
             "gaze": null
@@ -118,8 +127,9 @@ Field rules:
 
 - `selection.decision` ∈ `select` | `pass`; `pass` is the default for every
   frame with no selection trace (see D2 — pass is a base rate, not a verdict).
-  `selection.signal` records how a `select` was inferred (`xmp-develop` in v1;
-  `manual` once phase B exists).
+  `selection.signal` records how a `select` was inferred (`xmp-develop`,
+  `exported`, or `manual` once phase B exists). `selection.exported` marks
+  frames found in the export folder by `--reconcile`.
 - `metrics` reuses the sequence skill's `metrics.mjs` (CIELAB, luminance,
   ΔE₇₆ to previous frame) computed over extracted previews.
 - Unknown future fields must be additive; consumers ignore unknown keys.
