@@ -94,7 +94,8 @@ describe('contact-sheet.mjs phase A', () => {
             "if (args.includes('-json')) {",
             '  const out = files.map((f) => {',
             "    const base = f.split('/').pop();",
-            "    const n = parseInt((base.match(/(\\d+)/) || [0, '0'])[1], 10);",
+            "    let n = parseInt((base.match(/(\\d+)/) || [0, '0'])[1], 10);",
+            "    if (base.indexOf('UUIDNAME') === 0) n = 1;",
             '    const entry = {',
             '      SourceFile: f,',
             "      'ExifIFD:FocalLength': '18.0 mm',",
@@ -136,6 +137,7 @@ describe('contact-sheet.mjs phase A', () => {
             'buildSheet',
             'buildOutingSheets',
             'reconcileExports',
+            'reconcileGalleries',
             'writeOutputs',
             'renderSheetHtml',
             'listFrames',
@@ -238,21 +240,25 @@ describe('contact-sheet.mjs phase A', () => {
             decision: 'select',
             signal: 'xmp-develop',
             exported: false,
+            published: null,
         });
         expect(sheet.frames[3].selection).toEqual({
             decision: 'select',
             signal: 'xmp-develop',
             exported: false,
+            published: null,
         });
         expect(sheet.frames[4].selection).toEqual({
             decision: 'pass',
             signal: null,
             exported: false,
+            published: null,
         });
         expect(sheet.frames[0].selection).toEqual({
             decision: 'pass',
             signal: null,
             exported: false,
+            published: null,
         });
 
         // Metrics over extracted previews: red is dark in L*, green is bright,
@@ -380,12 +386,14 @@ describe('contact-sheet.mjs phase A', () => {
             decision: 'select',
             signal: 'exported',
             exported: true,
+            published: null,
         });
         // already-select frames keep their original signal
         expect(d12.frames.find((f) => f.file === 'IMG_0004.RAF').selection).toEqual({
             decision: 'select',
             signal: 'xmp-develop',
             exported: true,
+            published: null,
         });
         // untouched frames stay pass
         expect(d12.frames.find((f) => f.file === 'IMG_0001.JPG')).toBeUndefined();
@@ -405,6 +413,63 @@ describe('contact-sheet.mjs phase A', () => {
             'utf8'
         );
         expect(html).toContain('SELECT');
+    });
+
+    test('reconcileGalleries marks published frames by capture time, recording the gallery id', () => {
+        const galleryRoot = path.join(tmp, 'galleries');
+        fs.mkdirSync(path.join(galleryRoot, 'p1'), { recursive: true });
+        fs.mkdirSync(path.join(galleryRoot, 'p2'), { recursive: true });
+        // DSCF-style name matches frame IMG_0003 (n=3 → 2026-10-11T21:03:43);
+        // UUID-style name (shim override n=1) matches IMG_0001 — capture-time
+        // matching must survive renames.
+        fs.writeFileSync(path.join(galleryRoot, 'p1', 'IMG_0003.jpg'), 'x');
+        fs.writeFileSync(path.join(galleryRoot, 'p2', 'UUIDNAME-9F88.jpg'), 'x');
+        const out = runJson(`(async () => {
+            return await m.reconcileGalleries(${JSON.stringify(galleryRoot)}, {
+                env: ${JSON.stringify(shimEnv)},
+                repoRoot: ${JSON.stringify(outRoot)},
+            });
+        })()`);
+        expect(out).toEqual({
+            galleriesScanned: 2,
+            digestsScanned: 3,
+            digestsUpdated: 2,
+            framesMarked: 4,
+        });
+
+        const d11 = JSON.parse(
+            fs.readFileSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-11.json'), 'utf8')
+        );
+        // pass → select upgrade, published implies exported
+        expect(d11.frames.find((f) => f.file === 'IMG_0001.JPG').selection).toEqual({
+            decision: 'select',
+            signal: 'published',
+            exported: true,
+            published: 'p2',
+        });
+        expect(d11.frames.find((f) => f.file === 'IMG_0003.JPG').selection).toEqual({
+            decision: 'select',
+            signal: 'published',
+            exported: true,
+            published: 'p1',
+        });
+        // export-selected frame untouched (no gallery match), published stays null
+        expect(d11.frames.find((f) => f.file === 'IMG_0002.JPG').selection.published).toBeNull();
+
+        // untouched day digest unchanged
+        const d12 = JSON.parse(
+            fs.readFileSync(path.join(outRoot, 'contact-sheet-ledger', '2026-10-12.json'), 'utf8')
+        );
+        expect(d12.frames.every((f) => f.selection.published === null)).toBe(true);
+
+        // local sheet re-rendered with the published upgrade
+        const local = JSON.parse(
+            fs.readFileSync(
+                path.join(outRoot, 'contact-sheets', '2026-10-11', 'sheet.json'),
+                'utf8'
+            )
+        );
+        expect(local.frames.find((f) => f.file === 'IMG_0001.JPG').selection.published).toBe('p2');
     });
 
     test('CLI rejects --slug together with --split', () => {

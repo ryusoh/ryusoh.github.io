@@ -289,6 +289,7 @@ function assembleSheet(absDir, records, { slug, now } = {}) {
                 decision: f.selected ? 'select' : 'pass',
                 signal: f.selected ? 'xmp-develop' : null,
                 exported: false,
+                published: null,
             },
             rationale: null,
             metrics: {
@@ -373,6 +374,41 @@ function frameMatchKey(file, captureTime) {
 }
 
 /**
+ * Applies markFrame to every frame of every ledger digest (and the matching
+ * local sheet, re-rendering its HTML). markFrame returns true when it changed
+ * the frame. Returns rewrite statistics.
+ */
+function rewriteMarkedDigests(repoRoot, markFrame) {
+    const ledgerDir = path.join(repoRoot, 'contact-sheet-ledger');
+    const digestFiles = fs.existsSync(ledgerDir)
+        ? fs.readdirSync(ledgerDir).filter((f) => f.endsWith('.json'))
+        : [];
+    let digestsUpdated = 0;
+    let framesMarked = 0;
+    for (const f of digestFiles) {
+        const digestPath = path.join(ledgerDir, f);
+        const digest = JSON.parse(fs.readFileSync(digestPath, 'utf8'));
+        const marked = digest.frames.filter(markFrame).length;
+        if (marked === 0) continue;
+        framesMarked += marked;
+        digestsUpdated++;
+        fs.writeFileSync(digestPath, `${JSON.stringify(digest, null, 2)}\n`);
+
+        const localSheetPath = path.join(repoRoot, 'contact-sheets', digest.slug, 'sheet.json');
+        if (fs.existsSync(localSheetPath)) {
+            const local = JSON.parse(fs.readFileSync(localSheetPath, 'utf8'));
+            local.frames.forEach(markFrame);
+            fs.writeFileSync(localSheetPath, `${JSON.stringify(local, null, 2)}\n`);
+            fs.writeFileSync(
+                path.join(repoRoot, 'contact-sheets', digest.slug, 'index.html'),
+                renderSheetHtml(local)
+            );
+        }
+    }
+    return { digestsScanned: digestFiles.length, digestsUpdated, framesMarked };
+}
+
+/**
  * Marks frames whose exports are found in exportDir (Lightroom export folder,
  * walked recursively). Matching is stem + capture time, so DSCF counter resets
  * across cards cannot cross-match. Sets selection.exported and upgrades
@@ -401,55 +437,71 @@ export async function reconcileExports(exportDir, { env, repoRoot = REPO_ROOT } 
         if (key) exported.add(key);
     }
 
-    const markFrames = (frames) => {
-        let marked = 0;
-        for (const frame of frames) {
-            const key = frameMatchKey(frame.file, frame.captureTime);
-            if (!key || !exported.has(key)) continue;
-            if (!frame.selection.exported) {
-                frame.selection.exported = true;
-                marked++;
-            }
-            if (frame.selection.decision === 'pass') {
-                frame.selection.decision = 'select';
-                frame.selection.signal = 'exported';
-            }
+    const stats = rewriteMarkedDigests(repoRoot, (frame) => {
+        const key = frameMatchKey(frame.file, frame.captureTime);
+        if (!key || !exported.has(key)) return false;
+        const changed = !frame.selection.exported;
+        frame.selection.exported = true;
+        if (frame.selection.decision === 'pass') {
+            frame.selection.decision = 'select';
+            frame.selection.signal = 'exported';
         }
-        return marked;
-    };
+        return changed;
+    });
+    return { exportsScanned: jpegs.length, ...stats };
+}
 
-    const ledgerDir = path.join(repoRoot, 'contact-sheet-ledger');
-    const digestFiles = fs.existsSync(ledgerDir)
-        ? fs.readdirSync(ledgerDir).filter((f) => f.endsWith('.json'))
-        : [];
-    let digestsUpdated = 0;
-    let framesMarked = 0;
-    for (const f of digestFiles) {
-        const digestPath = path.join(ledgerDir, f);
-        const digest = JSON.parse(fs.readFileSync(digestPath, 'utf8'));
-        const marked = markFrames(digest.frames);
-        if (marked === 0) continue;
-        framesMarked += marked;
-        digestsUpdated++;
-        fs.writeFileSync(digestPath, `${JSON.stringify(digest, null, 2)}\n`);
-
-        const localSheetPath = path.join(repoRoot, 'contact-sheets', digest.slug, 'sheet.json');
-        if (fs.existsSync(localSheetPath)) {
-            const local = JSON.parse(fs.readFileSync(localSheetPath, 'utf8'));
-            markFrames(local.frames);
-            fs.writeFileSync(localSheetPath, `${JSON.stringify(local, null, 2)}\n`);
-            fs.writeFileSync(
-                path.join(repoRoot, 'contact-sheets', digest.slug, 'index.html'),
-                renderSheetHtml(local)
-            );
-        }
+/**
+ * Marks frames that appear in published galleries (galleryRoot walked
+ * recursively; source JPEGs only — responsive tiers are avif/webp). Matching
+ * is by capture time alone, which survives Lightroom's UUID renames; the
+ * frame's selection.published records the gallery id (p1, p2, ...). Published
+ * implies exported, and upgrades pass → select with signal 'published'.
+ */
+export async function reconcileGalleries(
+    galleryRoot = path.join(REPO_ROOT, 'assets', 'img'),
+    { env, repoRoot = REPO_ROOT } = {}
+) {
+    const absRoot = path.resolve(galleryRoot);
+    if (!fs.existsSync(absRoot) || !fs.statSync(absRoot).isDirectory()) {
+        throw new Error(`contact-sheet: not a directory: ${galleryRoot}`);
     }
-    return {
-        exportsScanned: jpegs.length,
-        digestsScanned: digestFiles.length,
-        digestsUpdated,
-        framesMarked,
-    };
+    const jpegs = walkExportedJpegs(absRoot);
+    if (jpegs.length === 0) {
+        throw new Error(`contact-sheet: no gallery JPEGs found in ${galleryRoot}`);
+    }
+    ensureExiftool(env);
+    const batch = normalizeBatchJson(
+        runExiftool(['-json', '-G1', '-DateTimeOriginal', ...jpegs], { env, encoding: 'utf8' })
+    );
+    const publishedByTime = new Map();
+    for (const e of batch) {
+        const t = exiftoolDateToIso(tagValue(e, 'DateTimeOriginal'));
+        if (!t || !e.SourceFile) continue;
+        const firstSegment = path.relative(absRoot, e.SourceFile).split(path.sep)[0];
+        if (!/^p\d+$/.test(firstSegment)) continue;
+        if (publishedByTime.has(t)) {
+            console.error(
+                `contact-sheet: warning: gallery capture-time collision at ${t}; keeping ${publishedByTime.get(t)}`
+            );
+            continue;
+        }
+        publishedByTime.set(t, firstSegment);
+    }
+
+    const stats = rewriteMarkedDigests(repoRoot, (frame) => {
+        const galleryId = frame.captureTime ? publishedByTime.get(frame.captureTime) : undefined;
+        if (!galleryId) return false;
+        const changed = frame.selection.published !== galleryId;
+        frame.selection.published = galleryId;
+        frame.selection.exported = true;
+        if (frame.selection.decision === 'pass') {
+            frame.selection.decision = 'select';
+            frame.selection.signal = 'published';
+        }
+        return changed;
+    });
+    return { galleriesScanned: jpegs.length, ...stats };
 }
 
 /** Renders a sheet object to a self-contained static HTML contact sheet. */
@@ -542,15 +594,24 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const slug = slugIdx > 0 ? args[slugIdx] : null;
     const recIdx = args.indexOf('--reconcile') + 1;
     const reconcileDir = recIdx > 0 ? args[recIdx] : null;
+    const galIdx = args.indexOf('--reconcile-galleries');
+    const galleriesRequested = galIdx >= 0;
+    const galleriesDir =
+        galleriesRequested && args[galIdx + 1] && !args[galIdx + 1].startsWith('--')
+            ? args[galIdx + 1]
+            : undefined;
     const split = args.includes('--split');
     const dirArg = args.find((a) => !a.startsWith('--'));
     const help = args.includes('--help') || args.includes('-h');
     const usage =
         'Usage: node scripts/contact-sheet.mjs <dir> (--slug <YYYY-MM-DD-slug> | --split)\n' +
-        '       node scripts/contact-sheet.mjs --reconcile <exportDir>';
-    const reconcileValid = Boolean(reconcileDir) && !slug && !split;
-    const buildValid = !reconcileDir && Boolean(dirArg) && Boolean(slug) !== split;
-    if (help || (!reconcileValid && !buildValid)) {
+        '       node scripts/contact-sheet.mjs --reconcile <exportDir>\n' +
+        '       node scripts/contact-sheet.mjs --reconcile-galleries [galleryRoot]';
+    const reconcileValid = Boolean(reconcileDir) && !slug && !split && !galleriesRequested;
+    const galleriesValid = galleriesRequested && !slug && !split && !reconcileDir;
+    const buildValid =
+        !reconcileDir && !galleriesRequested && Boolean(dirArg) && Boolean(slug) !== split;
+    if (help || (!reconcileValid && !galleriesValid && !buildValid)) {
         console.error(usage);
         process.exit(help ? 0 : 1);
     }
@@ -560,22 +621,30 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
                   `contact-sheet: reconciled ${r.exportsScanned} exports against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
               );
           })
-        : split
-          ? buildOutingSheets(dirArg).then((sheets) => {
-                for (const { sheet, thumbs } of sheets) {
-                    writeOutputs(sheet, thumbs);
-                    console.log(`contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`);
-                }
+        : galleriesRequested
+          ? reconcileGalleries(galleriesDir).then((r) => {
                 console.log(
-                    `contact-sheet: ${sheets.length} outings → contact-sheets/<day>/ + contact-sheet-ledger/<day>.json`
+                    `contact-sheet: reconciled ${r.galleriesScanned} gallery images against ${r.digestsScanned} digests (${r.digestsUpdated} updated, ${r.framesMarked} frames marked)`
                 );
             })
-          : buildSheet(dirArg, { slug }).then(({ sheet, thumbs }) => {
-                writeOutputs(sheet, thumbs);
-                console.log(
-                    `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
-                );
-            });
+          : split
+            ? buildOutingSheets(dirArg).then((sheets) => {
+                  for (const { sheet, thumbs } of sheets) {
+                      writeOutputs(sheet, thumbs);
+                      console.log(
+                          `contact-sheet: ${sheet.slug}: ${sheet.source.frameCount} frames`
+                      );
+                  }
+                  console.log(
+                      `contact-sheet: ${sheets.length} outings → contact-sheets/<day>/ + contact-sheet-ledger/<day>.json`
+                  );
+              })
+            : buildSheet(dirArg, { slug }).then(({ sheet, thumbs }) => {
+                  writeOutputs(sheet, thumbs);
+                  console.log(
+                      `contact-sheet: ${sheet.source.frameCount} frames → contact-sheets/${sheet.slug}/ + contact-sheet-ledger/${sheet.slug}.json`
+                  );
+              });
     run.catch((err) => {
         console.error(err.message || err);
         process.exit(1);

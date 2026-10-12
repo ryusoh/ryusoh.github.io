@@ -69,6 +69,14 @@ derived, re-renderable view.
   `selection.exported: true`, and upgrades `pass` → `select` with signal
   `exported`. This backfills selects for shoots that predate the XMP
   auto-write setting. (Added 2026-10-12.)
+- **Third signal — published galleries.** `--reconcile-galleries [galleryRoot]`
+  (default `assets/img`) walks gallery source JPEGs (responsive tiers are
+  avif/webp, so a `.jpg` filter suffices) and matches by **capture time
+  alone** — the galleries rename files (`DSCF0361-2`, Apple UUIDs), but EXIF
+  `DateTimeOriginal` survives the whole pipeline. The frame's
+  `selection.published` records the gallery id (`p1`, …); published implies
+  `exported`, and upgrades `pass` → `select` with signal `published`. This
+  closes the funnel: shot → edited → exported → published. (Added 2026-10-12.)
 
 ### D3 — Output: split local material from public digest
 
@@ -114,7 +122,12 @@ derived, re-renderable view.
                 "iso": null,
                 "lens": null
             },
-            "selection": { "decision": "pass", "signal": null, "exported": false },
+            "selection": {
+                "decision": "pass",
+                "signal": null,
+                "exported": false,
+                "published": null
+            },
             "rationale": null,
             "metrics": { "luminance": null, "cielab": null, "deltaEPrev": null },
             "gaze": null
@@ -129,7 +142,9 @@ Field rules:
   frame with no selection trace (see D2 — pass is a base rate, not a verdict).
   `selection.signal` records how a `select` was inferred (`xmp-develop`,
   `exported`, or `manual` once phase B exists). `selection.exported` marks
-  frames found in the export folder by `--reconcile`.
+  frames found in the export folder by `--reconcile`; `selection.published`
+  records the gallery id for frames found by `--reconcile-galleries` (and
+  implies `exported`).
 - `metrics` reuses the sequence skill's `metrics.mjs` (CIELAB, luminance,
   ΔE₇₆ to previous frame) computed over extracted previews.
 - Unknown future fields must be additive; consumers ignore unknown keys.
@@ -145,8 +160,11 @@ Field rules:
 
 ## Open questions
 
-- The select → published lineage (digest `select` → membership in a published
-  `pN` gallery) is a later join, not v1.
+- **Same-second bursts.** Gallery matching uses second-resolution capture time;
+  a burst putting several frames in one second could over-mark published
+  frames. Accepted for a funnel metric; `SubSecDateTimeOriginal`
+  disambiguation is available if it ever matters.
 - Frames opened in Lightroom but never edited write no XMP and read as `pass`
   (accepted miss; see D2). Historical shoots predate the XMP auto-write
-  setting, so their digests will be all-`pass`.
+  setting, so their XMP trace is absent — mitigated by the export/gallery
+  reconcile signals.
