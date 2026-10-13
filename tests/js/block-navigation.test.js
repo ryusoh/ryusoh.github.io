@@ -98,6 +98,26 @@ describe('js/block-navigation.js', () => {
             expect(testing.calculateNextIndex('ArrowRight')).toBe(1);
         });
 
+        it('should handle isAtTopOrBottom = null (middle)', () => {
+            Object.defineProperty(document.documentElement, 'scrollHeight', {
+                value: 2000,
+                configurable: true,
+            });
+            Object.defineProperty(document.documentElement, 'scrollTop', {
+                value: 500,
+                configurable: true,
+            });
+            Object.defineProperty(document.documentElement, 'clientHeight', {
+                value: 500,
+                configurable: true,
+            });
+            Object.defineProperty(window, 'innerHeight', { value: 500, configurable: true });
+            window.scrollY = 500;
+            // Blocks length is 3. At 500 scrollY, it will rely on getIndexFromObserver/getIndexFromFallback
+            // Not clamped by top/bottom.
+            expect(testing.calculateNextIndex('ArrowRight')).toBe(1);
+        });
+
         it('should handle isAtTopOrBottom = bottom', () => {
             // Need to make blocks.length not empty in order for it to return bottom correctly
             // calculateNextIndex uses getIndexFromFallback or getCurrentIndex which returns blocks.length - 1
