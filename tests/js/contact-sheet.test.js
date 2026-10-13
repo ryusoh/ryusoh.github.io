@@ -1094,4 +1094,17 @@ describe('contact-sheet.mjs phase A', () => {
         );
         expect(run(['--verdicts', badVerdicts]).stderr).toContain('Usage:');
     });
+
+    test('resolveExiftoolEnv preserves explicit PATH and augments empty darwin PATH with homebrew', () => {
+        const explicit = runJson("m.resolveExiftoolEnv({ PATH: '/custom/bin' })");
+        expect(explicit.PATH).toBe('/custom/bin');
+
+        const resolved = runJson('m.resolveExiftoolEnv()');
+        expect(typeof resolved.PATH).toBe('string');
+        if (process.platform === 'darwin') {
+            if (fs.existsSync('/opt/homebrew/bin')) {
+                expect(resolved.PATH.split(path.delimiter)).toContain('/opt/homebrew/bin');
+            }
+        }
+    });
 });

@@ -51,9 +51,25 @@ const EXIF_BATCH_ARGS = [
 
 const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
+export function resolveExiftoolEnv(customEnv) {
+    const env = { ...process.env, ...(customEnv || {}) };
+    if (customEnv && customEnv.PATH !== undefined) {
+        return env;
+    }
+    if (process.platform === 'darwin') {
+        const standard = ['/opt/homebrew/bin', '/usr/local/bin'];
+        const existing = (env.PATH || '').split(path.delimiter);
+        const missing = standard.filter((p) => !existing.includes(p) && fs.existsSync(p));
+        if (missing.length > 0) {
+            env.PATH = `${env.PATH ? env.PATH + path.delimiter : ''}${missing.join(path.delimiter)}`;
+        }
+    }
+    return env;
+}
+
 function runExiftool(args, { env, encoding, maxBuffer = 128 * 1024 * 1024 } = {}) {
     return execFileSync('exiftool', args, {
-        env: { ...process.env, ...(env || {}) },
+        env: resolveExiftoolEnv(env),
         encoding,
         maxBuffer,
     });
