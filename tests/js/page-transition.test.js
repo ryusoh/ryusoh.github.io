@@ -1702,6 +1702,18 @@ describe('page-transition extra coverage branches', () => {
         });
     });
 
+    it('isUrlLengthValid returns false if window.location.href is greater than 2000', () => {
+        jest.isolateModules(() => {
+            require('../../js/page-transition.js');
+            const t = window.__PageTransitionForTesting;
+
+            const originalHref = window.location.href;
+            window.history.pushState({}, '', '/?' + 'x'.repeat(2001));
+            expect(t.getValidatedUrl('/target')).toBeNull();
+            window.history.pushState({}, '', originalHref);
+        });
+    });
+
     it('isUrlLengthValid covers long href', () => {
         jest.isolateModules(() => {
             require('../../js/page-transition.js');

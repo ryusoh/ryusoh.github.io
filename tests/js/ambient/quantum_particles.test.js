@@ -227,6 +227,27 @@ describe('quantum_particles.js', () => {
             });
         });
 
+        it('returns false if navigator is undefined', () => {
+            const originalNavigator = global.navigator;
+            Object.defineProperty(global, 'navigator', {
+                value: undefined,
+                configurable: true,
+            });
+            const qp = getQuantumParticles();
+
+            Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true });
+            const mockCanvas = { getContext: jest.fn().mockReturnValue({}) };
+            jest.spyOn(document, 'createElement').mockReturnValue(mockCanvas);
+            window.WebGLRenderingContext = true;
+
+            expect(qp.shouldSkipParticles(null, false)).toBe(false);
+
+            Object.defineProperty(global, 'navigator', {
+                value: originalNavigator,
+                configurable: true,
+            });
+        });
+
         it('returns false if navigator.connection is missing', () => {
             const originalNavigator = window.navigator;
             Object.defineProperty(window, 'navigator', {
