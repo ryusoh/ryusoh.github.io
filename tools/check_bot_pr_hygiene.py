@@ -68,7 +68,14 @@ def _is_stray_artifact(path: str) -> bool:
     """Detect stray PR draft files, scratch logs, or temporary artifacts."""
     parts = path.split("/")
     name = parts[-1].lower()
-    if name in {"pr_body.txt", "pr_description.txt", "pr_title.txt", "commit_message.txt"}:
+    if name in {
+        "pr_body.txt",
+        "pr_description.txt",
+        "pr_title.txt",
+        "commit_message.txt",
+        "commit-message.txt",
+        "commit_msg.txt",
+    }:
         return True
     if name.endswith((".tmp", ".scratch", ".swp", ".log")):
         return True
@@ -79,6 +86,9 @@ def _is_stray_artifact(path: str) -> bool:
     if name.endswith(("_out.json", "_output.json")):
         return True
     if name.startswith(("temp_", "dummy_")):
+        return True
+    # Stray patch/diff files (e.g. net-tools PR #212 shipped a 158-line patch.diff)
+    if name in {"patch.diff", "diff.patch"} or name.endswith((".diff", ".patch")):
         return True
     return False
 
