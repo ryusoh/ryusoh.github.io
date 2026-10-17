@@ -108,6 +108,9 @@ interface Window {
         claim: () => Promise<void>;
     };
     __swForTesting?: unknown;
+    __MagneticNavForTesting?: {
+        _resetCache: () => void;
+    };
     __HoverPreviewForTesting?: unknown;
     ThumbHash?: unknown;
     ThumbHashInit?: {

@@ -1,13 +1,25 @@
 /**
  * Magnetic Navigation effect
  */
+/** @type {MediaQueryList | null} */
+let hoverNoneMediaQuery = null;
+
+/**
+ * Bolt Optimization:
+ * - What: Cache `MediaQueryList` object from `window.matchMedia`.
+ * - Why: Calling `window.matchMedia` repeatedly incurs unnecessary main-thread parsing and garbage collection overhead.
+ * - Impact: Eliminates main-thread re-evaluation for subsequent checks.
+ */
 function checkTouchDevice() {
     if (typeof window === 'undefined' || typeof navigator === 'undefined') {
         return false;
     }
     const hasTouchStart = 'ontouchstart' in window;
     const hasMaxTouchPoints = navigator.maxTouchPoints > 0;
-    const isHoverNone = window.matchMedia && window.matchMedia('(hover: none)').matches;
+    if (hoverNoneMediaQuery === null && window.matchMedia) {
+        hoverNoneMediaQuery = window.matchMedia('(hover: none)');
+    }
+    const isHoverNone = hoverNoneMediaQuery ? hoverNoneMediaQuery.matches : false;
     return hasTouchStart || hasMaxTouchPoints || isHoverNone;
 }
 
@@ -142,4 +154,12 @@ function setupMagneticElement(el) {
             });
         }
     });
+}
+
+if (typeof window !== 'undefined') {
+    window.__MagneticNavForTesting = {
+        _resetCache: () => {
+            hoverNoneMediaQuery = null;
+        },
+    };
 }
