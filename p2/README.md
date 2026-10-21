@@ -1,10 +1,10 @@
 # Visual Curation & Sequence Report: I DO NOT CARE IF WE GO DOWN IN HISTORY AS BARBARIANS
 
-> **Curation Archetype**: Polyphonic Street Symphony / Lyrical Arc
+> **Curation Archetype**: Humanist / Social Manifesto
 >
 > **Sequence Status**: Validated (Existing sequence affirmed as optimal)
 >
-> **Hamiltonian Sequence Energy**: `373.0` (Avg Step Cost: `18.6`)
+> **Hamiltonian Sequence Energy**: `348.0` (Avg Step Cost: `17.4`)
 >
 > **Respiratory Pacing Score**: `100/100` (3 Inhalations, 6 Exhalations, 12 Grounding)
 
@@ -42,11 +42,11 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ![DSCF4295-2.JPG](../assets/img/p2/DSCF4295-2-768.webp)
 
-| Attribute                           | Value                                                    |
-| :---------------------------------- | :------------------------------------------------------- |
-| **Framing & Aspect**                | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)               |
-| **Tonality & Breath**               | `L*=46.3` — **Neutral** (CIELAB: `46.3, -1.73, -6.27`)   |
-| **Transition to #2 (R0002358.JPG)** | `ΔE₇₆: 27.27` (Color) · `ΔLum: 41` · **Step Cost: `21`** |
+| Attribute                             | Value                                                      |
+| :------------------------------------ | :--------------------------------------------------------- |
+| **Framing & Aspect**                  | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
+| **Tonality & Breath**                 | `L*=46.3` — **Neutral** (CIELAB: `46.3, -1.73, -6.27`)     |
+| **Transition to #2 (DSCF0883-3.jpg)** | `ΔE₇₆: 14.71` (Color) · `ΔLum: 37` · **Step Cost: `13.4`** |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -54,7 +54,7 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Outside a commercial storefront under sale banners, two women in white religious habits hold a sacred icon of the Madonna and Child before a man in a wheelchair, while a companion in a red hood passes him a bottle of alcohol.
 - _Thematic Meaning_: The foundational manifesto of the series: the visceral collision between institutional spiritual promises and immediate, earthly survival. The subject chooses the tangible solidarity of liquor over ethereal dogma, establishing the defiant 'barbarian' ethos.
 - _Composition & Gaze Vectors_: Triangular confrontation between the standing white-robed proselytizers, the leaning man in the red hood, and the central seated figure in the grey beanie.
-- _Transition Dynamic_: Harmonic bridge into the curatorial manifesto, followed by the weary gazes of the bar window.
+- _Transition Dynamic_: After the threshold caesura, private moral choice expands into public spiritual appeal; white habits rhyme with white fur while the governing vector turns from the seated man toward the sky.
 
 > **[Poetic Caesura: Musical Rest]**
 >
@@ -62,35 +62,15 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 ---
 
-### [2/21] R0002358.JPG
-
-![R0002358.JPG](../assets/img/p2/R0002358-768.webp)
-
-| Attribute                             | Value                                                      |
-| :------------------------------------ | :--------------------------------------------------------- |
-| **Framing & Aspect**                  | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                 |
-| **Tonality & Breath**                 | `L*=30` — **Exhalation** (CIELAB: `30, 14.34, 8.56`)       |
-| **Transition to #3 (DSCF0883-3.jpg)** | `ΔE₇₆: 37.01` (Color) · `ΔLum: 78` · **Step Cost: `31.5`** |
-
-**Curatorial Rationale & Montage Dynamic**:
-
-- _Pacing Role_: Act I: Working-Class Stoicism / The Bar Window
-- _Visual Subject & Content_: Two middle-aged men leaning out of a red brick bar window, hands tightly clasped over the sill. The foreground man in a plain white t-shirt gazes directly into the lens with bloodshot, weathered eyes, while his companion watches with a sly grin.
-- _Thematic Meaning_: An unvarnished look at working-class exhaustion and camaraderie in the urban margins. Their clasped hands and world-weary gazes capture raw human vulnerability and quiet resilience.
-- _Composition & Gaze Vectors_: Horizontal sill dividing the frame, with the prominent interlocking hands anchoring the lower quadrant and direct eye contact commanding the upper half.
-- _Transition Dynamic_: Deep exhalation anchor (`L*=30.00`) leading into the luminous skyward fervor of street evangelism.
-
----
-
-### [3/21] DSCF0883-3.jpg
+### [2/21] DSCF0883-3.jpg
 
 ![DSCF0883-3.jpg](../assets/img/p2/DSCF0883-3-768.webp)
 
-| Attribute                             | Value                                                       |
-| :------------------------------------ | :---------------------------------------------------------- |
-| **Framing & Aspect**                  | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                  |
-| **Tonality & Breath**                 | `L*=60.86` — **Inhalation** (CIELAB: `60.86, -1.64, -4.16`) |
-| **Transition to #4 (DSCF5163-8.JPG)** | `ΔE₇₆: 29.07` (Color) · `ΔLum: 67` · **Step Cost: `25.5`**  |
+| Attribute                           | Value                                                       |
+| :---------------------------------- | :---------------------------------------------------------- |
+| **Framing & Aspect**                | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                  |
+| **Tonality & Breath**               | `L*=60.86` — **Inhalation** (CIELAB: `60.86, -1.64, -4.16`) |
+| **Transition to #3 (R0002358.JPG)** | `ΔE₇₆: 37.01` (Color) · `ΔLum: 78` · **Step Cost: `31.5`**  |
 
 **Curatorial Rationale & Montage Dynamic**:
 
@@ -98,7 +78,27 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 - _Visual Subject & Content_: Low-angle street perspective looking up at towering skyscrapers: an older woman in a clear protective visor raises her hands in ecstatic prayer, flanked by street preachers holding vibrant signs reading 'DO NOT DIE WITHOUT KNOWING JESUS'.
 - _Thematic Meaning_: Spiritual angst in the shadow of high finance. The fervent, desperate plea for salvation collides visually with the gleaming, impassive glass monoliths of the financial district.
 - _Composition & Gaze Vectors_: Dramatic upward perspective vectors along the soaring skyscraper facades, framed by the outstretched praying hands pointing skyward.
-- _Transition Dynamic_: Luminous inhalation (`L*=60.86`) descending into the sleek, high-contrast sunlight of the commercial boulevard.
+- _Transition Dynamic_: The white-hot inhalation and upraised open hands collapse into the bar window's dark red exhalation and clasped hands (ΔE: 37.01; ΔLum: 78).
+
+---
+
+### [3/21] R0002358.JPG
+
+![R0002358.JPG](../assets/img/p2/R0002358-768.webp)
+
+| Attribute                             | Value                                                     |
+| :------------------------------------ | :-------------------------------------------------------- |
+| **Framing & Aspect**                  | `LANDSCAPE` · `2048×1365` (Aspect: `1.50`)                |
+| **Tonality & Breath**                 | `L*=30` — **Exhalation** (CIELAB: `30, 14.34, 8.56`)      |
+| **Transition to #4 (DSCF5163-8.JPG)** | `ΔE₇₆: 11.71` (Color) · `ΔLum: 11` · **Step Cost: `8.1`** |
+
+**Curatorial Rationale & Montage Dynamic**:
+
+- _Pacing Role_: Act I: Working-Class Stoicism / The Bar Window
+- _Visual Subject & Content_: Two middle-aged men leaning out of a red brick bar window, hands tightly clasped over the sill. The foreground man in a plain white t-shirt gazes directly into the lens with bloodshot, weathered eyes, while his companion watches with a sly grin.
+- _Thematic Meaning_: An unvarnished look at working-class exhaustion and camaraderie in the urban margins. Their clasped hands and world-weary gazes capture raw human vulnerability and quiet resilience.
+- _Composition & Gaze Vectors_: Horizontal sill dividing the frame, with the prominent interlocking hands anchoring the lower quadrant and direct eye contact commanding the upper half.
+- _Transition Dynamic_: A low-cost chromatic handoff (ΔE: 11.71) moves from unguarded eye contact to sunglasses and from intimate camaraderie to the public theater of consumer display.
 
 ---
 
@@ -415,9 +415,9 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 **Curatorial Rationale & Montage Dynamic**:
 
 - _Pacing Role_: Act V: Transactional Alienation / Lost Tickets Are Final
-- _Visual Subject & Content_: A young man in a black tank top stands under harsh fluorescent lighting feeding dollar bills into an automated parking pay station on a wooden boardwalk at night, flanked by stark warning signs reading 'LOST TICKETS ARE FINAL'.
+- _Visual Subject & Content_: A young man in a black tank top stands under harsh fluorescent lighting making a payment at an automated parking station on a wooden boardwalk at night, flanked by stark warning signs reading 'LOST TICKETS ARE FINAL'.
 - _Thematic Meaning_: The bureaucratic and mechanical alienation of contemporary urban life. The individual is reduced to transactional inputs amidst warning labels and cold vending machinery, capturing the quiet existential dread of modern systems.
-- _Composition & Gaze Vectors_: Sharp vertical machine chassis bisecting the frame, with the subject's bent neck and hands creating an intimate diagonal convergence toward the glowing cash slot.
+- _Composition & Gaze Vectors_: Sharp vertical machine chassis bisecting the frame, with the subject's bent neck and hands creating an intimate diagonal convergence toward the glowing payment terminal.
 - _Transition Dynamic_: Mechanical urban isolation expands outward into the sublime cosmic sky of the cloud fissure.
 
 > **[Poetic Caesura: Musical Rest]**

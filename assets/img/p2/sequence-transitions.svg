@@ -38,18 +38,18 @@
   <line x1="68" y1="224" x2="72.5" y2="224" class="tick-line" />
   <line x1="735.5" y1="224" x2="740" y2="224" class="tick-line" />
   <text x="62" y="227" class="tick-label" text-anchor="end">0</text>
-  <rect x="75.056" y="194.624" width="19.488" height="29.375999999999998" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
-  <rect x="75.056" y="183.87199999999999" width="19.488" height="10.751999999999999" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
-  <text x="84.8" y="179.68" class="tick-label" font-weight="600" text-anchor="middle">21.0</text>
+  <rect x="75.056" y="208.064" width="19.488" height="15.936" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="75.056" y="198.272" width="19.488" height="9.792" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
+  <text x="84.8" y="194.272" class="tick-label" font-weight="600" text-anchor="middle">13.4</text>
   <line x1="84.8" y1="219.5" x2="84.8" y2="224" class="tick-line" />
   <text x="84.8" y="238" class="tick-label" text-anchor="middle">1→2</text>
   <rect x="108.656" y="184.064" width="19.488" height="39.93600000000001" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
   <rect x="108.656" y="163.51999999999998" width="19.488" height="20.544" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
   <text x="118.4" y="159.51999999999998" class="tick-label" font-weight="600" text-anchor="middle">31.5</text>
   <line x1="118.4" y1="219.5" x2="118.4" y2="224" class="tick-line" />
-  <rect x="142.256" y="192.512" width="19.488" height="31.487999999999996" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
-  <rect x="142.256" y="174.848" width="19.488" height="17.664" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
-  <text x="152" y="171.04" class="tick-label" font-weight="600" text-anchor="middle">25.5</text>
+  <rect x="142.256" y="211.328" width="19.488" height="12.672" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
+  <rect x="142.256" y="208.448" width="19.488" height="2.88" fill="#c25925" stroke="#0f172a" stroke-width="0.5" />
+  <text x="152" y="204.448" class="tick-label" font-weight="600" text-anchor="middle">8.1</text>
   <line x1="152" y1="219.5" x2="152" y2="224" class="tick-line" />
   <text x="152" y="238" class="tick-label" text-anchor="middle">3→4</text>
   <rect x="175.85600000000002" y="163.136" width="19.488" height="60.864000000000004" fill="#2b5c8f" stroke="#0f172a" stroke-width="0.5" />
