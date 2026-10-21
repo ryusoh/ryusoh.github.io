@@ -41,8 +41,8 @@
                 ],
                 p2: [
                     '/assets/img/p2/DSCF4295-2.JPG',
-                    '/assets/img/p2/R0002358.JPG',
                     '/assets/img/p2/DSCF0883-3.jpg',
+                    '/assets/img/p2/R0002358.JPG',
                     '/assets/img/p2/DSCF5163-8.JPG',
                     '/assets/img/p2/DSCF8444-3.jpg',
                     '/assets/img/p2/DSCF8593-3.jpg',

@@ -13,8 +13,8 @@ DSCF4295-2.JPG
 
 > In the first photograph, the man in a beanie was making a choice. When being offered the spiritual solace of religion and God, he decided to opt for the ephemeral material comfort of alcohol from his fellow man. Zhuang pressed the shutter as he strongly felt that the beanie man was voicing out a manifesto, and he wanted to deliver the message far and wide. We are the people; we are the drowned; we are the terribly forgotten and forsaken. Our dreams, beliefs, and prides are long long gone. And guess what’s the deal? We do not care if we go down in history as barbarians, not anymore.
 
-R0002358.JPG
 DSCF0883-3.jpg
+R0002358.JPG
 DSCF5163-8.JPG
 DSCF8444-3.jpg
 DSCF8593-3.jpg
