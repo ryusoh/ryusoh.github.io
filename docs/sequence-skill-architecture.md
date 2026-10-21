@@ -464,6 +464,8 @@ In photobook montage (Eisenstein, Jason Eskenazi, Alex Webb), moving even a sing
 | **Intrinsic Invariant** | Image-bound    | `Visual Subject & Content`, `Thematic Meaning`, `Compositional Gaze Vector`                     | **100% Preserved**: Stored in `commentary.json`. The physical contents of the photo do not change when reordered.         |
 | **Relational Dynamic**  | Sequence-bound | `Pacing Role` (Overture vs Coda), `Transition Dynamic` (Neighbor Step Cost), `Respiratory Role` | **Dynamically Re-evaluated**: Calculated live based on position index $i$, surrounding neighbors, and caesura boundaries. |
 
+Store transition prose as a target-aware object (`{ "to": "<next filename>", "text": "..." }`) in `commentary.json`. The report renderer validates that target against the current sequence and discards the prose when a later reorder changes the successor. Plain transition strings are legacy format and can misdescribe the current edge.
+
 #### Caesura & Section Boundary Crossings
 
 When an image is shifted across a **Poetic Caesura (Blockquote)** (e.g. moving from before _"By night, it is theater"_ to after it):

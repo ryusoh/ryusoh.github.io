@@ -190,6 +190,44 @@ describe('sequence skill automation script', () => {
         });
         expect(stdout).toContain('Usage: node inspect_gallery.mjs <pageId>');
         expect(stdout).toContain('--report [outputPath]');
+        expect(stdout).toContain('--archetype <label>');
+    });
+
+    test('inspect_gallery --report --archetype writes the selected curatorial label', () => {
+        const tempReportPath = path.join(SCRATCH_DIR, 'test-archetype-report.md');
+        const generatedSvgs = [
+            'sequence-waveform.svg',
+            'sequence-transitions.svg',
+            'sequence-colorimetry.svg',
+        ].map((filename) => path.join(SCRATCH_DIR, filename));
+
+        try {
+            execFileSync(
+                'node',
+                [
+                    INSPECT_SCRIPT,
+                    'p99',
+                    '--report',
+                    tempReportPath,
+                    '--archetype',
+                    'Humanist / Social Manifesto',
+                ],
+                {
+                    cwd: REPO_ROOT,
+                    encoding: 'utf8',
+                }
+            );
+
+            const report = fs.readFileSync(tempReportPath, 'utf8');
+            expect(report).toContain('**Curation Archetype**: Humanist / Social Manifesto');
+            expect(report).not.toContain('Polyphonic Street Symphony / Lyrical Arc');
+        } finally {
+            for (const artifact of [tempReportPath, ...generatedSvgs]) {
+                if (fs.existsSync(artifact)) {
+                    fs.unlinkSync(artifact);
+                }
+            }
+        }
     });
 
     test('inspect_gallery --report --commentary integrates custom commentary map into visual report', () => {
@@ -374,6 +412,11 @@ describe('sequence skill automation script', () => {
                 /### \[3\/3\] test1\.jpg[\s\S]*?[_*]Pacing Role[_*]: Act IV: Coda/
             );
             expect(report).toContain('Synthetic test overture subject.');
+
+            // Target-aware fixture transitions are relational and must not leak
+            // across the reordered edges.
+            expect(report).not.toContain('Transition from test1 to test2.');
+            expect(report).not.toContain('Transition from test2 to test3.');
         } finally {
             if (fs.existsSync(tempReportPath)) {
                 fs.unlinkSync(tempReportPath);

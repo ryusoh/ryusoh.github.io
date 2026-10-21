@@ -19,13 +19,23 @@ export * from './report.mjs';
 import { resolveGalleryPath, inspectGallery, REPO_ROOT } from './parser.mjs';
 import { generateVisualReport } from './report.mjs';
 
+function readOptionValue(args, option) {
+    const index = args.indexOf(option);
+    if (index === -1) return null;
+    const value = args[index + 1];
+    return value && !value.startsWith('--') ? value : null;
+}
+
 /**
  * Command-line runner for interactive terminal output and report generation.
  */
 async function main() {
     const args = process.argv.slice(2);
     const hasHelp = args.includes('--help') || args.includes('-h');
-    const pageArg = args.find((a) => !a.startsWith('--'));
+    const valueOptions = new Set(['--commentary', '--archetype']);
+    const pageArg = args.find(
+        (a, index) => !a.startsWith('--') && (index === 0 || !valueOptions.has(args[index - 1]))
+    );
 
     if (hasHelp || !pageArg) {
         console.log(`
@@ -38,6 +48,7 @@ Options:
   --json                   Output structured JSON with complete colorimetry and metrics
   --report [outputPath]   Generate visual Markdown report embedding photographs
   --commentary <path>      JSON file mapping filenames to custom curatorial commentary
+  --archetype <label>      Override the report's curatorial archetype label
   --help, -h               Show this help message
 `);
         process.exit(hasHelp ? 0 : 1);
@@ -50,6 +61,7 @@ Options:
         reportPathIndex > 0 && args[reportPathIndex] && !args[reportPathIndex].startsWith('--')
             ? args[reportPathIndex]
             : null;
+    const archetype = readOptionValue(args, '--archetype');
 
     const commIdx = args.indexOf('--commentary') + 1;
     let commentaryMap = {};
@@ -74,6 +86,7 @@ Options:
         const result = await generateVisualReport(pageId, {
             outputPath: customReportPath || undefined,
             commentaryMap,
+            archetype: archetype || undefined,
         });
         console.log(`\n[SUCCESS] Generated Visual Sequence Report for ${pageId.toUpperCase()}:`);
         console.log(`   ${result.outputPath}\n`);

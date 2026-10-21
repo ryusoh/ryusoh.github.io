@@ -28,6 +28,12 @@ Read the existing markdown file (e.g. `assets/img/p<N>/index.md`) to extract:
 - Current image sequence and captions / photo credits (e.g. `@photo.initiator`)
 - Poetic blockquotes, citations, and textual interludes
 
+### Sequence Authority & Commentary Integrity
+
+- The current `index.md` is the sequence authority. Existing reports and commentary transitions can describe an older order; regenerate from `index.md` rather than restoring the report's order. When a mismatch appears, use recent git history only to confirm whether the current order was a deliberate user edit.
+- Write transition prose as a target-aware object so future reorders invalidate it instead of rendering stale prose: `"transition": { "to": "NEXT_FILE.jpg", "text": "..." }`. Plain transition strings are legacy format.
+- Intrinsic commentary (`role`, `subject`, `meaning`, `vectors`) belongs to the image and survives reordering; relational transition text belongs to one directed image pair.
+
 ### Cold-Start & Composition Mode (No Sequenced `index.md`)
 
 When the gallery has photographs on disk but no usable sequence in `index.md` (missing file, or text-only content such as a poem), the inspection tool automatically falls back to a directory scan: it reports `sequenceSource: "directory"` and treats the base source images in filename order as the baseline. In this mode:
@@ -68,10 +74,12 @@ Present the curation plan and **ALWAYS generate/refresh the dedicated Visual Seq
 3. **MANDATORY: Execute Report Generation Script**: The agent MUST run this command during the session to compile all 3 SVG figures and `sequence-report.md` fresh from disk. Never omit this command or leave it for the user to run:
 
     ```bash
-    node .agents/skills/sequence/scripts/inspect_gallery.mjs {{args}} --report --commentary assets/img/{{args}}/commentary.json
+    node .agents/skills/sequence/scripts/inspect_gallery.mjs {{args}} --report --commentary assets/img/{{args}}/commentary.json --archetype "<chosen Storytelling Archetype>"
     ```
 
-    The generated report directly embeds high-resolution photographs via relative links, step energy costs, and the deep artistic critiques synthesized in Steps 2 and 3.
+    Pass the exact archetype selected in Step 3. Never hand-edit the generated report's archetype label after regeneration; pass it through the CLI so `sequence-report.md` and `p<N>/README.md` stay synchronized.
+
+    The generated report directly embeds high-resolution photographs via relative links, step energy costs, and the deep artistic critiques synthesized in Steps 2 and 3. The SVG figures are text artifacts; inspect their source with a text reader or XML tooling rather than retrying an image-only media reader.
 
 4. **Frame-by-Frame Sequence Table**:
     - Sequential Position & Filename
