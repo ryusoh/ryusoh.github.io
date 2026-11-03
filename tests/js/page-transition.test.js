@@ -1780,4 +1780,35 @@ describe('page-transition extra coverage branches', () => {
             window.requestAnimationFrame = originalRAF;
         });
     });
+
+    it('covers missing href branches in click handler and navigate', () => {
+        jest.isolateModules(() => {
+            const anchor = document.createElement('a');
+            anchor.setAttribute('data-page-transition', '');
+            document.body.appendChild(anchor);
+
+            let clickHandled = false;
+            window.__PageTransitionAssign = () => {
+                clickHandled = true;
+            };
+            require('../../js/page-transition.js');
+
+            anchor.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            expect(clickHandled).toBe(false); // Should hit `!anchor.href` or similar
+
+            const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+            Object.defineProperty(event, 'defaultPrevented', { value: true });
+            anchor.dispatchEvent(event);
+
+            const t = window.__PageTransitionForTesting;
+            if (t) {
+                expect(t.navigate('')).toBe(false);
+                expect(t.navigate('javascript:void(0)')).toBe(false);
+                // #anchor navigation works, so we test something invalid like overly long string
+                expect(t.navigate('x'.repeat(2001))).toBe(false);
+            }
+
+            document.body.removeChild(anchor);
+        });
+    });
 });
