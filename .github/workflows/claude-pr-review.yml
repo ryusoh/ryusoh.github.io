@@ -15,7 +15,7 @@ jobs:
             pull-requests: write
             id-token: write
         steps:
-            - uses: anthropics/claude-code-action@v1.0.262
+            - uses: anthropics/claude-code-action@v1.0.266
               with:
                   prompt: |
                       Review this PR. Focus on:
