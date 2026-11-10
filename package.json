@@ -20,7 +20,7 @@
         "page": "./scripts/build-page.mjs"
     },
     "devDependencies": {
-        "@babel/core": "^7.29.7",
+        "@babel/core": "^7.29.13",
         "@babel/plugin-transform-modules-commonjs": "^7.29.7",
         "@babel/preset-env": "^7.29.7",
         "@stryker-mutator/core": "^10.1.1",
