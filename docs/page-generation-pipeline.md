@@ -286,7 +286,7 @@ from the user.
 ```text
 +-------------------------------------------------------------------------+
 | 1. AGENTS.md Rule (Agent Context)                                       |
-|    Tells any agent (Claude, Antigravity, Kimi, Jules) how portfolio     |
+|    Tells any agent (Claude, Antigravity, Kimi) how portfolio            |
 |    pages work: update scripts/templates/portfolio-shell.html and run    |
 |    make sync-pages.                                                     |
 +-------------------------------------------------------------------------+

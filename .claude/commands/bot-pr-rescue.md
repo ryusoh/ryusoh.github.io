@@ -136,7 +136,7 @@ Patch the root cause with **compounding mechanical fixes**, not ceremonial
 instruction:
 
 - **Anti-pattern — do NOT performatively cite PR numbers:** Do not append PR
-  citations (e.g. `(PR #XYZ failed...)`) to `.jules/*.md` personas just to
+  citations (e.g. `(PR #XYZ failed...)`) to agent prompt or skill files just to
   "do something". Citing past failures in LLM prompt files creates prompt bloat
   and warning fatigue without improving agent compliance. Fixes must be
   mechanical and structural.
@@ -151,12 +151,8 @@ instruction:
   `test_all_stray_artifact_patterns_are_gitignored` in
   `tools/__tests__/test_check_bot_pr_hygiene.py` passes so the gate and
   `.gitignore` never drift out of sync.
-- **Level 3: Persona instruction (structural, not ceremonial):** Only edit
-  `.jules/<routine>.md` if an operational rule or workflow step was genuinely
-  missing or incorrect — never add incident tombstones.
 
 Run `python3 tools/sync_commands.py` after editing any skill to keep
 `.claude/commands/` in sync. Run `make precommit` green before committing
 (use `make gate` when tree holds uncommitted work to avoid `precommit-fix`'s
-`git add -u`). Note in the commit body when the edit touches a persona or skill
-file.
+`git add -u`). Note in the commit body when the edit touches a skill file.

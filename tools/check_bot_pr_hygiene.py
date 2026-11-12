@@ -10,9 +10,7 @@ review questions. This check fails the gate on any bot-authored commit in
 
 1. changes no files (empty commit),
 2. adds or changes a file with zero content lines (placeholder/dummy pattern),
-3. deletes lines from a test file — bot lanes are append-only in tests
-   (Testpilot owns ``tests/js/**`` and ``tools/__tests__/**; no other bot lane
-   may touch tests at all),
+3. deletes lines from a test file — bot commits are append-only in tests,
 4. commits stray bot artifacts (``pr_body.txt``, scratch logs, verification-run
    output — fund#692 shipped a 474-line ``verify_output.txt``),
 5. touches ``eslint-suppressions.json`` from a non-refactor lane or increases

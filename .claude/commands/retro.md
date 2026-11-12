@@ -37,7 +37,7 @@ Work through these steps:
    put repo knowledge in chat or memory if it belongs in a version-controlled file.
 
 4. **Implement the safe, high-leverage fixes now.** Knowledge capture, small
-   `AGENTS.md`/`.jules/*.md` edits, scoped skills, deduplication, and tests/lint
+   `AGENTS.md` edits, scoped skills, deduplication, and tests/lint
    rules are usually safe to just do. Promote standards up the ratchet: prose →
    checklist → lint/Prettier rule → CI-blocking check.
 

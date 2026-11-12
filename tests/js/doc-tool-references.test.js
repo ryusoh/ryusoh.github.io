@@ -37,11 +37,6 @@ function collectMarkdownFiles(dir) {
 function getAllDocFiles() {
     const files = [path.join(REPO_ROOT, 'AGENTS.md')];
 
-    const julesDir = path.join(REPO_ROOT, '.jules');
-    if (fs.existsSync(julesDir)) {
-        files.push(...collectMarkdownFiles(julesDir));
-    }
-
     const skillsDir = path.join(REPO_ROOT, '.agents', 'skills');
     if (fs.existsSync(skillsDir)) {
         files.push(...collectMarkdownFiles(skillsDir));

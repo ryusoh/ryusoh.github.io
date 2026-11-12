@@ -1,23 +1,22 @@
 ---
-description: Evaluate whether a Jules-recorded optimization (e.g. a bolt/… entry) is actually worth it
+description: Evaluate whether a historical bot-recorded optimization is actually worth keeping
 argument-hint: '<optimization slug or id, e.g. bolt/optimize-hover-preview-mouse-tracking-1539…>'
 ---
 
-Judge whether a specific optimization recorded by the Jules agent is **worth keeping** —
+Judge whether a specific optimization recorded by earlier bot routines is **worth keeping** —
 honestly, from the real code, not from the self-congratulatory comment. The slug to
 evaluate is `$ARGUMENTS`.
 
-The `.jules/` directory is **read-only for us** (owned by the Jules agent) and you are
-only evaluating — do **not** edit `.jules/`, and do **not** touch the app code unless I
-explicitly ask. The deliverable is a verdict, not a change.
+You are only evaluating — do **not** touch the app code unless I explicitly ask.
+The deliverable is a verdict, not a change.
 
 Work through these steps:
 
 1. **Locate the entry.** The slug is `<tool>/<description>-<bigid>` (e.g. `bolt/…`).
    The numeric id almost never appears in the repo — don't grep for it and give up.
-   Instead map the description to a dated `##` heading in the matching `.jules/<tool>.md`
-   (`bolt.md`, `janitor.md`, etc.) by keyword. Read that entry's **Learning** and
-   **Action**.
+   Instead map the description to inline code comments (`Bolt Optimization:`) or
+   check the historical persona in Git history (`git show c6fc301:.jules/<tool>.md`)
+   by keyword. Read that entry's **Learning** and **Action**.
 
 2. **Read the actual code it touches — always.** Open the real source file and the
    exact lines, plus the inline `Bolt Optimization:` comment block if present. Judge the
@@ -59,7 +58,7 @@ Work through these steps:
    **keep but overstated** (fine to leave; the comment's framing is inaccurate — say how),
    or **revert / not worth it** (no real benefit, adds complexity, or risks a bug). Back it
    with the concrete reasoning above. State explicitly that you changed nothing and why
-   (`.jules/` is read-only; evaluation only).
+   (evaluation only).
 
 Guiding test: _would this survive a senior review that asks "is this path actually hot,
 is the claim physically true, and does the win justify the line?"_ — answer that, not

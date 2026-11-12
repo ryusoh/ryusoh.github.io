@@ -6,22 +6,15 @@ live in `.agents/skills/<name>/SKILL.md` (canonical — the open Agent Skills
 format); `.claude/commands/` is generated from it by `tools/sync_commands.py`,
 `.claude/skills` is symlinked to `.agents/skills`, and the gate drift-checks it via `make sync-check`.
 
-## Two audiences (do not mix these up)
+## Audience
 
-- **Unattended Jules routines** (`.jules/` personas): these bots run without a
-  human in the loop and open PRs. A human only does a binary approve/close on the
-  result — they will **not** leave review comments or iterate with you. So every
-  PR must be self-evidently correct and approvable at a glance. Optimize for
-  **approve rate**, not for volume. The sections from "Non-negotiables" through
-  "Lanes" are binding on Jules routines.
-- **Interactive coding agents** (Claude Code, Kimi, Antigravity, etc.): you work
-  directly with the user in a chat session. The project conventions below still
-  apply, but the Jules-only **PR/branch/lane restrictions do not**. You may edit
-  build files, Makefiles, configs, dependencies, and even `.jules/` persona files
-  (no explicit permission needed — the user reviews the result; see the editing
-  rules below). You may commit to `master` or open PRs as directed by the
-  user. Do not invent Jules-style lane boundaries for normal interactive
-  work — if the user asks you to change something, change it.
+Guidance here is for **interactive coding agents** (Claude Code, Kimi,
+Antigravity, etc.) working directly with the user in a chat session. The Jules
+routines (`.jules/` personas) were retired in November 2026 — see the retirement
+note in `docs/gates.md`. Unattended automation is now limited to GitHub Actions
+workflows. You may edit build files, Makefiles, configs, and dependencies, and
+commit to `master` or open PRs as directed by the user. If the user asks you to
+change something, change it.
 
 This repo is `ryusoh.github.io`: a static, vanilla-JS/CSS personal site served by
 GitHub Pages. **No framework, no build step, no bundler** — pages load plain
@@ -32,11 +25,11 @@ Python pipeline, no Cloudflare worker, and no generated `data/`.**
 Tooling is **npm**-based: `package-lock.json` is authoritative and `make`/CI run
 via `npx`. A `pnpm-lock.yaml` also exists but is secondary — it drifts from
 `package.json` (dependency bumps update only `package-lock.json`) and is
-regenerated out-of-band by Jules/bolt branches. Expect large-but-benign
+regenerated out-of-band during dependency updates. Expect large-but-benign
 `pnpm-lock.yaml` diffs when shipping those; confirm it matches `package.json`
 rather than assuming a regression.
 
-## Non-negotiables (a PR that violates any of these will be closed)
+## Non-negotiables (apply to every change and PR)
 
 1. **Open a PR only if `make precommit-fix` is green.** It runs the CI gate —
    Prettier, ESLint, Stylelint, the JS strict type check (`tsc`), and the full
@@ -48,9 +41,11 @@ rather than assuming a regression.
    stages, then re-runs hooks check-only — see `docs/gates.md`.)
 2. **One concern, smallest possible diff.** No drive-by edits, no scope creep.
    Diff size is inversely proportional to approval — keep it tiny.
-3. **Stay in your lane** (see "Lanes" below). If two routines touch the same files,
-   one PR gets closed. Don't fix something another lane owns.
-4. **Don't commit to `master`.** Branch off `master`, open a PR.
+3. **Keep file sets disjoint.** If concurrent agents or workflows touch the same
+   files, one change gets clobbered or conflicts. Don't fix things outside your
+   task scope.
+4. **Branch off `master` for PRs.** Don't push to `master` unless the user
+   directs it (see Working rules).
 5. **Don't hand-edit third-party/minified code** (`js/vendor/` or any `*.min.js`).
    Its TODOs and complexity are not ours.
 6. **Page-scoped changes must not leak to other pages.** The image-heavy portfolio
@@ -122,10 +117,9 @@ page transitions are **purely visual**. Therefore:
 Make the approve decision take ten seconds. Every PR description must include:
 
 - **What & why** — one or two sentences.
-- **Lane** — which routine/lane this is.
 - **Verification** — the exact command(s) you ran and their result, pasted:
     - `make precommit-fix` → green, or
-    - the scoped proof for your lane (e.g. a before/after measurement; coverage on
+    - the scoped proof for your change (e.g. a before/after measurement; coverage on
       file X went 72% → 100%).
 - **Visual?** — "no visual surface" or "visual — human review required (draft)."
 
@@ -138,7 +132,7 @@ There is no machine diff-coverage gate, so this is on your honour:
 
 - If your change adds or alters runtime behaviour (a bug fix, a security fix, a
   behavioural change), **ship a test that fails before and passes after**, covering
-  the changed lines. Bot lanes must be **append-only in tests** (never edit or delete
+  the changed lines. Bot commits must be **append-only in tests** (never edit or delete
   existing test lines; always append new test or describe blocks).
 - Behaviour-preserving changes (refactors, dead-code removal) need no new test —
   keep the existing suite green and coverage un-regressed.
@@ -156,8 +150,7 @@ also be a valid Conventional Commit subject**.
       `sw`, `transition`, `a11y`, `deps`, …).
     - **summary** — imperative mood, lower-case, no trailing period, ≤ 72 chars.
 - **No emoji, and no routine-name prefix in the subject** (no `Bolt:`,
-  `Sentinel:`, no `⚡`). Routine attribution rides on the
-  `Co-authored-by: google-labs-jules[bot]` trailer — keep the subject clean.
+  `Sentinel:`, no `⚡`) — keep the subject clean.
 - **Body** (when the change isn't self-evident): wrap at ~72 cols, explain _what
   and why_, not how. State severity, metrics, or measurements here — not in the
   subject.
@@ -182,7 +175,7 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 | Generated-commands freshness check                 | `make sync-check`                                  |
 | Dependency-structure gate (no circular imports)    | `make depcheck`                                    |
 | Stream-of-consciousness scan (comments, tests)     | `make thinking-check`                              |
-| Jules bot commit hygiene gate                      | `make bot-pr-check`                                |
+| Bot commit hygiene gate                            | `make bot-pr-check`                                |
 | Mutation testing (non-blocking; not in any gate)   | `make mutate-js`                                   |
 | Synchronize portfolio pages from shell template    | `make sync-pages`                                  |
 | Check portfolio pages template synchronization     | `make sync-pages-check`                            |
@@ -267,6 +260,8 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
   through the public surface (real events in, observable page effects out; no
   internal hooks, no source rewriting). `docs/` — repo knowledge; **read
   `docs/testing-notes.md` before deep test work.**
+- **Security, error-handling, and dead-code removal** →
+  `docs/security-and-cleanup-pitfalls.md`.
 - `scripts/run-npx.sh` — the `make`/CI npx wrapper. `tools/sync_commands.py` —
   skill/command sync (see "Skills and slash commands" below).
 - `scripts/` & `tools/` — shared repository tooling (`scripts/gate-guard.js`,
@@ -302,56 +297,6 @@ Examples: `perf(ambient): hoist metrics() out of the rAF loop` ·
 - **Skill schema validation:** `tests/js/skills.test.js` (and `tools/__tests__/test_skills.py`,
   run by Jest / pytest) enforces schema validity, non-empty descriptions,
   directory-name matching, standard `{{args}}` placeholders, and symlink resolution across all skills.
-- **Jules scheduled routines (unattended)** are a separate system from the
-  interactive skills above: their shared contract is this file and their
-  per-routine personas live in `.jules/<name>.md`. **Keep each scheduled task's
-  UI prompt a generic persona invocation** (read `AGENTS.md` + the persona, then
-  act as it) — a stale task-specific goal gets satisfied vacuously and Jules
-  still publishes the empty PR (non-negotiable #10). If a lane is finished,
-  pause its schedule instead of leaving a satisfied goal running.
-
-## Lanes (keep PRs disjoint to avoid collisions)
-
-| Routine   | Owns                                                                         | Must NOT touch                                                                                                                                                                              |
-| --------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Architect | cyclomatic-complexity / readability refactors (behaviour-preserving)         | error-handling, security, tests, features                                                                                                                                                   |
-| Sentinel  | security + error-handling (empty catches, client-side DoS, unsafe DOM sinks) | complexity refactors, features                                                                                                                                                              |
-| Janitor   | dead code, stale deps, real TODOs only                                       | complexity, error-handling (Architect/Sentinel own those); shared tooling and agent infrastructure (`scripts/`, `tools/`, `bin/`, `.agents/`, `.jules/`, `.github/`, root docs, `Makefile`) |
-| Bolt      | one measurable performance/efficiency win per run                            | complexity-only refactors, security, dead code, features                                                                                                                                    |
-| Testpilot | test-only additions/coverage, no prod-code change                            | `js/` prod files, `sw.js`                                                                                                                                                                   |
-| Palette   | accessibility, UX, semantic HTML/CSS                                         | JS runtime logic, security, tests, performance                                                                                                                                              |
-| Typist    | JS strict-type annotations (JSDoc) + whitelist expansion, no logic change    | runtime behaviour                                                                                                                                                                           |
-
-If your finding belongs to another lane, **skip it** — that lane will get it.
-
-> **Note on enforcement:** see `docs/gates.md` for how the complexity ratchet
-> and coverage floor are wired. Only the JS type-check (`make type`) is
-> non-blocking; everything else fails the gate.
-
-## `.jules/` personas — editing rules
-
-The files in `.jules/<name>.md` are **persona definitions** for the unattended
-Jules routines: they encode identity, lane, and constraints, read at the start of
-an unattended run. They are **not logs**.
-
-- **Unattended Jules routines** must treat `.jules/` as read-only. They may **not**
-  append to, modify, or create files under `.jules/`. A PR from a Jules routine
-  that changes a `.jules/` file is out of scope and will be closed.
-- **Interactive coding agents** (Claude Code, Kimi, Antigravity, etc.) **may**
-  edit `.jules/` persona files whenever they spot a harness bug or unclear
-  guidance — no explicit user direction needed; the user reviews the result.
-  The change must still be a single-concern PR or direct commit with a green
-  `make precommit-fix`, and the agent must note in the commit/PR body that the
-  edit is to a persona file.
-
-Capture durable learnings in this file or `docs/` instead of leaving the persona
-files as the only source of truth. `AGENTS.md` itself **is** gated, so keep it
-Prettier/markdownlint-clean (mind `**`-glob/bold collisions inside backticks).
-
-Jules PRs occasionally commit **root-level scratch scripts** (e.g. `patch_*.js`,
-`run_*.sh`) that it used to mutate test files in place. These fail eslint
-(`require`/`no-undef` under the browser config) and break CI. When shipping a
-Jules PR, drop them and keep only the genuine artifact (e.g. the new test file).
 
 ## Working rules (interactive agents)
 

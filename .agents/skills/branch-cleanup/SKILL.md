@@ -65,7 +65,7 @@ git diff origin/master...<ref> --stat
 Decide one of three outcomes per branch:
 
 - **Already on master** — the net diff is empty or every hunk is superseded by
-  current `master` (common for stale Jules/bot PRs; see the bot-pr-rescue skill's
+  current `master` (common for stale bot PRs; see the bot-pr-rescue skill's
   duplicate check). Delete like step 2, noting the evidence.
 - **Worth merging** — the diff adds real value and is not superseded. Salvage
   it with the **ship skill's squash-merge flow**: squash-merge into `master`, run

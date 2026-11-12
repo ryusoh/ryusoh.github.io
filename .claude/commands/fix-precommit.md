@@ -51,9 +51,6 @@ Work through these steps:
     - If a test is **broken _and_ redundant** with another that already covers the same
       branch (common when an agent adds a "without vm" variant of a guard test), delete
       the broken one — note the equivalent test that preserves coverage.
-    - **Never edit `.jules/`** (read-only, Jules-owned; see `CLAUDE.md`). If a failure is
-      a format/lint issue inside `.jules/`, it should already be excluded via
-      `.prettierignore` / `.markdownlintignore` — fix the exclusion, not the file.
     - A giant `pnpm-lock.yaml` diff is usually benign drift, not a regression (see
       `CLAUDE.md`); confirm it matches `package.json` rather than reverting it.
 

@@ -69,7 +69,7 @@ over every commit authored by `google-labs-jules[bot]` in
 
 - change no files (empty commit),
 - touch a file with zero content lines (placeholder/dummy-file pattern),
-- delete lines from a test file — bot lanes are append-only in tests,
+- delete lines from a test file — bot commits are append-only in tests,
 - commit stray bot artifacts (PR-draft files like `pr_body.txt`, scratch/temp
   files, logs (`*.log`), verification-run output (`output.txt`,
   `*_output.txt`)), or
@@ -83,6 +83,29 @@ CI runs the same check in the "Reject bot PR hygiene violations" step of
 `.github/workflows/ci.yml`. The checkout uses `fetch-depth: 0` so the branch
 commits are visible behind the merge commit; a shallow checkout would silently
 no-op the check. Tests live in `tools/__tests__/test_check_bot_pr_hygiene.py`.
+
+### Jules retirement note
+
+- **Cutoff:** Jules sessions could finish through 2026-11-11; the product is
+  read-only until it winds down on 2026-12-31.
+- **Final Jules-era revision:** `c6fc301` — the last commit whose tree still
+  contained `.jules/` (`architect.md`, `bolt.md`, `janitor.md`, `palette.md`,
+  `sentinel.md`, `testpilot.md`, `typist.md`). Recover any of them with
+  `git show c6fc301:<path>`.
+- **Replacement workflow:** interactive agents (Claude Code, Antigravity, Kimi)
+  per `AGENTS.md` and the shared skills in `.agents/skills/`. No persona was
+  ported; recreate one only for a concrete recurring workflow.
+- **Drain state at cleanup:** no open pull requests (`gh pr list --state open`
+  returned none on 2026-11-12).
+- **Knowledge migrated:** Sentinel, Janitor, Bolt, and Palette pitfalls →
+  `docs/security-and-cleanup-pitfalls.md` and `docs/testing-notes.md`.
+  Complexity, typing, and coverage guidance was already covered by `docs/gates.md`
+  and `docs/js-typing-strategy.md`; the remaining persona content (dated incidents,
+  unattended operating mechanics) stays in Git history.
+- **Retained tooling:** `tools/check_bot_pr_hygiene.py` (`make bot-pr-check` / CI
+  gate), `tools/prior_prs.py`, and the `bot-pr-rescue` skill (references to personas
+  removed). Reassess `bot-pr-rescue` and the hygiene gate's Jules author marker
+  separately once no Jules branch can reach the repo.
 
 ## Coverage floor and CI coverage report
 
@@ -114,8 +137,8 @@ A "Verify coverage report exists" step fails the build if
 maximum of 20. Legacy violations are baselined in `eslint-suppressions.json`
 (currently empty for this repo: `{}`). Any **new** or worsened violation fails the
 gate; any new suppression or count increase in `eslint-suppressions.json` is
-blocked by `bot-pr-check`. Only Architect (`refactor(...)` commits) may touch
-it to prune via `npx eslint --prune-suppressions`.
+blocked by `bot-pr-check`. Only a complexity-reduction refactor (`refactor(...)`
+commits) may touch it to prune via `npx eslint --prune-suppressions`.
 
 Never raise the ceiling or hand-edit `eslint-suppressions.json`.
 

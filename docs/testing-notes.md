@@ -3,6 +3,12 @@
 Hard-won gotchas for this repo's Jest suite (`tests/js/`, jest-environment-jsdom 30).
 Add a dated entry when you hit a new one.
 
+## 2026-10-10 — Caching DOM queries/nodes in module scope orphans nodes across test teardowns
+
+**Problem:** Caching DOM query results or node references (`document.querySelector(...)`, `document.getElementById(...)`) at module scope in application code can break the Jest suite. JSDOM tears down and rebuilds the DOM between test files and test resets, leaving cached module-level references pointing to detached, orphaned nodes. Subsequent tests attempting to read or manipulate these cached nodes fail silently or produce stale state.
+
+**Fix:** Cache _measurements_ (numeric layout coordinates, dimensions, bounds), not live node references, unless you provide a clear cache-invalidation hook (e.g. `window.__*ForTesting.clearCache()`) that tests can invoke during `beforeEach`/teardown.
+
 ## 2026-10-09 — Never couple unit tests to production galleries (`p1`–`p6`); use synthetic fixtures (`p99` / `p98`)
 
 **Problem:** Tests in `tests/js/gaze.test.js` and `tests/js/sequence-skill.test.js`
