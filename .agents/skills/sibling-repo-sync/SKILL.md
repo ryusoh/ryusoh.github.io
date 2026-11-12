@@ -40,8 +40,7 @@ Sibling profiles:
   alongside) — `scripts/` is empty/untracked. GitHub Pages site: heavy images
   are CSS backgrounds (`assets/backgrounds/*`, `mobile_bg.jpg`); addon-dir
   PNGs ship to the desktop app and are never web-served. sharp is a
-  devDependency. Its architect-lane persona is `.jules/refactoring.md` —
-  there is no `architect.md` (verified 2026-09). Pre-existing dead CSS refs exist (e.g. `css/base.css` →
+  devDependency. Pre-existing dead CSS refs exist (e.g. `css/base.css` →
   nonexistent `position_background.jpg`) — don't "fix" unrelated ones.
 - `~/dev/networking` — JS + Python; **no** `.pre-commit-config.yaml`; CI runs
   `make precommit` (check-only) — use `make precommit-fix` while iterating,
@@ -51,11 +50,9 @@ Sibling profiles:
     - full in-container suites, 10+ min — start Docker first, run it once at
       the end). `make precommit` exits 0 even when the log looks alarming — judge
       by exit code plus reading the tail, not vibes. jest is pinned to v29 (its
-      non-negotiable #5); its non-negotiable #6 forbids JULES ROUTINES from
-      touching build/lint config — interactive agents acting on explicit user
-      direction are exempt, note it in the PR body. Its `ci.yml` has a "Reject
-      empty pull request" step that hard-fails empty PRs, and its AGENTS.md Lanes
-      table lists Sentinel although `.jules/` has no sentinel persona (stale).
+      non-negotiable #5); its non-negotiable #6 requires an explicit task need
+      for build/lint config changes. Its `ci.yml` has a "Reject empty pull
+      request" step that hard-fails empty PRs.
       **No web-hosting surface at
       all** (no CNAME/\_config.yml/Pages workflow; only first-party HTML is
       chrome-extension pages) — web-serving tooling patterns don't apply; see its
