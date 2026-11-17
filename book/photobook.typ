@@ -267,7 +267,7 @@
               block(width: 100%)[
                 #text(font: "JetBrains Mono", size: 5.8pt, fill: rgb("#E6E4DF"))[#e.plateLabel · #e.seriesId]
                 #linebreak()
-                #text(font: "JetBrains Mono", size: 5.2pt, fill: rgb("#8A9099"))[#upper(e.modality) · L* #e.labL]
+                #text(font: "JetBrains Mono", size: 5.2pt, fill: rgb("#8A9099"))[#upper(e.modality) · L\* #e.labL]
               ],
             )
             #v(1.2mm)
