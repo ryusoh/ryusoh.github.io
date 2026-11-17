@@ -1,5 +1,31 @@
-// Canonical Typst template for INFINITE SYSTEMS (Portrait Monograph IR-driven Geometry)
+// Canonical Typst template for INFINITE SYSTEMS (Fw:Books × VOID × MACK Portrait Monograph)
 #let ir = json(sys.inputs.at("ir", default: "layout-ir.json"))
+#let wf = ir.at("waveform", default: ())
+
+#let renderWaveform(points, widthMm: 166, heightMm: 22, showAccent: false) = pdf.artifact(
+  box(
+    width: widthMm * 1mm,
+    height: heightMm * 1mm,
+    stroke: (bottom: 0.3pt + rgb("#2A2D34"), top: 0.3pt + rgb("#2A2D34")),
+    inset: 0mm,
+  )[
+    #let yExhale = (1 - 75 / 255) * heightMm * 1mm
+    #let yInhale = (1 - 135 / 255) * heightMm * 1mm
+    #place(top + left, dy: yExhale, line(length: 100%, stroke: (paint: rgb("#2A2D34"), thickness: 0.25pt, dash: "densely-dotted")))
+    #if showAccent [
+      #place(top + left, dy: yInhale, line(length: 100%, stroke: (paint: rgb("#CE2323"), thickness: 0.3pt, dash: "densely-dotted")))
+    ]
+    #if points.len() > 1 [
+      #let stepX = widthMm / (points.len() - 1)
+      #let cmds = points.enumerate().map(((i, pt)) => {
+        let x = (i * stepX) * 1mm
+        let y = ((1 - calc.clamp(pt.luma255, 0, 255) / 255) * heightMm) * 1mm
+        if i == 0 { curve.move((x, y)) } else { curve.line((x, y)) }
+      })
+      #place(top + left, curve(stroke: 0.45pt + rgb("#E6E4DF"), ..cmds))
+    ]
+  ]
+)
 
 #set document(title: "INFINITE SYSTEMS", author: "Zhuang Liu")
 #set page(
@@ -9,71 +35,134 @@
   fill: rgb("#070709"),
 )
 #set text(
-  font: ("Syne", "Glow Sans SC Extended"),
+  font: ("Glow Sans SC Extended", "Syne"),
   fill: rgb("#E6E4DF"),
-  size: 10pt,
+  size: 9.5pt,
   cjk-latin-spacing: auto,
+  overhang: true,
 )
 
 #for (idx, pg) in ir.pages.enumerate() [
   #if idx > 0 [ #pagebreak() ]
   #if pg.pageType == "cover" [
-    #block(width: 100%, height: 100%, inset: (x: 18mm, top: 16mm, bottom: 14mm))[
-      #grid(
-        columns: (1fr, 1fr),
-        text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[#("SYS // 2021–2026")],
-        align(right, text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[ZHUANG LIU]),
-      )
-      #v(3mm)
-      #pdf.artifact(line(length: 100%, stroke: 0.5pt + rgb("#CE2323")))
-      #v(8mm)
-      #heading(level: 1, bookmarked: true)[#text(weight: "extrabold", size: 22pt, tracking: 2.2pt)[INFINITE SYSTEMS]]
-      #v(2mm)
-      #text(font: "JetBrains Mono", size: 8.5pt, fill: rgb("#8A9099"))[#pg.subtitle]
-      #if pg.at("coverImagePath", default: none) != none [
-        #v(6mm)
-        #align(center)[
-          #image(pg.coverImagePath, width: 146mm, height: 173mm, fit: "contain", alt: "Monochrome close-up portrait cover photograph")
+    #block(width: 100%, height: 100%)[
+      #block(width: 100%, height: 48mm, inset: (x: 18mm, top: 14mm, bottom: 0mm))[
+        #grid(
+          columns: (1fr, auto),
+          text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.2pt, fill: rgb("#8A9099"))[ZHUANG LIU · MONOGRAPH],
+          text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.0pt, fill: rgb("#8A9099"))[2021–2026],
+        )
+        #v(4.5mm)
+        #heading(level: 1, bookmarked: true)[
+          #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 17pt, tracking: 2.4pt, fill: rgb("#E6E4DF"))[INFINITE SYSTEMS]
         ]
       ]
-      #v(1fr)
-      #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[#pg.signature]
+      #if pg.at("coverImagePath", default: none) != none [
+        #place(
+          bottom + center,
+          block(width: 210mm, height: 212mm, clip: true)[
+            #image(pg.coverImagePath, width: 210mm, height: 212mm, fit: "cover", alt: "Monochrome close-up portrait cover photograph")
+          ]
+        )
+      ]
+      #place(
+        bottom + left,
+        dx: 18mm,
+        dy: -10mm,
+        text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[#pg.signature],
+      )
     ]
   ] else if pg.pageType == "phase-divider" [
-    #block(width: 100%, height: 100%, inset: 22mm)[
+    #let mRoman = pg.at("movementRoman", default: "I")
+    #let mIdxLbl = pg.at("movementIndexLabel", default: pg.movementId)
+    #let mModLbl = pg.at("modalityLabel", default: upper(pg.modality))
+    #let mRange = pg.at("plateRange", default: "001")
+    #let mCount = pg.at("plateCount", default: 0)
+    #let mLuma = pg.at("meanLuma", default: 0)
+    #let mWf = pg.at("waveformSlice", default: ())
+    #block(width: 100%, height: 100%, inset: (x: 24mm, top: 48mm, bottom: 24mm))[
+      #pdf.artifact(line(length: 100%, stroke: 0.3pt + rgb("#2A2D34")))
+      #v(3.5mm)
+      #grid(
+        columns: (1fr, auto),
+        text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.0pt, fill: rgb("#8A9099"))[MOVEMENT #mIdxLbl · #upper(mModLbl)],
+        text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.0pt, fill: rgb("#8A9099"))[PLATES #mRange],
+      )
+      #v(14mm)
+      #text(font: "JetBrains Mono", size: 8pt, tracking: 1.5pt, fill: rgb("#8A9099"))[#mRoman]
+      #v(2.5mm)
+      #heading(level: 1, bookmarked: true)[
+        #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 15pt, tracking: 2.2pt, fill: rgb("#E6E4DF"))[#pg.title]
+      ]
       #v(1fr)
-      #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[#pg.movementId #("//") #upper(pg.modality)]
-      #v(3mm)
-      #pdf.artifact(line(length: 48mm, stroke: 0.5pt + rgb("#CE2323")))
-      #v(4mm)
-      #heading(level: 1, bookmarked: true)[#text(weight: "bold", size: 14pt, tracking: 2pt)[#pg.title]]
-      #v(1.2fr)
+      #if mWf.len() > 1 [
+        #renderWaveform(mWf, widthMm: 162, heightMm: 16, showAccent: pg.modality == "color")
+        #v(3mm)
+      ]
+      #grid(
+        columns: (1fr, auto),
+        text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#mCount PLATES · MEAN LUMA #mLuma],
+        text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#pg.movementId],
+      )
     ]
   ] else if pg.pageType == "spread-verso" or pg.pageType == "spread-recto" [
     #if pg.slot != none and pg.slot.kind == "epigraph" [
-      #block(width: 100%, height: 100%, inset: (x: 22mm, bottom: 26mm, top: 22mm))[
-        #v(1fr)
-        #let epigraphLang = if pg.slot.language == "zh-Hans" { "zh" } else if pg.slot.language == "mixed" { "en" } else { pg.slot.language }
-        #let epigraphScript = if pg.slot.language == "zh-Hans" { "hans" } else { auto }
-        #set text(lang: epigraphLang, script: epigraphScript, fill: rgb("#D8D5CE"), size: 10pt)
+      #let epigraphLang = if pg.slot.language == "zh-Hans" { "zh" } else { "en" }
+      #let epigraphScript = if pg.slot.language == "zh-Hans" { "hans" } else { auto }
+      #let attr = pg.slot.at("attribution", default: none)
+      #block(width: 100%, height: 100%, inset: (left: 32mm, right: 48mm, top: 82mm, bottom: 32mm))[
+        #pdf.artifact(line(length: 14mm, stroke: 0.3pt + rgb("#2A2D34")))
+        #v(5mm)
+        #set par(leading: 1.05em, spacing: 1.5em, justify: false)
+        #set text(
+          font: ("Glow Sans SC Extended", "Syne"),
+          lang: epigraphLang,
+          script: epigraphScript,
+          fill: rgb("#D8D5CE"),
+          size: 9.5pt,
+        )
         #pg.slot.text
+        #if attr != none [
+          #v(4mm)
+          #text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[— #attr]
+        ]
       ]
     ] else if pg.slot != none and pg.slot.kind == "plate" [
-      #let isSym = pg.layout == "symmetric-diptych" and pg.slot.scale != "full-bleed"
-      #let isDiag = pg.layout == "diagonal-offset" and pg.slot.scale != "full-bleed"
-      #let plateAlign = if isSym {
-        if pg.side == "verso" { right + horizon } else { left + horizon }
+      #let isFull = pg.slot.scale == "full-bleed"
+      #let isSym = pg.layout == "symmetric-diptych" and not isFull
+      #let isAsym = pg.layout == "asymmetric-diptych" and not isFull
+      #let isDiag = pg.layout == "diagonal-offset" and not isFull
+      #let topHang = if isFull { 44mm } else if isDiag and pg.side == "recto" { 96mm } else if isDiag { 40mm } else { 50mm }
+      #let outerRail = if isFull {
+        0mm
+      } else if isSym {
+        38.6mm
+      } else if isAsym {
+        if pg.side == "verso" { 21.8mm } else { 70.5mm }
       } else if isDiag {
-        if pg.side == "verso" { left + top } else { right + bottom }
+        26mm
       } else {
-        center + horizon
+        (210mm - pg.slot.placedWidthMm * 1mm) / 2
       }
-      #let plateInset = if isSym {
-        if pg.side == "verso" { (right: 12mm, bottom: 12mm) } else { (left: 12mm, bottom: 12mm) }
+      #let plateInset = if isFull {
+        (top: topHang, left: 0mm, right: 0mm)
+      } else if isSym {
+        if pg.side == "verso" { (top: topHang, right: 16mm) } else { (top: topHang, left: 16mm) }
+      } else if isAsym {
+        if pg.side == "verso" { (top: topHang, right: 16mm) } else { (top: topHang, left: 24mm) }
       } else if isDiag {
-        18mm
+        if pg.side == "verso" { (top: topHang, left: 26mm) } else { (top: topHang, right: 26mm) }
       } else {
-        (bottom: 12mm)
+        (top: topHang)
+      }
+      #let plateAlign = if isFull {
+        top + center
+      } else if isSym or isAsym {
+        if pg.side == "verso" { top + right } else { top + left }
+      } else if isDiag {
+        if pg.side == "verso" { top + left } else { top + right }
+      } else {
+        top + center
       }
       #block(width: 100%, height: 100%)[
         #block(width: 100%, height: 100%, inset: plateInset)[
@@ -84,33 +173,111 @@
         #if pg.slot.showFolio [
           #place(
             if pg.side == "verso" { bottom + left } else { bottom + right },
-            dx: if pg.side == "verso" { 18mm } else { -18mm },
-            dy: -16mm,
-            text(font: "JetBrains Mono", size: 7.5pt, fill: rgb("#8A9099"))[#pg.slot.plateLabel],
+            dx: if pg.side == "verso" { outerRail } else { -outerRail },
+            dy: -18mm,
+            text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.6pt, fill: rgb("#8A9099"))[#pg.slot.plateLabel],
           )
         ]
       ]
     ]
-  ] else if pg.pageType == "colophon-telemetry" or pg.pageType == "colophon-index" [
-    #block(width: 100%, height: 100%, fill: rgb("#111317"), inset: 22mm)[
-      #heading(level: 1, bookmarked: pg.pageType == "colophon-telemetry")[
-        #text(font: "JetBrains Mono", size: 9.5pt, fill: rgb("#E6E4DF"))[SYSTEM COLOPHON #("//") #upper(pg.pageType)]
+  ] else if pg.pageType == "colophon-telemetry" [
+    #let summaries = pg.at("movementSummaries", default: ())
+    #let fpShort = pg.at("sourceFingerprintShort", default: "9d2901560132539d")
+    #block(width: 100%, height: 100%, fill: rgb("#111317"), inset: (x: 20mm, top: 22mm, bottom: 18mm))[
+      #grid(
+        columns: (1fr, auto),
+        heading(level: 1, bookmarked: true)[
+          #text(font: "JetBrains Mono", size: 7.5pt, tracking: 1.2pt, fill: rgb("#E6E4DF"))[ARCHIVAL COLOPHON & PHOTOMETRIC TELEMETRY]
+        ],
+        text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[REV. #ir.revision · #upper(ir.profileId)],
+      )
+      #v(3mm)
+      #pdf.artifact(line(length: 100%, stroke: 0.3pt + rgb("#2A2D34")))
+      #v(6mm)
+      #text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[
+        PHOTOMETRIC LUMINANCE TRAJECTORY · LUMA255(t) ACROSS #ir.totalPlates PLATES
       ]
-      #v(4mm)
-      #pdf.artifact(line(length: 48mm, stroke: 0.5pt + rgb("#CE2323")))
-      #v(8mm)
-      #if pg.pageType == "colophon-telemetry" [
-        #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[
+      #v(2.5mm)
+      #renderWaveform(wf, widthMm: 170, heightMm: 26, showAccent: true)
+      #v(6mm)
+      #text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[MOVEMENT ARCHITECTURE]
+      #v(2.5mm)
+      #for m in summaries [
+        #pdf.artifact(line(length: 100%, stroke: 0.25pt + rgb("#2A2D34")))
+        #v(1.8mm)
+        #grid(
+          columns: (18mm, 34mm, 38mm, 28mm, 1fr),
+          text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#m.movementId],
+          text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 7pt, fill: rgb("#E6E4DF"))[#m.title],
+          text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#D8D5CE"))[#m.modalityLabel],
+          text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[PLATES #m.plateRange],
+          align(right, text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#m.plateCount FRAMES · L #m.meanLuma]),
+        )
+        #v(1.8mm)
+      ]
+      #pdf.artifact(line(length: 100%, stroke: 0.25pt + rgb("#2A2D34")))
+      #v(1fr)
+      #grid(
+        columns: (1fr, 1fr),
+        column-gutter: 10mm,
+        text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[
           EDITION: #upper(ir.editionId) \
-          REVISION: #ir.revision \
+          AUTHOR: ZHUANG LIU \
+          TRIM: #ir.pageSize.widthMm × #ir.pageSize.heightMm MM \
+          EXTENT: #ir.totalPages PAGES · #ir.totalPlates PLATES
+        ],
+        text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[
           PROFILE: #upper(ir.profileId) \
-          TRIM: #ir.pageSize.widthMm mm × #ir.pageSize.heightMm mm \
-          PAGES: #ir.totalPages \
-          PLATES: #ir.totalPlates
-        ]
+          VIEW: TWOPAGERIGHT SPREADS \
+          TYPESET: GLOW SANS SC · SYNE · JETBRAINS MONO \
+          POOL SHA256: #fpShort
+        ],
+      )
+    ]
+  ] else if pg.pageType == "colophon-index" [
+    #let entries = pg.at("entries", default: ())
+    #let rangeLbl = pg.at("rangeLabel", default: "001–127")
+    #let idxPg = pg.at("indexPageNumber", default: 1)
+    #let idxTotal = pg.at("indexPageCount", default: 1)
+    #block(width: 100%, height: 100%, fill: rgb("#111317"), inset: (x: 16mm, top: 20mm, bottom: 16mm))[
+      #grid(
+        columns: (1fr, auto),
+        heading(level: 1, bookmarked: idxPg == 1)[
+          #text(font: "JetBrains Mono", size: 7.5pt, tracking: 1.0pt, fill: rgb("#E6E4DF"))[ILLUSTRATED PLATE INDEX · #rangeLbl]
+        ],
+        text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[INDEX #idxPg / #idxTotal],
+      )
+      #v(2.5mm)
+      #pdf.artifact(line(length: 100%, stroke: 0.3pt + rgb("#2A2D34")))
+      #v(4mm)
+      #if entries.len() > 0 [
+        #grid(
+          columns: (1fr, 1fr, 1fr, 1fr),
+          column-gutter: 4.5mm,
+          row-gutter: 4.5mm,
+          ..entries.map(e => block(width: 100%, height: 22.5mm, clip: true)[
+            #grid(
+              columns: (14mm, 1fr),
+              column-gutter: 2.2mm,
+              block(width: 14mm, height: 9.5mm, fill: rgb("#070709"))[
+                #if e.path != "" [
+                  #image(e.path, width: 14mm, height: 9.5mm, fit: "cover")
+                ]
+              ],
+              block(width: 100%)[
+                #text(font: "JetBrains Mono", size: 5.8pt, fill: rgb("#E6E4DF"))[#e.plateLabel · #e.seriesId]
+                #linebreak()
+                #text(font: "JetBrains Mono", size: 5.2pt, fill: rgb("#8A9099"))[#upper(e.modality) · L* #e.labL]
+              ],
+            )
+            #v(1.2mm)
+            #set par(leading: 0.45em)
+            #text(font: ("Glow Sans SC Extended", "Syne"), size: 5.2pt, fill: rgb("#D8D5CE"))[#e.shortCaption]
+          ])
+        )
       ] else [
-        #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[
-          All 127 photographs sequenced with strict monochrome / chroma movement separation.
+        #text(font: "JetBrains Mono", size: 7.5pt, fill: rgb("#8A9099"))[
+          All #ir.totalPlates photographs sequenced with strict monochrome / chroma movement separation.
         ]
       ]
     ]
