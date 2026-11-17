@@ -21,7 +21,7 @@
     #block(width: 100%, height: 100%, inset: 18mm)[
       #grid(
         columns: (1fr, 1fr),
-        text(font: "JetBrains Mono", size: 8.5pt, fill: rgb("#8A9099"))[SYS // 2021–2026],
+        text(font: "JetBrains Mono", size: 8.5pt, fill: rgb("#8A9099"))[#("SYS // 2021–2026")],
         align(right, text(font: "JetBrains Mono", size: 8.5pt, fill: rgb("#8A9099"))[ZHUANG LIU]),
       )
       #v(3mm)
@@ -34,7 +34,7 @@
   ] else if pg.pageType == "phase-divider" [
     #block(width: 100%, height: 100%, inset: 24mm)[
       #v(1fr)
-      #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[#pg.movementId // #upper(pg.modality)]
+      #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[#pg.movementId #("//") #upper(pg.modality)]
       #v(3mm)
       #pdf.artifact(line(length: 48mm, stroke: 0.5pt + rgb("#CE2323")))
       #v(4mm)
@@ -45,13 +45,15 @@
     #if pg.slot != none and pg.slot.kind == "epigraph" [
       #block(width: 100%, height: 100%, inset: 24mm)[
         #v(1fr)
-        #set text(lang: pg.slot.language, fill: rgb("#D8D5CE"), size: 10pt)
+        #let epigraphLang = if pg.slot.language == "zh-Hans" { "zh" } else if pg.slot.language == "mixed" { "en" } else { pg.slot.language }
+        #let epigraphScript = if pg.slot.language == "zh-Hans" { "hans" } else { auto }
+        #set text(lang: epigraphLang, script: epigraphScript, fill: rgb("#D8D5CE"), size: 10pt)
         #pg.slot.text
       ]
     ] else if pg.slot != none and pg.slot.kind == "plate" [
       #block(width: 100%, height: 100%)[
         #align(center + horizon)[
-          #image(pg.slot.path, width: pg.slot.placedWidthMm * 1mm, fit: "contain", alt: pg.slot.altText)
+          #image(pg.slot.path, width: pg.slot.placedWidthMm * 1mm, height: pg.slot.placedHeightMm * 1mm, fit: "contain", alt: pg.slot.altText)
         ]
         #if pg.slot.showFolio [
           #place(
@@ -66,7 +68,7 @@
   ] else if pg.pageType == "colophon-telemetry" or pg.pageType == "colophon-index" [
     #block(width: 100%, height: 100%, fill: rgb("#111317"), inset: 20mm)[
       #heading(level: 1, bookmarked: pg.pageType == "colophon-telemetry")[
-        #text(font: "JetBrains Mono", size: 10pt, fill: rgb("#E6E4DF"))[SYSTEM COLOPHON // #upper(pg.pageType)]
+        #text(font: "JetBrains Mono", size: 10pt, fill: rgb("#E6E4DF"))[SYSTEM COLOPHON #("//") #upper(pg.pageType)]
       ]
     ]
   ]
