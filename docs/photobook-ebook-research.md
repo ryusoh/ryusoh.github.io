@@ -51,6 +51,8 @@ If we build an eBook photobook titled _**Infinite Systems**_ (outputting a PDF f
 
 Source photographs, authentic text, rights information, and human taste decisions are authoritative. A deterministic inventory derives observations without modifying them. Candidate generation proposes sequences and layouts; only human approval changes the approved ledger. The approved ledger then flows through canonical layout IR, the deterministic Typst renderer, release gates, and a signed-off edition. LLMs may explain or propose inside the candidate stage, but no LLM call belongs in deterministic inventory, validation, layout, rendering, or preflight.
 
+Editorial review uses a **two-tier preview**: an immediate interactive estimate for candidate editing, followed by an authoritative Typst/QPDF render rasterized back into the interface. Both consume the same canonical layout IR and display its revision/hash. Preview builds remain derived candidates; viewing never approves a ledger change, and export requires the reviewed PDF and preflight report to match the same final artifact hash (§7.3).
+
 ![Authority boundaries in the ebook orchestration system](assets/photobook-ebook-review/orchestration-boundaries.png)
 
 | Boundary                  | May write                                                               | Must never do                                                                |
@@ -475,31 +477,72 @@ Accessibility is a mandatory semantic contract ([Typst Accessibility Guide](http
 
 The implementation uses the repository's existing Node.js tooling and a single `scripts/book.mjs` CLI dispatcher with focused modules under `scripts/book/`. Command names enforce the authority boundary: `inventory` observes, `optimize` proposes, `sync` plans, `apply` promotes an approved plan, and `render` consumes only an approved ledger revision. None of these scripts or Make targets exists yet; the names below define the target specification.
 
-| Proposed file                | Responsibility                                                                                                                       | Default output and safety behavior                                     |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `scripts/book/inventory.mjs` | Read the 127 sequenced photos/fragments; hash bytes; classify `bw`/`color`; compute versioned metrics                                | Disposable inventory JSON; **read-only toward all sources**            |
-| `scripts/book/validate.mjs`  | Ajv JSON Schema (draft 2020-12) plus semantic invariants, modality separation, 127-frame completeness, locks, parity                 | Structured errors/warnings; no automatic repair                        |
-| `scripts/book/assets.mjs`    | Content-addressed `display` and `screen` derivatives in `.cache/book-img/` with explicit ICC and grayscale behavior                  | Writes only to `.cache/book-img/`; never mutates source images         |
-| `scripts/book/optimize.mjs`  | Seeded multi-start beam search + 2-opt local search within disjoint `bw` and `color` components                                      | Proposal JSON and rationale in `.cache/book-runs/`; never edits ledger |
-| `scripts/book/sync.mjs`      | Diff inventory against `book/sequence.yaml`; detect additions, revisions, deletions, locked conflicts                                | Plan by default; explicit apply requires plan ID and atomic validation |
-| `scripts/book/layout.mjs`    | Approved `book/sequence.yaml` + profile (`display` or `screen`) $\to$ canonical layout IR                                            | Deterministic JSON with stable ordering and effective-PPI annotations  |
-| `scripts/book/render.mjs`    | Compile layout IR with `typst compile` and finalize `/PageLayout /TwoPageRight` + `/PageMode /UseOutlines` via `qpdf`                | Emits `dist/infinite-systems-{display,screen}.pdf` and build manifest  |
-| `scripts/book/proof.mjs`     | Rasterize final PDF spreads via Poppler `pdftoppm`; generate contact sheets and candidate before/after diffs                         | Review evidence in `.cache/book-runs/`, never automatic approval       |
-| `scripts/book/preflight.mjs` | Structural (`qpdf`), geometry, image/PPI, font (`pdffonts`), accessibility, veraPDF (`display`), and two-build reproducibility gates | Machine-readable report; nonzero exit on required failures             |
+| Proposed file                | Responsibility                                                                                                                       | Default output and safety behavior                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `scripts/book/inventory.mjs` | Read the 127 sequenced photos/fragments; hash bytes; classify `bw`/`color`; compute versioned metrics                                | Disposable inventory JSON; **read-only toward all sources**                                         |
+| `scripts/book/validate.mjs`  | Ajv JSON Schema (draft 2020-12) plus semantic invariants, modality separation, 127-frame completeness, locks, parity                 | Structured errors/warnings; no automatic repair                                                     |
+| `scripts/book/assets.mjs`    | Content-addressed `display` and `screen` derivatives in `.cache/book-img/` with explicit ICC and grayscale behavior                  | Writes only to `.cache/book-img/`; never mutates source images                                      |
+| `scripts/book/optimize.mjs`  | Seeded multi-start beam search + 2-opt local search within disjoint `bw` and `color` components                                      | Proposal JSON and rationale in `.cache/book-runs/`; never edits ledger                              |
+| `scripts/book/sync.mjs`      | Diff inventory against `book/sequence.yaml`; detect additions, revisions, deletions, locked conflicts                                | Plan by default; explicit apply requires plan ID and atomic validation                              |
+| `scripts/book/layout.mjs`    | Approved ledger or frozen preview candidate + profile (`display` or `screen`) $\to$ canonical layout IR                              | Deterministic JSON with stable ordering and effective-PPI annotations                               |
+| `scripts/book/render.mjs`    | Compile frozen layout IR with `typst compile` and finalize `/PageLayout /TwoPageRight` + `/PageMode /UseOutlines` via `qpdf`         | Approved builds emit `dist/`; preview builds stay in `.cache/book-runs/`; both include a manifest   |
+| `scripts/book/preview.mjs`   | Coordinate interactive candidate editing, revisioned render queue, browser preview, and exact-PDF raster review                      | Interactive estimates are labeled; stale renders cannot replace newer edits; viewing never approves |
+| `scripts/book/proof.mjs`     | Rasterize final PDF spreads via Poppler `pdftoppm`; generate contact sheets and candidate before/after diffs                         | Review evidence in `.cache/book-runs/`, never automatic approval                                    |
+| `scripts/book/preflight.mjs` | Structural (`qpdf`), geometry, image/PPI, font (`pdffonts`), accessibility, veraPDF (`display`), and two-build reproducibility gates | Machine-readable report; nonzero exit on required failures                                          |
 
 ### 7.2 Required Skill and External Tools
 
 Add one canonical **`.agents/skills/photobook/SKILL.md`** defining the edition lifecycle, strict source non-mutation, proposal/approval protocol, allowed file sets, artifact locations, locked-conflict behavior, and resume protocol anchored in `git status`, `book/sequence.yaml` revision, and the active run manifest. After adding the skill, regenerate commands with `python3 tools/sync_commands.py` and verify `make sync-check`.
 
-| Capability                   | Selected Tool / Dependency      | Status / Role in Pipeline                                                                                                                       |
-| ---------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Editorial orchestration      | `.agents/skills/photobook/`     | Proposal-only automation, explicit human approval, disk-backed resume state                                                                     |
-| Schema validation            | **Ajv** + custom invariants     | JSON Schema draft 2020-12 validation of `book/sequence.yaml`, proposals, and output manifests ([Ajv docs](https://ajv.js.org/json-schema.html)) |
-| PDF compilation              | **Typst (`v0.15.1`)**           | Sole PDF compiler (`brew install typst`); invoked with `--ignore-system-fonts --font-path assets/fonts/book`                                    |
-| Catalog finalization & check | **QPDF (`v12.4+`)**             | Sets `/PageLayout /TwoPageRight`, `/PageMode /UseOutlines`, `--deterministic-id`, and runs `qpdf --check`                                       |
-| PDF inspection/raster proofs | **Poppler (`pdffonts`, etc.)**  | Inspects embedded fonts/images (`pdffonts`, `pdfimages -list`) and rasterizes spread proofs (`pdftoppm`)                                        |
-| PDF/A-2b validation          | **veraPDF**                     | Validates `dist/infinite-systems-display.pdf` against ISO 19005-2 (`PDF/A-2b`) ([veraPDF CLI](https://docs.verapdf.org/cli/validation/))        |
-| Image & EXIF processing      | **Sharp (`^0.35.5`), ExifTool** | Already installed; read-only source inspection and content-addressed `.cache/book-img/` derivative generation                                   |
+| Capability                   | Selected Tool / Dependency                       | Status / Role in Pipeline                                                                                                                       |
+| ---------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Editorial orchestration      | `.agents/skills/photobook/`                      | Proposal-only automation, explicit human approval, disk-backed resume state                                                                     |
+| Schema validation            | **Ajv** + custom invariants                      | JSON Schema draft 2020-12 validation of `book/sequence.yaml`, proposals, and output manifests ([Ajv docs](https://ajv.js.org/json-schema.html)) |
+| PDF compilation              | **Typst (`v0.15.1`)**                            | Sole PDF compiler (`brew install typst`); invoked with `--ignore-system-fonts --font-path assets/fonts/book`                                    |
+| Catalog finalization & check | **QPDF (`v12.4+`)**                              | Sets `/PageLayout /TwoPageRight`, `/PageMode /UseOutlines`, `--deterministic-id`, and runs `qpdf --check`                                       |
+| PDF inspection/raster proofs | **Poppler (`pdffonts`, etc.)**                   | Inspects embedded fonts/images (`pdffonts`, `pdfimages -list`) and rasterizes spread proofs (`pdftoppm`)                                        |
+| PDF/A-2b validation          | **veraPDF**                                      | Validates `dist/infinite-systems-display.pdf` against ISO 19005-2 (`PDF/A-2b`) ([veraPDF CLI](https://docs.verapdf.org/cli/validation/))        |
+| Image & EXIF processing      | **Sharp (`^0.35.5`), ExifTool**                  | Already installed; read-only source inspection and content-addressed `.cache/book-img/` derivative generation                                   |
+| Interactive preview shell    | Existing browser + local Node.js preview service | Immediate candidate editing over canonical layout IR; local-only by default, with no second pagination/PDF engine                               |
+| Authoritative PDF preview    | **Typst + QPDF + Poppler**                       | Renders the frozen candidate revision, finalizes its PDF, and rasterizes that exact artifact back into the review interface                     |
+
+### 7.3 Two-Tier Live Preview and Rendered-PDF Review
+
+The book needs a first-class preview subsystem because sequence YAML, score deltas, and static contact sheets are not sufficient for rapid editorial iteration. The correct design is **two fidelity levels over one canonical layout IR**, not a browser-only claim of perfect WYSIWYG. The interactive tier favors immediate feedback; the authoritative tier shows the actual Typst/QPDF artifact. Both tiers display the candidate revision and layout hash so the reviewer always knows whether they are inspecting an estimate or a rendered PDF.
+
+| Preview tier                  | Data path                                                                                                 | Editorial purpose                                                                              | Fidelity contract                                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Interactive estimate**      | In-memory candidate edit → canonical layout IR → browser spread view                                      | Immediate sequencing, archetype, scale, text-placement, lock, and ban experiments              | Uses the same geometry and asset references as the compiler, but browser fonts, color, and rasterization may differ |
+| **Authoritative PDF preview** | Frozen candidate revision → `layout.mjs` → derivatives → Typst → QPDF → final PDF → Poppler rasterization | Inspect actual typography, CJK glyphs, images, page boxes, and spread appearance before export | Displays the hash of the exact post-processed PDF being reviewed; no browser-renderer substitution                  |
+| **Release proof**             | Same final PDF → `proof.mjs` + `preflight.mjs`                                                            | Contact sheets, before/after diffs, measurable release gates, and archived human sign-off      | Evidence belongs to the same artifact hash; an earlier preview cannot approve a later export                        |
+
+#### Shared State and Revision Discipline
+
+A preview session starts from an approved ledger revision and creates an editable **candidate**, never an unrecorded mutation of `book/sequence.yaml`. Every interaction produces a new preview revision and canonical layout hash. The interactive tier may update immediately in memory. Each authoritative render receives an immutable snapshot of one revision and runs asynchronously; if the user continues editing, older jobs may be cancelled or allowed to finish, but their output must never replace a newer preview. A visible state badge distinguishes **Interactive estimate**, **Rendering revision N**, **PDF preview revision N**, and **Stale / preflight required**.
+
+Approval and export are separate actions. Approving a candidate applies the normal proposal protocol and atomic ledger validation. Export requires that the reviewed PDF's artifact hash, candidate revision, layout hash, and preflight report all match. The interface must not label an interactive browser frame “PDF-accurate,” and it must not enable release merely because a preview exists. No LLM call participates in either rendering path.
+
+#### Interactive Editing and Inspection Surface
+
+| Surface             | Required behavior                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Spread navigator    | Thumbnail filmstrip, keyboard/page navigation, single-page and facing-spread modes, movement/phase-divider markers                |
+| Candidate editing   | Reorder, swap, omit, choose archetype, adjust approved scale options, place fragments, and set locks/bans as proposal operations  |
+| Geometry overlays   | Toggle 12×8 grid, trim, bleed, gutter, safe margins, image bounds, and reading-order indicators                                   |
+| Visual inspection   | Fit-to-screen, 100%, and 200% zoom; current-versus-candidate comparison; before/after spread diff                                 |
+| Diagnostics         | Per-placement effective PPI, missing asset/font warnings, modality/parity violations, attribution/rights state, alt-text presence |
+| Output/profile view | Explicit `screen` or `display` selection and ICC-action labels; any future press soft proof is identified as process-specific     |
+| Review state        | Candidate/parent revision, layout hash, PDF artifact hash, render progress, stale state, and preflight status remain visible      |
+
+The interactive view should respond immediately to ordinary local edits, while authoritative rendering starts automatically after a short debounce and remains non-blocking. A changed-spread cache can avoid repeating unchanged asset work, but no fixed full-book render-time promise is made until Typst performance has been benchmarked on the reference machine. The reviewer can continue navigating and editing while an authoritative render is in progress.
+
+#### Implementation Boundary and Acceptance Tests
+
+Add proposed **`scripts/book/preview.mjs`** as the local preview coordinator: it owns the preview session, candidate revisions, file/watch events, render queue, and browser interface. It reuses `layout.mjs`, `render.mjs`, and Poppler rather than introducing Paged.js or a second PDF implementation. `proof.mjs` remains the static release-evidence generator; `preview.mjs` is the interactive review surface. The initial browser shell can follow the repository's vanilla JavaScript architecture and remains local-only unless remote access is explicitly requested.
+
+Preview tests use synthetic `p99`/`p98` fixtures and cover rapid edit sequences, stale-worker completion, cancellation, cache invalidation, recto/verso overlays, locked-edit rejection, and source non-mutation. The critical race test performs edits A → B → C, completes their authoritative renders out of order, and verifies that only C can become the current PDF preview. Additional tests assert that interactive and authoritative paths consume the same canonical layout hash, export rejects stale preflight evidence, and approval never occurs as a side effect of viewing.
+
+The interactive tier accelerates editorial judgment; it does not prove visual fidelity, accessibility, or print quality. Final sign-off still requires the authoritative PDF preview, automated preflight, human visual/assistive-technology review, and—when applicable—a physical print proof.
 
 ---
 
@@ -509,18 +552,19 @@ Add one canonical **`.agents/skills/photobook/SKILL.md`** defining the edition l
 
 Automated tests use synthetic `p99`/`p98` fixtures and hermetic scratch paths, never production `p1`–`p6` membership, counts, or filenames.
 
-| Test layer                 | Required cases                                                                                  | Release evidence                               |
-| -------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| Schema and migration       | Old/new schema fixtures, unknown fields, invalid enums, migration idempotence                   | Validation report with no required errors      |
-| Identity and path safety   | Duplicate IDs, missing assets, renamed paths, revised hashes, traversal attempts                | Structured diagnostics; no out-of-scope writes |
-| Editorial constraints      | Locks, bans, pins, recto/verso parity, `bw`/`color` modality separation, 127-frame completeness | Constraint report for every candidate          |
-| Text governance            | Verbatim ranges, attribution retention, third-party rights, excerpt approval                    | Fragment/provenance report                     |
-| Derivative cache           | Source-byte, recipe, ICC, and tool-version changes; valid cache reuse                           | Content-addressed cache tests and manifest     |
-| Optimizer                  | Same-seed reproducibility, distinct-seed diversity, invalid-move rejection, score explanations  | Proposal JSON plus before/after proof          |
-| PDF structure and geometry | QPDF check, page count, `300 × 200 mm` Media/Trim boxes, `/TwoPageRight` catalog preference     | Final-artifact structural report               |
-| Images and fonts           | Effective PPI (`>= 173.355 PPI`), ICC actions, font embedding/subsetting, zero missing glyphs   | Per-page image/font report                     |
-| Standards/accessibility    | veraPDF `PDF/A-2b` pass (`display`), title/language, alt text, reading order, WCAG AA contrast  | Automated report plus manual review record     |
-| Reproducibility            | Two clean final builds with identical inputs and pinned environment                             | Byte-hash comparison and semantic PDF diff     |
+| Test layer                 | Required cases                                                                                                | Release evidence                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Schema and migration       | Old/new schema fixtures, unknown fields, invalid enums, migration idempotence                                 | Validation report with no required errors                                             |
+| Identity and path safety   | Duplicate IDs, missing assets, renamed paths, revised hashes, traversal attempts                              | Structured diagnostics; no out-of-scope writes                                        |
+| Editorial constraints      | Locks, bans, pins, recto/verso parity, `bw`/`color` modality separation, 127-frame completeness               | Constraint report for every candidate                                                 |
+| Text governance            | Verbatim ranges, attribution retention, third-party rights, excerpt approval                                  | Fragment/provenance report                                                            |
+| Derivative cache           | Source-byte, recipe, ICC, and tool-version changes; valid cache reuse                                         | Content-addressed cache tests and manifest                                            |
+| Optimizer                  | Same-seed reproducibility, distinct-seed diversity, invalid-move rejection, score explanations                | Proposal JSON plus before/after proof                                                 |
+| Preview fidelity & races   | Shared layout hash, A → B → C out-of-order renders, stale-result rejection, locked edits, source non-mutation | Current PDF preview/export hash matches the reviewed candidate and preflight evidence |
+| PDF structure and geometry | QPDF check, page count, `300 × 200 mm` Media/Trim boxes, `/TwoPageRight` catalog preference                   | Final-artifact structural report                                                      |
+| Images and fonts           | Effective PPI (`>= 173.355 PPI`), ICC actions, font embedding/subsetting, zero missing glyphs                 | Per-page image/font report                                                            |
+| Standards/accessibility    | veraPDF `PDF/A-2b` pass (`display`), title/language, alt text, reading order, WCAG AA contrast                | Automated report plus manual review record                                            |
+| Reproducibility            | Two clean final builds with identical inputs and pinned environment                                           | Byte-hash comparison and semantic PDF diff                                            |
 
 ### 8.2 Reproducible Build Perimeter
 
@@ -528,18 +572,18 @@ Automated tests use synthetic `p99`/`p98` fixtures and hermetic scratch paths, n
 
 ### 8.3 Human Review Gate
 
-Automated preflight proves structural, colorimetric, and standards invariants; human review of the rasterized spread proofs signs off on sequence pacing, shadow detail on `#070709`, gutter interplay, and bilingual typography before an edition revision is tagged.
+Automated preflight proves structural, colorimetric, and standards invariants; human review signs off on sequence pacing, shadow detail on `#070709`, gutter interplay, and bilingual typography before an edition revision is tagged. The interactive tier supports rapid experimentation, but final visual review uses the **authoritative rasterization of the exact PDF candidate**, with its artifact hash visible. An interactive estimate, stale PDF preview, or earlier contact sheet cannot approve a newer export.
 
 ---
 
 ## 9. Phased Implementation Roadmap
 
-| Phase                              | Deliverables                                                                                                                                     | Acceptance gate                                                                                       |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| **1. Trusted state & inventory**   | `book/sequence.yaml` JSON Schema (Ajv), semantic validator, stable `assetId`/`fragmentId` extractor, `sharp` `bw`/`color` classifier             | Synthetic `p99` valid/invalid fixtures pass/fail; 127 eligible photos classified (`51 bw / 76 color`) |
-| **2. Safe proposals & sync**       | Plan-only `sync.mjs`, seeded beam-search + 2-opt `optimize.mjs` for the 4-movement Chiaroscuro Envelope, `apply` protocol                        | New assets stay unplaced until applied; locked deletions block; zero cross-modality pairs emitted     |
-| **3. Deterministic Typst build**   | Vendored fonts in `assets/fonts/book/`, content-addressed `assets.mjs`, `layout.mjs`, `book/photobook.typ` (_Cybernetic Monolith_ cover), `qpdf` | `dist/infinite-systems-{display,screen}.pdf` compile offline with `/TwoPageRight` and outlines        |
-| **4. Preflight & reproducibility** | `proof.mjs` (`pdftoppm`), `preflight.mjs` (`qpdf`, `pdffonts`, `pdfimages`, `verapdf`), and `book-repro` two-build gate                          | `display` passes veraPDF `PDF/A-2b`; all text passes WCAG AA (`>= 6.259:1`); two clean builds match   |
+| Phase                                         | Deliverables                                                                                                                                | Acceptance gate                                                                                                                                 |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. Trusted state & inventory**              | `book/sequence.yaml` JSON Schema (Ajv), semantic validator, stable `assetId`/`fragmentId` extractor, `sharp` `bw`/`color` classifier        | Synthetic `p99` valid/invalid fixtures pass/fail; 127 eligible photos classified (`51 bw / 76 color`)                                           |
+| **2. Safe proposals & sync**                  | Plan-only `sync.mjs`, seeded beam-search + 2-opt `optimize.mjs` for the 4-movement Chiaroscuro Envelope, `apply` protocol                   | New assets stay unplaced until applied; locked deletions block; zero cross-modality pairs emitted                                               |
+| **3. Deterministic build & two-tier preview** | Vendored fonts, content-addressed `assets.mjs`, `layout.mjs`, `book/photobook.typ`, `qpdf`, and `preview.mjs` interactive + exact-PDF views | PDFs compile offline; interactive/PDF paths share layout hashes; A → B → C race tests show only C; stale exports block                          |
+| **4. Preflight & reproducibility**            | `proof.mjs` (`pdftoppm`), `preflight.mjs` (`qpdf`, `pdffonts`, `pdfimages`, `verapdf`), and `book-repro` two-build gate                     | `display` passes veraPDF `PDF/A-2b`; all text passes WCAG AA (`>= 6.259:1`); reviewed PDF/preflight/export hashes match; two clean builds match |
 
 ---
 
@@ -549,3 +593,5 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
     - `typst`, `qpdf`, Poppler utilities, and `verapdf` are not currently installed in `/opt/homebrew/bin` on this machine, and per research session constraints no new packages were installed. Typst `v0.15.1` behavior was verified against official documentation and compiler source code (`crates/typst-pdf/src/image.rs`, `crates/typst-cli/src/args.rs`, `LaurenzV/krilla/src/graphics/image/mod.rs`), while `sharp`, `exiftool`, `sips`, and Headless Chrome `m157` were executed locally.
 2. **Visual & Assistive-Technology Sign-Off on Compiled Spreads**:
     - Because `book/photobook.typ` has not yet been compiled into a rendered PDF artifact, human visual inspection of the `#070709` Obsidian Void shadow transitions, `Syne` + `Glow Sans SC` baseline alignment, and screen-reader traversal remains a Phase 4 release gate.
+3. **Interactive-Preview Fidelity and Render Latency**:
+    - `preview.mjs` has not been implemented, and Typst has not been benchmarked on this book. Browser-versus-PDF differences, warm-cache render latency, changed-spread caching, and the acceptable debounce interval remain unverified. The architecture therefore labels the interactive tier as an estimate and requires revision/hash matching rather than claiming browser-only WYSIWYG parity.
