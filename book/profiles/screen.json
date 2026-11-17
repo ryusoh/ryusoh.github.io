@@ -2,7 +2,7 @@
     "profileId": "screen",
     "artifactName": "infinite-systems-screen.pdf",
     "pdfStandard": "1.7",
-    "pageSize": { "widthMm": 300, "heightMm": 200, "bleedMm": 0 },
+    "pageSize": { "widthMm": 210, "heightMm": 260, "bleedMm": 0 },
     "viewerPreferences": { "pageLayout": "TwoPageRight", "pageMode": "UseOutlines" },
     "colorContract": {
         "colorAssets": "srgb-2048-mozjpeg-q82-420",

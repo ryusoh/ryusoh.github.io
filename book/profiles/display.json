@@ -2,7 +2,7 @@
     "profileId": "display",
     "artifactName": "infinite-systems-display.pdf",
     "pdfStandard": "a-2b",
-    "pageSize": { "widthMm": 300, "heightMm": 200, "bleedMm": 0 },
+    "pageSize": { "widthMm": 210, "heightMm": 260, "bleedMm": 0 },
     "viewerPreferences": { "pageLayout": "TwoPageRight", "pageMode": "UseOutlines" },
     "colorContract": {
         "colorAssets": "passthrough-or-downsample-2048-keep-icc-q92",

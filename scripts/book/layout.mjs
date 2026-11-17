@@ -1,19 +1,21 @@
 /**
  * Compiles an approved ledger + output profile into renderer-neutral canonical layout IR.
- * Enforces 300x200mm geometry, recto/verso parity, silent modality-switch buffer spreads, and effective PPI calculations.
+ * Enforces profile page geometry (default 210x260mm monograph portrait), recto/verso parity,
+ * silent modality-switch buffer spreads, and effective PPI calculations.
  */
 
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { load as yamlLoad } from 'js-yaml';
+import { ensureCoverDerivative } from './assets.mjs';
 
-const SCALE_TO_WIDTH_MM = Object.freeze({
-    'full-bleed': 300,
-    'inset-82': 246,
-    'inset-74': 222,
-    'inset-55': 165,
-    'inset-40': 120,
+const SCALE_FACTORS = Object.freeze({
+    'full-bleed': 1.0,
+    'inset-82': 0.82,
+    'inset-74': 0.74,
+    'inset-55': 0.55,
+    'inset-40': 0.4,
 });
 
 function toTypstAssetPath(rawPath, rootDir) {
@@ -34,7 +36,12 @@ export function computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeig
     return Number(Math.min(ppiW, ppiH).toFixed(3));
 }
 
-function buildPlateSlot(slot, assetMap, { derivativeMap, assetMetrics, rootDir }, plateCounter) {
+function buildPlateSlot(
+    slot,
+    assetMap,
+    { derivativeMap, assetMetrics, rootDir, pageWidthMm },
+    plateCounter
+) {
     if (!slot || !slot.assetId) {
         return null;
     }
@@ -42,7 +49,8 @@ function buildPlateSlot(slot, assetMap, { derivativeMap, assetMetrics, rootDir }
     const deriv = derivativeMap[slot.assetId] || {};
     const invMeta = assetMetrics[slot.assetId] || {};
     const scale = slot.scale || 'inset-74';
-    const placedWidthMm = SCALE_TO_WIDTH_MM[scale] || 222;
+    const factor = SCALE_FACTORS[scale] ?? 0.74;
+    const placedWidthMm = Number((pageWidthMm * factor).toFixed(2));
     const widthPx = deriv.width || asset?.metrics?.width || invMeta.width || 2048;
     const heightPx = deriv.height || asset?.metrics?.height || invMeta.height || 1365;
     const placedHeightMm =
@@ -71,13 +79,14 @@ function buildPlateSlot(slot, assetMap, { derivativeMap, assetMetrics, rootDir }
 export function compileLayoutIr(
     ledger,
     profile,
-    { derivativeMap = {}, assetMetrics = {}, rootDir = null } = {}
+    { derivativeMap = {}, assetMetrics = {}, rootDir = null, coverImage = null } = {}
 ) {
     const assetMap = new Map((ledger.assets || []).map((a) => [a.assetId, a]));
     const fragmentMap = new Map((ledger.fragments || []).map((f) => [f.fragmentId, f]));
     let pCount = 0;
     const plateCounter = { next: () => ++pCount };
-    const slotOpts = { derivativeMap, assetMetrics, rootDir };
+    const pageSize = profile?.pageSize || { widthMm: 210, heightMm: 260, bleedMm: 0 };
+    const slotOpts = { derivativeMap, assetMetrics, rootDir, pageWidthMm: pageSize.widthMm };
     const pages = [];
 
     const pushPage = (side, content) => {
@@ -90,6 +99,7 @@ export function compileLayoutIr(
         title: ledger.title,
         subtitle: ledger.subtitle,
         author: ledger.author,
+        coverImagePath: coverImage?.path ? toTypstAssetPath(coverImage.path, rootDir) : null,
         heroAssetId: ledger.constraints?.pinnedOpenerAssetId || 'p1-dscf4775',
         signature: '127 STATES · 51 MONO / 76 CHROMA',
     });
@@ -166,7 +176,7 @@ export function compileLayoutIr(
         editionId: ledger.editionId,
         revision: ledger.revision,
         profileId: profile.profileId,
-        pageSize: profile.pageSize || { widthMm: 300, heightMm: 200, bleedMm: 0 },
+        pageSize,
         tokens: profile.tokens,
         totalPages: pages.length,
         totalPlates: pCount,
@@ -202,7 +212,8 @@ export async function run(args = []) {
     const ledger = yamlLoad(fs.readFileSync(ledgerPath, 'utf8'));
     const profile = JSON.parse(fs.readFileSync(profilePath, 'utf8'));
     const assetMetrics = loadCachedAssetMetrics(rootDir);
-    const ir = compileLayoutIr(ledger, profile, { assetMetrics, rootDir });
+    const coverImage = await ensureCoverDerivative({ rootDir, profileId });
+    const ir = compileLayoutIr(ledger, profile, { assetMetrics, rootDir, coverImage });
     const outPath = path.join(rootDir, '.cache', 'book-runs', `layout-ir-${profileId}.json`);
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
     fs.writeFileSync(outPath, `${JSON.stringify(ir, null, 2)}\n`, 'utf8');

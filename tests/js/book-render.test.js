@@ -63,7 +63,8 @@ describe('scripts/book/layout.mjs & render.mjs', () => {
             expect(res.ir.pages[0].pageType).toBe('cover');
             expect(res.ir.pages.some((p) => p.pageType === 'phase-reset-void')).toBe(true);
             const fullBleedPlate = res.ir.pages.find((p) => p.slot?.assetId === 'p1-a').slot;
-            expect(fullBleedPlate.effectivePpi).toBe(173.355);
+            expect(fullBleedPlate.placedWidthMm).toBe(210);
+            expect(fullBleedPlate.effectivePpi).toBe(247.65);
             expect(fullBleedPlate.showFolio).toBe(false);
             expect(res.hasTwoPageRight).toBe(true);
         } finally {

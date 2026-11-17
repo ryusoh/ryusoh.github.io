@@ -55,6 +55,39 @@ export function computeDerivativeKey({
     return crypto.createHash('sha256').update(payload).digest('hex');
 }
 
+export const DEFAULT_COVER_SOURCE = 'assets/img/book/cover.jpg';
+
+export async function ensureCoverDerivative({
+    rootDir = process.cwd(),
+    profileId = 'display',
+    cacheDir = path.join(rootDir, '.cache', 'book-img'),
+    coverSource = DEFAULT_COVER_SOURCE,
+} = {}) {
+    const srcPath = path.isAbsolute(coverSource) ? coverSource : path.join(rootDir, coverSource);
+    if (!fs.existsSync(srcPath)) {
+        return null;
+    }
+    const srcHash = crypto.createHash('sha256').update(fs.readFileSync(srcPath)).digest('hex');
+    const crop = { left: 430, top: 0, width: 1150, height: 1365 };
+    const key = computeDerivativeKey({
+        sourceSha256: `${srcHash}-crop-${crop.left}x${crop.width}`,
+        profileId,
+        modality: 'bw',
+        derivativeRecipe: 'cover-portrait-b-w',
+    });
+    const outDir = path.join(cacheDir, profileId);
+    fs.mkdirSync(outDir, { recursive: true });
+    const outPath = path.join(outDir, `cover-dscf5076-2-${key.slice(0, 16)}.jpg`);
+    if (!fs.existsSync(outPath)) {
+        await sharp(srcPath)
+            .extract(crop)
+            .toColorspace('b-w')
+            .jpeg({ quality: profileId === 'display' ? 92 : 84, mozjpeg: true })
+            .toFile(outPath);
+    }
+    return { path: outPath, width: crop.width, height: crop.height };
+}
+
 export async function ensureBookDerivative(
     asset,
     profile,

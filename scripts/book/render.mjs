@@ -7,7 +7,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { load as yamlLoad } from 'js-yaml';
-import { ensureBookDerivative, verifyBookFonts } from './assets.mjs';
+import { ensureBookDerivative, ensureCoverDerivative, verifyBookFonts } from './assets.mjs';
 import { collectPoolInventory } from './inventory.mjs';
 import { compileLayoutIr } from './layout.mjs';
 
@@ -142,10 +142,16 @@ export async function buildProfileArtifact(
             cacheDir,
         });
     }
+    const coverImage = await ensureCoverDerivative({
+        rootDir,
+        profileId: profile.profileId,
+        cacheDir,
+    });
     const layoutIr = compileLayoutIr(ledger, profile, {
         derivativeMap,
         assetMetrics,
         rootDir,
+        coverImage,
     });
     const outPdfPath = path.join(outDir, profile.artifactName);
     const irJsonPath = path.join(runsDir, `layout-ir-${profile.profileId}.json`);
