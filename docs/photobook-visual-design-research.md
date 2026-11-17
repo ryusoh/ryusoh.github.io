@@ -301,7 +301,953 @@ Verified against local `typst 0.15.1`: Typst's native `curve` function (`curve.m
 
 ## 6. Open Questions & What Could Not Be Verified
 
-1. **Portrait (`210 × 260 mm`) vs. Landscape (`300 × 200 mm`) Trim Preference:**
-    - Commit `9c6a4de` explicitly migrated the book to a `210 × 260 mm` portrait monograph format with `assets/img/book/cover.jpg`. The frontier design blueprint in Section 4 is engineered natively for this `210 × 260 mm` portrait monograph format (using upper optical hang-lines, fore-edge bleeds, and rail-locked folios). If you ever want a separate landscape edition profile (`300 × 200 mm`), the IR-driven template can support both via profile configuration, which requires a product decision from you.
-2. **Cover Portrait Cropping (`174 × 206 mm` Swiss Rail Lock vs. `210 × 260 mm` Full-Bleed):**
-    - On `page-001.png`, [`scripts/book/assets.mjs:71`](file:///Users/lz/dev/ryusoh.github.io/scripts/book/assets.mjs#L71) extracts `{ left: 430, top: 0, width: 1150, height: 1365 }` (`1 : 1.187` aspect ratio). Whether you prefer that portrait locked flush to the `18 mm` Swiss margins (`174 × 206.5 mm`, zero margin mismatch with the title) or bleeding edge-to-edge across the bottom/sides of the cover (`210 mm` wide) is an aesthetic call for human visual review.
+1. **Cover Portrait Architecture — Option A (`18 mm` Swiss Rail-Locked Tipped-In Plate, `174 × 206.5 mm`) vs. Option B (`48 mm` Hang-Line 3-Edge Full-Bleed, `210 × 212 mm`):**
+    - Both eliminate the broken dual-margin flyer layout of `page-001.png` (`18 mm` text vs. `32 mm` image). Option A emulates a **MACK / Steidl** cloth hardcover with a recessed photographic plate framed by a `0.25pt #1C1E24` deboss hairline; Option B emulates a **VOID / Akio Nagasawa (_Provoke_)** full-bleed object where the portrait's top edge establishes the `48 mm` optical hang-line of the book and the silver neck chain bleeds off the bottom trim edge. Work Order `WO-04` below defaults to **Option B (with Option A as a 1-flag toggle)** pending human visual confirmation.
+
+---
+
+## 7. Action Items (Mechanical Work Orders)
+
+### 7.1 Preamble — Rules for the Implementing Agent
+
+1. **One work order per commit:** Execute work orders sequentially (`WO-01` $\to$ `WO-05`). Stage only the files touched by that work order (`git add <file>`) and commit after each item once its scoped verification passes, **when authorized by the user** — **never push**.
+2. **Exact anchors (`Find`):** Every `Find` block below is verified against the current repository state. If an anchor does not match verbatim, **STOP and report** rather than guessing. Line numbers are approximate and may drift after earlier edits.
+3. **Protected paths:** Never edit `js/vendor/`, any `*.min.js`, or source JPEGs under `assets/img/p1..p6/`.
+4. **Post-edit formatting & linting:** After editing JS/JSON/YAML/MD files, run `./scripts/run-npx.sh prettier --write <files>` and `./scripts/run-npx.sh eslint <js-files>`.
+
+---
+
+### 7.2 Ranked Work Orders
+
+#### WO-01 `[low]` — Sanitize HTML `<br />` and `<footer><cite>` markup in `scripts/book/inventory.mjs`
+
+- **File:** [`scripts/book/inventory.mjs`](file:///Users/lz/dev/ryusoh.github.io/scripts/book/inventory.mjs#L92-L113)
+- **Why:** Twenty-one fragments in `assets/img/p2..p6/index.md` contain raw `<br />` tags and `<footer class="quote-attribution"><cite>…</cite></footer>` HTML tags that currently leak verbatim into `book/sequence.yaml` and Typst output.
+- **Find** (`scripts/book/inventory.mjs`, lines 92–113):
+
+    ```js
+    const flushQuote = (endLine) => {
+        if (quoteLines.length === 0) {
+            return;
+        }
+        const text = quoteLines.join('\n').trim();
+        quoteLines = [];
+        if (!text) {
+            return;
+        }
+        const hasCjk = /[\u4e00-\u9fff]/.test(text);
+        fragments.push({
+            fragmentId: `${seriesId}-lines-${quoteStartLine}-${endLine}`,
+            source: `assets/img/${seriesId}/index.md`,
+            sourceRange: { startLine: quoteStartLine, endLine },
+            language: hasCjk ? 'zh-Hans' : 'en',
+            text,
+            attribution: null,
+            originality: 'series-epigraph',
+            rightsStatus: 'approved',
+            excerptPolicy: 'verbatim-only',
+        });
+    };
+    ```
+
+- **Change:** Extract `<cite>…</cite>` into `attribution`, strip `<br />` and remaining HTML tags cleanly, and collapse excess blank lines:
+
+    ```js
+    const flushQuote = (endLine) => {
+        if (quoteLines.length === 0) {
+            return;
+        }
+        const rawText = quoteLines.join('\n').trim();
+        quoteLines = [];
+        if (!rawText) {
+            return;
+        }
+        const citeMatch = rawText.match(/<cite>([\s\S]*?)<\/cite>/i);
+        const attribution = citeMatch ? citeMatch[1].trim() : null;
+        const text = rawText
+            .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+            .replace(/<br\s*\/?>/gi, '')
+            .replace(/<[^>]+>/g, '')
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .join('\n')
+            .trim();
+        if (!text) {
+            return;
+        }
+        const hasCjk = /[\u4e00-\u9fff]/.test(text);
+        fragments.push({
+            fragmentId: `${seriesId}-lines-${quoteStartLine}-${endLine}`,
+            source: `assets/img/${seriesId}/index.md`,
+            sourceRange: { startLine: quoteStartLine, endLine },
+            language: hasCjk ? 'zh-Hans' : 'en',
+            text,
+            attribution,
+            originality: 'series-epigraph',
+            rightsStatus: 'approved',
+            excerptPolicy: 'verbatim-only',
+        });
+    };
+    ```
+
+- **Guardrail:** Keep `sourceRange` and `excerptPolicy: 'verbatim-only'` unchanged so `tests/js/book-inventory.test.js` and `validate.mjs` pass without modification.
+- **Verify:**
+
+    ```bash
+    ./scripts/run-npx.sh prettier --write scripts/book/inventory.mjs && ./scripts/run-npx.sh eslint scripts/book/inventory.mjs && ./scripts/run-npx.sh jest tests/js/book-inventory.test.js
+    ```
+
+---
+
+#### WO-02 `[low]` — Restore multi-archetype spread rhythm and bilingual epigraph distribution in `scripts/book/optimize.mjs`
+
+- **File:** [`scripts/book/optimize.mjs`](file:///Users/lz/dev/ryusoh.github.io/scripts/book/optimize.mjs#L103-L216)
+- **Why:** `optimize.mjs` currently drops 22 of 30 fragments (`slice(0, 8)`), passes `null` epigraphs to `SYS.02`–`SYS.04` (rendering zero CJK glyphs in the book), and packs `88.2%` of plates into identical `symmetric-diptych` `inset-74` boxes.
+- **Find** (`scripts/book/optimize.mjs`, lines 103–157):
+
+    ```js
+    function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
+        const spreads = [];
+        let idx = 0;
+        let sNum = startSpreadIndex;
+        let diptychRun = 0;
+
+        while (idx < assets.length) {
+            const spreadId = `s${String(sNum++).padStart(2, '0')}`;
+            if (idx === 0 && epigraphFragment) {
+                const rAsset = assets[idx++];
+                spreads.push({
+                    spreadId,
+                    layout: 'monolith-epigraph',
+                    locked: sNum === 2,
+                    verso: { fragmentId: epigraphFragment.fragmentId },
+                    recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
+                });
+                continue;
+            }
+            if (idx === 0) {
+                const rAsset = assets[idx++];
+                spreads.push({
+                    spreadId,
+                    layout: 'monolith',
+                    locked: false,
+                    verso: null,
+                    recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
+                });
+                continue;
+            }
+            if (idx === assets.length - 1 || (diptychRun > 0 && diptychRun % 5 === 0)) {
+                diptychRun = 0;
+                const rAsset = assets[idx++];
+                spreads.push({
+                    spreadId,
+                    layout: 'monolith',
+                    locked: false,
+                    verso: null,
+                    recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-82') },
+                });
+                continue;
+            }
+            diptychRun++;
+            const vAsset = assets[idx++];
+            const rAsset = assets[idx++];
+            spreads.push({
+                spreadId,
+                layout: 'symmetric-diptych',
+                locked: false,
+                verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
+                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
+            });
+        }
+        return { spreads, nextSpreadIndex: sNum };
+    }
+    ```
+
+- **Change (Part A — `packSpreads`):** Support an array of movement `epigraphFragments` and cycle diptychs cleanly through `symmetric-diptych` (`inset-74` + `inset-74`), `asymmetric-diptych` (`inset-82` + `inset-55`), and `diagonal-offset` (`inset-74` + `inset-74`), with periodic `monolith` / `monolith-epigraph` breathers:
+
+    ```js
+    function buildDiptychSpread(spreadId, vAsset, rAsset, diptychRun) {
+        if (diptychRun % 4 === 2) {
+            return {
+                spreadId,
+                layout: 'asymmetric-diptych',
+                locked: false,
+                verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-82') },
+                recto: { assetId: rAsset.assetId, scale: 'inset-55' },
+            };
+        }
+        if (diptychRun % 6 === 0) {
+            return {
+                spreadId,
+                layout: 'diagonal-offset',
+                locked: false,
+                verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
+                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
+            };
+        }
+        return {
+            spreadId,
+            layout: 'symmetric-diptych',
+            locked: false,
+            verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
+            recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
+        };
+    }
+
+    function packSpreads(assets, startSpreadIndex, epigraphFragments = []) {
+        const frags = Array.isArray(epigraphFragments)
+            ? epigraphFragments.filter(Boolean)
+            : [epigraphFragments].filter(Boolean);
+        let fragIdx = 0;
+        const spreads = [];
+        let idx = 0;
+        let sNum = startSpreadIndex;
+        let diptychRun = 0;
+
+        while (idx < assets.length) {
+            const spreadId = `s${String(sNum++).padStart(2, '0')}`;
+            if (idx === 0) {
+                const rAsset = assets[idx++];
+                const openerFrag = frags[fragIdx++] || null;
+                spreads.push({
+                    spreadId,
+                    layout: openerFrag ? 'monolith-epigraph' : 'monolith',
+                    locked: sNum === 2 && Boolean(openerFrag),
+                    verso: openerFrag ? { fragmentId: openerFrag.fragmentId } : null,
+                    recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
+                });
+                continue;
+            }
+            if (idx === assets.length - 1 || (diptychRun > 0 && diptychRun % 4 === 0)) {
+                diptychRun = 0;
+                const rAsset = assets[idx++];
+                const midFrag = idx < assets.length && frags[fragIdx] ? frags[fragIdx++] : null;
+                spreads.push({
+                    spreadId,
+                    layout: midFrag ? 'monolith-epigraph' : 'monolith',
+                    locked: false,
+                    verso: midFrag ? { fragmentId: midFrag.fragmentId } : null,
+                    recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-82') },
+                });
+                continue;
+            }
+            diptychRun++;
+            const vAsset = assets[idx++];
+            const rAsset = assets[idx++];
+            spreads.push(buildDiptychSpread(spreadId, vAsset, rAsset, diptychRun));
+        }
+        return { spreads, nextSpreadIndex: sNum };
+    }
+    ```
+
+- **Find (Part B — `buildCandidateLedger` in `scripts/book/optimize.mjs`, lines 185–215):**
+
+    ```js
+    const s1 = packSpreads(m1Assets, 1, inventory.fragments[0] || null);
+    const s2 = packSpreads(m2Assets, s1.nextSpreadIndex, null);
+    const s3 = packSpreads(m3Assets, s2.nextSpreadIndex, null);
+    const s4 = packSpreads(m4Assets, s3.nextSpreadIndex, null);
+    ```
+
+    and
+
+    ```js
+            fragments: inventory.fragments.slice(0, 8),
+    ```
+
+- **Change (Part B):** Select verse fragments (`text.length <= 240`) and route English `p1` stanzas to `SYS.01`, `p2`/`p3` stanzas to `SYS.02`, `p4`/`p5` stanzas to `SYS.03`, and Simplified/Traditional Chinese (`zh-Hans`) `p6` stanzas to `SYS.04`:
+
+    ```js
+    const verseFragments = (inventory.fragments || []).filter((f) => f.text.length <= 240);
+    const byPrefix = (prefixes) =>
+        verseFragments.filter((f) => prefixes.some((p) => f.fragmentId.startsWith(`${p}-`)));
+    const f1 = byPrefix(['p1']).slice(0, 2);
+    const f2 = byPrefix(['p2', 'p3']).slice(0, 2);
+    const f3 = byPrefix(['p4', 'p5']).slice(0, 2);
+    const f4 = verseFragments.filter((f) => f.language === 'zh-Hans').slice(0, 3);
+
+    const s1 = packSpreads(m1Assets, 1, f1.length > 0 ? f1 : verseFragments.slice(0, 1));
+    const s2 = packSpreads(m2Assets, s1.nextSpreadIndex, f2);
+    const s3 = packSpreads(m3Assets, s2.nextSpreadIndex, f3);
+    const s4 = packSpreads(m4Assets, s3.nextSpreadIndex, f4);
+    ```
+
+    and replace `fragments: inventory.fragments.slice(0, 8),` with:
+
+    ```js
+            fragments: verseFragments,
+    ```
+
+- **Guardrail:** Keep ESLint complexity of `packSpreads` and `buildCandidateLedger` well below 20 by delegating diptych selection to `buildDiptychSpread`.
+- **Verify:**
+
+    ```bash
+    ./scripts/run-npx.sh prettier --write scripts/book/optimize.mjs && ./scripts/run-npx.sh eslint scripts/book/optimize.mjs && ./scripts/run-npx.sh jest tests/js/book-optimize.test.js
+    ```
+
+---
+
+#### WO-03 `[low]` — Enrich `scripts/book/layout.mjs` IR with native waveform arrays, movement telemetry, and 4-page paginated Contact-Sheet Plate Index
+
+- **File:** [`scripts/book/layout.mjs`](file:///Users/lz/dev/ryusoh.github.io/scripts/book/layout.mjs#L63-L186)
+- **Why:** `book/photobook.typ` cannot render the 127-frame `luma255(t)` vector waveform, movement plate ranges (`001–019`), epigraph attributions, or the 127-thumbnail Contact-Sheet Plate Index unless `compileLayoutIr` supplies those fields in the IR and paginates `colophon-index` in 32-plate chunks (`layoutIr.totalPages === pdfPageCount`).
+- **Find** (`scripts/book/layout.mjs`, lines 63–166):
+
+    ```js
+        return {
+            kind: 'plate',
+            plateNumber: plateNum,
+            plateLabel: String(plateNum).padStart(3, '0'),
+            assetId: slot.assetId,
+            path: toTypstAssetPath(rawPath, rootDir),
+            altText: asset?.altText || '',
+            modality: asset?.modality || 'bw',
+            scale,
+            placedWidthMm,
+            placedHeightMm,
+            effectivePpi: computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeightMm),
+            showFolio: scale !== 'full-bleed',
+        };
+    }
+
+    export function compileLayoutIr(
+        ledger,
+        profile,
+        { derivativeMap = {}, assetMetrics = {}, rootDir = null, coverImage = null } = {}
+    ) {
+        const assetMap = new Map((ledger.assets || []).map((a) => [a.assetId, a]));
+        const fragmentMap = new Map((ledger.fragments || []).map((f) => [f.fragmentId, f]));
+        let pCount = 0;
+        const plateCounter = { next: () => ++pCount };
+        const pageSize = profile?.pageSize || { widthMm: 210, heightMm: 260, bleedMm: 0 };
+        const slotOpts = { derivativeMap, assetMetrics, rootDir, pageWidthMm: pageSize.widthMm };
+        const pages = [];
+
+        const pushPage = (side, content) => {
+            pages.push({ pageNumber: pages.length + 1, side, ...content });
+        };
+
+        // Page 1 (Recto): Canonical Cover — The Cybernetic Monolith
+        pushPage('recto', {
+            pageType: 'cover',
+            title: ledger.title,
+            subtitle: ledger.subtitle,
+            author: ledger.author,
+            coverImagePath: coverImage?.path ? toTypstAssetPath(coverImage.path, rootDir) : null,
+            heroAssetId: ledger.constraints?.pinnedOpenerAssetId || 'p1-dscf4775',
+            signature: '127 STATES · 51 MONO / 76 CHROMA',
+        });
+
+        let prevModality = null;
+        for (const mov of ledger.movements || []) {
+            if (prevModality && prevModality !== mov.modality) {
+                pushPage('verso', { pageType: 'phase-reset-void', modality: mov.modality });
+                pushPage('recto', { pageType: 'phase-reset-void', modality: mov.modality });
+            }
+            prevModality = mov.modality;
+
+            pushPage('verso', { pageType: 'void', modality: mov.modality });
+            pushPage('recto', {
+                pageType: 'phase-divider',
+                movementId: mov.movementId,
+                title: mov.title,
+                modality: mov.modality,
+            });
+
+            for (const sp of mov.spreads || []) {
+                let versoSlot = null;
+                if (sp.verso?.fragmentId) {
+                    const frag = fragmentMap.get(sp.verso.fragmentId);
+                    versoSlot = {
+                        kind: 'epigraph',
+                        fragmentId: sp.verso.fragmentId,
+                        text: frag?.text || '',
+                        language: frag?.language || 'en',
+                    };
+                } else if (sp.verso?.assetId) {
+                    versoSlot = buildPlateSlot(sp.verso, assetMap, slotOpts, plateCounter);
+                }
+                const rectoSlot = buildPlateSlot(sp.recto, assetMap, slotOpts, plateCounter);
+
+                pushPage('verso', {
+                    pageType: 'spread-verso',
+                    spreadId: sp.spreadId,
+                    layout: sp.layout,
+                    modality: mov.modality,
+                    slot: versoSlot,
+                });
+                pushPage('recto', {
+                    pageType: 'spread-recto',
+                    spreadId: sp.spreadId,
+                    layout: sp.layout,
+                    modality: mov.modality,
+                    slot: rectoSlot,
+                });
+            }
+        }
+
+        if (ledger.includeCommentaryAppendix) {
+            pushPage('verso', {
+                pageType: 'colophon-telemetry',
+                surface: profile.tokens?.surfaceDossier || '#111317',
+            });
+            pushPage('recto', {
+                pageType: 'colophon-index',
+                surface: profile.tokens?.surfaceDossier || '#111317',
+                totalPlates: pCount,
+            });
+        }
+    ```
+
+- **Change:** Include `seriesId`, `luma255`, `labL`, and `attribution` on slots; compute `waveform` and `movementSummaries`; and paginate `colophon-index` in deterministic chunks of 32 plates per page:
+
+    ```js
+        const seriesMatch = String(slot.assetId).match(/^(p[0-9]+)-/);
+        const luma255 = Number(asset?.metrics?.luma255 ?? invMeta.luma255 ?? 48);
+        const labL = Number((asset?.metrics?.lab?.L ?? invMeta.lab?.L ?? 20).toFixed(1));
+
+        return {
+            kind: 'plate',
+            plateNumber: plateNum,
+            plateLabel: String(plateNum).padStart(3, '0'),
+            assetId: slot.assetId,
+            seriesId: (asset?.seriesId || seriesMatch?.[1] || 'p1').toUpperCase(),
+            path: toTypstAssetPath(rawPath, rootDir),
+            altText: asset?.altText || '',
+            shortCaption: String(asset?.altText || '').slice(0, 68),
+            modality: asset?.modality || 'bw',
+            luma255,
+            labL,
+            scale,
+            placedWidthMm,
+            placedHeightMm,
+            effectivePpi: computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeightMm),
+            showFolio: scale !== 'full-bleed',
+        };
+    }
+
+    const ROMAN_NUMERALS = Object.freeze(['I', 'II', 'III', 'IV']);
+    const INDEX_PAGE_SIZE = 32;
+
+    function buildEpigraphSlot(verso, fragmentMap) {
+        const frag = fragmentMap.get(verso.fragmentId);
+        return {
+            kind: 'epigraph',
+            fragmentId: verso.fragmentId,
+            text: frag?.text || '',
+            attribution: frag?.attribution || null,
+            language: frag?.language || 'en',
+        };
+    }
+
+    function appendColophonPages(pages, pushPage, { ledger, profile, placedPlates, movementSummaries }) {
+        if (!ledger.includeCommentaryAppendix) {
+            return;
+        }
+        const surface = profile.tokens?.surfaceDossier || '#111317';
+        pushPage('verso', {
+            pageType: 'colophon-telemetry',
+            surface,
+            sourceFingerprintShort: String(ledger.sourceFingerprint || '').slice(0, 16),
+            movementSummaries,
+        });
+        const chunks = [];
+        for (let i = 0; i < placedPlates.length; i += INDEX_PAGE_SIZE) {
+            chunks.push(placedPlates.slice(i, i + INDEX_PAGE_SIZE));
+        }
+        if (chunks.length === 0) {
+            chunks.push([]);
+        }
+        chunks.forEach((entries, idx) => {
+            const side = idx % 2 === 0 ? 'recto' : 'verso';
+            const rangeStart = entries[0]?.plateLabel || '001';
+            const rangeEnd = entries[entries.length - 1]?.plateLabel || rangeStart;
+            pushPage(side, {
+                pageType: 'colophon-index',
+                surface,
+                indexPageNumber: idx + 1,
+                indexPageCount: chunks.length,
+                rangeLabel: `${rangeStart}–${rangeEnd}`,
+                totalPlates: placedPlates.length,
+                entries,
+            });
+        });
+    }
+
+    export function compileLayoutIr(
+        ledger,
+        profile,
+        { derivativeMap = {}, assetMetrics = {}, rootDir = null, coverImage = null } = {}
+    ) {
+        const assetMap = new Map((ledger.assets || []).map((a) => [a.assetId, a]));
+        const fragmentMap = new Map((ledger.fragments || []).map((f) => [f.fragmentId, f]));
+        let pCount = 0;
+        const plateCounter = { next: () => ++pCount };
+        const pageSize = profile?.pageSize || { widthMm: 210, heightMm: 260, bleedMm: 0 };
+        const slotOpts = { derivativeMap, assetMetrics, rootDir, pageWidthMm: pageSize.widthMm };
+        const pages = [];
+        const placedPlates = [];
+        const movementSummaries = [];
+
+        const pushPage = (side, content) => {
+            pages.push({ pageNumber: pages.length + 1, side, ...content });
+        };
+
+        pushPage('recto', {
+            pageType: 'cover',
+            title: ledger.title,
+            subtitle: ledger.subtitle,
+            author: ledger.author,
+            coverImagePath: coverImage?.path ? toTypstAssetPath(coverImage.path, rootDir) : null,
+            heroAssetId: ledger.constraints?.pinnedOpenerAssetId || 'p1-dscf4775',
+            signature: '127 STATES · 51 MONO / 76 CHROMA',
+        });
+
+        let prevModality = null;
+        (ledger.movements || []).forEach((mov, movIdx) => {
+            if (prevModality && prevModality !== mov.modality) {
+                pushPage('verso', { pageType: 'phase-reset-void', modality: mov.modality });
+                pushPage('recto', { pageType: 'phase-reset-void', modality: mov.modality });
+            }
+            prevModality = mov.modality;
+
+            pushPage('verso', { pageType: 'void', modality: mov.modality });
+            const dividerPage = {
+                pageType: 'phase-divider',
+                movementId: mov.movementId,
+                movementRoman: ROMAN_NUMERALS[movIdx] || String(movIdx + 1),
+                movementIndexLabel: `0${movIdx + 1} / 04`,
+                title: mov.title,
+                modality: mov.modality,
+                modalityLabel: mov.modality === 'bw' ? 'Achromatic Silver' : 'Chromatic',
+                plateRange: '001–001',
+                plateCount: 0,
+                meanLuma: 0,
+                waveformSlice: [],
+            };
+            pushPage('recto', dividerPage);
+            const movPlates = [];
+
+            for (const sp of mov.spreads || []) {
+                let versoSlot = null;
+                if (sp.verso?.fragmentId) {
+                    versoSlot = buildEpigraphSlot(sp.verso, fragmentMap);
+                } else if (sp.verso?.assetId) {
+                    versoSlot = buildPlateSlot(sp.verso, assetMap, slotOpts, plateCounter);
+                    if (versoSlot) {
+                        placedPlates.push(versoSlot);
+                        movPlates.push(versoSlot);
+                    }
+                }
+                const rectoSlot = buildPlateSlot(sp.recto, assetMap, slotOpts, plateCounter);
+                if (rectoSlot) {
+                    placedPlates.push(rectoSlot);
+                    movPlates.push(rectoSlot);
+                }
+
+                pushPage('verso', {
+                    pageType: 'spread-verso',
+                    spreadId: sp.spreadId,
+                    layout: sp.layout,
+                    modality: mov.modality,
+                    slot: versoSlot,
+                });
+                pushPage('recto', {
+                    pageType: 'spread-recto',
+                    spreadId: sp.spreadId,
+                    layout: sp.layout,
+                    modality: mov.modality,
+                    slot: rectoSlot,
+                });
+            }
+
+            const firstLbl = movPlates[0]?.plateLabel || '001';
+            const lastLbl = movPlates[movPlates.length - 1]?.plateLabel || firstLbl;
+            const sumLuma = movPlates.reduce((acc, p) => acc + p.luma255, 0);
+            dividerPage.plateRange = `${firstLbl}–${lastLbl}`;
+            dividerPage.plateCount = movPlates.length;
+            dividerPage.meanLuma = movPlates.length ? Number((sumLuma / movPlates.length).toFixed(1)) : 0;
+            dividerPage.waveformSlice = movPlates.map((p) => ({
+                plateNumber: p.plateNumber,
+                luma255: p.luma255,
+            }));
+            movementSummaries.push({
+                movementId: mov.movementId,
+                movementRoman: dividerPage.movementRoman,
+                title: mov.title,
+                modalityLabel: dividerPage.modalityLabel,
+                plateRange: dividerPage.plateRange,
+                plateCount: dividerPage.plateCount,
+                meanLuma: dividerPage.meanLuma,
+            });
+        });
+
+        appendColophonPages(pages, pushPage, { ledger, profile, placedPlates, movementSummaries });
+    ```
+
+- **Find (Part B — return object of `compileLayoutIr` in `scripts/book/layout.mjs`, lines 175–185):**
+
+    ```js
+    return {
+        editionId: ledger.editionId,
+        revision: ledger.revision,
+        profileId: profile.profileId,
+        pageSize,
+        tokens: profile.tokens,
+        totalPages: pages.length,
+        totalPlates: pCount,
+        layoutHash,
+        pages,
+    };
+    ```
+
+- **Change (Part B):** Include root `waveform` array on the returned IR object:
+
+    ```js
+    return {
+        editionId: ledger.editionId,
+        revision: ledger.revision,
+        profileId: profile.profileId,
+        pageSize,
+        tokens: profile.tokens,
+        totalPages: pages.length,
+        totalPlates: pCount,
+        waveform: placedPlates.map((p) => ({
+            plateNumber: p.plateNumber,
+            luma255: p.luma255,
+            labL: p.labL,
+            modality: p.modality,
+        })),
+        layoutHash,
+        pages,
+    };
+    ```
+
+- **Verify:**
+
+    ```bash
+    ./scripts/run-npx.sh prettier --write scripts/book/layout.mjs && ./scripts/run-npx.sh eslint scripts/book/layout.mjs && ./scripts/run-npx.sh jest tests/js/book-render.test.js tests/js/book-preflight.test.js
+    ```
+
+---
+
+#### WO-04 `[low] [visual]` — Overhaul `book/photobook.typ` to the Fw:Books × VOID × MACK Swiss Monograph Architecture
+
+- **File:** [`book/photobook.typ`](file:///Users/lz/dev/ryusoh.github.io/book/photobook.typ#L1-L118)
+- **Why:** Eliminates all seven visual sins (`SYS //` slashes, `#CE2323` red header underlines, raw `BW`/`COLOPHON-TELEMETRY` enum leaks, stretched `Syne ExtraBold` banners, Cover `18mm` vs `32mm` margin clash, saggy `horizon` centering with broken `full-bleed` bottom inset, unaligned folios, and 2-page colophon stub).
+- **Find:** Entire contents of [`book/photobook.typ`](file:///Users/lz/dev/ryusoh.github.io/book/photobook.typ#L1-L118) (lines 1–118).
+- **Change:** Replace `book/photobook.typ` with the Swiss Archival Monograph template using `Glow Sans SC Extended` as primary neo-grotesque voice, `48mm` Upper Optical Hang-Line (`Hängelinie`), rail-locked `6.5pt` folios, native `#curve` vector photometric waveforms, and the 4-column × 8-row Contact-Sheet Plate Index:
+
+    ```typst
+    // Canonical Typst template for INFINITE SYSTEMS (Fw:Books × VOID × MACK Portrait Monograph)
+    #let ir = json(sys.inputs.at("ir", default: "layout-ir.json"))
+    #let wf = ir.at("waveform", default: ())
+
+    #let renderWaveform(points, widthMm: 166, heightMm: 22, showAccent: false) = pdf.artifact(
+      box(
+        width: widthMm * 1mm,
+        height: heightMm * 1mm,
+        stroke: (bottom: 0.3pt + rgb("#2A2D34"), top: 0.3pt + rgb("#2A2D34")),
+        inset: 0mm,
+      )[
+        #let yExhale = (1 - 75 / 255) * heightMm * 1mm
+        #let yInhale = (1 - 135 / 255) * heightMm * 1mm
+        #place(top + left, dy: yExhale, line(length: 100%, stroke: (paint: rgb("#2A2D34"), thickness: 0.25pt, dash: "densely-dotted")))
+        #if showAccent [
+          #place(top + left, dy: yInhale, line(length: 100%, stroke: (paint: rgb("#CE2323"), thickness: 0.3pt, dash: "densely-dotted")))
+        ]
+        #if points.len() > 1 [
+          #let stepX = widthMm / (points.len() - 1)
+          #let cmds = points.enumerate().map(((i, pt)) => {
+            let x = (i * stepX) * 1mm
+            let y = ((1 - calc.clamp(pt.luma255, 0, 255) / 255) * heightMm) * 1mm
+            if i == 0 { curve.move((x, y)) } else { curve.line((x, y)) }
+          })
+          #place(top + left, curve(stroke: 0.45pt + rgb("#E6E4DF"), ..cmds))
+        ]
+      ]
+    )
+
+    #set document(title: "INFINITE SYSTEMS", author: "Zhuang Liu")
+    #set page(
+      width: ir.pageSize.widthMm * 1mm,
+      height: ir.pageSize.heightMm * 1mm,
+      margin: 0mm,
+      fill: rgb("#070709"),
+    )
+    #set text(
+      font: ("Glow Sans SC Extended", "Syne"),
+      fill: rgb("#E6E4DF"),
+      size: 9.5pt,
+      cjk-latin-spacing: auto,
+      overhang: true,
+    )
+
+    #for (idx, pg) in ir.pages.enumerate() [
+      #if idx > 0 [ #pagebreak() ]
+      #if pg.pageType == "cover" [
+        #block(width: 100%, height: 100%)[
+          #block(width: 100%, height: 48mm, inset: (x: 18mm, top: 14mm, bottom: 0mm))[
+            #grid(
+              columns: (1fr, auto),
+              text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.2pt, fill: rgb("#8A9099"))[ZHUANG LIU · MONOGRAPH],
+              text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.0pt, fill: rgb("#8A9099"))[2021–2026],
+            )
+            #v(4.5mm)
+            #heading(level: 1, bookmarked: true)[
+              #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 17pt, tracking: 2.4pt, fill: rgb("#E6E4DF"))[INFINITE SYSTEMS]
+            ]
+          ]
+          #if pg.at("coverImagePath", default: none) != none [
+            #place(
+              bottom + center,
+              block(width: 210mm, height: 212mm, clip: true)[
+                #image(pg.coverImagePath, width: 210mm, height: 212mm, fit: "cover", alt: "Monochrome close-up portrait cover photograph")
+              ]
+            )
+          ]
+          #place(
+            bottom + left,
+            dx: 18mm,
+            dy: -10mm,
+            text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[#pg.signature],
+          )
+        ]
+      ] else if pg.pageType == "phase-divider" [
+        #let mRoman = pg.at("movementRoman", default: "I")
+        #let mIdxLbl = pg.at("movementIndexLabel", default: pg.movementId)
+        #let mModLbl = pg.at("modalityLabel", default: upper(pg.modality))
+        #let mRange = pg.at("plateRange", default: "001")
+        #let mCount = pg.at("plateCount", default: 0)
+        #let mLuma = pg.at("meanLuma", default: 0)
+        #let mWf = pg.at("waveformSlice", default: ())
+        #block(width: 100%, height: 100%, inset: (x: 24mm, top: 48mm, bottom: 24mm))[
+          #pdf.artifact(line(length: 100%, stroke: 0.3pt + rgb("#2A2D34")))
+          #v(3.5mm)
+          #grid(
+            columns: (1fr, auto),
+            text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.0pt, fill: rgb("#8A9099"))[MOVEMENT #mIdxLbl · #upper(mModLbl)],
+            text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.0pt, fill: rgb("#8A9099"))[PLATES #mRange],
+          )
+          #v(14mm)
+          #text(font: "JetBrains Mono", size: 8pt, tracking: 1.5pt, fill: rgb("#8A9099"))[#mRoman]
+          #v(2.5mm)
+          #heading(level: 1, bookmarked: true)[
+            #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 15pt, tracking: 2.2pt, fill: rgb("#E6E4DF"))[#pg.title]
+          ]
+          #v(1fr)
+          #if mWf.len() > 1 [
+            #renderWaveform(mWf, widthMm: 162, heightMm: 16, showAccent: pg.modality == "color")
+            #v(3mm)
+          ]
+          #grid(
+            columns: (1fr, auto),
+            text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#mCount PLATES · MEAN LUMA #mLuma],
+            text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#pg.movementId],
+          )
+        ]
+      ] else if pg.pageType == "spread-verso" or pg.pageType == "spread-recto" [
+        #if pg.slot != none and pg.slot.kind == "epigraph" [
+          #let epigraphLang = if pg.slot.language == "zh-Hans" { "zh" } else { "en" }
+          #let epigraphScript = if pg.slot.language == "zh-Hans" { "hans" } else { auto }
+          #let attr = pg.slot.at("attribution", default: none)
+          #block(width: 100%, height: 100%, inset: (left: 32mm, right: 48mm, top: 82mm, bottom: 32mm))[
+            #pdf.artifact(line(length: 14mm, stroke: 0.3pt + rgb("#2A2D34")))
+            #v(5mm)
+            #set par(leading: 1.05em, spacing: 1.5em, justify: false)
+            #set text(
+              font: ("Glow Sans SC Extended", "Syne"),
+              lang: epigraphLang,
+              script: epigraphScript,
+              fill: rgb("#D8D5CE"),
+              size: 9.5pt,
+            )
+            #pg.slot.text
+            #if attr != none [
+              #v(4mm)
+              #text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[— #attr]
+            ]
+          ]
+        ] else if pg.slot != none and pg.slot.kind == "plate" [
+          #let isFull = pg.slot.scale == "full-bleed"
+          #let isSym = pg.layout == "symmetric-diptych" and not isFull
+          #let isAsym = pg.layout == "asymmetric-diptych" and not isFull
+          #let isDiag = pg.layout == "diagonal-offset" and not isFull
+          #let topHang = if isFull { 44mm } else if isDiag and pg.side == "recto" { 96mm } else if isDiag { 40mm } else { 50mm }
+          #let outerRail = if isFull {
+            0mm
+          } else if isSym {
+            38.6mm
+          } else if isAsym {
+            if pg.side == "verso" { 21.8mm } else { 70.5mm }
+          } else if isDiag {
+            26mm
+          } else {
+            (210mm - pg.slot.placedWidthMm * 1mm) / 2
+          }
+          #let plateInset = if isFull {
+            (top: topHang, left: 0mm, right: 0mm)
+          } else if isSym {
+            if pg.side == "verso" { (top: topHang, right: 16mm) } else { (top: topHang, left: 16mm) }
+          } else if isAsym {
+            if pg.side == "verso" { (top: topHang, right: 16mm) } else { (top: topHang, left: 24mm) }
+          } else if isDiag {
+            if pg.side == "verso" { (top: topHang, left: 26mm) } else { (top: topHang, right: 26mm) }
+          } else {
+            (top: topHang)
+          }
+          #let plateAlign = if isFull {
+            top + center
+          } else if isSym or isAsym {
+            if pg.side == "verso" { top + right } else { top + left }
+          } else if isDiag {
+            if pg.side == "verso" { top + left } else { top + right }
+          } else {
+            top + center
+          }
+          #block(width: 100%, height: 100%)[
+            #block(width: 100%, height: 100%, inset: plateInset)[
+              #align(plateAlign)[
+                #image(pg.slot.path, width: pg.slot.placedWidthMm * 1mm, height: pg.slot.placedHeightMm * 1mm, fit: "contain", alt: pg.slot.altText)
+              ]
+            ]
+            #if pg.slot.showFolio [
+              #place(
+                if pg.side == "verso" { bottom + left } else { bottom + right },
+                dx: if pg.side == "verso" { outerRail } else { -outerRail },
+                dy: -18mm,
+                text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.6pt, fill: rgb("#8A9099"))[#pg.slot.plateLabel],
+              )
+            ]
+          ]
+        ]
+      ] else if pg.pageType == "colophon-telemetry" [
+        #let summaries = pg.at("movementSummaries", default: ())
+        #let fpShort = pg.at("sourceFingerprintShort", default: "9d2901560132539d")
+        #block(width: 100%, height: 100%, fill: rgb("#111317"), inset: (x: 20mm, top: 22mm, bottom: 18mm))[
+          #grid(
+            columns: (1fr, auto),
+            heading(level: 1, bookmarked: true)[
+              #text(font: "JetBrains Mono", size: 7.5pt, tracking: 1.2pt, fill: rgb("#E6E4DF"))[ARCHIVAL COLOPHON & PHOTOMETRIC TELEMETRY]
+            ],
+            text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[REV. #ir.revision · #upper(ir.profileId)],
+          )
+          #v(3mm)
+          #pdf.artifact(line(length: 100%, stroke: 0.3pt + rgb("#2A2D34")))
+          #v(6mm)
+          #text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[
+            PHOTOMETRIC LUMINANCE TRAJECTORY · LUMA255(t) ACROSS #ir.totalPlates PLATES
+          ]
+          #v(2.5mm)
+          #renderWaveform(wf, widthMm: 170, heightMm: 26, showAccent: true)
+          #v(6mm)
+          #text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[MOVEMENT ARCHITECTURE]
+          #v(2.5mm)
+          #for m in summaries [
+            #pdf.artifact(line(length: 100%, stroke: 0.25pt + rgb("#2A2D34")))
+            #v(1.8mm)
+            #grid(
+              columns: (18mm, 34mm, 38mm, 28mm, 1fr),
+              text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#m.movementId],
+              text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 7pt, fill: rgb("#E6E4DF"))[#m.title],
+              text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#D8D5CE"))[#m.modalityLabel],
+              text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[PLATES #m.plateRange],
+              align(right, text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#m.plateCount FRAMES · L #m.meanLuma]),
+            )
+            #v(1.8mm)
+          ]
+          #pdf.artifact(line(length: 100%, stroke: 0.25pt + rgb("#2A2D34")))
+          #v(1fr)
+          #grid(
+            columns: (1fr, 1fr),
+            column-gutter: 10mm,
+            text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[
+              EDITION: #upper(ir.editionId) \
+              AUTHOR: ZHUANG LIU \
+              TRIM: #ir.pageSize.widthMm × #ir.pageSize.heightMm MM \
+              EXTENT: #ir.totalPages PAGES · #ir.totalPlates PLATES
+            ],
+            text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[
+              PROFILE: #upper(ir.profileId) \
+              VIEW: TWOPAGERIGHT SPREADS \
+              TYPESET: GLOW SANS SC · SYNE · JETBRAINS MONO \
+              POOL SHA256: #fpShort
+            ],
+          )
+        ]
+      ] else if pg.pageType == "colophon-index" [
+        #let entries = pg.at("entries", default: ())
+        #let rangeLbl = pg.at("rangeLabel", default: "001–127")
+        #let idxPg = pg.at("indexPageNumber", default: 1)
+        #let idxTotal = pg.at("indexPageCount", default: 1)
+        #block(width: 100%, height: 100%, fill: rgb("#111317"), inset: (x: 16mm, top: 20mm, bottom: 16mm))[
+          #grid(
+            columns: (1fr, auto),
+            heading(level: 1, bookmarked: idxPg == 1)[
+              #text(font: "JetBrains Mono", size: 7.5pt, tracking: 1.0pt, fill: rgb("#E6E4DF"))[ILLUSTRATED PLATE INDEX · #rangeLbl]
+            ],
+            text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[INDEX #idxPg / #idxTotal],
+          )
+          #v(2.5mm)
+          #pdf.artifact(line(length: 100%, stroke: 0.3pt + rgb("#2A2D34")))
+          #v(4mm)
+          #if entries.len() > 0 [
+            #grid(
+              columns: (1fr, 1fr, 1fr, 1fr),
+              column-gutter: 4.5mm,
+              row-gutter: 4.5mm,
+              ..entries.map(e => block(width: 100%, height: 22.5mm, clip: true)[
+                #grid(
+                  columns: (14mm, 1fr),
+                  column-gutter: 2.2mm,
+                  block(width: 14mm, height: 9.5mm, fill: rgb("#070709"))[
+                    #if e.path != "" [
+                      #image(e.path, width: 14mm, height: 9.5mm, fit: "cover")
+                    ]
+                  ],
+                  block(width: 100%)[
+                    #text(font: "JetBrains Mono", size: 5.8pt, fill: rgb("#E6E4DF"))[#e.plateLabel · #e.seriesId]
+                    #linebreak()
+                    #text(font: "JetBrains Mono", size: 5.2pt, fill: rgb("#8A9099"))[#upper(e.modality) · L* #e.labL]
+                  ],
+                )
+                #v(1.2mm)
+                #set par(leading: 0.45em)
+                #text(font: ("Glow Sans SC Extended", "Syne"), size: 5.2pt, fill: rgb("#D8D5CE"))[#e.shortCaption]
+              ])
+            )
+          ] else [
+            #text(font: "JetBrains Mono", size: 7.5pt, fill: rgb("#8A9099"))[
+              All #ir.totalPlates photographs sequenced with strict monochrome / chroma movement separation.
+            ]
+          ]
+        ]
+      ]
+    ]
+    ```
+
+- **Guardrail:** Keep `#if e.path != ""` around thumbnail `#image(e.path, ...)` so unit tests (`tests/js/book-render.test.js`) that mock `execRunner` or pass uncached paths never fail inside Typst.
+- **Verify:**
+
+    ```bash
+    ./scripts/run-npx.sh jest tests/js/book-render.test.js tests/js/book-preflight.test.js
+    ```
+
+---
+
+#### WO-05 `[low] [visual]` — Regenerate inventory, proposals, sequence ledger, compiled PDFs, and Poppler proof images, then run `preflight` and `repro`
+
+- **Files:** [`book/sequence.yaml`](file:///Users/lz/dev/ryusoh.github.io/book/sequence.yaml), `dist/infinite-systems-display.pdf`, `dist/infinite-systems-screen.pdf`
+- **Change:** Run the full photobook pipeline so `book/sequence.yaml` picks up the sanitized bilingual fragments and multi-archetype spread rhythm, then render both PDF profiles, generate proof PNGs, and run preflight/reproducibility checks:
+
+    ```bash
+    node scripts/book.mjs inventory && node scripts/book.mjs orchestrate && node scripts/book.mjs plan && node scripts/book.mjs apply --plan seed-1 && node scripts/book.mjs render && node scripts/book.mjs proof && node scripts/book.mjs preflight && node scripts/book.mjs repro
+    ```
+
+- **Guardrail:** Verify via `pdffonts dist/infinite-systems-display.pdf` that `GlowSansSC-Extended`, `JetBrainsMono-Regular`, and `Syne` are embedded and that `node scripts/book.mjs preflight` and `node scripts/book.mjs repro` exit `0`.
+- **Verify:**
+
+    ```bash
+    ./scripts/run-npx.sh jest tests/js/book-inventory.test.js tests/js/book-validate.test.js tests/js/book-optimize.test.js tests/js/book-assets.test.js tests/js/book-render.test.js tests/js/book-preview.test.js tests/js/book-preflight.test.js
+    ```
