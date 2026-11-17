@@ -1032,7 +1032,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `make help | grep -F "book-preview" && node scripts/book.mjs --help`
 - **Guardrail:** Every recipe line under a target in `Makefile` must begin with a literal TAB character (`\t`), never spaces or the literal text `<TAB>`, or GNU Make will abort with `*** missing separator`.
 
-#### WO-06 `[low]` — Implement read-only pool inventory & `sharp` modality classifier (`scripts/book/inventory.mjs` + `tests/js/book-inventory.test.js`)
+#### WO-06 `[low]` `[DONE]` — Implement read-only pool inventory & `sharp` modality classifier (`scripts/book/inventory.mjs` + `tests/js/book-inventory.test.js`)
 
 - **File:** `scripts/book/inventory.mjs` and `tests/js/book-inventory.test.js`
 - **Find:** `(new files — must not exist prior to this work order)`
