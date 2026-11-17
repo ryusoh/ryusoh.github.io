@@ -68,7 +68,7 @@ export async function ensureCoverDerivative({
         return null;
     }
     const srcHash = crypto.createHash('sha256').update(fs.readFileSync(srcPath)).digest('hex');
-    const crop = { left: 430, top: 0, width: 1150, height: 1365 };
+    const crop = { left: 946, top: 0, width: 1102, height: 1365 };
     const key = computeDerivativeKey({
         sourceSha256: `${srcHash}-crop-${crop.left}x${crop.width}`,
         profileId,
