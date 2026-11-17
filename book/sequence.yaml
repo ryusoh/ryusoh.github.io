@@ -1,0 +1,2005 @@
+schemaVersion: 1
+editionId: infinite-systems
+title: INFINITE SYSTEMS
+subtitle: Photographs 2021–2026
+author: Zhuang Liu
+revision: 1
+parentRevision: null
+sourceFingerprint: 9d2901560132539dddc9792f82d69775e9c96f9e7defbdd6e89e1b40d44b2b45
+approval:
+    proposalId: seed-envelope-1
+    reviewer: Zhuang Liu
+    approvedAt: '2026-11-17T00:00:00+08:00'
+includeCommentaryAppendix: true
+assets:
+    - assetId: p1-dscf4775
+      source: assets/img/p1/DSCF4775.jpg
+      sourceSha256: 998b853567fdca86ab3b96867e5ddc9c8972ca168e23a466721eb7dafa8e5116
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Inside a dimly lit transit car, a solitary young passenger sits bowed forward,
+          illuminated by a celestial, dramatic diagonal shaft of sunlight piercing through the
+          darkness.
+    - assetId: p1-dscf8974-2
+      source: assets/img/p1/DSCF8974-2.jpg
+      sourceSha256: 4de023a2c3007d0ffe2c33a15599569863981585ac75a27024374a52e69bed5f
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Through a fogged, reflective restaurant window marked 'MOSAIC', a silhouette in an LA
+          baseball cap stands amidst a flare of ambient backlight and swirling smoke.
+    - assetId: p1-dscf0361-2
+      source: assets/img/p1/DSCF0361-2.jpg
+      sourceSha256: bf32ab10ce89f06b7f5ed5d16db4e67940e0f548ebd8d41be36cee57177bf9d2
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A shirtless street performer or runner moving dynamically across a night plaza, captured
+          in long exposure with vertical ribbons of shimmering light trailing behind their torso
+          and limbs.
+    - assetId: p1-dscf8927-2
+      source: assets/img/p1/DSCF8927-2.jpg
+      sourceSha256: 1f72e24a32e210ae2e7afa68d4262621d074a6e307492681550097d6822bfdb1
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Direct flash portrait of a smiling Black man with an outstretched hand leaning beside a
+          car, frozen against horizontal motion-blurred streaks of passing headlights and neon.
+    - assetId: p1-dscf8961-2
+      source: assets/img/p1/DSCF8961-2.jpg
+      sourceSha256: ea24d68b7daa44db3ee33d03a3d9e3014c647ca1cc6efe05980248706e6f0ff2
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Three young companions gathered outside against a wall bearing typography ('THE ART'): a
+          man in a backwards cap and wire glasses reaches out to adjust his friend's collar while
+          another leans in behind them.
+    - assetId: p1-dscf7141
+      source: assets/img/p1/DSCF7141.jpg
+      sourceSha256: 14f09ed2260d5b3786d97d36b29600033220f2b79cd1b4e8ac34336a4e11f508
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A blonde man in an oversized leather trench coat strides along an open transit platform
+          at night, bending forward beneath an electric canopy of sweeping overhead light trails.
+    - assetId: p1-r0002885-2
+      source: assets/img/p1/R0002885-2.jpg
+      sourceSha256: d52283b4a7637bc95a4270fc87783bf4557af2f15075d35e327e65803acce545
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          The stark, three-legged silhouette of Sutro Tower piercing through brooding nocturnal
+          fog and cloud layers over the pitch-black ridgeline of the San Francisco hills.
+    - assetId: p1-dscf2432-2
+      source: assets/img/p1/DSCF2432-2.jpg
+      sourceSha256: f16eee105681eb8f9f010b3e3f2888b3fc0d9553c5335a0ff6e6b4b5067a30f5
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young man in a hooded white puffer jacket stands in the center of San Francisco tram
+          tracks, enveloped in a dense billowing cloud of white tire smoke or street steam.
+    - assetId: p1-dscf6943
+      source: assets/img/p1/DSCF6943.jpg
+      sourceSha256: 4ee6713a26854736e85bc1e5845e6ea5dab7a4d024402de6616c5afc574a56c9
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young man stands on a street crosswalk with closed eyes, a serene smile, and raised
+          hands with splayed fingers, bathed in vertical ribbons of falling light trails like a
+          celestial shower.
+    - assetId: p1-dscf2441-3
+      source: assets/img/p1/DSCF2441-3.jpg
+      sourceSha256: 853d1f2fd948c543edfb59bbe173125268a860562fee8296aa1e86fc6c63f45e
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A middle-aged Black man with an afro and beard walks through motion-blurred city crowds
+          in a dark overcoat and striped shirt, his downward introspective gaze accompanied by a
+          hooded companion behind.
+    - assetId: p1-dscf1157
+      source: assets/img/p1/DSCF1157.jpg
+      sourceSha256: ca7d7ffe1da200440063f36194ec83edeef54cee5d419cb2a3bb8d4178986228
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A firm handshake between an Asian man in a sharp jacket inside/beside a window and a fan
+          in a sports jersey and cap, while a companion in thick glasses watches closely.
+    - assetId: p1-dscf5423-5
+      source: assets/img/p1/DSCF5423-5.jpg
+      sourceSha256: 4d93ab638050a9faef2ce1cb1f2aa177f863b0606bca19f54676f70c1f6799a6
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An extreme low-angle macro perspective dominated by the geometric circular tread and
+          Jumpman logo of an Air Jordan 6 sole hovering directly over the lens, with a woman's
+          blurred face visible in the shadows.
+    - assetId: p1-dscf1093
+      source: assets/img/p1/DSCF1093.jpg
+      sourceSha256: 6f3ae71eab5599277eda845e9790b8369bfb062f7b4969b02d88208e5d4bc31e
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A dense gathering of spectators viewed from behind, their heads and shoulders
+          silhouetted against a radiant, blinding wave of pure white light washing over a
+          storefront.
+    - assetId: p1-286fc1b3-5576-440b-8718-2e872c98e713
+      source: assets/img/p1/286FC1B3-5576-440B-8718-2E872C98E713.JPG
+      sourceSha256: cf68336cca2214842d6caa5fd2e4b3264bad2e1116ae787b461384dd176e7566
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A hooded figure in a patterned Nike hoodie seen in three-quarter rear profile, crowned
+          by a geometric, diamond-faceted canopy of reflected linear light rays resembling an
+          origami halo.
+    - assetId: p1-dscf5891-9
+      source: assets/img/p1/DSCF5891-9.JPG
+      sourceSha256: 69f61f2bd918b8b095346bd91082b55c893c236cb9c6cb971d2b9d0d3b7e6f81
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          High-angle perspective looking down upon a rain-soaked city avenue at night, where
+          streaks of vehicle headlamps blur along the asphalt beneath silhouetted trees and
+          shining storefronts.
+    - assetId: p1-dscf5903-2
+      source: assets/img/p1/DSCF5903-2.JPG
+      sourceSha256: 040526da35c6ec4a547fcb9818007e2943c40153bbe4d7cd257853a73a25d256
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Direct flash capture through the driver-side window of a woman behind the wheel of a
+          classic car, staring forward with intense focus amidst wrapping ribbons of headlight
+          trails.
+    - assetId: p1-dscf4402-8
+      source: assets/img/p1/DSCF4402-8.jpg
+      sourceSha256: d805255e0ee044cb6fe026b63e1eab7cc56283e692b46e5ca49ac1e1aa969faf
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A self-portrait in a darkened mirror: the photographer holds a camera with an on-camera
+          flash, defiantly raising a middle finger through a cascading ribcage of horizontal light
+          trails.
+    - assetId: p1-dscf5916-4
+      source: assets/img/p1/DSCF5916-4.JPG
+      sourceSha256: 374398910e5423bd94bf05ab921b29a376fffb08ff2e1c00f6370544cb166897
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A sleek Mustang in the midnight shadows, its rear glass dusted with dew, flanked and
+          illuminated by two blinding white floodlight orbs blazing like twin supernovas into the
+          lens.
+    - assetId: p2-dscf4295-2
+      source: assets/img/p2/DSCF4295-2.JPG
+      sourceSha256: d950a0946d7d54c0e55ba20ceb4c068222179741120a763ae5f9e80ca71a495e
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Outside a commercial storefront under sale banners, two women in white religious habits
+          hold a sacred icon of the Madonna and Child before a man in a wheelchair, while a
+          companion in a red hood passes him a bottle of alcohol.
+    - assetId: p2-dscf0883-3
+      source: assets/img/p2/DSCF0883-3.jpg
+      sourceSha256: 11ba08dccd8c2a54986e45e1921301162c90958584a6b7c5f01becf6be79b842
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Low-angle street perspective looking up at towering skyscrapers: an older woman in a
+          clear protective visor raises her hands in ecstatic prayer, flanked by street preachers
+          holding vibrant signs reading 'DO NOT DIE WITHOUT KNOWING JESUS'.
+    - assetId: p2-r0002358
+      source: assets/img/p2/R0002358.JPG
+      sourceSha256: 705e3db38a9f9d8c544cd02f6303ae9f17e9f19e53d89f8d2b6ac8c2656c3139
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Two middle-aged men leaning out of a red brick bar window, hands tightly clasped over
+          the sill. The foreground man in a plain white t-shirt gazes directly into the lens with
+          bloodshot, weathered eyes, while his companion watches with a sly grin.
+    - assetId: p2-dscf5163-8
+      source: assets/img/p2/DSCF5163-8.JPG
+      sourceSha256: d208e091bb1e4bfba60b7f933ce863577903028bc34b963aa1779721042784a7
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A woman in dark sunglasses, an ornate cream blouse, and a diaphanous pink tulle skirt
+          strides forward carrying a shopping bag, flanked by male companions in sharp jackets in
+          high-contrast afternoon sunlight.
+    - assetId: p2-dscf8444-3
+      source: assets/img/p2/DSCF8444-3.jpg
+      sourceSha256: faa930cc106d369a306e25b5a0ba6b88111431dd367b0fc4501198b41c648c14
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young Black traveler in a mustard-yellow jacket and backpack stands on a subway
+          platform with crossed arms, casting a piercing, defiant backward glance as a golden BART
+          train blurs past.
+    - assetId: p2-dscf8593-3
+      source: assets/img/p2/DSCF8593-3.jpg
+      sourceSha256: 3b8e04c5e9693b0800d0e88468d01869068493b5e0911d5d23359abf2b9b0256
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Long-exposure motion blur capturing a flurry of pedestrians rushing across a Chinatown
+          intersection under 'Fanloli' and 'One Way' street signs, with a stationary man in a blue
+          shirt standing calm in the background.
+    - assetId: p2-dscf8402-3
+      source: assets/img/p2/DSCF8402-3.jpg
+      sourceSha256: 73503c1e4606ffa41ee098f78f4d20cf4f9a1a3f278619119de7eefbed8365b0
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An older Asian man in wire glasses and a dark jacket walks across a bold yellow zebra
+          crossing at twilight, with corporate office lobbies and sleek vehicles looming in the
+          reflective background.
+    - assetId: p2-dscf3433
+      source: assets/img/p2/DSCF3433.jpg
+      sourceSha256: 3a814287e5357b56ba29a1a54b3e4a596b6ceb34569c9d056b2cbe4eb462d484
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young woman in an oversized grey sweatshirt sits perched on the sunroof of a vehicle
+          at night, raising a joint or lighter toward the sky as glowing yellow streetlights
+          streak around her.
+    - assetId: p2-a20e2e39-af83-4fd0-a6f7-3d2243a753dc
+      source: assets/img/p2/A20E2E39-AF83-4FD0-A6F7-3D2243A753DC.JPG
+      sourceSha256: 9d0c178aecda78d425356b3b99678f946b69e874ca6a997bde7b6ecc571a0493
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young woman in dark attire sits alone on a yellow concrete curb under atmospheric
+          magenta and violet neon lighting outside a doorway, smoking a cigarette while on a phone
+          call.
+    - assetId: p2-dscf0406-2
+      source: assets/img/p2/DSCF0406-2.JPG
+      sourceSha256: b8775d048bc9acdb2dc105937d0c28dc3d1541c610dfee894c3bd9ff9e2312f4
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in an afro, round spectacles, and a vintage paisley shirt lights a cigarette on a
+          night crosswalk, surrounded by companions and dynamic amber ribbon-like light streaks.
+    - assetId: p2-dscf7203-9
+      source: assets/img/p2/DSCF7203-9.jpg
+      sourceSha256: f6348bf988fa7f99f20c26d034b4ed02399a5629cc22ddc9916da418f6ace67b
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Outside 'The Cosmopolitan' skyscraper under glowing red traffic signals, a man tilts his
+          head back to exhale a dense white plume of vape smoke into the night air as bystanders
+          in red outerwear look on.
+    - assetId: p2-dscf5150-4
+      source: assets/img/p2/DSCF5150-4.JPG
+      sourceSha256: b88bbaaf62c2e30b2014dad441fdcf01176c8bcb37c2524ffbebd4124820d3c4
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Chiaroscuro profile of an elderly Black gentleman wearing a black fedora and denim
+          overalls, walking past classical fluted stone columns on a wet, reflective city
+          pavement.
+    - assetId: p2-dscf8772
+      source: assets/img/p2/DSCF8772.jpg
+      sourceSha256: c0922c9512707fbf3d126d6cd81bc46101935de4180a122803404d80e69bccfd
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A hooded figure sits curled in deep black shadow in a narrow street doorway, juxtaposed
+          against a brightly colored mural featuring a weeping red rose and blue wooden panels.
+    - assetId: p2-dscf3495-2
+      source: assets/img/p2/DSCF3495-2.jpg
+      sourceSha256: effc6ca618bbd501392ea8db54fa79ca8220181f1482d1523e7eaed6bf244634
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young Black man with dreadlocks under a black hoodie stands beside a security gate,
+          smoking with a golden watch glistening on his wrist amidst streaking red and white car
+          light trails.
+    - assetId: p2-dscf0418-2
+      source: assets/img/p2/DSCF0418-2.JPG
+      sourceSha256: c173e77cfe2d140a4db18eb7da34a788228512589b4883870010bb6ed9c4b8ba
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Flash capture of a sudden commotion behind a black Nissan: friends rush to assist a
+          woman on the asphalt as streaking red tail-lights and orange headlight flares slice
+          across the frame.
+    - assetId: p2-dscf8739
+      source: assets/img/p2/DSCF8739.jpg
+      sourceSha256: b0b32517d945b0da07bba25d82d8d19d022ca0af6f3211a9d8b9aae3cb03ca2c
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An older woman with glasses on her forehead and a cigarette in her mouth commands the
+          steering wheel of a GMC Yukon truck, captured in intense direct flash against swirling
+          yellow and orange light trails.
+    - assetId: p2-dscf3487-3
+      source: assets/img/p2/DSCF3487-3.jpg
+      sourceSha256: d29d9aaae637144bfb13f8078b6ef0fc3ca9fda0731920ab4dbb77ac5b706023
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young man seated in a patterned cape receives a haircut on a dark city street,
+          surrounded by four friends holding up mobile phone flashlights and camera gimbals to
+          illuminate the barber's clippers.
+    - assetId: p2-dscf3445-2
+      source: assets/img/p2/DSCF3445-2.jpg
+      sourceSha256: 2111d0de03e31df089fdf2db62debe2844828852e6536fe7fad3d3046e3988f0
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Direct flash portrait of an older blonde woman with vibrant red lipstick in a flecked
+          sweater, crossing her arms defensively against a textured deep-green exterior wall.
+    - assetId: p2-dscf7452
+      source: assets/img/p2/DSCF7452.JPG
+      sourceSha256: e318a13f06b46e69715df236e1c3bdc560dddd919535ad0a6775de729aef5e12
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young man in a black tank top stands under harsh fluorescent lighting making a payment
+          at an automated parking station on a wooden boardwalk at night, flanked by stark warning
+          signs reading 'LOST TICKETS ARE FINAL'.
+    - assetId: p2-r0004664
+      source: assets/img/p2/R0004664.JPG
+      sourceSha256: febe18f859131e6177db55648f4efe2c458b5a65e733a5b9d30e85e7b63c5646
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          High-altitude horizon view of brilliant golden sunlight bursting through a narrow slit
+          between massive indigo storm clouds over the darkening silhouette of the city below.
+    - assetId: p2-dscf2862-3
+      source: assets/img/p2/DSCF2862-3.jpg
+      sourceSha256: 9656a9dc4bb2309ba563e2fe8de1e5112587f2f91e98ba54091074675fe7bda3
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Deep chiaroscuro close-up profile of a face illuminated only by the horizontal, blinding
+          red and cyan glare of police cruiser emergency lights cutting through the total
+          darkness.
+    - assetId: p3-dscf7765
+      source: assets/img/p3/DSCF7765.jpg
+      sourceSha256: 526005b55de3762ed2754f7671a61ec3c52bf597be9d6b3f32d8757c23da6faf
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A female boxer landing a crisp punch against a pink speed bag mounted beneath a circular
+          wooden rebound disc, set against a twilight gradient sky and silhouette palm fronds.
+    - assetId: p3-dscf7728
+      source: assets/img/p3/DSCF7728.jpg
+      sourceSha256: 3a56340ce2bfe1c90409b8b950f617532ee3d38bcef2d690fa86186a2bfcb8e1
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A towering stepped altar drenched in golden marigolds (cempasúchil) for Día de los
+          Muertos, with artisans and participants arranging offerings beneath a clear blue sky and
+          soaring palm trees.
+    - assetId: p3-dscf7753-3
+      source: assets/img/p3/DSCF7753-3.jpg
+      sourceSha256: 475e6a07bfefd1386a11b9eceecc3d72c0d5ae4a7d68f195aa3fb7de20e7a29c
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An acrobat hanging suspended upside down from high-flying trapeze cords against a pale
+          sky, framed by structural climbing ladders and palm silhouettes.
+    - assetId: p3-dscf7186-2
+      source: assets/img/p3/DSCF7186-2.jpg
+      sourceSha256: 08a72ab83c6b9d08bd0ca2bf112815bdffcc89425b7d46fb8d81aa7b785fd0da
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A costumed gorilla figure adorned with a glittering rhinestone crown and gold medallion
+          ('K') encountering a cyclist with a helmet-mounted light in a dark city park.
+    - assetId: p3-dscf3435
+      source: assets/img/p3/DSCF3435.JPG
+      sourceSha256: e533f8f41ef7c95e44b014868c9b8dde8acfd5b875d79764e8b2d8e76f8671b1
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Two men outside at night against a luminous wall with a Mexican flag, one adjusting gear
+          in a blue SF fitted cap while the other in glasses and jacket looks calmly at the
+          camera.
+    - assetId: p3-dscf6946
+      source: assets/img/p3/DSCF6946.jpg
+      sourceSha256: 0aee4eb1ca82a85cd0fa98d89c681a2d225fdccaf72a1096b68f4f29c523f0c9
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An elder gentleman in a flat cap and floral-patterned shirt navigating an urban
+          corridor, shadowed by sweeping amber and emerald kinetic light trails streaking
+          overhead.
+    - assetId: p3-8b0245dc-4c12-4cd1-a6b0-96883bfaf25b
+      source: assets/img/p3/8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG
+      sourceSha256: a605d2aaacdb49a335bb3c5764d37ad2b2e9f17e44cb76c7d6fc848f010088a2
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A woman laughing ecstatically in a fur-trimmed cap and floral jacket, multiplied by
+          stroboscopic flash and encircled by radiant neon-blue and violet light ribbons.
+    - assetId: p3-dscf5338
+      source: assets/img/p3/DSCF5338.JPG
+      sourceSha256: f1be68e55f8faec6b3912c7fc38dd3af57bef21ddec3bb649c88eebefa6194bc
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Stroboscopic multiple exposure of young athletes on a night basketball court, eyes
+          locked on a floating black ball beneath the backboard amidst slashing cyan and magenta
+          light trails.
+    - assetId: p3-dscf0490
+      source: assets/img/p3/DSCF0490.JPG
+      sourceSha256: 42aa3951092077c03dd23a0fe9a85b5800ba505bf97c67b0ed124a0e202dfaeb
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Low-angle architectural perspective looking up at ship or observation deck railings
+          where spectators in colorful caps and jackets lean forward against a black sky.
+    - assetId: p3-r0001972-4
+      source: assets/img/p3/R0001972-4.JPG
+      sourceSha256: 0115540e91b5c00187f7b360263df4e9938d130f19c477544c9280e97f4a1aca
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in a Golden State Warriors championship cap, gold-framed sunglasses, and white
+          attire commanding the wheel of a classic automobile lined with plush blue shearling.
+    - assetId: p3-dscf4237-2
+      source: assets/img/p3/DSCF4237-2.jpg
+      sourceSha256: 9fa46285fce6182c4f13b17fc6bd79cedde57fee55aa858d5f9230bff2001a2a
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A vibrant daytime street arcade scene where youth shoot mini-basketballs and a woman in
+          a Warriors bucket hat claps in celebration, with basketballs suspended mid-bounce.
+    - assetId: p3-img_4582
+      source: assets/img/p3/IMG_4582.jpg
+      sourceSha256: 03efda1f013eb157f20ed4f25eda7bfbd07807733da746bfca03ff6bcdeb7b1e
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A cohort of stylish youth walking abreast down a sunlit city pavement past storefronts,
+          sporting masks, layered jackets, and distinctive personal aesthetics.
+    - assetId: p3-b5b35521-9a08-4b1c-aab3-429d75a3769e
+      source: assets/img/p3/B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG
+      sourceSha256: fd0eb9ecda087116f48252ee7e3385c3200b2e2c40178c006f01f7b185a4bdfd
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Low-angle view of celebratory fans on an elevated ledge gesturing towards the camera in
+          'GOLD BLOODED' attire against a mirrored glass skyscraper facade.
+    - assetId: p3-dscf8563-5
+      source: assets/img/p3/DSCF8563-5.jpg
+      sourceSha256: 18a92bccb618608b5fe6d2fb5933928ded8ebfe74f6f4058ce2b3ecb80dcab09
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A complex multi-figure street scene outside a storefront window: a woman with dreadlocks
+          holding a beverage, a boy hiding his face in his hands, and a man in a durag smoking a
+          cigar in the foreground.
+    - assetId: p3-dscf8671
+      source: assets/img/p3/DSCF8671.JPG
+      sourceSha256: ecf98b9c580457cc2f649cadccec0b8824af017c869558319cf973c4653fa62d
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in a sharp tailored suit and a woman with bright golden curls nestled in a dense
+          festive crowd, leaning together in deep concentration over a smartphone screen.
+    - assetId: p3-dscf3632
+      source: assets/img/p3/DSCF3632.JPG
+      sourceSha256: 4b0e240259ab795bbd15fd0c8acb3c1faae1178f4a8b35944684be70e1909658
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Direct flash portrait of a barber in a red beanie and denim apron staring into the lens,
+          with a mirror behind him reflecting the camera's starburst specular highlight.
+    - assetId: p3-dscf1137
+      source: assets/img/p3/DSCF1137.jpg
+      sourceSha256: ff0d7c171c858d1ae20325e19215f733f870f0eb9c21b357de4d6aaac1040fb0
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A woman in a red 49ers jersey scrambling over the center console and seats inside a
+          crowded vehicle at night, captured from the driver's perspective.
+    - assetId: p3-dscf7672-2
+      source: assets/img/p3/DSCF7672-2.JPG
+      sourceSha256: d75461acf4cae7f0e4e51a4ab28a3013ce1bba70c2efaa549846aa1eb664cde0
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Close-up double exposure of a smiling woman sticking her tongue out, layered across a
+          translucent field of American flag stars against an illuminated corporate entrance.
+    - assetId: p3-dscf1113
+      source: assets/img/p3/DSCF1113.jpg
+      sourceSha256: 1d3c18551b9aa6df2d1ca46ea2ecaad2c826cb6fadd9a6c6536513c43e8fab5f
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in a 49ers jersey and red knit hat centered in the frame, enveloped by a swirling
+          halo of golden, amber, and white kinetic light trails.
+    - assetId: p3-dscf3579
+      source: assets/img/p3/DSCF3579.JPG
+      sourceSha256: 71fc75e00b7b713763e88d1310eccbe2a24aacf19b4a4e7be4e625411ad0a237
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in a blue Warriors sweatshirt pouring champagne into a red solo cup at an outdoor
+          patio table lined with bottles, attended by friends in bright hoodies before a colorful
+          mural.
+    - assetId: p3-dscf7318-3
+      source: assets/img/p3/DSCF7318-3.jpg
+      sourceSha256: 3d5e16c55ff2322dc61789fd21c5533de36611a5c2c4d6339fa4049ca6640f8d
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man reclining on a tattoo table getting tattooed on his back while holding a beer,
+          framed in the immediate foreground by a hand holding an iconic glass Coca-Cola bottle.
+    - assetId: p3-dscf5759-5
+      source: assets/img/p3/DSCF5759-5.jpg
+      sourceSha256: 156aea7dc32b8aa0f1b81e2fd5ac28bcd9a058adc6f03a6536da451fd9466559
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A silhouette of a driver flashing a hand sign through the window of a sleek classic
+          vehicle, juxtaposed against the textured stone columns and historic windows of a
+          monumental building.
+    - assetId: p3-dscf5719-3
+      source: assets/img/p3/DSCF5719-3.jpg
+      sourceSha256: 1a77b5032181806b7a9f5a8a660144ce9f081e6ad22f4b0cf77705731918d72f
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Low-key chiaroscuro flash portrait of a silver-haired man crossing his forearms in a
+          protective 'X' over his eyes, revealing calligraphic tattoos reading 'Zambos' and
+          'Mundo'.
+    - assetId: p4-dscf4250-3
+      source: assets/img/p4/DSCF4250-3.jpg
+      sourceSha256: 7381cdd5eeaf18a6b159fb6adef8a921b38cb576157e0dd1cc60b07141f097a2
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A person in a denim jacket holding an exhibition poster for 'Araki / Daido: 400
+          Polaroids at Ratio 3' directly over their face, standing before a grid of salon portrait
+          headshots in blue flash light.
+    - assetId: p4-dscf4090
+      source: assets/img/p4/DSCF4090.jpg
+      sourceSha256: fe60709f901c6c6b9896f6105a955d33bf0c12517b573540517bb2283d2e019c
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          View from inside a dim, damp concrete zoo enclosure looking out through heavy glass,
+          where two visitors shield their brows from the glare to peer inside.
+    - assetId: p4-dscf7212-2
+      source: assets/img/p4/DSCF7212-2.jpg
+      sourceSha256: dc6436b44fdd792716074066370229dd56474230bc65491291904331ede2b504
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Sunlit corporate plaza outside a modern glass building ('INNOVATION IS NOT A GAME'),
+          with a pedestrian walking into deep pillar shadows and a cyclist cutting across the
+          foreground in stark silhouette.
+    - assetId: p4-dscf1897-2
+      source: assets/img/p4/DSCF1897-2.jpg
+      sourceSha256: 4895b549f2438804d4edc66a3f2cd8aff0d180d11928f95b1b389599f7f8269e
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Direct low sunlight catching a woman in tinted sunglasses and an oversized grey coat
+          talking on a phone before a dark doorway and a yellow sports billboard, with the
+          distinct silhouette of the photographer cast on the left wall.
+    - assetId: p4-dscf8552-6
+      source: assets/img/p4/DSCF8552-6.jpg
+      sourceSha256: a0f0df8feeac271db37e039f14cf29855bf88e3904cfd67a81c3aeddbf75e73b
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Skater in a pink beanie standing on a stone balustrade overlooking a city avenue and
+          luxury storefronts, wearing a pink t-shirt printed with giant crying cartoon manga eyes
+          that stare directly back at the viewer.
+    - assetId: p4-dscf5453-2
+      source: assets/img/p4/DSCF5453-2.jpg
+      sourceSha256: 752748f9e540467cab4aaeb2718014c63245faa6ec2d83b54c7761833156dd79
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A woman in a white t-shirt and jeans stands centered in front of a curved ochre building
+          entryway and green elevator doors, holding grocery bags with her eyes closed in the warm
+          sunlight.
+    - assetId: p4-dscf7352
+      source: assets/img/p4/DSCF7352.jpg
+      sourceSha256: 8c82d68619648c5251db6348e5caee46cd93d5907f20baf19bc6ae42deb5115c
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Looking through crisscrossed steel security gate lattice and dust-coated glass at an
+          interior dance academy poster depicting leaping dancers in warm amber light.
+    - assetId: p4-940e2644-c690-41f0-9898-0efb79c69dc5
+      source: assets/img/p4/940E2644-C690-41F0-9898-0EFB79C69DC5.jpg
+      sourceSha256: 59963735411f5e3210afd45e13530f5382de703c6d6dfa531fc16d616f06f4e5
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A rainy park scene viewed through a wide plate-glass window with horizontal neon green
+          light streaks reflecting across the dark interior floor, as a woman in a coat and a
+          cyclist move in opposite directions outside.
+    - assetId: p4-18f4c334-bd6b-4c91-8cd8-8615ad7adf67
+      source: assets/img/p4/18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg
+      sourceSha256: ec74e553a345ce9c4642d1e67d8e430b02a26525e0994c4a0775cbeb3020c1b1
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Direct high-power flash at night against a crowd on a ferry or observation deck, blowing
+          out their backs and hair into glowing white silhouettes as they hold up glowing phones
+          to record a distant skyline.
+    - assetId: p4-dscf9185
+      source: assets/img/p4/DSCF9185.jpg
+      sourceSha256: 78f10610c441a8f2bf1f292cc0a2bd75804586bc59bd8f62fb9302b30bfdad37
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man wearing a fedora and round glasses walking through a bustling urban alley, his
+          face precisely bisected down the middle by a torn, sunlit white cloth hanging in the
+          immediate foreground.
+    - assetId: p4-dscf8631
+      source: assets/img/p4/DSCF8631.jpg
+      sourceSha256: b1e54a680e64dd8d84448a9d5a4606c55cf54f1a1f4d0e445d7b1bdcea0ba96c
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An elderly woman walking through heavy rain in Chinatown under a plaid umbrella, holding
+          a folded Chinese newspaper over her brow and face to shield herself from the storm.
+    - assetId: p4-dscf0310-3
+      source: assets/img/p4/DSCF0310-3.jpg
+      sourceSha256: 3017d91912e3bc3e306f4af8f9eed98e3d0e6589e4da623e9123cf07793314c0
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Interior of a BART or metro train car with cobalt blue seats, where a solitary passenger
+          is completely covered beneath a white bedsheet, curled in sleep next to the window
+          reflection.
+    - assetId: p4-dscf6872-5
+      source: assets/img/p4/DSCF6872-5.jpg
+      sourceSha256: ca1ef19af719dcef6d6ecaa4d61a0e3dff437696ca5d247717b4917cbe91c940
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A woman with vibrant emerald-green hair and sunglasses standing on a sidewalk, holding a
+          framed oil painting of the Golden Gate Bridge in front of her torso.
+    - assetId: p4-dscf9642-2
+      source: assets/img/p4/DSCF9642-2.jpg
+      sourceSha256: 0d0356819bee7f0875cd358438ea781c83f658967590d7bd8e7c4854052541c5
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Looking through a barbershop window at an older barber in a tweed flat cap and floral
+          shirt preparing his shears, with layered reflections of mirrors, a young client, and
+          street signs ('BIGBUS SAN...').
+    - assetId: p4-r0001059-4
+      source: assets/img/p4/R0001059-4.jpg
+      sourceSha256: 8d013b40e9bad956a0af84263a11ebe784f7f55964f75e355545083d6cd86d25
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A person wearing a surgical mask seen through a storefront window framed in vivid red
+          and lime green, structured by a 3x3 geometric grid of white squares with an 'I love
+          service' heart badge at the center.
+    - assetId: p4-dscf4110-2
+      source: assets/img/p4/DSCF4110-2.jpg
+      sourceSha256: 87c34d1140797089b5e2e2bf4ba9c6bbbeb902ef2ec0b9a40a428b2d3d247318
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Looking through zoo viewing glass at a lone black gorilla seated on a grassy mound,
+          overlaid with the ethereal reflection of the photographer in a baseball cap raising a
+          camera.
+    - assetId: p4-dscf6250-6
+      source: assets/img/p4/DSCF6250-6.jpg
+      sourceSha256: a967413881e0af053146aed070e327d54a83a153923c257fa0cea7c12e0f018e
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Intricate web of thousands of radiating cracks across a shattered glass pane centered on
+          a white impact node, with blurry figures in hard hats dimly visible through the
+          prismatic fractures.
+    - assetId: p4-dscf1207-5
+      source: assets/img/p4/DSCF1207-5.jpg
+      sourceSha256: 03ff68334978ae45b154895773ea8bc9e0be8d9881409ee3ac64d724abcb0c8d
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Flash exposure on a dusk street capturing a man in a brown leather jacket holding his
+          hand over his brow in a pained or defensive gesture, with moving cars and pedestrians
+          blurred behind.
+    - assetId: p4-dscf3446-2
+      source: assets/img/p4/DSCF3446-2.jpg
+      sourceSha256: d8403d737e688bf23262e6998af36367cb70909a1f22104d575f378a61bf358c
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          On the Hollywood Walk of Fame in full daylight, a hooded figure with a surgical mask
+          pulled down holds up a massive industrial searchlight lantern directly at the camera
+          lens.
+    - assetId: p4-dscf0896-2
+      source: assets/img/p4/DSCF0896-2.jpg
+      sourceSha256: 8603d664d9841c3fa09b9e937fc0b4103b8343cd0a042cfa3f58c95013b7d450
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A street memorial on sunlit terracotta brick steps featuring an orange safety cone,
+          fresh flowers, candles, liquor bottles, a taped photo of a man and dog ('We will Miss
+          you!'), with the long dark shadow of the photographer standing over it.
+    - assetId: p5-dscf9004-3
+      source: assets/img/p5/DSCF9004-3.jpg
+      sourceSha256: 498c1e41c3a0d0bbe2cea2e15ec1666051354eb0d8d1f7f58955c6785da8c5e6
+      modality: bw
+      derivativeRecipe: neutralize-grayscale-2048
+      rightsStatus: approved
+      altText: >-
+          Monochrome, high-grain self-portrait of the photographer wearing a white helmet with
+          both hands covering the face.
+    - assetId: p5-2025-05-11-0020
+      source: assets/img/p5/2025-05-11-0020.JPG
+      sourceSha256: 208db37287f27209aaf0f86b7de9a790cab7dfd5c3922e8458d3850b16ed6729
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Photographer in daylight holding a 'Chinese for Beginners' textbook over their face
+          outside a building, camera hanging from wrist.
+    - assetId: p5-dscf8059
+      source: assets/img/p5/DSCF8059.JPG
+      sourceSha256: bb56e307263a1685ea58ee73ecab51122339d086f425e5a206ad238b2a823263
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A sunburst traffic mirror capturing a bustling intersection, pedestrians, open sky, and
+          the photographer at the center focal point with camera raised.
+    - assetId: p5-6adf762fee94f2f49e98757c54749236
+      source: assets/img/p5/6adf762fee94f2f49e98757c54749236.JPG
+      sourceSha256: 1c7af0831e233ce73ec77fe598a6a2620a300268082cd2e1692ba638efc4d24f
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Silhouetted street portrait looking up into a dense tenement canyon, where an
+          outstretched hand with glowing, blown-out fingers blocks the lens, partially concealing
+          the photographer's face and cap.
+    - assetId: p5-dscf1557-3
+      source: assets/img/p5/DSCF1557-3.JPG
+      sourceSha256: fc0903bd5f685580a19c0e48ea8d4541f73d34a8b9cc99f8f7e2ccdb3b9c87e9
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Museum display of giraffe legs with transparent glass reflecting visitors, architectural
+          columns, and exterior daylight.
+    - assetId: p5-dscf5407-2
+      source: assets/img/p5/DSCF5407-2.jpg
+      sourceSha256: e216b02ac4b01f77b7d7104448865509de6d60aa60065a7584a97f9746191479
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Self-portrait through textured, rain-spattered window glass reflecting street pavement
+          and distant skyline towers.
+    - assetId: p5-dscf8149-7
+      source: assets/img/p5/DSCF8149-7.JPG
+      sourceSha256: d3014ea921949bbc9111442d20d22443210f0412eafffc163209a35cda1b6982
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Photographer on a granite boulder at dusk overlooking Yosemite's Half Dome, illuminated
+          by saturated, theatrical red light.
+    - assetId: p5-dscf8231
+      source: assets/img/p5/DSCF8231.JPG
+      sourceSha256: b3e9073dae4a64ea46e9ccd7f7323c820b035cb5d45062e1fd3f56c18cc19d40
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Framed bar bathroom mirror covered in dense graffiti tags, stickers, and scrawls,
+          reflecting the photographer taking a mirror selfie.
+    - assetId: p5-dscf0525
+      source: assets/img/p5/DSCF0525.jpg
+      sourceSha256: b9465dcee27a2efa8d240680abfe296db9655213227ab3b974fab5d13b33c08e
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Aerial high-angle nightscape of glowing city lights across a valley floor under falling
+          snow dust.
+    - assetId: p5-849bdefe-8868-48a8-b31d-adb58f0161022
+      source: assets/img/p5/849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG
+      sourceSha256: 8ff5e4e8ba8a7e2505f552de73b931de7839655fc6d043c425075155a789f434
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Multiple-exposure stroboscopic motion blur in electric cobalt blue and magenta neon,
+          showing the photographer's face repeated with a coiled sync cord.
+    - assetId: p5-dscf6274
+      source: assets/img/p5/DSCF6274.JPG
+      sourceSha256: e3e17d4308f4350ba36241c60b9a53957c5600e1e5326f0bb12769b0476b0681
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Photographer in beanie holding an off-camera flash in one hand connected by a coiled
+          wire to the camera, illuminated by a warm diagonal ceiling beam.
+    - assetId: p5-img760
+      source: assets/img/p5/IMG760.jpg
+      sourceSha256: 4a16588c44d76e09215652a586083e5e581de7b32f7285d0f4e39517af7e2924
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An outstretched hand presenting a religious pamphlet ('DIOS ES AMOR') directly in front
+          of the lens with an SFPD cruiser behind.
+    - assetId: p5-dscf9159
+      source: assets/img/p5/DSCF9159.jpg
+      sourceSha256: 569556afa163d2dd87a4ad53aac31197db618ff70d249988b245f8c05e0d092d
+      modality: color
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Shot from inside the refrigerator looking out at the photographer eating yogurt with a
+          spoon late at night, glasses askew.
+    - assetId: p6-dscf8985-2
+      source: assets/img/p6/DSCF8985-2.JPG
+      sourceSha256: 11811d45d6bc1191181d90dfaf127143fde094967779a16272c02ea1616af2a7
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An older man in a heavy fur hat turns a weary, haunted face into the direct flash on a
+          night street, while behind him a colossal illuminated spire and motion-blurred towers
+          tear across the dark sky and ghosted pedestrians drift through the traffic.
+    - assetId: p6-dscf8978
+      source: assets/img/p6/DSCF8978.JPG
+      sourceSha256: bd872799e57912fe8acb20d11901e04fc025a49919704922fd75c97fde33e0df
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in a winter jacket stands at the mouth of a narrow night alley beside a parked
+          car, his face calm and resigned under hard flash, while slow-shutter streaks dissolve
+          the brick walls and tangled wires behind him.
+    - assetId: p6-dscf0283-2
+      source: assets/img/p6/DSCF0283-2.jpg
+      sourceSha256: 0356dc3a790f5dd569bf33ee913f9c6dd42a5f5e12c1edc23d341833589af90e
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A dense street-fair crowd in harsh daylight: a bald bearded man thrusts his forefinger
+          directly at the viewer while the women beside him stare with guarded dread, an American
+          flag and faded wall advertisements rising behind them.
+    - assetId: p6-dscf1649
+      source: assets/img/p6/DSCF1649.jpg
+      sourceSha256: 5abb8e9d0fdfe55e1dddf429c3b3e2d20d74b0f58fecec6efad5b9472659d799
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A woman in a traditional floral-embroidered dress drifts through a pan-blurred night
+          crowd, her eyes closed and face lifted in serene absorption while the city smears into
+          horizontal ribbons around her.
+    - assetId: p6-dscf9002-2
+      source: assets/img/p6/DSCF9002-2.JPG
+      sourceSha256: 31b23c4144ba80fca73d1095ddc5667b7950d9a51088b2703fac09ca2ffda4d4
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A hooded shopkeeper stares into the flash from a cramped night street stall, holding out
+          a boxed tool amid cash, cardboard, and pneumatic nailers, a vertical Chinese repair sign
+          glowing on the doorpost beside him.
+    - assetId: p6-dscf0759-2
+      source: assets/img/p6/DSCF0759-2.jpg
+      sourceSha256: a7cbd687120c2a9f69361677debdbf8342e1247aee3d578dd795078152751a6b
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Under stark flash at a night venue, a young man tips his cap with a direct performative
+          gaze on the left while a woman in the right foreground stares past him into the middle
+          distance, a third face framed through a rear window.
+    - assetId: p6-dscf0548-3
+      source: assets/img/p6/DSCF0548-3.jpg
+      sourceSha256: 933c22acd7253b51540bd74b95523e944b973749ae01e71dc39327f0b4222370
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in glasses turns a rightward profile against pitch blackness, crowned by an
+          ethereal looping arc of white light trails that hovers above his skull like a jellyfish
+          or a burning thought.
+    - assetId: p6-dscf1741
+      source: assets/img/p6/DSCF1741.jpg
+      sourceSha256: 9e919cf746d82930debc900195105008a453f8d6b8775b63275374cc037c0eff
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man's translucent face floats superimposed over a blurred historic waterfront skyline,
+          ghost pedestrians passing through his body in a slow-shutter double exposure.
+    - assetId: p6-dscf7178
+      source: assets/img/p6/DSCF7178.JPG
+      sourceSha256: 875f2e13e552ca3dc43c1c657c5e8f2d40ead8a007e6ff319fcb7a74d9dd46f7
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in a cap descends into a marble stairwell corner sliced by a harsh diagonal
+          banister, his downcast face doubled in a dark glass reflection beneath a looming
+          hat-shaped shadow on the ceiling.
+    - assetId: p6-dscf1664
+      source: assets/img/p6/DSCF1664.jpg
+      sourceSha256: ac168e137d51c8b89e9a860afc695952e2689d356da53f656fe64661b1bfed5d
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in a western denim vest with a beaded bracelet is engulfed by a tidal wave of
+          overexposed motion-blurred light, his face tilted back, half-erased by the luminance
+          surge.
+    - assetId: p6-dscf8998
+      source: assets/img/p6/DSCF8998.JPG
+      sourceSha256: e5be01bbd6f7c73242b1e886a7f1baa1da1a0ddeee4a80ae75d6d6ee0983ea83
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A stern man in a black wool coat glances back over his shoulder beside an ornate
+          art-deco bronze gate, its circular floral medallions and rigid vertical bars gleaming
+          under flash.
+    - assetId: p6-dscf0175
+      source: assets/img/p6/DSCF0175.jpg
+      sourceSha256: db9abb786392a81b0ef60b63f462e9a6192e6ce9bcf67930525803b05a7dc278
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          In a dark forest clearing, a small figure in a wide-brimmed hat stands with its back to
+          the camera over an empty basin, while dense white particles hang in the flash-lit air
+          like radioactive snowfall among black tree trunks.
+    - assetId: p6-dscf0617
+      source: assets/img/p6/DSCF0617.jpg
+      sourceSha256: 914afc6064b914302e3b98e070006374b3401628d94ca1e59bf0170bfd14f621
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          In deep chiaroscuro, a young woman with half-painted sugar-skull makeup holds still amid
+          floral headdresses and spiked ornaments, spectators reduced to black silhouettes in the
+          foreground, the word 'MEXICO' glinting from a jacket.
+    - assetId: p6-dscf0324
+      source: assets/img/p6/DSCF0324.jpg
+      sourceSha256: a0821a63547742c4c729347f7b40adcf50d04347319c3f8c7030072134be65bc
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Pure kinetic abstraction: hundreds of white light trails and spark filaments tear
+          diagonally across the entire black frame, an explosion with no ground, no figure, no
+          horizon.
+    - assetId: p6-dscf0658-3
+      source: assets/img/p6/DSCF0658-3.jpg
+      sourceSha256: a523cc944fca90dc92abb5bbccd2222c8c2b18ceb04e00c05535fb3919d2714d
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man with his arm in a white sling stares directly into the flash with wide alarmed
+          eyes, camouflage jacket half-wrapped in swirling ribbons of street light, ghost
+          pedestrians passing behind him.
+    - assetId: p6-dscf0297-3
+      source: assets/img/p6/DSCF0297-3.jpg
+      sourceSha256: 5a04c350c1763c303889dbc253992ec1c2df1c52e2e9f5bba19b9aff82a08659
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A packed nocturnal crowd under flash: a foreground man with sunglasses and suspenders
+          grimaces downward while behind him faces, phones, and raised arms pile up beneath light
+          dripping from the ceiling like static rain.
+    - assetId: p6-dscf1119
+      source: assets/img/p6/DSCF1119.jpg
+      sourceSha256: 30333d01c3e5e8038bee86634a806157754cf7af5f1977ff28453155cbd94244
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An older man in a flat cap crosses a dark street completely submerged in horizontal
+          bands of blinding headlight streaks, his face floating half-erased above the ghost of a
+          white sedan.
+    - assetId: p6-dscf7202-2
+      source: assets/img/p6/DSCF7202-2.JPG
+      sourceSha256: 6768bcb4d145f865ec35a7193843cacf9cda066e06d9265065fd9f11b8c04f9e
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young man carries a small child upside-down over his shoulder on a graffiti-lined
+          night sidewalk, both grinning with wild delight as white light streamers pour past them.
+    - assetId: p6-dscf7027-6
+      source: assets/img/p6/DSCF7027-6.JPG
+      sourceSha256: e66e04677d0cd3c4342ad40c495827db7e2810c9d0d8e6587b787cc7c565ce5b
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A street concert crowd seen from above: a woman in the foreground grimaces at her own
+          iPhone screen while arms around her raise glowing phones toward the stage, a suited man
+          in a striped hat performing at the edge.
+    - assetId: p6-dscf3362-3
+      source: assets/img/p6/DSCF3362-3.jpg
+      sourceSha256: 9f72a3ecf573ac4fd88d760abfbfaefa3c3c582338adeb548812a167061ca441
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A young man with curly hair leans motionless over his bicycle handlebars on a downtown
+          avenue, staring unblinkingly into the lens, a paper bag on the bars, buses and a Metro
+          sign dissolving behind him.
+    - assetId: p6-dscf8873-3
+      source: assets/img/p6/DSCF8873-3.JPG
+      sourceSha256: 44e6ee6ceea11187bfbbcaabcd95d716ea47a1dd8adf51a688acdeafacc6cffd
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Beneath a looming glass tower and colossal glowing fashion billboards, a young man bends
+          to light a cigarette, a woman leaning close beside him, light trails arcing through the
+          commercial night.
+    - assetId: p6-dscf5378
+      source: assets/img/p6/DSCF5378.jpg
+      sourceSha256: d6d2be9b9867e365f68ecfb9c244a63c41991520d29dc76b658c0ac2e591b8a8
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Near-total blackness: a ghostly double-exposed face and turning body barely surface from
+          the void, features smeared into smoke, one faint lamp glowing at the right edge.
+    - assetId: p6-dscf1924
+      source: assets/img/p6/DSCF1924.jpg
+      sourceSha256: 0f3b1cf576d15f17aa7559f8645cc11a95ee7d31f02ae78d24c4dd5730ccf8a7
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An old man in a cap crosses a night street in sharp flash focus while the crowd around
+          him — a denim jacket with a white monogram backpack, faces in mid-stride — streaks into
+          translucent ghosts beneath rivers of light.
+    - assetId: p6-dscf2057
+      source: assets/img/p6/DSCF2057.JPG
+      sourceSha256: 4947e320c0535ece6e3e7febbd303095d354eefa112195ce939ddb4cdc9d68ba
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Two young women grin beneath an enormous detonation of white light that floods the upper
+          frame, serpentine trails pouring over them, one clutching a drink, the other half-erased
+          by the glare.
+    - assetId: p6-dscf9277
+      source: assets/img/p6/DSCF9277.jpg
+      sourceSha256: 641dcefd1c18fd71b85546428792c2ccf6a968637e281644c01b33a3a1ef9a27
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man with slicked-back hair in a shiny puffer jacket strides forward with a stunned
+          expression while radial zoom-burst streaks suck the entire street backward into the
+          black periphery around him.
+    - assetId: p6-dscf2964-6
+      source: assets/img/p6/DSCF2964-6.jpg
+      sourceSha256: f4ba49520ad054549c2d2900f5b0a9bf9d9b00f5093dc2565daeb7fff305f9dc
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Two women in quilted coats share one black umbrella on a wet night street, leaning into
+          each other as pan blur liquefies the cars and streetlights around them.
+    - assetId: p6-dscf9004-6
+      source: assets/img/p6/DSCF9004-6.JPG
+      sourceSha256: f2882e461081255aa19dc3d895ed20dbafeedf0ddf8dd01a1cf3dd1cc049d24d
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A middle-aged man in wire-rimmed glasses and a windbreaker stands beside a white sedan
+          while an entire sky of parabolic white light ribbons rushes over and around his calm,
+          searching face.
+    - assetId: p6-dscf1906-2
+      source: assets/img/p6/DSCF1906-2.jpg
+      sourceSha256: 4491cd0e225cb6dee8c24985479dd34c624b23bb4b738621fe48bb5d84cf3127
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A man in glasses doubles over laughing into his own hand inside a blurred interior,
+          chandelier light and ceiling ornaments smeared into soft streaks above him.
+    - assetId: p6-dscf0245
+      source: assets/img/p6/DSCF0245.jpg
+      sourceSha256: 4562aafcc68db20293d8a310feb76d92affeafeec26055ec3356fd54662cc74c
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A classical stone angel blows a trumpet atop a monumental fountain before a grand civic
+          building, while violent horizontal light trails and falling particles tear the night sky
+          around the statue.
+    - assetId: p6-dscf1916-2
+      source: assets/img/p6/DSCF1916-2.jpg
+      sourceSha256: a06aee3d65cb1a14138a03b35ba049c210128cc63d8ba10ebfdf396125062a9f
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          Women in wide-brimmed festival hats move through a flash-lit night crowd, one face
+          ringed by a perfect circular halo of a white hat brim, phone glow and blurred bodies
+          streaming between them.
+    - assetId: p6-dscf0332_2
+      source: assets/img/p6/DSCF0332_2.jpg
+      sourceSha256: 1a9bc817a413625d1f36b419471db5b129b74f10eb9ca44e60467d41be20ddda
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          An older man with tousled pale hair stares upward and outward with wide startled eyes as
+          a dense shower of white spark filaments rains across the frame, a floating cap and light
+          ribbons suspended around him.
+    - assetId: p6-dscf0167-2
+      source: assets/img/p6/DSCF0167-2.jpg
+      sourceSha256: 666dfdb02302188a9342ffb1aa2bf52a63634a08dfc8e1f35d4b0870bbd013dd
+      modality: bw
+      derivativeRecipe: passthrough-or-downsample-2048
+      rightsStatus: approved
+      altText: >-
+          A long-exposure nightscape: concentric star trails wheel across the entire sky above a
+          dark sea, white cliffs and coastal succulents glowing in the lower frame, no human
+          presence anywhere.
+fragments:
+    - fragmentId: p1-lines-12-14
+      source: assets/img/p1/index.md
+      sourceRange:
+          startLine: 12
+          endLine: 14
+      language: en
+      text: |-
+          The sun goes down
+
+          I feel the light betray me
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+    - fragmentId: p1-lines-21-23
+      source: assets/img/p1/index.md
+      sourceRange:
+          startLine: 21
+          endLine: 23
+      language: en
+      text: |-
+          Far from the world of you and I
+
+          Where oceans bleed into the sky
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+    - fragmentId: p1-lines-30-34
+      source: assets/img/p1/index.md
+      sourceRange:
+          startLine: 30
+          endLine: 34
+      language: en
+      text: |-
+          God save us everyone
+
+          Will we burn inside the fires
+
+          of a thousand suns
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+    - fragmentId: p1-lines-41-43
+      source: assets/img/p1/index.md
+      sourceRange:
+          startLine: 41
+          endLine: 43
+      language: en
+      text: |-
+          When I close my eyes tonight
+
+          To symphonies of blinding light
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+    - fragmentId: p1-lines-50-52
+      source: assets/img/p1/index.md
+      sourceRange:
+          startLine: 50
+          endLine: 52
+      language: en
+      text: |-
+          Lift me up, let me go
+
+          Lift me up, let me go
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+    - fragmentId: p2-lines-10-10
+      source: assets/img/p2/index.md
+      sourceRange:
+          startLine: 10
+          endLine: 10
+      language: en
+      text: >-
+          “I Do Not Care If We Go Down in History as Barbarians” is a long-standing street
+          photography project dedicated to capturing and encapsulating the vanity, bewilderment,
+          angst, and pain of the time we live in, intertwining with culture and zeitgeist of the
+          modern-day SFBA and the photographer’s own weltanschauung, prise de risque, and
+          upbringing. To carry out the project, Zhuang has been extensively and relentlessly
+          pounding the pavements of San Francisco, San Jose, and beyond. Zhuang seeks to draw from
+          the characters, the scenes, and the light in the photographs to articulate a statement,
+          to make some noise, and to celebrate worlds that often go unseen.
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+    - fragmentId: p2-lines-14-14
+      source: assets/img/p2/index.md
+      sourceRange:
+          startLine: 14
+          endLine: 14
+      language: en
+      text: >-
+          In the first photograph, the man in a beanie was making a choice. When being offered the
+          spiritual solace of religion and God, he decided to opt for the ephemeral material
+          comfort of alcohol from his fellow man. Zhuang pressed the shutter as he strongly felt
+          that the beanie man was voicing out a manifesto, and he wanted to deliver the message
+          far and wide. We are the people; we are the drowned; we are the terribly forgotten and
+          forsaken. Our dreams, beliefs, and prides are long long gone. And guess what’s the deal?
+          We do not care if we go down in history as barbarians, not anymore.
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+    - fragmentId: p2-lines-35-37
+      source: assets/img/p2/index.md
+      sourceRange:
+          startLine: 35
+          endLine: 37
+      language: en
+      text: |-
+          Forever meant nothing
+          <br />
+          When we had nothing
+      attribution: null
+      originality: series-epigraph
+      rightsStatus: approved
+      excerptPolicy: verbatim-only
+constraints:
+    strictModalitySeparation: true
+    requireCompletePool: true
+    pinnedOpenerAssetId: p1-dscf4775
+    pinnedCloserAssetId: p6-dscf0167-2
+    bannedAssetPairs: []
+movements:
+    - movementId: SYS.01
+      title: THRESHOLD
+      modality: bw
+      spreads:
+          - spreadId: s01
+            layout: monolith-epigraph
+            locked: true
+            verso:
+                fragmentId: p1-lines-12-14
+            recto:
+                assetId: p1-dscf4775
+                scale: full-bleed
+          - spreadId: s02
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf4402-8
+                scale: full-bleed
+            recto:
+                assetId: p6-dscf0617
+                scale: inset-55
+          - spreadId: s03
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-r0002885-2
+                scale: inset-74
+            recto:
+                assetId: p6-dscf5378
+                scale: inset-74
+          - spreadId: s04
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p1-dscf2441-3
+                scale: inset-82
+          - spreadId: s05
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p6-dscf7027-6
+                scale: inset-74
+            recto:
+                assetId: p6-dscf8985-2
+                scale: inset-74
+          - spreadId: s06
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf8974-2
+                scale: full-bleed
+            recto:
+                assetId: p1-dscf8961-2
+                scale: inset-55
+          - spreadId: s07
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf9277
+                scale: inset-74
+            recto:
+                assetId: p1-286fc1b3-5576-440b-8718-2e872c98e713
+                scale: inset-74
+          - spreadId: s08
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p6-dscf0548-3
+                scale: inset-82
+          - spreadId: s09
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p1-dscf0361-2
+                scale: inset-74
+            recto:
+                assetId: p5-dscf9004-3
+                scale: inset-74
+          - spreadId: s10
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf7141
+                scale: full-bleed
+            recto:
+                assetId: p6-dscf2964-6
+                scale: inset-55
+          - spreadId: s11
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf5423-5
+                scale: inset-74
+            recto:
+                assetId: p6-dscf9002-2
+                scale: inset-74
+    - movementId: SYS.02
+      title: KINEMATICS
+      modality: color
+      spreads:
+          - spreadId: s12
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf7728
+                scale: full-bleed
+            recto:
+                assetId: p3-dscf1113
+                scale: inset-55
+          - spreadId: s13
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-dscf8444-3
+                scale: inset-74
+            recto:
+                assetId: p2-dscf8739
+                scale: inset-74
+          - spreadId: s14
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p3-dscf7672-2
+                scale: inset-82
+          - spreadId: s15
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p4-r0001059-4
+                scale: inset-74
+            recto:
+                assetId: p4-dscf0896-2
+                scale: inset-74
+          - spreadId: s16
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p5-dscf0525
+                scale: full-bleed
+            recto:
+                assetId: p3-dscf6946
+                scale: inset-55
+          - spreadId: s17
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf8552-6
+                scale: inset-74
+            recto:
+                assetId: p4-dscf4110-2
+                scale: inset-74
+          - spreadId: s18
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p3-dscf0490
+                scale: inset-82
+          - spreadId: s19
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p5-dscf5407-2
+                scale: inset-74
+            recto:
+                assetId: p3-b5b35521-9a08-4b1c-aab3-429d75a3769e
+                scale: inset-74
+          - spreadId: s20
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf3446-2
+                scale: full-bleed
+            recto:
+                assetId: p5-2025-05-11-0020
+                scale: inset-55
+          - spreadId: s21
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf3435
+                scale: inset-74
+            recto:
+                assetId: p3-dscf7753-3
+                scale: inset-74
+          - spreadId: s22
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p4-18f4c334-bd6b-4c91-8cd8-8615ad7adf67
+                scale: inset-40
+          - spreadId: s23
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p2-dscf0883-3
+                scale: inset-74
+            recto:
+                assetId: p3-dscf7765
+                scale: inset-74
+          - spreadId: s24
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf9185
+                scale: full-bleed
+            recto:
+                assetId: p3-dscf4237-2
+                scale: inset-55
+          - spreadId: s25
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p5-dscf8059
+                scale: inset-74
+            recto:
+                assetId: p2-dscf4295-2
+                scale: inset-74
+          - spreadId: s26
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p4-dscf4250-3
+                scale: inset-82
+          - spreadId: s27
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p3-r0001972-4
+                scale: inset-74
+            recto:
+                assetId: p3-8b0245dc-4c12-4cd1-a6b0-96883bfaf25b
+                scale: inset-55
+          - spreadId: s28
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf6872-5
+                scale: full-bleed
+            recto:
+                assetId: p5-6adf762fee94f2f49e98757c54749236
+                scale: inset-55
+          - spreadId: s29
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf6250-6
+                scale: inset-74
+            recto:
+                assetId: p3-img_4582
+                scale: inset-74
+          - spreadId: s30
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p3-dscf8671
+                scale: inset-82
+          - spreadId: s31
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p4-dscf8631
+                scale: inset-74
+            recto:
+                assetId: p3-dscf8563-5
+                scale: inset-74
+          - spreadId: s32
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf9642-2
+                scale: full-bleed
+            recto:
+                assetId: p3-dscf7318-3
+                scale: inset-55
+          - spreadId: s33
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p2-dscf3495-2
+                scale: inset-82
+    - movementId: SYS.03
+      title: PHANTOM
+      modality: color
+      spreads:
+          - spreadId: s34
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf1137
+                scale: full-bleed
+            recto:
+                assetId: p4-dscf5453-2
+                scale: inset-55
+          - spreadId: s35
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-dscf7452
+                scale: inset-74
+            recto:
+                assetId: p4-dscf1897-2
+                scale: inset-74
+          - spreadId: s36
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p2-dscf3487-3
+                scale: inset-82
+          - spreadId: s37
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p3-dscf3632
+                scale: inset-74
+            recto:
+                assetId: p2-r0002358
+                scale: inset-74
+          - spreadId: s38
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p5-dscf8231
+                scale: full-bleed
+            recto:
+                assetId: p2-dscf0418-2
+                scale: inset-55
+          - spreadId: s39
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf7352
+                scale: inset-74
+            recto:
+                assetId: p2-dscf7203-9
+                scale: inset-74
+          - spreadId: s40
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p2-dscf0406-2
+                scale: inset-82
+          - spreadId: s41
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p5-dscf6274
+                scale: inset-74
+            recto:
+                assetId: p2-dscf8593-3
+                scale: inset-74
+          - spreadId: s42
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf1207-5
+                scale: full-bleed
+            recto:
+                assetId: p5-dscf1557-3
+                scale: inset-55
+          - spreadId: s43
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf7186-2
+                scale: inset-74
+            recto:
+                assetId: p4-dscf7212-2
+                scale: inset-74
+          - spreadId: s44
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p4-dscf0310-3
+                scale: inset-82
+          - spreadId: s45
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p2-dscf3445-2
+                scale: inset-74
+            recto:
+                assetId: p4-940e2644-c690-41f0-9898-0efb79c69dc5
+                scale: inset-55
+          - spreadId: s46
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-dscf8402-3
+                scale: full-bleed
+            recto:
+                assetId: p3-dscf5759-5
+                scale: inset-55
+          - spreadId: s47
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-dscf5163-8
+                scale: inset-74
+            recto:
+                assetId: p5-dscf9159
+                scale: inset-74
+          - spreadId: s48
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p2-dscf3433
+                scale: inset-82
+          - spreadId: s49
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p4-dscf4090
+                scale: inset-74
+            recto:
+                assetId: p2-dscf5150-4
+                scale: inset-74
+          - spreadId: s50
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf3579
+                scale: full-bleed
+            recto:
+                assetId: p2-dscf8772
+                scale: inset-55
+          - spreadId: s51
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p5-img760
+                scale: inset-74
+            recto:
+                assetId: p2-dscf2862-3
+                scale: inset-74
+          - spreadId: s52
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p2-r0004664
+                scale: inset-82
+          - spreadId: s53
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p3-dscf5719-3
+                scale: inset-74
+            recto:
+                assetId: p5-dscf8149-7
+                scale: inset-74
+          - spreadId: s54
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf5338
+                scale: full-bleed
+            recto:
+                assetId: p2-a20e2e39-af83-4fd0-a6f7-3d2243a753dc
+                scale: inset-55
+          - spreadId: s55
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p5-849bdefe-8868-48a8-b31d-adb58f0161022
+                scale: inset-82
+    - movementId: SYS.04
+      title: SINGULARITY
+      modality: bw
+      spreads:
+          - spreadId: s56
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf3362-3
+                scale: full-bleed
+            recto:
+                assetId: p6-dscf0658-3
+                scale: inset-55
+          - spreadId: s57
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf8978
+                scale: inset-74
+            recto:
+                assetId: p1-dscf5891-9
+                scale: inset-74
+          - spreadId: s58
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p6-dscf7202-2
+                scale: inset-82
+          - spreadId: s59
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p6-dscf8873-3
+                scale: inset-74
+            recto:
+                assetId: p6-dscf0283-2
+                scale: inset-74
+          - spreadId: s60
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf0175
+                scale: full-bleed
+            recto:
+                assetId: p6-dscf7178
+                scale: inset-55
+          - spreadId: s61
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf8927-2
+                scale: inset-74
+            recto:
+                assetId: p6-dscf1649
+                scale: inset-74
+          - spreadId: s62
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p1-dscf1157
+                scale: inset-82
+          - spreadId: s63
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p6-dscf1741
+                scale: inset-74
+            recto:
+                assetId: p1-dscf6943
+                scale: inset-74
+          - spreadId: s64
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf8998
+                scale: full-bleed
+            recto:
+                assetId: p1-dscf5916-4
+                scale: inset-55
+          - spreadId: s65
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf0297-3
+                scale: inset-74
+            recto:
+                assetId: p6-dscf1916-2
+                scale: inset-74
+          - spreadId: s66
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p6-dscf2057
+                scale: inset-82
+          - spreadId: s67
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p6-dscf1906-2
+                scale: inset-74
+            recto:
+                assetId: p1-dscf2432-2
+                scale: inset-74
+          - spreadId: s68
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf1119
+                scale: full-bleed
+            recto:
+                assetId: p6-dscf1924
+                scale: inset-55
+          - spreadId: s69
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf0324
+                scale: inset-74
+            recto:
+                assetId: p6-dscf1664
+                scale: inset-74
+          - spreadId: s70
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p1-dscf1093
+                scale: inset-82
+          - spreadId: s71
+            layout: diagonal-offset
+            locked: false
+            verso:
+                assetId: p6-dscf0332_2
+                scale: inset-74
+            recto:
+                assetId: p6-dscf0759-2
+                scale: inset-74
+          - spreadId: s72
+            layout: asymmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf9004-6
+                scale: full-bleed
+            recto:
+                assetId: p1-dscf5903-2
+                scale: inset-55
+          - spreadId: s73
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf0245
+                scale: inset-74
+            recto:
+                assetId: p6-dscf0167-2
+                scale: inset-74
