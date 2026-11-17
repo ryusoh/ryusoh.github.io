@@ -54,16 +54,17 @@
       ]
       #place(
         bottom + right,
-        dx: -14mm,
-        dy: -18mm,
-        block(width: 122mm)[
+        dx: -12mm,
+        dy: -16mm,
+        block(width: 185mm)[
           #align(right)[
-            #set par(leading: 0.72em)
+            #show heading: set block(below: 0pt, above: 0pt)
+            #set par(leading: 0.36em)
             #heading(level: 1, bookmarked: true)[
-              #text(font: ("Syne", "Glow Sans SC Extended"), weight: "bold", size: 37pt, tracking: 0.4pt, fill: rgb("#E6E4DF"))[INFINITE \ SYSTEMS]
+              #text(font: ("Syne", "Glow Sans SC Extended"), weight: 800, size: 45pt, tracking: 0.2pt, fill: rgb("#E6E4DF"))[INFINITE \ SYSTEMS]
             ]
-            #v(3.5mm)
-            #text(font: ("Syne", "Glow Sans SC Extended"), weight: "medium", size: 17pt, tracking: 1.4pt, fill: rgb("#D8D5CE"))[Zhuang Liu]
+            #v(6.7mm)
+            #text(font: ("Syne", "Glow Sans SC Extended"), weight: 750, size: 25pt, tracking: 0.6pt, fill: rgb("#D8D5CE"))[Zhuang Liu]
           ]
         ]
       )
@@ -88,7 +89,7 @@
       #text(font: "JetBrains Mono", size: 8pt, tracking: 1.5pt, fill: rgb("#8A9099"))[#mRoman]
       #v(2.5mm)
       #heading(level: 1, bookmarked: true)[
-        #text(font: ("Syne", "Glow Sans SC Extended"), weight: "bold", size: 15pt, tracking: 1.0pt, fill: rgb("#E6E4DF"))[#pg.title]
+        #text(font: ("Syne", "Glow Sans SC Extended"), weight: 750, size: 15pt, tracking: 0.6pt, fill: rgb("#E6E4DF"))[#pg.title]
       ]
       #v(1fr)
       #if mWf.len() > 1 [
