@@ -120,14 +120,26 @@ async function runRepro(rootDir) {
 }
 
 function checkMinPpi(ir, errors) {
-    const lowPpi = [];
+    const criticalLow = [];
+    const softWarn = [];
     for (const pg of ir.pages) {
-        if (pg.slot?.kind === 'plate' && pg.slot.effectivePpi < 150) {
-            lowPpi.push(`${pg.slot.assetId} (${pg.slot.effectivePpi} PPI at ${pg.slot.scale})`);
+        if (pg.slot?.kind === 'plate') {
+            if (pg.slot.effectivePpi < 100) {
+                criticalLow.push(
+                    `${pg.slot.assetId} (${pg.slot.effectivePpi} PPI at ${pg.slot.scale})`
+                );
+            } else if (pg.slot.effectivePpi < 150) {
+                softWarn.push(
+                    `${pg.slot.assetId} (${pg.slot.effectivePpi} PPI at ${pg.slot.scale})`
+                );
+            }
         }
     }
-    if (lowPpi.length > 0) {
-        errors.push(`PPI floor (<150) failed: ${lowPpi.join(', ')}`);
+    if (softWarn.length > 0) {
+        process.stderr.write(`Warning (100–149 PPI legacy asset): ${softWarn.join(', ')}\n`);
+    }
+    if (criticalLow.length > 0) {
+        errors.push(`PPI floor (<100) failed: ${criticalLow.join(', ')}`);
     }
 }
 

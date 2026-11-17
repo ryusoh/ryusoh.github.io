@@ -1560,7 +1560,7 @@ movements:
             locked: false
             verso:
                 assetId: p4-18f4c334-bd6b-4c91-8cd8-8615ad7adf67
-                scale: inset-40
+                scale: inset-74
             recto:
                 assetId: p2-dscf0883-3
                 scale: inset-74

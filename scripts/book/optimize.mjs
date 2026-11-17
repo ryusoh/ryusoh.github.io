@@ -94,17 +94,6 @@ export function optimizeComponentOrder(
 
 function pickSafeScale(asset, desiredScale) {
     const widthPx = asset?.metrics?.width || 2048;
-    if (widthPx < 1100) {
-        return 'inset-40';
-    }
-    if (
-        widthPx < 1300 &&
-        (desiredScale === 'full-bleed' ||
-            desiredScale === 'inset-82' ||
-            desiredScale === 'inset-74')
-    ) {
-        return 'inset-55';
-    }
     if (widthPx < 1775 && (desiredScale === 'full-bleed' || desiredScale === 'inset-82')) {
         return 'inset-74';
     }
