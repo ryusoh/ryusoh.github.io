@@ -576,14 +576,518 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 
 ---
 
-## 9. Phased Implementation Roadmap
+## 9. Action Items (Mechanical Work Orders)
 
-| Phase                                         | Deliverables                                                                                                                                | Acceptance gate                                                                                                                                 |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1. Trusted state & inventory**              | `book/sequence.yaml` JSON Schema (Ajv), semantic validator, stable `assetId`/`fragmentId` extractor, `sharp` `bw`/`color` classifier        | Synthetic `p99` valid/invalid fixtures pass/fail; 127 eligible photos classified (`51 bw / 76 color`)                                           |
-| **2. Safe proposals & sync**                  | Plan-only `sync.mjs`, seeded beam-search + 2-opt `optimize.mjs` for the 4-movement Chiaroscuro Envelope, `apply` protocol                   | New assets stay unplaced until applied; locked deletions block; zero cross-modality pairs emitted                                               |
-| **3. Deterministic build & two-tier preview** | Vendored fonts, content-addressed `assets.mjs`, `layout.mjs`, `book/photobook.typ`, `qpdf`, and `preview.mjs` interactive + exact-PDF views | PDFs compile offline; interactive/PDF paths share layout hashes; A → B → C race tests show only C; stale exports block                          |
-| **4. Preflight & reproducibility**            | `proof.mjs` (`pdftoppm`), `preflight.mjs` (`qpdf`, `pdffonts`, `pdfimages`, `verapdf`), and `book-repro` two-build gate                     | `display` passes veraPDF `PDF/A-2b`; all text passes WCAG AA (`>= 6.259:1`); reviewed PDF/preflight/export hashes match; two clean builds match |
+### 9.1 Preamble — Rules for the Implementing Agent
+
+1. **One work order at a time, commit per item, never push:** Execute the numbered work orders (`WO-01` through `WO-12`) sequentially. After each item's **Verify** commands pass, stage only the files touched by that item (`git add <specific-files>`, never `git add -A` or `git add .`) and create a single Conventional Commit (`type(scope): summary`, referencing `WO-XX` in the body). **Never push, never amend, and never rebase** — pushing stays a human decision (see the `implement-action-items` skill).
+2. **Exact `Find` anchors:** Every `Find` string below was verified against the live repository files on 2026-11-17. Line numbers are dated and may drift, but the `Find` text must match verbatim. If a `Find` anchor does not match — or if a file marked `(new file — must not exist prior to this work order)` already exists — **STOP that item, record the mismatch, and move to the next item.** Do not improvise.
+3. **Tag routing (`[trivial]`, `[low]`, `[visual]`, `[skip]`):**
+    - `[trivial]` / `[low]` — mechanical configuration, schema, profile, or CLI dispatcher scaffolding; paste the exact snippet provided.
+    - `[visual]` — changes or produces rendered visual output; flag `"visual — human review required"` in the final report.
+    - `[skip]` — requires new unit test suites, multi-module algorithmic/rendering logic, or external binary installation (`typst`, `qpdf`, `poppler`, `verapdf`); **skip in low-budget/unattended runs** and route to a frontier model.
+4. **Hard guardrails:** Never edit `js/vendor/` or any `*.min.js`. Never mutate source photographs under `assets/img/p1..p6/`. Never import or call `ensureImageVariants()` from `scripts/build-page.mjs` (it strips EXIF metadata from source JPEGs in place).
+5. **Per-item formatting & lint:** After editing any file in a work order, run `./scripts/run-npx.sh prettier -w <touched-files>` (and `./scripts/run-npx.sh eslint <touched-js-files>` when `.mjs`/`.js` files are touched) before running the item's **Verify** command.
+
+### 9.2 Ranked Work Orders
+
+#### WO-01 `[trivial]` — Ignore book build cache and candidate run directories in `.gitignore`
+
+- **File:** `.gitignore` (lines 57–60)
+- **Find:**
+
+    ```gitignore
+    # Private practice corpora (never commit: in-copyright study images, rejects, ledger)
+    contact-sheets/
+    contact-sheet-ledger/
+    eye-gym/corpus/
+    ```
+
+- **Change:** Replace with:
+
+    ```gitignore
+    # Private practice corpora (never commit: in-copyright study images, rejects, ledger)
+    contact-sheets/
+    contact-sheet-ledger/
+    eye-gym/corpus/
+
+    # Photobook derived image cache and candidate proposal runs
+    .cache/book-img/
+    .cache/book-runs/
+    ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -c .gitignore && git check-ignore .cache/book-img/test.jpg .cache/book-runs/run-01/proposal.json`
+- **Guardrail:** Never ignore `book/` or `assets/fonts/book/`, which store Git-tracked schemas, profiles, `book/sequence.yaml`, and pinned fonts.
+
+#### WO-02 `[low]` — Create canonical ledger JSON Schema (`book/schema/sequence.schema.json`)
+
+- **File:** `book/schema/sequence.schema.json`
+- **Find:** `(new file — must not exist prior to this work order)`
+- **Change:** Create `book/schema/sequence.schema.json` with the following exact contents:
+
+    ```json
+    {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://ryusoh.github.io/book/schema/sequence.schema.json",
+        "title": "Infinite Systems Photobook Sequence Ledger",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+            "schemaVersion",
+            "editionId",
+            "title",
+            "subtitle",
+            "author",
+            "revision",
+            "parentRevision",
+            "sourceFingerprint",
+            "approval",
+            "includeCommentaryAppendix",
+            "assets",
+            "fragments",
+            "constraints",
+            "movements"
+        ],
+        "properties": {
+            "schemaVersion": { "const": 1 },
+            "editionId": { "const": "infinite-systems" },
+            "title": { "const": "INFINITE SYSTEMS" },
+            "subtitle": { "type": "string", "minLength": 1 },
+            "author": { "type": "string", "minLength": 1 },
+            "revision": { "type": "integer", "minimum": 1 },
+            "parentRevision": { "type": ["integer", "null"], "minimum": 1 },
+            "sourceFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "approval": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["proposalId", "reviewer", "approvedAt"],
+                "properties": {
+                    "proposalId": { "type": "string", "minLength": 1 },
+                    "reviewer": { "type": "string", "minLength": 1 },
+                    "approvedAt": { "type": "string", "minLength": 1 }
+                }
+            },
+            "includeCommentaryAppendix": { "type": "boolean" },
+            "assets": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "assetId",
+                        "source",
+                        "sourceSha256",
+                        "modality",
+                        "derivativeRecipe",
+                        "rightsStatus",
+                        "altText"
+                    ],
+                    "properties": {
+                        "assetId": { "type": "string", "pattern": "^p[1-9][0-9]*-[a-z0-9_-]+$" },
+                        "source": {
+                            "type": "string",
+                            "pattern": "^assets/img/p[1-9][0-9]*/[^/]+\\.(?:jpe?g|JPG)$"
+                        },
+                        "sourceSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+                        "modality": { "enum": ["bw", "color"] },
+                        "derivativeRecipe": {
+                            "enum": ["passthrough-or-downsample-2048", "neutralize-grayscale-2048"]
+                        },
+                        "rightsStatus": { "enum": ["approved", "review-required"] },
+                        "altText": { "type": "string", "minLength": 1 }
+                    }
+                }
+            },
+            "fragments": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "fragmentId",
+                        "source",
+                        "sourceRange",
+                        "language",
+                        "text",
+                        "attribution",
+                        "originality",
+                        "rightsStatus",
+                        "excerptPolicy"
+                    ],
+                    "properties": {
+                        "fragmentId": { "type": "string", "minLength": 1 },
+                        "source": { "type": "string", "minLength": 1 },
+                        "sourceRange": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["startLine", "endLine"],
+                            "properties": {
+                                "startLine": { "type": "integer", "minimum": 1 },
+                                "endLine": { "type": "integer", "minimum": 1 }
+                            }
+                        },
+                        "language": { "enum": ["en", "zh-Hans", "de", "mixed"] },
+                        "text": { "type": "string", "minLength": 1 },
+                        "attribution": { "type": ["string", "null"] },
+                        "originality": {
+                            "enum": ["author-original", "series-epigraph", "third-party"]
+                        },
+                        "rightsStatus": { "enum": ["approved", "review-required"] },
+                        "excerptPolicy": { "const": "verbatim-only" }
+                    }
+                }
+            },
+            "constraints": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "strictModalitySeparation",
+                    "requireCompletePool",
+                    "pinnedOpenerAssetId",
+                    "pinnedCloserAssetId",
+                    "bannedAssetPairs"
+                ],
+                "properties": {
+                    "strictModalitySeparation": { "const": true },
+                    "requireCompletePool": { "const": true },
+                    "pinnedOpenerAssetId": { "type": "string", "minLength": 1 },
+                    "pinnedCloserAssetId": { "type": "string", "minLength": 1 },
+                    "bannedAssetPairs": {
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "prefixItems": [{ "type": "string" }, { "type": "string" }],
+                            "minItems": 2,
+                            "maxItems": 2
+                        }
+                    }
+                }
+            },
+            "movements": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["movementId", "title", "modality", "spreads"],
+                    "properties": {
+                        "movementId": { "enum": ["SYS.01", "SYS.02", "SYS.03", "SYS.04"] },
+                        "title": { "enum": ["THRESHOLD", "KINEMATICS", "PHANTOM", "SINGULARITY"] },
+                        "modality": { "enum": ["bw", "color"] },
+                        "spreads": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": ["spreadId", "layout", "locked", "verso", "recto"],
+                                "properties": {
+                                    "spreadId": { "type": "string", "pattern": "^s[0-9]{2,3}$" },
+                                    "layout": {
+                                        "enum": [
+                                            "monolith",
+                                            "monolith-epigraph",
+                                            "asymmetric-diptych",
+                                            "symmetric-diptych",
+                                            "diagonal-offset",
+                                            "phase-divider"
+                                        ]
+                                    },
+                                    "locked": { "type": "boolean" },
+                                    "verso": { "type": ["object", "null"] },
+                                    "recto": { "type": ["object", "null"] }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w book/schema/sequence.schema.json && node -e "const s = JSON.parse(require('fs').readFileSync('book/schema/sequence.schema.json','utf8')); if (s.properties.editionId.const !== 'infinite-systems') process.exit(1);"`
+- **Guardrail:** Keep `additionalProperties: false` on every object level so unrecognised YAML keys fail validation immediately.
+
+#### WO-03 `[trivial]` — Create the two locked output profile definitions (`book/profiles/display.json` and `book/profiles/screen.json`)
+
+- **File:** `book/profiles/display.json` and `book/profiles/screen.json`
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `book/profiles/display.json`:
+
+        ```json
+        {
+            "profileId": "display",
+            "artifactName": "infinite-systems-display.pdf",
+            "pdfStandard": "a-2b",
+            "pageSize": { "widthMm": 300, "heightMm": 200, "bleedMm": 0 },
+            "viewerPreferences": { "pageLayout": "TwoPageRight", "pageMode": "UseOutlines" },
+            "colorContract": {
+                "colorAssets": "passthrough-or-downsample-2048-keep-icc-q92",
+                "bwAssets": "passthrough-or-neutralize-grayscale-2048-q92"
+            },
+            "tokens": {
+                "surfacePlate": "#070709",
+                "surfaceDossier": "#111317",
+                "textPrimary": "#E6E4DF",
+                "textSecondary": "#D8D5CE",
+                "textTelemetry": "#8A9099",
+                "ruleMuted": "#2A2D34",
+                "accentSignal": "#CE2323"
+            }
+        }
+        ```
+
+    2. Create `book/profiles/screen.json`:
+
+        ```json
+        {
+            "profileId": "screen",
+            "artifactName": "infinite-systems-screen.pdf",
+            "pdfStandard": "1.7",
+            "pageSize": { "widthMm": 300, "heightMm": 200, "bleedMm": 0 },
+            "viewerPreferences": { "pageLayout": "TwoPageRight", "pageMode": "UseOutlines" },
+            "colorContract": {
+                "colorAssets": "srgb-2048-mozjpeg-q82-420",
+                "bwAssets": "device-gray-1ch-2048-mozjpeg-q84"
+            },
+            "tokens": {
+                "surfacePlate": "#070709",
+                "surfaceDossier": "#111317",
+                "textPrimary": "#E6E4DF",
+                "textSecondary": "#D8D5CE",
+                "textTelemetry": "#8A9099",
+                "ruleMuted": "#2A2D34",
+                "accentSignal": "#CE2323"
+            }
+        }
+        ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w book/profiles/display.json book/profiles/screen.json && node -e "for (const p of ['display','screen']) { const d = JSON.parse(require('fs').readFileSync('book/profiles/'+p+'.json','utf8')); if (d.tokens.textTelemetry !== '#8A9099' || d.pageSize.widthMm !== 300) process.exit(1); }"`
+- **Guardrail:** Do not create `press.json` or `epub.json`; only `display` and `screen` are in scope (§2.1 #5, §5.3).
+
+#### WO-04 `[low]` — Create the CLI dispatcher (`scripts/book.mjs`)
+
+- **File:** `scripts/book.mjs`
+- **Find:** `(new file — must not exist prior to this work order)`
+- **Change:** Create `scripts/book.mjs` with the following exact contents:
+
+    ```javascript
+    #!/usr/bin/env node
+    /**
+     * CLI dispatcher for the Infinite Systems photobook pipeline.
+     * Enforces authority boundaries across inventory, validate, sync, optimize, layout, render, preview, proof, and preflight.
+     */
+
+    import { fileURLToPath } from 'url';
+
+    export const SUBCOMMANDS = Object.freeze({
+        inventory: './book/inventory.mjs',
+        validate: './book/validate.mjs',
+        plan: './book/sync.mjs',
+        apply: './book/sync.mjs',
+        orchestrate: './book/optimize.mjs',
+        layout: './book/layout.mjs',
+        render: './book/render.mjs',
+        preview: './book/preview.mjs',
+        proof: './book/proof.mjs',
+        preflight: './book/preflight.mjs',
+        repro: './book/preflight.mjs',
+    });
+
+    export function formatHelp() {
+        return [
+            'Usage: node scripts/book.mjs <subcommand> [options]',
+            '',
+            'Subcommands:',
+            '  inventory    Scan p1..p6 index.md pool (127 photos) and classify bw/color',
+            '  validate     Validate book/sequence.yaml against JSON Schema and invariants',
+            '  plan         Diff inventory against book/sequence.yaml (read-only plan)',
+            '  apply        Apply an approved plan ID (--plan <id>) to book/sequence.yaml',
+            '  orchestrate  Generate seeded candidate proposals in .cache/book-runs/',
+            '  layout       Compile approved ledger + profile into canonical layout IR',
+            '  render       Render display and screen PDFs via Typst and QPDF',
+            '  preview      Launch two-tier live preview and exact-PDF review service',
+            '  proof        Rasterize PDF spreads and contact-sheet diffs via Poppler',
+            '  preflight    Run structural, PPI, font, contrast, and veraPDF gates',
+            '  repro        Run two-build reproducibility check in isolated temp dirs',
+        ].join('\n');
+    }
+
+    export async function runCli(argv = process.argv.slice(2)) {
+        const [cmd, ...rest] = argv;
+        if (!cmd || cmd === '--help' || cmd === '-h' || cmd === 'help') {
+            process.stdout.write(`${formatHelp()}\n`);
+            return 0;
+        }
+        const targetModule = SUBCOMMANDS[cmd];
+        if (!targetModule) {
+            process.stderr.write(`Unknown book subcommand: ${cmd}\n${formatHelp()}\n`);
+            return 1;
+        }
+        const mod = await import(targetModule);
+        if (typeof mod.run === 'function') {
+            return await mod.run(rest, { subcommand: cmd });
+        }
+        throw new Error(`Module ${targetModule} does not export a run() function.`);
+    }
+
+    const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+    if (isMain) {
+        runCli().then(
+            (code) => {
+                process.exitCode = code || 0;
+            },
+            (err) => {
+                process.stderr.write(`${err?.stack || err}\n`);
+                process.exitCode = 1;
+            }
+        );
+    }
+    ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w scripts/book.mjs && ./scripts/run-npx.sh eslint scripts/book.mjs && node scripts/book.mjs --help`
+- **Guardrail:** Do not import subcommand modules eagerly at the top of `scripts/book.mjs`; keep dynamic `await import(targetModule)` inside `runCli()` so `--help` works before `WO-06`–`WO-12` are implemented.
+
+#### WO-05 `[trivial]` — Wire photobook targets into `Makefile`
+
+- **File:** `Makefile` (lines 1, 35–36, and 245–247; note that `<TAB>` below represents a single literal ASCII TAB `\t` character in `Makefile`)
+- **Find (Anchor 1, line 1):**
+
+    ```makefile
+    .PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror
+    ```
+
+- **Change (Anchor 1):** Append `book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro` to `.PHONY`:
+
+    ```makefile
+    .PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro
+    ```
+
+- **Find (Anchor 2, lines 34–36, where `<TAB>` is a literal TAB character):**
+
+    ```makefile
+    <TAB>@echo "  gaze-models   Download ONNX face models and verify checksums via MODELS.lock"
+    <TAB>@echo "  fonts         Extract CJK characters and generate subsetted WOFF2 webfont"
+    ```
+
+- **Change (Anchor 2):** Append help lines for the book targets (using a literal TAB character for `<TAB>`):
+
+    ```makefile
+    <TAB>@echo "  gaze-models   Download ONNX face models and verify checksums via MODELS.lock"
+    <TAB>@echo "  fonts         Extract CJK characters and generate subsetted WOFF2 webfont"
+    <TAB>@echo "  book          Compile approved Infinite Systems PDF editions (display + screen)"
+    <TAB>@echo "  book-plan     Plan pool additions/deletions against book/sequence.yaml"
+    <TAB>@echo "  book-preview  Launch two-tier live preview and exact-PDF review server"
+    ```
+
+- **Find (Anchor 3, lines 245–247, where `<TAB>` is a literal TAB character):**
+
+    ```makefile
+    # Character extraction and WOFF2 font subsetting
+    fonts:
+    <TAB>@python3 tools/subset_fonts.py
+    ```
+
+- **Change (Anchor 3):** Append the photobook target recipes at the end of `Makefile` (using a literal TAB character for `<TAB>`):
+
+    ```makefile
+    # Character extraction and WOFF2 font subsetting
+    fonts:
+    <TAB>@python3 tools/subset_fonts.py
+
+    # Photobook eBook pipeline (docs/photobook-ebook-research.md)
+    book-inventory:
+    <TAB>@node scripts/book.mjs inventory
+
+    book-validate:
+    <TAB>@node scripts/book.mjs validate
+
+    book-plan:
+    <TAB>@node scripts/book.mjs plan
+
+    book-apply:
+    <TAB>@node scripts/book.mjs apply --plan "$(PLAN)"
+
+    book-orchestrate:
+    <TAB>@node scripts/book.mjs orchestrate
+
+    book:
+    <TAB>@node scripts/book.mjs render
+
+    book-preview:
+    <TAB>@node scripts/book.mjs preview
+
+    book-proof:
+    <TAB>@node scripts/book.mjs proof
+
+    book-preflight:
+    <TAB>@node scripts/book.mjs preflight
+
+    book-repro:
+    <TAB>@node scripts/book.mjs repro
+    ```
+
+- **Verify:** `make help | grep -F "book-preview" && node scripts/book.mjs --help`
+- **Guardrail:** Every recipe line under a target in `Makefile` must begin with a literal TAB character (`\t`), never spaces or the literal text `<TAB>`, or GNU Make will abort with `*** missing separator`.
+
+#### WO-06 `[skip]` — Implement read-only pool inventory & `sharp` modality classifier (`scripts/book/inventory.mjs`)
+
+- **File:** `scripts/book/inventory.mjs` and `tests/js/book-inventory.test.js`
+- **Find:** `(new files — route to a stronger model)`
+- **Change:** Implement read-only pool discovery over `assets/img/p1..p6/index.md` (`127` sequenced frames; ignore the `12` unsequenced orphans), SHA-256 hashing, `sharp` `160 × 160` `P95(deltaRGB)` classification (`<= 12` $\implies$ `bw` [`51`], `> 12` $\implies$ `color` [`76`]), and hermetic unit tests using synthetic `p99` fixtures (§4.1, §7.1).
+- **Verify:** `./scripts/run-npx.sh jest tests/js/book-inventory.test.js`
+- **Guardrail:** Never call `sanitizeImageMetadata()` or `ensureImageVariants()` from `scripts/build-page.mjs`; source JPEGs must remain strictly read-only.
+
+#### WO-07 `[skip]` — Install `ajv` and implement ledger/proposal semantic validator (`scripts/book/validate.mjs`)
+
+- **File:** `package.json`, `scripts/book/validate.mjs`, and `tests/js/book-validate.test.js`
+- **Find:** `(requires npm install --save-dev ajv and new test suite — route to a stronger model)`
+- **Change:** Install `ajv` via `npm install --save-dev ajv` and implement `scripts/book/validate.mjs` checking `book/schema/sequence.schema.json`, strict `bw`/`color` modality separation, 127-frame pool completeness, recto/verso spread parity, and path-traversal safety (§5.2, §7.1, §8.1).
+- **Verify:** `./scripts/run-npx.sh jest tests/js/book-validate.test.js`
+- **Guardrail:** Use `npm install --save-dev ajv` only; never run `pnpm` or hand-edit `package-lock.json`.
+
+#### WO-08 `[skip]` — Implement plan-only sync, atomic apply, and seeded beam-search + 2-opt optimizer (`scripts/book/sync.mjs`, `scripts/book/optimize.mjs`, `book/sequence.yaml`)
+
+- **File:** `scripts/book/sync.mjs`, `scripts/book/optimize.mjs`, `book/sequence.yaml`, and `tests/js/book-optimize.test.js`
+- **Find:** `(new files — route to a stronger model)`
+- **Change:** Implement seeded multi-start beam search + 2-opt local swaps over the disjoint `bw` (`51`) and `color` (`76`) components for the 4-movement Chiaroscuro Envelope (`SYS.01`..`SYS.04`), plan-only `sync.mjs`, atomic `apply`, and the initial approved `book/sequence.yaml` ledger (§5.1–§5.2, §6.1).
+- **Verify:** `./scripts/run-npx.sh jest tests/js/book-optimize.test.js`
+- **Guardrail:** Deletion of an asset referenced by a `locked: true` spread must emit a blocking conflict error and never auto-repair.
+
+#### WO-09 `[skip]` — Vendor pinned SIL OFL 1.1 fonts (`assets/fonts/book/`) and implement content-addressed `sharp` derivative builder (`scripts/book/assets.mjs`)
+
+- **File:** `assets/fonts/book/`, `scripts/book/assets.mjs`, and `tests/js/book-assets.test.js`
+- **Find:** `(new files — route to a stronger model)`
+- **Change:** Vendor and SHA-256-pin `Syne-ExtraBold.ttf`, `Syne-Bold.ttf`, `Syne-Regular.ttf`, `GlowSansSC-Extended-Regular.otf`, `GlowSansSC-Extended-Bold.otf`, and `JetBrainsMono-Regular.ttf` (with SIL OFL 1.1 license files) under `assets/fonts/book/`, and implement content-addressed `display` and `screen` derivative generation in `.cache/book-img/` (§5.3, §6.4, §6.7).
+- **Verify:** `./scripts/run-npx.sh jest tests/js/book-assets.test.js`
+- **Guardrail:** Cache keys must hash `sourceSha256 + recipe + sharp/libvips version + ICC bytes`, never `mtime` or file size alone, and `sharp` outputs must explicitly preserve or assign ICC profiles.
+
+#### WO-10 `[skip] [visual]` — Implement canonical layout IR, Typst template (`book/photobook.typ`), and QPDF `/TwoPageRight` renderer (`scripts/book/layout.mjs`, `scripts/book/render.mjs`)
+
+- **File:** `scripts/book/layout.mjs`, `scripts/book/render.mjs`, `book/photobook.typ`, and `tests/js/book-render.test.js`
+- **Find:** `(new files — requires typst and qpdf binaries; route to a stronger model)`
+- **Change:** Implement `layout.mjs` (emitting deterministic `300 × 200 mm` layout IR and effective-PPI annotations), `book/photobook.typ` (implementing _The Cybernetic Monolith_ cover, `#070709` Obsidian canvas, `#8A9099` WCAG AA telemetry, the 5 spread archetypes, and `#111317` System Colophon), and `render.mjs` invoking `typst compile` and `qpdf --deterministic-id` (§5.4, §6.1–§6.6, §7.1).
+- **Verify:** `./scripts/run-npx.sh jest tests/js/book-render.test.js`
+- **Guardrail:** Flag `"visual — human review required"` on completion; never claim visual parity from unit tests alone.
+
+#### WO-11 `[skip] [visual]` — Implement two-tier live preview coordinator and out-of-order render race tests (`scripts/book/preview.mjs`)
+
+- **File:** `scripts/book/preview.mjs` and `tests/js/book-preview.test.js`
+- **Find:** `(new files — route to a stronger model)`
+- **Change:** Implement the two-tier live preview coordinator (in-memory interactive estimate + debounced asynchronous Typst/QPDF/Poppler exact-PDF raster preview) with candidate revision badges and A $\to$ B $\to$ C out-of-order render cancellation/rejection tests (§7.3, §8.1).
+- **Verify:** `./scripts/run-npx.sh jest tests/js/book-preview.test.js`
+- **Guardrail:** Viewing or editing in the preview server must never mutate `book/sequence.yaml` or mark a candidate approved.
+
+#### WO-12 `[skip]` — Implement Poppler/QPDF/veraPDF preflight, two-build reproducibility gate (`scripts/book/proof.mjs`, `scripts/book/preflight.mjs`), and `.agents/skills/photobook/SKILL.md`
+
+- **File:** `scripts/book/proof.mjs`, `scripts/book/preflight.mjs`, `.agents/skills/photobook/SKILL.md`, and `tests/js/book-preflight.test.js`
+- **Find:** `(new files — route to a stronger model)`
+- **Change:** Implement `proof.mjs` (`pdftoppm` spread sheets), `preflight.mjs` (`qpdf --check`, `pdffonts`, `pdfimages -list`, `verapdf` PDF/A-2b validation for `display`, WCAG contrast check, and two-build reproducibility check), author `.agents/skills/photobook/SKILL.md` (with zero `---` horizontal rules in the markdown body), and run `python3 tools/sync_commands.py` (§7.2, §8.1–§8.3).
+- **Verify:** `./scripts/run-npx.sh jest tests/js/book-preflight.test.js tests/js/skills.test.js tests/js/doc-tool-references.test.js && make sync-check`
+- **Guardrail:** Never place a `---` horizontal rule inside `.agents/skills/photobook/SKILL.md` body, and do not add `.agents/skills/photobook/SKILL.md` until all scripts it references exist on disk (`tests/js/doc-tool-references.test.js` enforces this).
 
 ---
 
