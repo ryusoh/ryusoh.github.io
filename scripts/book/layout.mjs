@@ -45,8 +45,10 @@ function buildPlateSlot(slot, assetMap, { derivativeMap, assetMetrics, rootDir }
     const placedWidthMm = SCALE_TO_WIDTH_MM[scale] || 222;
     const widthPx = deriv.width || asset?.metrics?.width || invMeta.width || 2048;
     const heightPx = deriv.height || asset?.metrics?.height || invMeta.height || 1365;
-    const aspect = widthPx > 0 ? heightPx / widthPx : 2 / 3;
-    const placedHeightMm = Number((placedWidthMm * aspect).toFixed(2));
+    const placedHeightMm =
+        widthPx >= heightPx
+            ? Number(((placedWidthMm * 2) / 3).toFixed(2))
+            : Number((placedWidthMm * (heightPx / widthPx)).toFixed(2));
     const plateNum = plateCounter.next();
     const rawPath = deriv.outputPath || asset?.source || '';
 
