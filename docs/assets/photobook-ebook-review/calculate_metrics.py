@@ -48,7 +48,11 @@ result = {
     },
     "contrast_on_obsidian": {
         color: contrast_ratio(color, "#070709")
-        for color in ["#E6E4DF", "#D8D5CE", "#6E737B", "#4A4E54", "#CE2323"]
+        for color in ["#E6E4DF", "#D8D5CE", "#8A9099", "#CE2323", "#2A2D34"]
+    },
+    "contrast_on_blueprint_slate": {
+        color: contrast_ratio(color, "#111317")
+        for color in ["#E6E4DF", "#D8D5CE", "#8A9099", "#CE2323", "#2A2D34"]
     },
 }
 
