@@ -93,8 +93,22 @@ export function parseSequencedItems(rawMarkdown, seriesId) {
         if (quoteLines.length === 0) {
             return;
         }
-        const text = quoteLines.join('\n').trim();
+        const rawText = quoteLines.join('\n').trim();
         quoteLines = [];
+        if (!rawText) {
+            return;
+        }
+        const citeMatch = rawText.match(/<cite>([\s\S]*?)<\/cite>/i);
+        const attribution = citeMatch ? citeMatch[1].trim() : null;
+        const text = rawText
+            .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+            .replace(/<br\s*\/?>/gi, '')
+            .replace(/<[^>]+>/g, '')
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .join('\n')
+            .trim();
         if (!text) {
             return;
         }
@@ -105,7 +119,7 @@ export function parseSequencedItems(rawMarkdown, seriesId) {
             sourceRange: { startLine: quoteStartLine, endLine },
             language: hasCjk ? 'zh-Hans' : 'en',
             text,
-            attribution: null,
+            attribution,
             originality: 'series-epigraph',
             rightsStatus: 'approved',
             excerptPolicy: 'verbatim-only',
