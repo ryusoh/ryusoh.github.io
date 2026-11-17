@@ -651,50 +651,54 @@ describe('js/hover-preview.js', () => {
         const { prefetchImage, fetchProjectImages } = require('../../js/hover-preview.js');
 
         // Mock image decode failure
-        const originalWarn = console.warn;
-        console.warn = jest.fn();
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const originalImage = window.Image;
-        window.Image = class {
-            constructor() {
-                this.src = '';
-                this.decode = jest.fn().mockRejectedValue(new Error('decode boom'));
-            }
-        };
-
-        prefetchImage('/test.jpg');
-        // wait for the catch to run
-        await Promise.resolve();
-        await Promise.resolve();
-        expect(console.warn).toHaveBeenCalledWith(
-            '[HoverPreview] Image decode prefetch failed:',
-            expect.any(Error)
-        );
-
-        window.Image = originalImage;
-        console.warn = originalWarn;
-
-        // Mock fetch timeout
         const originalFetch = window.fetch;
-        let abortControllerSignal;
-        window.fetch = jest.fn((url, options) => {
-            if (options && options.signal) {
-                abortControllerSignal = options.signal;
-                return new Promise((resolve, reject) => {
-                    options.signal.addEventListener('abort', () => reject(new Error('abort')));
-                });
-            }
-            return new Promise(() => {}); // never resolves
-        });
+        try {
+            window.Image = class {
+                constructor() {
+                    this.src = '';
+                    this.decode = jest.fn().mockRejectedValue(new Error('decode boom'));
+                }
+            };
 
-        const fetchPromise = fetchProjectImages('/timeout/');
-        jest.advanceTimersByTime(5000); // trigger abort
+            prefetchImage('/test.jpg');
+            // wait for the catch to run
+            await Promise.resolve();
+            await Promise.resolve();
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[HoverPreview] Image decode prefetch failed:',
+                expect.any(Error)
+            );
 
-        // The fetch promise should reject due to abort, but the code swallows errors, returning null
-        const res = await fetchPromise;
-        expect(res).toBeNull();
-        expect(abortControllerSignal.aborted).toBe(true);
+            // Mock fetch timeout
+            let abortControllerSignal;
+            window.fetch = jest.fn((url, options) => {
+                if (options && options.signal) {
+                    abortControllerSignal = options.signal;
+                    return new Promise((resolve, reject) => {
+                        options.signal.addEventListener('abort', () => reject(new Error('abort')));
+                    });
+                }
+                return new Promise(() => {}); // never resolves
+            });
 
-        jest.useRealTimers();
-        window.fetch = originalFetch;
+            const fetchPromise = fetchProjectImages('/timeout/');
+            jest.advanceTimersByTime(5000); // trigger abort
+
+            // The fetch promise should reject due to abort, but the code swallows errors, returning null
+            const res = await fetchPromise;
+            expect(res).toBeNull();
+            expect(abortControllerSignal.aborted).toBe(true);
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[HoverPreview] Project HTML fetch failed:',
+                expect.any(Error)
+            );
+        } finally {
+            window.Image = originalImage;
+            window.fetch = originalFetch;
+            warnSpy.mockRestore();
+            jest.useRealTimers();
+        }
     });
 });
