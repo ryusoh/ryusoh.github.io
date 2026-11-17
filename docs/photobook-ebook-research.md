@@ -590,7 +590,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 
 ### 9.2 Ranked Work Orders
 
-#### WO-01 `[trivial]` — Ignore book build cache and candidate run directories in `.gitignore`
+#### WO-01 `[trivial]` `[DONE]` — Ignore book build cache and candidate run directories in `.gitignore`
 
 - **File:** `.gitignore` (lines 57–60)
 - **Find:**
