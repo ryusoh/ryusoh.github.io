@@ -1,13 +1,13 @@
 # Research: Photobook eBook (PDF) Generation & Long-Term Management Architecture
 
 **Status:** research findings (2026-11-17)
-**Scope:** End-to-end architecture, agentic orchestration (Rich Sutton's _The Bitter Lesson_), visual design & spread layout specification for _Infinite Systems_, rendering toolchain evaluation, color/resolution physics, and long-term editorial maintenance for compiling the sequenced photographic materials of `ryusoh.github.io` (`p1`–`p6`) into a publication-grade PDF photobook.
+**Scope:** End-to-end architecture, agentic orchestration (Rich Sutton's _The Bitter Lesson_), monochrome vs. color modality partitioning, visual design & spread layout specification for _Infinite Systems_, rendering toolchain evaluation, color/resolution physics, and long-term editorial maintenance for compiling the sequenced photographic materials of `ryusoh.github.io` (`p1`–`p6`) into a publication-grade PDF photobook.
 
 ---
 
 ## 1. Research Question
 
-If we build an eBook photobook titled _**Infinite Systems**_ (outputting a PDF file) from the photographic materials in `ryusoh.github.io`—without being forced to preserve the 6 web pages (`p1`–`p6`) as 6 rigid chapters or reuse their web layout verbatim, and instead following Rich Sutton's _The Bitter Lesson_ to let an agentic system orchestrate the book across the 127 sequenced photographs—what is the best way to design, generate, and manage it over the long term (including future photo additions, deletions, sequence adjustments, and visual/layout refinements)?
+If we build an eBook photobook titled _**Infinite Systems**_ (outputting a PDF file) from the photographic materials in `ryusoh.github.io`—without being forced to preserve the 6 web pages (`p1`–`p6`) as 6 rigid chapters or reuse their web layout verbatim, following Rich Sutton's _The Bitter Lesson_ to let an agentic system orchestrate the book across the 127 sequenced photographs while enforcing a strict separation between black-and-white (B&W) and color photographs—what is the best way to design, generate, and manage it over the long term (including future photo additions, deletions, sequence adjustments, and visual/layout refinements)?
 
 ---
 
@@ -15,25 +15,29 @@ If we build an eBook photobook titled _**Infinite Systems**_ (outputting a PDF f
 
 ### 2.1 The Short Answer
 
-1. **Pool Eligibility Rule — Strictly the 127 Sequenced Photos (`index.md` as Pool Gatekeeper):**
-    - Only the **127 photographs actively sequenced in `assets/img/p1/index.md` through `assets/img/p6/index.md`** enter the photobook candidate pool (`201.0 MB` total: `117` sRGB + `10` Display P3; `127/127` landscape `3:2` orientation; `82.7%` low-key chiaroscuro or mid-tone twilight).
-    - The **12 unsequenced orphan files** sitting on disk (`1` in `p3`, `11` in `p6`) are deliberate editorial outtakes and **must be strictly ignored** (never ingested by the book pool). Adding a photo to any `p<N>/index.md` admits it to the pool; removing a photo from `p<N>/index.md` expels it from the pool.
+1. **Pool Eligibility & Modality Partition Rule — Strictly the 127 Sequenced Photos, Split into Disjoint B&W (`51`) and Color (`76`) Sub-Pools:**
+    - **Gatekeeping (`index.md` authority):** Only the **127 photographs actively sequenced in `assets/img/p1/index.md` through `assets/img/p6/index.md`** enter the photobook candidate pool (`201.0 MB` total; `127/127` landscape `3:2` orientation; `82.7%` low-key chiaroscuro or mid-tone twilight). The **12 unsequenced orphan files** sitting on disk (`1` in `p3`, `11` in `p6`) are deliberate editorial outtakes and **must be strictly ignored**.
+    - **Strict B&W vs. Color Separation:** Pixel-level chroma analysis (`sharp` 95th-percentile RGB channel delta $P_{95}(\max(|R-G|, |G-B|, |R-B|))$) across the 127 eligible photos reveals two disjoint visual modalities:
+        - **Monochrome / B&W Sub-Pool (`51` photos, `40.2%`):** All `18/18` in `p1` (pure B&W), all `32/32` in `p6` (pure B&W), and `1/13` in `p5` (`p5/DSCF9004-3.jpg`, a tinted monochrome self-portrait).
+        - **Color Sub-Pool (`76` photos, `59.8%`):** All `21/21` in `p2`, all `23/23` in `p3`, all `20/20` in `p4`, and `12/13` in `p5`.
+    - **Never mix B&W and Color on the same spread or within the same movement:** The agentic orchestrator partitions the search graph into two disjoint sub-graphs ($\binom{51}{2} = 1,275$ B&W pairings and $\binom{76}{2} = 2,850$ Color pairings), separated at the macro-book level by an explicit **Phase Transition Divider** spread.
 2. **Apply Rich Sutton's _The Bitter Lesson_ to Visual Curation & 2D Spread Search — Not to Free-Form AI Poetry:**
-    - **Dissolve the 6 web-folder silos (`p1`–`p6`) for visual search:** Within `p1` (18 frames), there are only $\binom{18}{2} = 153$ possible pairings; across the unified **127-photo pool**, there are $\binom{127}{2} = 8,001$ candidate pairings (**52× larger search space**). Letting multimodal compute + graph search ([`.agents/skills/sequence/scripts/inspect_gallery.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/inspect_gallery.mjs) CIELAB $\Delta E$, luminance respiratory cycles, gaze vectors, and VLM visual Chain-of-Thought) select the strongest **75–100 frames** (or sequence all 127), discover emergent movements/acts, and optimize **2-page facing spreads (`verso` + `recto`)** leverages scale of search where AI excels.
+    - **Dissolve the 6 web-folder silos (`p1`–`p6`) within each modality sub-pool:** Pooling `p1` + `p6` + `p5/DSCF9004-3.jpg` (`1,275` B&W pairs) and `p2` + `p3` + `p4` + `p5-color` (`2,850` Color pairs) yields **4,125 valid cross-series pairings** (versus only 153 inside `p1`). Crucially, separating B&W from Color also fixes a metric blind spot in CIELAB $\Delta E$: without modality partitioning, a dark low-saturation color photo ($a^* \approx -1, b^* \approx -2$) has near-zero $\Delta E$ distance to a dark B&W photo ($a^_=0, b^_=0$), which would otherwise trick a naive optimizer into pairing them.
+    - **Modality-Specific Search Objectives:** In the **Color Sub-Pool (`76` frames)**, the optimizer uses full CIELAB chromatic distance ($\Delta E$), luminance contrast ($\Delta L^_$), and gaze/vector geometry. In the **B&W Sub-Pool (`51` frames)** where $a^_ = b^* = 0$, chromatic $\Delta E$ collapses to $\Delta L^_$, so the optimizer re-weights its objective function to \*\*Luminance Contrast ($\Delta L^_$), Local Tonal Entropy / Grain Density, and Compositional Vector Geometry\*\*.
     - **Forbid unconstrained LLM-generated interstitial poetry:** Sutton's _Bitter Lesson_ works where an objective verifier exists; without one, free-form LLM poetry regresses to the training distribution's mean (cliché purple prose) and violates Roland Barthes's _studium_ vs. _punctum_ boundary documented in [`docs/critique-calibration-design.md`](file:///Users/lz/dev/ryusoh.github.io/docs/critique-calibration-design.md#L15-L17). Instead, the agent orchestrates text through three constrained moves:
         1. **Visual Silence (~90% of spreads):** Let facing plates and white space carry the narrative gap ([`docs/sequence-skill-architecture.md`](file:///Users/lz/dev/ryusoh.github.io/docs/sequence-skill-architecture.md#L94)).
         2. **Authentic Corpus Retrieval & Placement:** Pool the human-curated stanzas from `assets/img/p1..p6/index.md` (plus any optional author-supplied `book/fragments.md`) and let the agentic search **select, trim, and place** only the 5–10 authentic fragments that create maximum intellectual counterpoint against specific spreads.
         3. **Back-of-Book Curatorial Appendix:** Route AI analytical commentary (`role`, `subject`, `thematicMeaning`, `vectors` from `commentary.json`) into an end-of-book **Plate Index / System Colophon Appendix** rather than placing synthetic prose between plates.
 3. **Persist the Agentic Edit in a Declarative State Ledger (`book/sequence.yaml`) for Long-Term Maintenance:**
-    - Because a globally orchestrated photobook no longer maps 1:1 to the web chapter order, the agentic orchestrator writes its discovered spread architecture to a git-tracked ledger (`book/sequence.yaml`) encoding movements, spreads (`verso`, `recto`, `layout`, `epigraph`), and human taste constraints (`locked: true` spreads, `banned` pairs).
-    - Future photo additions/deletions in `assets/img/p<N>/index.md` trigger either a fast **incremental repair** (inserting new pool photos into optimal spread slots while preserving `locked` spreads) or a **full global re-orchestration** for a new edition.
+    - Because a globally orchestrated photobook no longer maps 1:1 to the web chapter order, the agentic orchestrator writes its discovered spread architecture to a git-tracked ledger (`book/sequence.yaml`) encoding movements (`modality: 'bw' | 'color'`), spreads (`verso`, `recto`, `layout`, `epigraph`), and human taste constraints (`locked: true` spreads, `banned` pairs).
+    - Future photo additions/deletions in `assets/img/p<N>/index.md` are automatically classified by `sharp` into the `bw` or `color` sub-pool and trigger either a fast **incremental repair** (inserting new pool photos into optimal same-modality spread slots while preserving `locked` spreads) or a **full global re-orchestration** for a new edition.
 4. **Visual Identity for _Infinite Systems_ ("Obsidian Darkroom + Telemetry Red" on `300 × 200 mm` 3:2 Spreads):**
     - Because `100%` of the 127 eligible photos are `3:2` landscape and `82.7%` are low-key Exhalation ($L^* \le 75$) or mid-tone Grounding ($75 < L^* < 135$) frames, the book uses an **Obsidian Void (`#070709`)** primary canvas on **`300 mm × 200 mm` (3:2)** pages (`600 mm × 200 mm` open spread), preventing screen glare from crushing shadow detail while allowing full-bleed plates to fill 100% of the page with zero cropping.
     - Scale monotony is prevented via **five modular spread archetypes** (`The Monolith`, `Asymmetric Weight Diptych`, `Symmetric Collision Diptych`, `Diagonal Modular Offset`, and `System Phase Divider`) set on a 12-column × 8-row Swiss grid with `Syne`, `Glow Sans SC`, and tabular monospace telemetry (`#CE2323` accent).
 5. **Render via Typst (`v0.15.1`, Apache-2.0) + Dual-Tier `sharp` Cache + `/PageLayout /TwoPageRight`:**
     - **Primary Recommended Renderer — Typst (`v0.15.1`):** Reads structured JSON/YAML directly (`json()`, `yaml()`), embeds JPEG streams losslessly via `/DCTDecode` without re-encoding (`crates/typst-pdf/src/image.rs`), preserves per-image embedded ICC profiles (including the 10 sequenced Display P3 images), natively handles mixed Latin (`Syne`) + Simplified Chinese (`Glow Sans SC`) typography with automatic CJK-Latin spacing and font subsetting, supports custom page geometry and print bleed (`#set page(bleed: ...)`), emits PDF/A archival standards (`--pdf-standard a-2b` / `a-4`), and guarantees bit-for-bit reproducible builds via `--creation-timestamp` / `SOURCE_DATE_EPOCH`.
     - **Zero-Install Immediate Alternative — Headless Chrome (`Skia/PDF m157`, already installed) + CSS Paged Media (`@page`):** Empirically verified on this machine to pass through original sRGB and Display P3 JPEG streams byte-for-byte without re-compression when EXIF orientation is top-left (`src/pdf/SkPDFBitmap.cpp`), while supporting CSS `@page` sizes, named pages, the 16 CSS `@page` margin boxes (Chrome 131+), existing `.woff2` web fonts, and PDF document outlines (`--generate-pdf-document-outline`).
-    - **Dual-tier PDF payload (`master` vs. `screen`) + Two-Page Spread Catalog Flag:** Pre-normalizing via `sharp` into `.cache/book-img/` produces both a lossless-passthrough `dist/photobook-master.pdf` (`~155 MB` after downsampling 5 oversized `>2048px` outliers) and a portable MozJPEG `q82` `dist/photobook-screen.pdf` (`~45–55 MB` for all 127 frames, or `~30–38 MB` for an 85-frame pruned edit), stamped with `/PageLayout /TwoPageRight` (ISO 32000-1:2008 §7.7.2, Table 28).
+    - **Dual-tier PDF payload (`master` vs. `screen`) + Two-Page Spread Catalog Flag:** Pre-normalizing via `sharp` into `.cache/book-img/` produces both a lossless-passthrough `dist/infinite-systems-master.pdf` (`~155 MB` after downsampling 5 oversized `>2048px` outliers) and a portable MozJPEG `q82` `dist/infinite-systems-screen.pdf` (`~45–55 MB` for all 127 frames, or `~30–38 MB` for an 85-frame pruned edit), stamped with `/PageLayout /TwoPageRight` (ISO 32000-1:2008 §7.7.2, Table 28).
 
 ### 2.2 End-to-End Architecture Diagram
 
@@ -45,26 +49,26 @@ flowchart TD
         COMM["assets/img/p1..p6/commentary.json<br/>(Analytical Critiques -> Back-of-Book Appendix)"]
     end
 
-    subgraph Agentic ["2. 'Bitter Lesson' Agentic Orchestrator (Search + Compute)"]
-        METRICS["Multimodal Feature & Graph Extractor<br/>(CIELAB L*a*b*, Delta E, Gaze Vectors, VLM CoT)"]
-        SEARCH["Global Cross-Series Spread Optimizer<br/>(8,001 Pairings -> Prune, Discover Acts, Pair Verso/Recto)"]
-        LEDGER["book/sequence.yaml (Declarative Book Ledger)<br/>(Movements, 2D Spreads, Retrieved Epigraphs, Human Locks/Bans)"]
+    subgraph Agentic ["2. 'Bitter Lesson' Agentic Orchestrator (Modality-Partitioned Search)"]
+        CLASS["Sharp Pixel-Chroma Modality Classifier<br/>Splits Pool: 51 B&W (p1, p6, 1 in p5) vs. 76 Color (p2, p3, p4, 12 in p5)"]
+        SEARCH["Bipartite Cross-Series Spread Optimizer<br/>(1,275 B&W Pairs + 2,850 Color Pairs -> Never Mix B&W and Color)"]
+        LEDGER["book/sequence.yaml (Declarative Book Ledger)<br/>(B&W Movements, Color Movements, 2D Spreads, Locks/Bans)"]
     end
 
     subgraph Engine ["3. Deterministic PDF Compiler (Node.js + Sharp + Typst)"]
-        SHARP["Sharp Asset Normalizer (.cache/book-img/)<br/>Master tier (passthrough) vs. Screen tier (q82 MozJPEG)"]
+        SHARP["Sharp Asset Normalizer (.cache/book-img/)<br/>Master tier (passthrough) vs. Screen tier (q82 MozJPEG / B&W Gray)"]
         TYPST["Typst Compiler (book/photobook.typ)<br/>#set page, #image(icc: auto), CJK/Latin Fonts, Outlines"]
         POST["PDF Catalog Finisher (gs pdfmark / qpdf)<br/>Sets /PageLayout /TwoPageRight & /PageMode /UseOutlines"]
     end
 
     subgraph Output ["4. Derived Artifacts (Gitignored dist/)"]
-        PDF_OUT["dist/photobook-master.pdf & dist/photobook-screen.pdf"]
+        PDF_OUT["dist/infinite-systems-master.pdf & dist/infinite-systems-screen.pdf"]
     end
 
-    MD --> METRICS
+    MD --> CLASS
     FRAG --> SEARCH
     COMM --> TYPST
-    METRICS --> SEARCH
+    CLASS --> SEARCH
     SEARCH <--> LEDGER
     LEDGER --> SHARP
     LEDGER --> TYPST
@@ -110,27 +114,34 @@ flowchart TD
 
 ### 4.1 Audit of Eligible Repository Materials (`assets/img/p1`–`p6`)
 
-An audit of `assets/img/p1` through `assets/img/p6` using `sips`, `exiftool`, `sequence-report.md`, and `scripts/build-page.mjs` established the exact inventory of sequenced photographs eligible for the eBook pool versus unsequenced disk outtakes (which are excluded):
+An audit of `assets/img/p1` through `assets/img/p6` using `sips`, `exiftool`, `sharp` pixel-level RGB channel-delta inspection, `sequence-report.md`, and `scripts/build-page.mjs` established the exact inventory of sequenced photographs eligible for the eBook pool versus unsequenced disk outtakes (which are excluded):
 
-| Series  | Title (`index.md` Frontmatter)                         | Eligible Sequenced JPEGs | Excluded Orphans (Ignored) | Breath (`Inh / Exh / Grd`) | `>` Quote Lines | CJK Lines | Sequenced Display P3 | Sequenced JPEG Payload |
-| :------ | :----------------------------------------------------- | -----------------------: | -------------------------: | :------------------------: | --------------: | --------: | -------------------: | ---------------------: |
-| `p1`    | _I TEAR UP THE BAY WHEN I COME THROUGH_                |                       18 |                          0 |        `2 / 11 / 5`        |              17 |         0 |                    2 |                35.0 MB |
-| `p2`    | _I DO NOT CARE IF WE GO DOWN IN HISTORY AS BARBARIANS_ |                       21 |                          0 |        `3 / 6 / 12`        |               5 |         0 |                    2 |                28.1 MB |
-| `p3`    | _AEROBATIC ACTIVITIES_                                 |                       23 |                          1 |        `7 / 3 / 13`        |               4 |         0 |                    0 |                60.4 MB |
-| `p4`    | _DAS GESPENST_                                         |                       20 |                          0 |        `3 / 2 / 15`        |               9 |         0 |                    1 |                21.6 MB |
-| `p5`    | _SELF PORTRAITS AND BEHIND THE SCENES_                 |                       13 |                          0 |        `3 / 5 / 5`         |              17 |         0 |                    3 |                23.9 MB |
-| `p6`    | _HYPERSTARS SUCKED INTO THE HYPERMASSIVE_              |                       32 |                         11 |       `4 / 11 / 17`        |              70 |        43 |                    2 |                32.0 MB |
-| **All** | **Unified Eligible Pool (`p1`–`p6` `index.md`)**       |                  **127** |          **12 (Excluded)** |     **`22 / 38 / 67`**     |         **122** |    **43** |               **10** |           **201.0 MB** |
+| Series  | Title (`index.md` Frontmatter)                         | Eligible JPEGs | Excluded Orphans | Modality (`B&W / Color`) | Breath (`Inh / Exh / Grd`) | `>` Quote Lines | CJK Lines | Sequenced Display P3 | Sequenced Payload |
+| :------ | :----------------------------------------------------- | -------------: | ---------------: | :----------------------: | :------------------------: | --------------: | --------: | -------------------: | ----------------: |
+| `p1`    | _I TEAR UP THE BAY WHEN I COME THROUGH_                |             18 |                0 |         `18 / 0`         |        `2 / 11 / 5`        |              17 |         0 |                    2 |           35.0 MB |
+| `p2`    | _I DO NOT CARE IF WE GO DOWN IN HISTORY AS BARBARIANS_ |             21 |                0 |         `0 / 21`         |        `3 / 6 / 12`        |               5 |         0 |                    2 |           28.1 MB |
+| `p3`    | _AEROBATIC ACTIVITIES_                                 |             23 |                1 |         `0 / 23`         |        `7 / 3 / 13`        |               4 |         0 |                    0 |           60.4 MB |
+| `p4`    | _DAS GESPENST_                                         |             20 |                0 |         `0 / 20`         |        `3 / 2 / 15`        |               9 |         0 |                    1 |           21.6 MB |
+| `p5`    | _SELF PORTRAITS AND BEHIND THE SCENES_                 |             13 |                0 |        `1* / 12`         |        `3 / 5 / 5`         |              17 |         0 |                    3 |           23.9 MB |
+| `p6`    | _HYPERSTARS SUCKED INTO THE HYPERMASSIVE_              |             32 |               11 |         `32 / 0`         |       `4 / 11 / 17`        |              70 |        43 |                    2 |           32.0 MB |
+| **All** | **Unified Eligible Pool (`p1`–`p6` `index.md`)**       |        **127** | **12 (Ignored)** |      **`51 / 76`**       |     **`22 / 38 / 67`**     |         **122** |    **43** |               **10** |      **201.0 MB** |
+
+_(`*Note on p5`: 12 of 13 sequenced frames in `p5` are color, while 1 frame—`assets/img/p5/DSCF9004-3.jpg`, the opener self-portrait in a white helmet—is a warm-tinted monochrome image with 95th-percentile RGB channel delta $P_{95} = 11$ and mean channel delta $6.1$, documented in `assets/img/p5/commentary.json` as `"Monochrome, high-grain self-portrait"`.)\_
 
 #### Key Material Findings (127 Eligible Pool Photographs)
 
 1. **Strict Pool Boundary (`index.md` Gatekeeping)**:
     - Only the **127 JPEG filenames explicitly listed in `assets/img/p1..p6/index.md`** are ingested into the photobook pool.
     - The 12 unsequenced JPEGs on disk (`p3/DSCF2056-2.jpg` and 11 files in `p6/`) are outtakes rejected during gallery curation and are **strictly ignored** by the book pipeline.
-2. **Uniform 3:2 Landscape Orientation & Photometric Chiaroscuro Distribution**:
+2. **Bipartite Modality Split: 51 Black-and-White (`40.2%`) vs. 76 Color (`59.8%`)**:
+    - Measuring per-pixel RGB channel spread $\Delta_{\text{RGB}} = \max(|R-G|, |G-B|, |R-B|)$ across a `160 × 160` downsample of each eligible image via `sharp` cleanly partitions the 127-photo pool without manual tagging:
+        - **Pure B&W (`50` frames, $P\_{95}(\Delta\_{\text{RGB}}) \le 3$):** All `18` frames in `p1` and all `32` frames in `p6`. (Notably, even though these 50 files are pure grayscale, they are stored on disk as 3-channel RGB JPEGs, including 4 with Display P3 ICC tags.)
+        - **Tinted / Warm Monochrome (`1` frame, $3 < P\_{95}(\Delta\_{\text{RGB}}) \le 12$):** `p5/DSCF9004-3.jpg` ($P_{95} = 11$). Grouping it with the B&W sub-pool (and optionally neutralizing its slight warm cast in the book cache so it matches `p1` and `p6` silver-gelatin neutrality) prevents it from clashing with color frames.
+        - **Color (`76` frames, $P\_{95}(\Delta\_{\text{RGB}}) > 12$):** All `21` frames in `p2`, all `23` in `p3`, all `20` in `p4`, and `12` in `p5`.
+3. **Uniform 3:2 Landscape Orientation & Photometric Chiaroscuro Distribution**:
     - **100% (`127 / 127`) of the eligible photographs are Landscape (`width > height`, 3:2 aspect ratio)**. There are zero portrait-orientation photographs in the sequenced pool.
     - Across the 127 frames, **38 are Exhalations** ($L^* \le 75$, deep chiaroscuro/nocturnal shadow), **67 are Grounding** ($75 < L^* < 135$, dense urban twilight/mid-tones), and only **22 are Inhalations** ($L^* \ge 135$, bright daylight). Thus **82.7% (`105 / 127`)** of the work operates in low-key shadow or mid-tone atmospheric density.
-3. **Pixel dimensions & effective print resolution**:
+4. **Pixel dimensions & effective print resolution**:
     - **114 of 127 eligible JPEGs** have a long edge of **`2048 px`** (`109` at `2048 × 1365` and `5` at `2048 × 1364`), i.e., standard 3:2 aspect ratio exported at `240 DPI` metadata tag (`sips -g pixelWidth -g pixelHeight -g dpiWidth`).
     - **5 of 127 JPEGs** are higher-resolution exports (`p3`: `6240 × 4160` at 28.9 MB and `4675 × 3117` at 8.5 MB; `p5`: `3840 × 2560` at 5.6 MB, `3475 × 2268` at 4.9 MB, and `3079 × 2045` at 2.9 MB).
     - **8 of 127 JPEGs** are lower-resolution crops (`p2`: `1860 × 1240`, `1676 × 1117`; `p3`: `1363 × 907`; `p4`: `2047 × 1365`, `1364 × 908`, `910 × 607`; `p5`: `1960 × 1306`, `1946 × 1297`, `1937 × 1291`).
@@ -139,9 +150,9 @@ An audit of `assets/img/p1` through `assets/img/p6` using `sips`, `exiftool`, `s
         - **At 240 PPI (native Lightroom tag)**: up to **`8.53 × 5.69 in` (`216.7 × 144.5 mm`)**.
         - **At 200 PPI (viewing-distance floor)**: up to **`10.24 × 6.83 in` (`260.1 × 173.4 mm`)**.
         - **For screen/eBook PDF viewing**: `2048 × 1365 px` is ideal for Retina/4K tablet and laptop displays without upscaling. If a large-format physical print edition (`10 × 8 in` or `13 × 11 in` at 300 PPI $\approx 3900 \times 3300\text{ px}$) is later desired, full-resolution JPEG/TIFF masters from the personal archive ([`docs/archive-protocol.md`](file:///Users/lz/dev/ryusoh.github.io/docs/archive-protocol.md)) must be substituted into the build directory while keeping `book/sequence.yaml` unchanged.
-4. **Mixed ICC Color Profiles (`sRGB` + `Display P3`)**:
-    - Among the 127 eligible JPEGs, **117 carry `sRGB IEC61966-2.1`** and **10 carry Apple `Display P3` ICC profiles** (`p1`: 2, `p2`: 2, `p4`: 1, `p5`: 3, `p6`: 2). Any PDF generator that strips ICC profiles and tags images as uncalibrated `/DeviceRGB` will cause those 10 Display P3 images to appear desaturated or hue-shifted in color-managed PDF viewers.
-5. **Multilingual Typography (`Latin` + `Simplified Chinese`)**:
+5. **Mixed ICC Color Profiles (`sRGB` + `Display P3`)**:
+    - Among the 127 eligible JPEGs, **117 carry `sRGB IEC61966-2.1`** and **10 carry Apple `Display P3` ICC profiles** (`p1`: 2, `p2`: 2, `p4`: 1, `p5`: 3, `p6`: 2). Any PDF generator that strips ICC profiles and tags images as uncalibrated `/DeviceRGB` will cause the Display P3 color images to appear desaturated or hue-shifted in color-managed PDF viewers.
+6. **Multilingual Typography (`Latin` + `Simplified Chinese`)**:
     - `assets/img/p6/index.md` contains 43 lines of Simplified Chinese verse interleaved with English stanzas.
     - While `assets/fonts/` stores web-only `.woff2` subsets (`syne-latin.woff2`, `syne-latin-ext.woff2`, `glowsans-sc-extended-bold.subset.woff2`), verification of `/Users/lz/Library/Fonts/` and [`tools/subset_fonts.py`](file:///Users/lz/dev/ryusoh.github.io/tools/subset_fonts.py#L17-L22) confirmed that all 18 full OpenType weights/widths of `GlowSansSC` (`GlowSansSC-Extended-*.otf` and `GlowSansSC-Wide-*.otf`) are installed locally on this machine.
 
@@ -184,7 +195,7 @@ An audit of `assets/img/p1` through `assets/img/p6` using `sips`, `exiftool`, `s
 
 - **WeasyPrint (`v70.0`, BSD License)**:
     - Supports `--pdf-variant` for both PDF/A (`pdf/a-1b` through `pdf/a-4u`) and **PDF/X (`pdf/x-1a`, `pdf/x-3`, `pdf/x-4`, `pdf/x-5g`)** ([WeasyPrint API Reference](https://doc.courtbouillon.org/weasyprint/stable/api_reference.html)).
-    - However, source inspection of [`weasyprint/images.py:134-158`](https://github.com/Kozea/WeasyPrint/blob/main/weasyprint/images.py#L134-L158) revealed a critical color-management defect for this repo: `RasterImage.draw()` hardcodes `color_space = '/DeviceRGB'` on every RGB image XObject and never extracts per-image embedded ICC profiles from Pillow (`pillow_image.info.get('icc_profile')`). Thus, the 10 sequenced Display P3 photographs in `p1`–`p6` would have their wide-gamut pixel values misinterpreted as uncalibrated `/DeviceRGB`.
+    - However, source inspection of [`weasyprint/images.py:134-158`](https://github.com/Kozea/WeasyPrint/blob/main/weasyprint/images.py#L134-L158) revealed a critical color-management defect for this repo: `RasterImage.draw()` hardcodes `color_space = '/DeviceRGB'` on every RGB image XObject and never extracts per-image embedded ICC profiles from Pillow (`pillow_image.info.get('icc_profile')`). Thus, the Display P3 photographs in `p1`–`p6` would have their wide-gamut pixel values misinterpreted as uncalibrated `/DeviceRGB`.
 - **Prince XML (`v16`, Commercial)**:
     - Full support for CSS Paged Media, JPEG passthrough, ICC profiles, PDF/A, PDF/X-4 (`--pdf-profile=PDF/X-4 --pdf-output-intent=...`), and CSS viewer preferences (`@prince-pdf { -prince-pdf-page-layout: two-page-right; }`, [Prince Output Docs](https://www.princexml.com/doc/prince-output/)).
     - Disqualified as primary recommendation due to proprietary licensing ($495 desktop / $2,000+ server license; free license injects a promotional watermark on the document).
@@ -214,13 +225,16 @@ An audit of `assets/img/p1` through `assets/img/p6` using `sips`, `exiftool`, `s
 
 In _The Bitter Lesson_ ([Sutton, 2019](http://www.incompleteideas.net/IncIdeas/BitterLesson.html)), Rich Sutton demonstrates that general methods scaling with **search** and **computation** reliably outperform systems constrained by human-engineered domain buckets and manual heuristics.
 
-Applied to `ryusoh.github.io`, this yields a clear architectural division between **visual graph search** (where agentic compute dominates) and **poetic voice / taste calibration** (where unconstrained LLM generation fails):
+Applied to `ryusoh.github.io`, this yields a clear architectural division between **modality-partitioned visual graph search** (where agentic compute dominates) and **poetic voice / taste calibration** (where unconstrained LLM generation fails):
 
-1. **Where Agentic Search Wins: Dissolving the `p1`–`p6` Silos into a 127-Photo Pool**
+1. **Where Agentic Search Wins: Dissolving the `p1`–`p6` Silos Within Disjoint B&W (`51`) and Color (`76`) Sub-Pools**
     - The 6 web galleries (`p1`–`p6`) are chronological/thematic buckets created for web navigation. Locking a photobook into those 6 buckets restricts diptych search to intra-folder neighbors (e.g., $\binom{18}{2} = 153$ pairs in `p1`).
-    - Pooling all **127 sequenced frames** across `p1`–`p6` expands the combinatorial graph to $\binom{127}{2} = 8,001$ candidate pairings (**52× larger search space**), allowing a diagonal shadow in `p4` (_Das Gespenst_) to form an oblique slant rhyme with a nocturnal transit frame in `p1` or a silhouette in `p6`.
-    - **Macro-Editing & Pruning:** Classic street photography monographs are ruthlessly edited (Robert Frank's _The Americans_ has 83 plates; Koudelka's _Exiles_ has 75). Rather than mechanically dumping all 127 frames into 6 chapters, the agentic orchestrator can either select the highest-tension **75–100 frame monograph cut** from the 127-frame pool or sequence the full 127-frame anthology across **3–5 emergent movements** defined by light temperature, kinetic vector momentum, and emotional gravity.
-    - **2D Spread Optimization (`verso` + `recto`):** Unlike vertical web scrolling, a photobook opened in `TwoPageRight` mode is experienced as **2-page spreads**. The agentic search evaluates each spread as a unified 2D composition (`The Monolith`, `Asymmetric Weight Diptych`, `Symmetric Collision Diptych`, `Diagonal Modular Offset`, or `System Phase Divider` — detailed in §6.3).
+    - However, because the 127 eligible photos consist of **51 B&W frames** (`p1` [18], `p6` [32], `p5/DSCF9004-3.jpg` [1]) and **76 Color frames** (`p2` [21], `p3` [23], `p4` [20], `p5` [12]), **pooling all 127 without a modality partition would introduce a critical colorimetric failure mode**: in CIELAB space ([`.agents/skills/sequence/scripts/metrics.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/metrics.mjs)), a dark low-saturation color photograph ($L^_=18, a^_=-1.5, b^_=-3.0$) has a tiny Euclidean color distance ($\Delta E\_{76} \approx 3.4$) to a dark B&W photograph ($L^_=18, a^_=0, b^_=0$). An unpartitioned optimizer would therefore pair dark color frames with B&W frames on the same spread, causing jarring perceptual friction.
+    - **The Bipartite Modality Rule:** The orchestrator enforces an infinite cost barrier ($C(i, j) = \infty$) between `modality: "bw"` and `modality: "color"`, partitioning the global search into two pure sub-graphs:
+        - **Monochrome Search Graph (`51` frames across `p1`, `p6`, and `p5/DSCF9004-3.jpg`):** $\binom{51}{2} = 1,275$ cross-series B&W pairings. Because $a^* \approx 0$ and $b^* \approx 0$ for all pure B&W frames, chromatic $\Delta E$ collapses to $\Delta L^_$. Therefore, the B&W optimizer replaces chromatic distance with \*\*Luminance Step Contrast ($\Delta L^_$), Local Tonal Entropy / Grain Texture Contrast, and Gaze/Vector Geometry\*\*.
+        - **Color Search Graph (`76` frames across `p2`, `p3`, `p4`, and `p5`):** $\binom{76}{2} = 2,850$ cross-series Color pairings, evaluated with full CIELAB chromatic $\Delta E$, luminance respiratory cycles, and gaze/vector momentum.
+    - **Macro-Editing & Pruning:** Rather than mechanically dumping all 127 frames into 6 web chapters, the agentic orchestrator can either select the highest-tension **75–100 frame monograph cut** or sequence all 127 frames across **pure-B&W movements** and **pure-Color movements** separated by an explicit **Phase Transition Divider** spread (§6.3).
+    - **2D Spread Optimization (`verso` + `recto`):** Unlike vertical web scrolling, a photobook opened in `TwoPageRight` mode is experienced as **2-page spreads**. The agentic search evaluates each spread as a unified 2D composition (`The Monolith`, `Asymmetric Weight Diptych`, `Symmetric Collision Diptych`, `Diagonal Modular Offset`, or `System Phase Divider` — detailed in §6.3) using only same-modality photographs.
 2. **Where Unconstrained Generation Fails: The Text Policy (Silence, Retrieval & Appendix)**
     - Sutton's _Bitter Lesson_ presupposes an objective reward verifier (such as game victory or physical prediction error). In literary verse, no external verifier exists; unguided LLM generation optimizes for high-probability training tokens, producing overwrought, cliché "AI poetry" that explains the image and destroys what Jason Eskenazi calls **The Elliptical Gap** ([`docs/sequence-skill-architecture.md`](file:///Users/lz/dev/ryusoh.github.io/docs/sequence-skill-architecture.md#L94)).
     - As established in [`docs/critique-calibration-design.md`](file:///Users/lz/dev/ryusoh.github.io/docs/critique-calibration-design.md#L15-L17) via Roland Barthes, the machine can compute the **_studium_** (colorimetry, geometry, gaze, semantic motifs), while only the human author supplies the **_punctum_** (lived biographical truth).
@@ -231,7 +245,7 @@ Applied to `ryusoh.github.io`, this yields a clear architectural division betwee
 
 ### 5.2 Externalized State Ledger (`book/sequence.yaml`) & Long-Term Maintenance
 
-In accordance with the repository's **State-Oriented Architecture** (`AGENTS.md`), the globally orchestrated book structure is persisted in a single declarative, git-tracked ledger: `book/sequence.yaml`.
+In accordance with the repository's **State-Oriented Architecture** (`AGENTS.md`), the globally orchestrated book structure is persisted in a single declarative, git-tracked ledger: `book/sequence.yaml`. Each movement declares its `modality` (`'bw'` or `'color'`), and the build validator rejects any spread or movement that mixes B&W and Color frames.
 
 ```yaml
 title: 'INFINITE SYSTEMS'
@@ -246,14 +260,17 @@ includeCommentaryAppendix: true
 
 # Human taste constraints (Reward Oracle for future agentic re-sequencing)
 constraints:
+    strictModalitySeparation: true # Never mix B&W and Color in any spread or movement
+    neutralizeTintedMonochrome: true # Neutralize p5/DSCF9004-3.jpg to pure grayscale in B&W movements
     pinnedOpener: 'p1/DSCF4775.jpg'
-    pinnedCloser: 'p6/DSCF5916-4.JPG'
+    pinnedCloser: 'p6/DSCF0167-2.jpg'
     bannedPairs:
         - ['p2/DSCF8739.jpg', 'p4/DSCF6872-5.jpg']
 
 movements:
     - id: 'SYS.01'
-      title: 'THRESHOLD'
+      title: 'SINGULARITY'
+      modality: 'bw' # Strictly draws from the 51-photo B&W sub-pool (p1, p6, p5/DSCF9004-3.jpg)
       spreads:
           - id: 's01'
             layout: 'monolith-epigraph'
@@ -268,35 +285,46 @@ movements:
           - id: 's02'
             layout: 'asymmetric-diptych'
             locked: false
-            verso: 'p4/DSCF6872-5.jpg'
+            verso: 'p6/DSCF8985-2.JPG'
             versoScale: 'full-bleed'
-            recto: 'p6/DSCF1093.jpg'
+            recto: 'p1/DSCF1093.jpg'
             rectoScale: 'inset-55'
+    - id: 'SYS.02'
+      title: 'CHROMATIC IGNITION'
+      modality: 'color' # Strictly draws from the 76-photo Color sub-pool (p2, p3, p4, p5-color)
+      spreads:
+          - id: 's18'
+            layout: 'symmetric-diptych'
+            locked: false
+            verso: 'p4/DSCF6872-5.jpg'
+            recto: 'p2/DSCF8772.jpg'
 ```
 
 #### How Long-Term Operations Work (`Add`, `Delete`, `Adjust`, `Resequence`)
 
-| Editorial Action                              | How You Do It (Long-Term Ritual)                                                                                    | Pool Effect (`index.md` Gatekeeper)                                  | Photobook Effect (`book/sequence.yaml` $\to$ `dist/*.pdf`)                                                                                    |
-| :-------------------------------------------- | :------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Add a new photo to the repo**               | Add `NEW.jpg` to `assets/img/p<N>/` and list it in `assets/img/p<N>/index.md`.                                      | Enters the eligible book pool (`127` $\to$ `128`).                   | `make book-sync` runs **incremental search**: evaluates `NEW.jpg` against all unlocked spreads and inserts it at the lowest-cost slot.        |
-| **Drop an unsequenced file into `p<N>/`**     | File sits in `assets/img/p<N>/` but is **not** listed in `p<N>/index.md`.                                           | **Ignored** (excluded from pool, just like the 12 existing orphans). | Zero effect on the photobook.                                                                                                                 |
-| **Delete a photo from `p<N>/index.md`**       | Remove the `FILENAME.jpg` line from `assets/img/p<N>/index.md`.                                                     | Expelled from the eligible book pool (`127` $\to$ `126`).            | `make book-sync` removes the frame from `book/sequence.yaml` and locally repairs the affected spread (`diptych` $\to$ `monolith` or re-pair). |
-| **Adjust image crop / color in Lightroom**    | Re-export `assets/img/p<N>/FILENAME.jpg` with the same filename.                                                    | Pool membership unchanged; file `mtime` updates.                     | `make book` refreshes `.cache/book-img/` and re-embeds the updated JPEG stream in seconds without altering `book/sequence.yaml`.              |
-| **Approve or reject an AI spread**            | Set `locked: true` on spreads you love or add a disliked pair to `constraints.bannedPairs` in `book/sequence.yaml`. | Updates the human-in-the-loop reward constraints.                    | Future agentic optimization passes treat `locked: true` spreads and `bannedPairs` as hard boundaries.                                         |
-| **Re-orchestrate a new Edition from scratch** | Run agentic global search (`make book-orchestrate`) over the current eligible pool (`p1..p6/index.md`).             | Reads all currently sequenced photos across `p1`–`p6`.               | Computes a fresh global multi-movement edit while respecting `constraints` in `book/sequence.yaml`.                                           |
+| Editorial Action                              | How You Do It (Long-Term Ritual)                                                                                    | Pool & Modality Effect (`index.md` + `sharp` Classifier)                                                            | Photobook Effect (`book/sequence.yaml` $\to$ `dist/*.pdf`)                                                                         |
+| :-------------------------------------------- | :------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- |
+| **Add a new photo to the repo**               | Add `NEW.jpg` to `assets/img/p<N>/` and list it in `assets/img/p<N>/index.md`.                                      | Enters eligible pool (`127` $\to$ `128`); `sharp` auto-classifies $P_{95}(\Delta_{\text{RGB}})$ as `bw` or `color`. | `make book-sync` runs **incremental search** restricted to movements matching `NEW.jpg`'s modality (`bw` or `color`).              |
+| **Drop an unsequenced file into `p<N>/`**     | File sits in `assets/img/p<N>/` but is **not** listed in `p<N>/index.md`.                                           | **Ignored** (excluded from pool, just like the 12 existing orphans).                                                | Zero effect on the photobook.                                                                                                      |
+| **Delete a photo from `p<N>/index.md`**       | Remove the `FILENAME.jpg` line from `assets/img/p<N>/index.md`.                                                     | Expelled from the eligible book pool (`127` $\to$ `126`).                                                           | `make book-sync` removes the frame from `book/sequence.yaml` and locally repairs the affected spread within the same modality.     |
+| **Adjust image crop / color in Lightroom**    | Re-export `assets/img/p<N>/FILENAME.jpg` with the same filename.                                                    | Pool membership unchanged; file `mtime` updates.                                                                    | `make book` refreshes `.cache/book-img/` and re-embeds the updated JPEG stream in seconds without altering `book/sequence.yaml`.   |
+| **Approve or reject an AI spread**            | Set `locked: true` on spreads you love or add a disliked pair to `constraints.bannedPairs` in `book/sequence.yaml`. | Updates the human-in-the-loop reward constraints.                                                                   | Future agentic optimization passes treat `locked: true` spreads and `bannedPairs` as hard boundaries.                              |
+| **Re-orchestrate a new Edition from scratch** | Run agentic global search (`make book-orchestrate`) over the current eligible pool (`p1..p6/index.md`).             | Reads all currently sequenced photos across `p1`–`p6`, partitioned into `bw` and `color` sub-graphs.                | Computes a fresh global multi-movement edit while respecting `strictModalitySeparation` and `constraints` in `book/sequence.yaml`. |
 
-### 5.3 Solving the 201 MB Payload Problem: Dual-Tier Asset Normalization
+### 5.3 Solving the 201 MB Payload Problem: Dual-Tier & Modality-Aware Asset Normalization
 
-Our audit in §4.1 showed that the 127 eligible JPEGs across `p1`–`p6` total **201.0 MB** because several files are high-bit-depth exports (notably `assets/img/p3/DSCF7318-3.jpg` at `6240 × 4160` / **28.9 MB** and `assets/img/p3/DSCF5759-5.jpg` at `4675 × 3117` / **8.5 MB**, while the median JPEG across the repo is **1.20 MB**).
+Our audit in §4.1 showed that the 127 eligible JPEGs across `p1`–`p6` total **201.0 MB** because several files are high-bit-depth exports (notably `assets/img/p3/DSCF7318-3.jpg` at `6240 × 4160` / **28.9 MB** and `assets/img/p3/DSCF5759-5.jpg` at `4675 × 3117` / **8.5 MB**, while the median JPEG across the repo is **1.20 MB**), and the 50 pure-B&W files in `p1` and `p6` are stored as 3-channel RGB files.
 
-Because `sharp` (`^0.35.5`) is already a first-class dependency in [`package.json`](file:///Users/lz/dev/ryusoh.github.io/package.json#L38), the book build script should normalize eligible images into `.cache/book-img/<tier>/` (cached by file `mtime` + size, just like `ensureImageVariants()` in `scripts/build-page.mjs:85-164`):
+Because `sharp` (`^0.35.5`) is already a first-class dependency in [`package.json`](file:///Users/lz/dev/ryusoh.github.io/package.json#L38), the book build script normalizes eligible images into `.cache/book-img/<tier>/` (cached by file `mtime` + size, just like `ensureImageVariants()` in `scripts/build-page.mjs:85-164`):
 
 1. **`--tier master` (Archival / 4K Display Master)**:
     - Any JPEG with `max(width, height) <= 2048` and file size `<= 3 MB` is symlinked/copied **untouched** (100% lossless `/DCTDecode` passthrough, preserving embedded Display P3 and sRGB ICC profiles).
+    - If `neutralizeTintedMonochrome: true` is enabled for `p5/DSCF9004-3.jpg` ($P_{95} = 11$), `sharp` converts that single frame to neutral grayscale so its tone matches the 50 pure-B&W frames in `p1` and `p6`.
     - Only the 5 oversized `>2048px` frames in `p3`/`p5` are resized via `sharp(input).resize(2048, 2048, { fit: 'inside', withoutEnlargement: true }).keepIccProfile().jpeg({ quality: 92, mozjpeg: true })`, cutting ~42 MB of bloat from those 5 files alone (`~155 MB` for all 127 frames, or `~105 MB` for an 85-frame pruned monograph).
 2. **`--tier screen` (Lightweight Distributable eBook)**:
-    - Runs `sharp(input).resize(2048, 2048, { fit: 'inside', withoutEnlargement: true }).toColorspace('srgb').jpeg({ quality: 82, mozjpeg: true, chromaSubsampling: '4:2:0' })`.
-    - Reduces average per-image size from `1.58 MB` to `~380 KB`, bringing the PDF down from **201 MB $\to$ ~48 MB** for all 127 frames (or **~32 MB** for an 85-frame pruned monograph).
+    - For the **76 Color frames**: runs `sharp(input).resize(2048, 2048, { fit: 'inside', withoutEnlargement: true }).toColorspace('srgb').jpeg({ quality: 82, mozjpeg: true, chromaSubsampling: '4:2:0' })`.
+    - For the **51 B&W frames**: runs `.greyscale()` (`b-w` 1-channel `/DeviceGray` JPEG at `quality: 84, mozjpeg: true`), eliminating redundant 3-channel chroma planes and guaranteeing zero green/magenta cast across displays while shrinking B&W file sizes by an extra ~25%.
+    - Reduces overall PDF size from **201 MB $\to$ ~42–46 MB** for all 127 frames (or **~28–32 MB** for an 85-frame pruned monograph).
 
 ### 5.4 Setting Two-Page Spread View (`/PageLayout /TwoPageRight`)
 
@@ -311,26 +339,30 @@ Because neither Typst `0.15.1` (`crates/typst-pdf/src/convert.rs`) nor Headless 
 
 ## 6. Visual Design, Cover & Spread Layout Specification (_Infinite Systems_)
 
-### 6.1 Conceptual Premise of _Infinite Systems_
+### 6.1 Conceptual Premise & Macro-Hemisphere Structure of _Infinite Systems_
 
 The title _**Infinite Systems**_ unifies the subject matter of the photographs with the computational architecture that curates them:
 
 1. **Thematic Layer (Within the Frames):** Across `p1`–`p6`, solitary human figures are caught inside vast, impersonal urban, transit, historical, and physical systems—BART transit cars, concrete overpasses, fogged glass, neon grids, state history (`p2`), spectral urban surveillance (`p4`), and gravitational collapse (`p6`).
-2. **Methodological Layer (The Book Engine):** The monograph itself is an emergent trajectory through an 8,001-pair combinatorial state space governed by CIELAB colorimetry, respiratory luminance cycles, gaze vectors, and Hamiltonian transition energy.
+2. **Methodological Layer (The Book Engine):** The monograph itself is an emergent trajectory through a modality-partitioned combinatorial state space (`1,275` B&W pairs + `2,850` Color pairs) governed by CIELAB colorimetry, respiratory luminance cycles, gaze vectors, and Hamiltonian transition energy.
+3. **Macro-Book Architecture Driven by the `51 B&W / 76 Color` Split:**
+    - Because mixing B&W and Color frames within a sequence breaks perceptual immersion, the `51 B&W` (`40.2%`) and `76 Color` (`59.8%`) split gives _**Infinite Systems**_ a natural macro-architecture. Two macro-structures are supported by `book/sequence.yaml`:
+        - **Macro-Structure A — _The Chiaroscuro Envelope_ (`B&W Overture` $\to$ `Chromatic Core` $\to$ `B&W Singularity Coda`, Recommended):** Opens in austere B&W chiaroscuro (drawn from `p1` + `p5/DSCF9004-3.jpg`), crosses a full-spread **Chromatic Ignition Phase Boundary** into the 76-frame Color core (`p2`, `p3`, `p4`, `p5`—moving from daylight kinetic street choreography into nocturnal sodium/neon), and collapses back across an **Event Horizon Phase Boundary** into pure B&W for the final cosmic/subterranean movement (`p6`).
+        - **Macro-Structure B — _The Biphasic Monograph_ (`Book I: Monochrome [51 Pool]` $\to$ `Book II: Chromatic [76 Pool]`):** Concentrates all B&W frames (`p1` + `p6` + `p5/DSCF9004-3.jpg`) into the first half of the book and all Color frames (`p2` + `p3` + `p4` + `p5-color`) into the second half, separated by a two-page `#070709` architectural reset spread.
 
 Following [`docs/design-research.md`](file:///Users/lz/dev/ryusoh.github.io/docs/design-research.md#L58-L62), the visual direction is **Swiss-precise structural control framing hardboiled nocturnal photography**: razor-sharp grid geometry and restrained monospace telemetry acting as a quiet frame so the photographs carry 100% of the emotional violence.
 
 ### 6.2 Color Scheme & Surface Physics: "Obsidian Darkroom + Telemetry Red"
 
-Because **82.7% (`105 / 127`)** of the eligible photographs are low-key Exhalations ($L^* \le 75$) or mid-tone Grounding frames ($75 < L^* < 135$), placing them on a `#FFFFFF` white page creates high-luminance screen glare on OLED/Mini-LED displays, forcing the viewer's pupils to constrict and crushing shadow detail ($L^* \in [10, 35]$). Instead, the book employs **Photometric Surface Switching**:
+Because **82.7% (`105 / 127`)** of the eligible photographs are low-key Exhalations ($L^* \le 75$) or mid-tone Grounding frames ($75 < L^* < 135$), placing them on a `#FFFFFF` white page creates high-luminance screen glare on OLED/Mini-LED displays, forcing the viewer's pupils to constrict and crushing shadow detail ($L^* \in [10, 35]$). Moreover, a neutral `#070709` obsidian canvas unifies the B&W movements and the Color movements while respecting their internal separation:
 
-| Surface / Token Role                             | Hex Code  | Optical & Editorial Purpose                                                                                                                                                                                                                                                   |
-| :----------------------------------------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Primary Plate Canvas (~90% of pages)**         | `#070709` | **Obsidian Void:** Near-true black with a cool-charcoal floor. Shadow edges dissolve into the page so shafts of sunlight, streetlamps, and neon glow off the screen.                                                                                                          |
-| **Appendix / Dossier Canvas (Endmatter)**        | `#111317` | **Blueprint Slate** (or `#EAE6DF` **Archival Bone** in print mode): Visually separates the back-of-book System Colophon and Plate Index from the photographic plates.                                                                                                         |
-| **Primary Display & Epigraph Text**              | `#E6E4DF` | **Silver Bone:** Avoids harsh `#FFFFFF` halation against `#070709`, matching the warmth of silver-gelatin highlights.                                                                                                                                                         |
-| **Secondary Telemetry & Folio Text**             | `#6E737B` | **Tungsten Grey:** Used for subtle plate indices (`[042]`), movement coordinates, and colophon metadata.                                                                                                                                                                      |
-| **Surgical Signal Accent (Rules & Coordinates)** | `#CE2323` | **Safelight / Telemetry Red:** Inherited from [`docs/design-research.md`](file:///Users/lz/dev/ryusoh.github.io/docs/design-research.md#L72-L74). Restricted to movement index rules, waveform threshold markers, and cover telemetry—never used as decorative photo borders. |
+| Surface / Token Role                             | Hex Code  | Optical & Editorial Purpose                                                                                                                                                                                                                                                                                                       |
+| :----------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Primary Plate Canvas (~90% of pages)**         | `#070709` | **Obsidian Void:** Near-true black with a neutral floor. Shadow edges dissolve into the page so silver-gelatin B&W highlights and color neon glow off the screen.                                                                                                                                                                 |
+| **Appendix / Dossier Canvas (Endmatter)**        | `#111317` | **Blueprint Slate** (or `#EAE6DF` **Archival Bone** in print mode): Visually separates the back-of-book System Colophon and Plate Index from the photographic plates.                                                                                                                                                             |
+| **Primary Display & Epigraph Text**              | `#E6E4DF` | **Silver Bone:** Avoids harsh `#FFFFFF` halation against `#070709`, matching the warmth of silver-gelatin highlights.                                                                                                                                                                                                             |
+| **Secondary Telemetry & Folio Text**             | `#6E737B` | **Tungsten Grey:** Used for subtle plate indices (`[042]`), movement coordinates, and colophon metadata.                                                                                                                                                                                                                          |
+| **Surgical Signal Accent (Rules & Coordinates)** | `#CE2323` | **Safelight / Telemetry Red:** Inherited from [`docs/design-research.md`](file:///Users/lz/dev/ryusoh.github.io/docs/design-research.md#L72-L74). Restricted to movement phase-divider rules, waveform threshold markers, and cover telemetry—**never placed on B&W plate spreads** so monochrome spreads remain 100% achromatic. |
 
 ### 6.3 Page Geometry (`300 × 200 mm`) & The Five Spread Layout Archetypes
 
@@ -368,13 +400,13 @@ When every photograph shares the same 3:2 aspect ratio, placing identically size
 1. **Archetype 1 — `The Monolith` (`monolith` / `monolith-epigraph`, ~30% of spreads):**
     - Left page (`verso`) is pure `#070709` negative space (or carries a 2-line retrieved authentic epigraph anchored at the lower-left grid intersection); right page (`recto`) holds a single full-bleed (`100%`) or large inset (`82%` width) plate. Used for movement openers, deep Exhalations ($L^* \le 75$), and emotional climaxes.
 2. **Archetype 2 — `Asymmetric Weight Diptych` (`asymmetric-diptych`, ~25% of spreads):**
-    - One page is `100%` full-bleed (`0 mm` margin, visceral primary impact); the facing page holds a smaller `55%`-width inset plate surrounded by deep obsidian margin, acting as an observational echo or psychological afterimage.
+    - One page is `100%` full-bleed (`0 mm` margin, visceral primary impact); the facing page holds a smaller `55%`-width inset plate of the **same modality (`bw` or `color`)** surrounded by deep obsidian margin, acting as an observational echo or psychological afterimage.
 3. **Archetype 3 — `Symmetric Collision Diptych` (`symmetric-diptych`, ~30% of spreads):**
-    - Matched `74%`-width plates on both verso and recto (`18 mm` outer margin, `14 mm` inner spine margin) for direct Webb-style slant rhymes, opposing gaze vectors, or chromatic $\Delta E$ collisions across the gutter.
+    - Matched `74%`-width same-modality plates on both verso and recto (`18 mm` outer margin, `14 mm` inner spine margin) for direct Webb-style slant rhymes, opposing gaze vectors, or luminance/chromatic collisions across the gutter.
 4. **Archetype 4 — `Diagonal Modular Offset` (`diagonal-offset`, ~10% of spreads):**
     - Verso plate anchored to the upper-left grid rows; recto plate anchored to the lower-right grid rows. Used for kinetic sequences (such as the street choreography frames in `p3`) to drive diagonal eye momentum across the spread.
 5. **Archetype 5 — `System Phase Divider` (`phase-divider`, 4–5 spreads total):**
-    - Marks emergent macro-movements as phase transitions (`SYS.01 // THRESHOLD`, `SYS.02 // KINEMATICS`, `SYS.03 // PHANTOM`, `SYS.04 // BARBARIANS`, `SYS.05 // SINGULARITY`), displaying a `0.5 pt` `#CE2323` hairline rule, movement telemetry (frame count, mean $L^*$, $\Delta E$ variance), and one retrieved authentic stanza.
+    - Marks emergent macro-movements and **B&W $\leftrightarrow$ Color phase boundaries** (`SYS.01 // SINGULARITY [MONOCHROME]`, `SYS.02 // KINEMATICS [CHROMATIC]`, `SYS.03 // PHANTOM [CHROMATIC]`, `SYS.04 // EVENT HORIZON [MONOCHROME]`). When transitioning between B&W and Color hemispheres, the divider inserts an additional silent `#070709` buffer spread so the viewer's chromatic adaptation resets cleanly before the new modality begins.
 
 ### 6.4 Typography System & Micro-Layout Rules
 
@@ -385,6 +417,7 @@ When every photograph shares the same 3:2 aspect ratio, placing identically size
 | **3. System Telemetry / Folio** | **Tabular Monospace** (`JetBrains Mono` / `SF Mono` / `DejaVu Sans Mono`)  | Outer-corner plate numbers (`7.5 pt`, `tabular-nums`, `#4A4E54`), movement coordinates, and back-of-book CIELAB / EXIF tables (`8 pt`).         |
 
 - **Zero Captions on Plate Spreads:** Never print filenames, titles, dates, or AI commentary beneath photographs on plate pages. Only a minimal `7.5 pt` tabular-monospace plate index (`042`) appears in the bottom outer margin (`10 mm` from trim) on inset pages, and is suppressed entirely on full-bleed pages.
+- **Achromatic Purity on B&W Plate Spreads:** On all spreads within a `modality: 'bw'` movement, zero chromatic elements (`#CE2323` or otherwise) may appear; folio numbers use neutral `#4A4E54` and epigraph text uses neutral `#D8D8D8` so the viewer's eye remains in pure silver-halide monochrome adaptation.
 
 ### 6.5 Cover Design Concepts for _Infinite Systems_
 
@@ -403,24 +436,24 @@ When every photograph shares the same 3:2 aspect ratio, placing identically size
 |  /\    /\  /\      /\             +----------------------------+  |
 | /  \  /  \/  \  /\/  \___/\                                       | <- Hairline L*(t) luminance
 | ---------------------------                                       |    waveform of the book
-|  127 STATES · CIELAB PHASE EDITION                       [PDF.01] |
+|  127 STATES · 51 MONO / 76 CHROMA                        [PDF.01] |
 +-------------------------------------------------------------------+
 ```
 
 1. **Option A (Recommended) — _The Cybernetic Monolith_ (MACK / Lars Müller Systems Aesthetic):**
     - Sets `INFINITE SYSTEMS` in `Syne ExtraBold` across the upper Swiss grid above a `0.5 pt` `#CE2323` rule on `#070709` Obsidian Void.
-    - Anchors an asymmetric inset chiaroscuro photograph (such as `p1/DSCF4775.jpg`, the diagonal shaft of sunlight piercing the dark transit car) on the right grid columns, balanced on the lower-left by the actual **Photometric Luminance Waveform $L^\*(t)$** of the compiled book rendered as a razor-sharp vector trace.
+    - Anchors an asymmetric inset chiaroscuro photograph (such as `p1/DSCF4775.jpg`, the diagonal shaft of sunlight piercing the dark transit car) on the right grid columns, balanced on the lower-left by the actual **Photometric Luminance Waveform $L^\*(t)$** of the compiled book rendered as a razor-sharp vector trace and the system spec line `127 STATES · 51 MONO / 76 CHROMA`.
 2. **Option B — _Full-Bleed Nocturne with Negative-Space Typography_ (Steidl / Moriyama Style):**
     - Uses a full-bleed `300 × 200 mm` nocturnal photograph with expansive natural shadow (`p1/DSCF4775.jpg` or `p6/DSCF8985-2.JPG`), placing `INFINITE SYSTEMS` (`18 pt` `Syne Bold`, tracking `+0.18em`, `#E6E4DF`) and `ZHUANG LIU` (`9 pt` monospace) directly inside the dark negative space of the image with zero boxes or borders.
 3. **Option C — _The State-Space Matrix_ (Contact-Sheet Dossier Cover):**
-    - Renders a Swiss contact-sheet matrix of all 127 colorimetric CIELAB $(L^_, a^_, b^*)$ swatches (or monochrome micro-strips) on `#070709`, with a `#CE2323` crosshair highlighting the opener state and `INFINITE SYSTEMS` spanning the upper grid.
+    - Renders a Swiss contact-sheet matrix of all 127 colorimetric CIELAB $(L^_, a^_, b^*)$ swatches on `#070709`—visually revealing the 51 achromatic grayscale swatches alongside the 76 chromatic swatches—with a `#CE2323` crosshair highlighting the opener state and `INFINITE SYSTEMS` spanning the upper grid.
 
 ### 6.6 Back-of-Book "System Colophon & Plate Index"
 
 Because the monograph is titled _**Infinite Systems**_ and is orchestrated by an agentic neuro-symbolic pipeline, the final 6–8 pages of the PDF make the underlying system visible as part of the artwork:
 
-1. **System Telemetry Spread:** Embeds the full-book **Photometric Luminance Waveform $L^\*(t)$** and **Hamiltonian Pairwise Transition Energy Graph** (generated by [`.agents/skills/sequence/scripts/charts.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/charts.mjs)) across a double-page spread.
-2. **Illustrated Plate Index & Curatorial Notes:** A structured contact-sheet index (`[001]`–`[N]`) pairing miniature thumbnails with their source coordinates (`p1`–`p6`), CIELAB values (`L*, a*, b*`), and the curatorial critique from `assets/img/p1..p6/commentary.json`.
+1. **System Telemetry Spread:** Embeds the full-book **Photometric Luminance Waveform $L^\*(t)$** (showing the B&W and Color phase regions) and **Hamiltonian Pairwise Transition Energy Graph** (generated by [`.agents/skills/sequence/scripts/charts.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/charts.mjs)) across a double-page spread.
+2. **Illustrated Plate Index & Curatorial Notes:** A structured contact-sheet index (`[001]`–`[N]`) pairing miniature thumbnails with their source coordinates (`p1`–`p6`), modality tag (`MONO` vs. `CHROMA`), CIELAB values (`L*, a*, b*`), and the curatorial critique from `assets/img/p1..p6/commentary.json`.
 
 ---
 
@@ -432,18 +465,19 @@ To keep the repository clean and aligned with `AGENTS.md` and `docs/page-generat
     - Install Typst (`brew install typst`) or use existing Headless Chrome (`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`).
     - Place a static `.ttf` or `.otf` copy of `Syne` (`Syne-Bold.ttf`, `Syne-Regular.ttf`) in `assets/fonts/` alongside the existing `.woff2` files (or decompress `assets/fonts/syne-latin.woff2` via Python `fontTools`), while referencing `/Users/lz/Library/Fonts/GlowSansSC-Extended-Bold.otf` and `GlowSansSC-Extended-Regular.otf` for CJK text.
 2. **Directory & File Layout**:
-    - `book/sequence.yaml` — Git-tracked declarative book ledger for _Infinite Systems_ generated by the agentic orchestrator and refined via human `locked` / `bannedPairs` constraints.
+    - `book/sequence.yaml` — Git-tracked declarative book ledger for _Infinite Systems_ generated by the agentic orchestrator (enforcing `strictModalitySeparation: true` between `modality: 'bw'` and `modality: 'color'` movements) and refined via human `locked` / `bannedPairs` constraints.
     - `book/fragments.md` (optional) — Additional authentic author notes/quotes eligible for retrieval alongside the existing `>` stanzas in `assets/img/p1..p6/index.md`.
-    - `book/photobook.typ` — Canonical Typst template implementing the `#070709` Obsidian canvas, `300 × 200 mm` 12×8 Swiss grid, the 5 spread archetypes, cover layout, and back-of-book System Colophon.
+    - `book/photobook.typ` — Canonical Typst template implementing the `#070709` Obsidian canvas, `300 × 200 mm` 12×8 Swiss grid, the 5 spread archetypes, B&W achromatic folio rules, cover layout, and back-of-book System Colophon.
     - `scripts/build-book.mjs` — Node.js pipeline that:
         1. Collects the **eligible pool** exclusively from `parseMarkdownSource()` across `assets/img/p1..p6/index.md` (ignoring all unsequenced files on disk),
-        2. Reconciles pool additions/deletions against `book/sequence.yaml`,
-        3. Normalizes images via `sharp` into `.cache/book-img/{master,screen}/`,
-        4. Compiles `book/photobook.typ` via `typst compile` (with `--creation-timestamp` for reproducibility), and
-        5. Stamps `/PageLayout /TwoPageRight` into `dist/infinite-systems-screen.pdf` and `dist/infinite-systems-master.pdf` (gitignored via `dist/` in [`.gitignore`](file:///Users/lz/dev/ryusoh.github.io/.gitignore#L9)).
+        2. Classifies each eligible image via `sharp` pixel-chroma analysis ($P_{95}(\Delta_{\text{RGB}}) \le 12 \implies \text{bw}$, $> 12 \implies \text{color}$) and validates that no spread or movement in `book/sequence.yaml` mixes B&W and Color frames,
+        3. Reconciles pool additions/deletions against `book/sequence.yaml` within the matching modality sub-pool,
+        4. Normalizes images via `sharp` into `.cache/book-img/{master,screen}/` (neutralizing `p5/DSCF9004-3.jpg` in B&W movements and encoding B&W screen-tier images as 1-channel `/DeviceGray`),
+        5. Compiles `book/photobook.typ` via `typst compile` (with `--creation-timestamp` for reproducibility), and
+        6. Stamps `/PageLayout /TwoPageRight` into `dist/infinite-systems-screen.pdf` and `dist/infinite-systems-master.pdf` (gitignored via `dist/` in [`.gitignore`](file:///Users/lz/dev/ryusoh.github.io/.gitignore#L9)).
 3. **Makefile Interface**:
     - `make book` $\to$ Deterministically compiles `book/sequence.yaml` into `dist/infinite-systems-screen.pdf` and `dist/infinite-systems-master.pdf`.
-    - `make book-sync` $\to$ Reconciles `book/sequence.yaml` with any photos added to or deleted from `assets/img/p1..p6/index.md` (preserving `locked: true` spreads).
+    - `make book-sync` $\to$ Reconciles `book/sequence.yaml` with any photos added to or deleted from `assets/img/p1..p6/index.md` (preserving `locked: true` spreads and modality separation).
 
 ---
 
