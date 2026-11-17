@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Three-maquette editorial review path</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+<style>html,body,#chart{margin:0;width:100%;height:100%;background:#f7f5f0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}</style>
+</head>
+<body><div id="chart"></div><script>
+const chart=echarts.init(document.getElementById('chart'),null,{renderer:'canvas'});
+const node=(name,x,y,color,w=260)=>({name,value:[x,y],symbol:'roundRect',symbolSize:[w,92],itemStyle:{color:'#ffffff',borderColor:color,borderWidth:2},label:{show:true,color:'#17191d',fontSize:16,fontWeight:600,lineHeight:24,formatter:name}});
+chart.setOption({
+ backgroundColor:'#f7f5f0',animation:false,
+ title:{text:'Close the gap through competing books, not another automatic score',subtext:'Three editorial hypotheses become comparable only at actual size, with revision and artifact identity visible.',left:60,top:34,textStyle:{color:'#17191d',fontSize:29,fontWeight:650},subtextStyle:{color:'#62666d',fontSize:16}},
+ grid:{left:0,right:0,top:0,bottom:0},
+ xAxis:{show:false,min:0,max:1600},
+ yAxis:{show:false,min:0,max:1000,inverse:true},
+ series:[{type:'graph',layout:'none',coordinateSystem:'cartesian2d',roam:false,edgeSymbol:['none','arrow'],edgeSymbolSize:[0,11],lineStyle:{color:'#637a83',width:1.8,curveness:0.04},emphasis:{disabled:true},data:[
+   node('CURRENT\nRevision 3 · 127 plates',170,420,'#424c59'),
+   node('A · SYSTEM-FORWARD\nTelemetry as intentional content',480,235,'#ce2323',315),
+   node('B · PHOTOGRAPH-LED\nSilent sequence · lean endmatter',480,420,'#637a83',315),
+   node('C · EDITORIAL-NOIR\nSelective text · varied cadence',480,605,'#8b9b91',315),
+   node('ACTUAL-SIZE DUMMIES\nScreen spreads + physical prints',830,420,'#424c59',300),
+   node('BLIND HUMAN REVIEW\nRecall · pacing · pairing · voice',1150,420,'#ce2323',290),
+   node('APPROVED EDITION\nFreeze rationale, then preflight',1420,420,'#547265',270)
+ ],links:[
+   {source:'CURRENT\nRevision 3 · 127 plates',target:'A · SYSTEM-FORWARD\nTelemetry as intentional content'},
+   {source:'CURRENT\nRevision 3 · 127 plates',target:'B · PHOTOGRAPH-LED\nSilent sequence · lean endmatter'},
+   {source:'CURRENT\nRevision 3 · 127 plates',target:'C · EDITORIAL-NOIR\nSelective text · varied cadence'},
+   {source:'A · SYSTEM-FORWARD\nTelemetry as intentional content',target:'ACTUAL-SIZE DUMMIES\nScreen spreads + physical prints'},
+   {source:'B · PHOTOGRAPH-LED\nSilent sequence · lean endmatter',target:'ACTUAL-SIZE DUMMIES\nScreen spreads + physical prints'},
+   {source:'C · EDITORIAL-NOIR\nSelective text · varied cadence',target:'ACTUAL-SIZE DUMMIES\nScreen spreads + physical prints'},
+   {source:'ACTUAL-SIZE DUMMIES\nScreen spreads + physical prints',target:'BLIND HUMAN REVIEW\nRecall · pacing · pairing · voice'},
+   {source:'BLIND HUMAN REVIEW\nRecall · pacing · pairing · voice',target:'APPROVED EDITION\nFreeze rationale, then preflight'},
+   {source:'BLIND HUMAN REVIEW\nRecall · pacing · pairing · voice',target:'A · SYSTEM-FORWARD\nTelemetry as intentional content',lineStyle:{color:'#ce2323',type:'dashed',width:1.4,curveness:0.32}}
+ ]}],
+ graphic:[{type:'text',left:62,bottom:30,style:{text:'Stop rule: do not add templates or telemetry unless review evidence shows that they improve the reading of the photographs.',fill:'#424c59',font:'16px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'}}]
+});
+</script></body></html>

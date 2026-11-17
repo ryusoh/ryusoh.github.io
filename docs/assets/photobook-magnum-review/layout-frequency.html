@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Infinite Systems spread-layout frequency</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+<style>html,body,#chart{margin:0;width:100%;height:100%;background:#f7f5f0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}</style>
+</head>
+<body><div id="chart"></div><script>
+const counts = [
+  {name:'Monolith + epigraph', value:9, color:'#8b9b91'},
+  {name:'Diagonal offset', value:10, color:'#637a83'},
+  {name:'Monolith', value:10, color:'#637a83'},
+  {name:'Asymmetric diptych', value:11, color:'#424c59'},
+  {name:'Symmetric diptych', value:33, color:'#ce2323'}
+];
+const chart=echarts.init(document.getElementById('chart'),null,{renderer:'canvas'});
+chart.setOption({
+  backgroundColor:'#f7f5f0',animation:false,
+  title:{text:'One layout family accounts for 45% of all spreads',subtext:'INFINITE SYSTEMS revision 3 · 73 authored spreads · counts from the compiled layout IR',left:64,top:38,textStyle:{color:'#17191d',fontSize:30,fontWeight:650},subtextStyle:{color:'#62666d',fontSize:16}},
+  grid:{left:265,right:170,top:180,bottom:120},
+  xAxis:{type:'value',min:0,max:36,interval:6,axisLabel:{color:'#42464c',fontSize:15},splitLine:{lineStyle:{color:'#dedbd4'}}},
+  yAxis:{type:'category',inverse:true,data:counts.map(d=>d.name),axisLabel:{color:'#282c31',fontSize:17},axisTick:{show:false},axisLine:{lineStyle:{color:'#7b7f85'}}},
+  series:[{type:'bar',barWidth:48,data:counts.map(d=>({value:d.value,itemStyle:{color:d.color}})),label:{show:true,position:'right',distance:16,color:'#17191d',fontSize:18,fontWeight:600,formatter:p=>`${p.value}  ·  ${(p.value/73*100).toFixed(1)}%`}}],
+  graphic:[
+    {type:'text',left:66,bottom:54,style:{text:'Frequency is not an aesthetic score. It identifies where editorial pacing and template dependence should be reviewed first.',fill:'#424c59',font:'16px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'}},
+    {type:'text',left:66,bottom:26,style:{text:'Scale distribution across 127 plates: 88 at inset-74 · 24 at inset-82 · 11 at inset-55 · 4 full-width.',fill:'#62666d',font:'15px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'}}
+  ]
+});
+</script></body></html>
