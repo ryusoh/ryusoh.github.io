@@ -40,6 +40,8 @@
             }
         },
         "includeCommentaryAppendix": { "type": "boolean" },
+        "includeMovementDividers": { "type": "boolean" },
+        "includeFolios": { "type": "boolean" },
         "assets": {
             "type": "array",
             "minItems": 1,
@@ -125,6 +127,10 @@
                 "requireCompletePool": { "const": true },
                 "pinnedOpenerAssetId": { "type": "string", "minLength": 1 },
                 "pinnedCloserAssetId": { "type": "string", "minLength": 1 },
+                "seriesIds": {
+                    "type": "array",
+                    "items": { "type": "string", "minLength": 1 }
+                },
                 "bannedAssetPairs": {
                     "type": "array",
                     "items": {
@@ -138,7 +144,7 @@
         },
         "movements": {
             "type": "array",
-            "minItems": 4,
+            "minItems": 1,
             "maxItems": 4,
             "items": {
                 "type": "object",

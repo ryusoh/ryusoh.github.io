@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
-import { collectPoolInventory } from './inventory.mjs';
+import { collectPoolInventory, parseSeriesArg } from './inventory.mjs';
 import { validateLedgerObject } from './validate.mjs';
 
 export function createSyncPlan(inventory, currentLedger) {
@@ -124,7 +124,19 @@ export async function run(args = [], { subcommand = 'plan' } = {}) {
     const currentLedger = hasLedger
         ? yamlLoad(fs.readFileSync(ledgerPath, 'utf8'))
         : { revision: 0, assets: [], movements: [] };
-    const inventory = await collectPoolInventory({ rootDir });
+    const explicitSeries = args.includes('--series') || args.some((a) => a.startsWith('--series='));
+    const planId = subcommand === 'apply' ? extractPlanId(args) : '';
+    const candidatePath = planId ? resolveCandidateFile(rootDir, planId) : null;
+    const candidatePreview =
+        candidatePath && fs.existsSync(candidatePath)
+            ? JSON.parse(fs.readFileSync(candidatePath, 'utf8'))
+            : null;
+    const seriesIds = explicitSeries
+        ? parseSeriesArg(args)
+        : candidatePreview?.constraints?.seriesIds ||
+          currentLedger?.constraints?.seriesIds ||
+          undefined;
+    const inventory = await collectPoolInventory({ rootDir, seriesIds });
     const plan = createSyncPlan(inventory, currentLedger);
     const outDir = path.join(rootDir, '.cache', 'book-runs');
     fs.mkdirSync(outDir, { recursive: true });
@@ -144,17 +156,15 @@ export async function run(args = [], { subcommand = 'plan' } = {}) {
         return plan.blockingConflicts.length > 0 ? 1 : 0;
     }
 
-    const planId = extractPlanId(args);
     if (!planId) {
         process.stderr.write('Missing required --plan <id>\n');
         return 1;
     }
-    const candidatePath = resolveCandidateFile(rootDir, planId);
     if (!candidatePath) {
         process.stderr.write(`Candidate plan not found: ${planId}\n`);
         return 1;
     }
-    const candidate = JSON.parse(fs.readFileSync(candidatePath, 'utf8'));
+    const candidate = candidatePreview;
     if (!candidate || !Array.isArray(candidate.movements)) {
         process.stderr.write(`Plan file ${candidatePath} is not an applyable sequence ledger.\n`);
         return 1;

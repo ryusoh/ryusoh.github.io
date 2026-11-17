@@ -39,7 +39,7 @@ export function computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeig
 function buildPlateSlot(
     slot,
     assetMap,
-    { derivativeMap, assetMetrics, rootDir, pageWidthMm },
+    { derivativeMap, assetMetrics, rootDir, pageWidthMm, includeFolios = true },
     plateCounter
 ) {
     if (!slot || !slot.assetId) {
@@ -80,7 +80,7 @@ function buildPlateSlot(
         placedWidthMm,
         placedHeightMm,
         effectivePpi: computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeightMm),
-        showFolio: scale !== 'full-bleed',
+        showFolio: includeFolios && scale !== 'full-bleed',
     };
 }
 
@@ -155,10 +155,22 @@ export function compileLayoutIr(
     let pCount = 0;
     const plateCounter = { next: () => ++pCount };
     const pageSize = profile?.pageSize || { widthMm: 210, heightMm: 260, bleedMm: 0 };
-    const slotOpts = { derivativeMap, assetMetrics, rootDir, pageWidthMm: pageSize.widthMm };
+    const includeFolios = ledger.includeFolios !== false;
+    const includeDividers = ledger.includeMovementDividers !== false;
+    const slotOpts = {
+        derivativeMap,
+        assetMetrics,
+        rootDir,
+        pageWidthMm: pageSize.widthMm,
+        includeFolios,
+    };
     const pages = [];
     const placedPlates = [];
     const movementSummaries = [];
+    const allAssets = ledger.assets || [];
+    const bwTotal = allAssets.filter((a) => a.modality === 'bw').length;
+    const colorTotal = allAssets.length - bwTotal;
+    const totalMovements = (ledger.movements || []).length || 1;
 
     const pushPage = (side, content) => {
         const entry = { pageNumber: pages.length + 1, side, ...content };
@@ -173,7 +185,7 @@ export function compileLayoutIr(
         author: ledger.author,
         coverImagePath: coverImage?.path ? toTypstAssetPath(coverImage.path, rootDir) : null,
         heroAssetId: ledger.constraints?.pinnedOpenerAssetId || 'p1-dscf4775',
-        signature: '127 STATES · 51 MONO / 76 CHROMA',
+        signature: `${allAssets.length} STATES · ${bwTotal} MONO / ${colorTotal} CHROMA`,
     });
 
     let prevModality = null;
@@ -184,20 +196,23 @@ export function compileLayoutIr(
         }
         prevModality = mov.modality;
 
-        pushPage('verso', { pageType: 'void', modality: mov.modality });
-        const dividerPage = pushPage('recto', {
-            pageType: 'phase-divider',
-            movementId: mov.movementId,
-            movementRoman: ROMAN_NUMERALS[movIdx] || String(movIdx + 1),
-            movementIndexLabel: `0${movIdx + 1} / 04`,
-            title: mov.title,
-            modality: mov.modality,
-            modalityLabel: mov.modality === 'bw' ? 'Achromatic Silver' : 'Chromatic',
-            plateRange: '001–001',
-            plateCount: 0,
-            meanLuma: 0,
-            waveformSlice: [],
-        });
+        let dividerPage = null;
+        if (includeDividers) {
+            pushPage('verso', { pageType: 'void', modality: mov.modality });
+            dividerPage = pushPage('recto', {
+                pageType: 'phase-divider',
+                movementId: mov.movementId,
+                movementRoman: ROMAN_NUMERALS[movIdx] || String(movIdx + 1),
+                movementIndexLabel: `0${movIdx + 1} / 0${totalMovements}`,
+                title: mov.title,
+                modality: mov.modality,
+                modalityLabel: mov.modality === 'bw' ? 'Achromatic Silver' : 'Chromatic',
+                plateRange: '001–001',
+                plateCount: 0,
+                meanLuma: 0,
+                waveformSlice: [],
+            });
+        }
         const movPlates = [];
 
         for (const sp of mov.spreads || []) {
@@ -236,23 +251,27 @@ export function compileLayoutIr(
         const firstLbl = movPlates[0]?.plateLabel || '001';
         const lastLbl = movPlates[movPlates.length - 1]?.plateLabel || firstLbl;
         const sumLuma = movPlates.reduce((acc, p) => acc + p.luma255, 0);
-        dividerPage.plateRange = `${firstLbl}–${lastLbl}`;
-        dividerPage.plateCount = movPlates.length;
-        dividerPage.meanLuma = movPlates.length
-            ? Number((sumLuma / movPlates.length).toFixed(1))
-            : 0;
-        dividerPage.waveformSlice = movPlates.map((p) => ({
-            plateNumber: p.plateNumber,
-            luma255: p.luma255,
-        }));
+        const plateRange = `${firstLbl}–${lastLbl}`;
+        const meanLuma = movPlates.length ? Number((sumLuma / movPlates.length).toFixed(1)) : 0;
+        const movRoman = ROMAN_NUMERALS[movIdx] || String(movIdx + 1);
+        const modLabel = mov.modality === 'bw' ? 'Achromatic Silver' : 'Chromatic';
+        if (dividerPage) {
+            dividerPage.plateRange = plateRange;
+            dividerPage.plateCount = movPlates.length;
+            dividerPage.meanLuma = meanLuma;
+            dividerPage.waveformSlice = movPlates.map((p) => ({
+                plateNumber: p.plateNumber,
+                luma255: p.luma255,
+            }));
+        }
         movementSummaries.push({
             movementId: mov.movementId,
-            movementRoman: dividerPage.movementRoman,
+            movementRoman: movRoman,
             title: mov.title,
-            modalityLabel: dividerPage.modalityLabel,
-            plateRange: dividerPage.plateRange,
-            plateCount: dividerPage.plateCount,
-            meanLuma: dividerPage.meanLuma,
+            modalityLabel: modLabel,
+            plateRange,
+            plateCount: movPlates.length,
+            meanLuma,
         });
     });
 

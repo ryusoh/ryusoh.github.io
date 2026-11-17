@@ -246,8 +246,25 @@ export async function collectPoolInventory({
     };
 }
 
+export function parseSeriesArg(args = []) {
+    const idx = args.indexOf('--series');
+    const raw =
+        idx >= 0 && args[idx + 1]
+            ? args[idx + 1]
+            : (args.find((a) => a.startsWith('--series=')) || '').slice('--series='.length);
+    if (!raw) {
+        return DEFAULT_SERIES;
+    }
+    const list = raw
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+    return list.length > 0 ? list : DEFAULT_SERIES;
+}
+
 export async function run(args = []) {
-    const inventory = await collectPoolInventory();
+    const seriesIds = parseSeriesArg(args);
+    const inventory = await collectPoolInventory({ seriesIds });
     const outDir = path.join(process.cwd(), '.cache', 'book-runs');
     fs.mkdirSync(outDir, { recursive: true });
     const outPath = path.join(outDir, 'inventory.json');

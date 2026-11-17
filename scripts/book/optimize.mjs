@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { deltaE } from '../../.agents/skills/sequence/scripts/metrics.mjs';
-import { collectPoolInventory } from './inventory.mjs';
+import { collectPoolInventory, parseSeriesArg } from './inventory.mjs';
 
 export function mulberry32(seed) {
     let t = seed >>> 0;
@@ -101,30 +101,16 @@ function pickSafeScale(asset, desiredScale) {
 }
 
 function buildDiptychSpread(spreadId, vAsset, rAsset, diptychCounter) {
-    if (diptychCounter % 5 === 2) {
-        return {
-            spreadId,
-            layout: 'asymmetric-diptych',
-            locked: false,
-            verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-82') },
-            recto: { assetId: rAsset.assetId, scale: 'inset-55' },
-        };
-    }
-    if (diptychCounter % 5 === 4) {
-        return {
-            spreadId,
-            layout: 'diagonal-offset',
-            locked: false,
-            verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
-            recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
-        };
-    }
+    const vScale = pickSafeScale(vAsset, 'inset-82');
+    const rScale = pickSafeScale(rAsset, 'inset-82');
+    const scale = vScale === 'inset-74' || rScale === 'inset-74' ? 'inset-74' : 'inset-82';
+    const layout = diptychCounter % 4 === 3 ? 'diagonal-offset' : 'symmetric-diptych';
     return {
         spreadId,
-        layout: 'symmetric-diptych',
+        layout,
         locked: false,
-        verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
-        recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
+        verso: { assetId: vAsset.assetId, scale },
+        recto: { assetId: rAsset.assetId, scale },
     };
 }
 
@@ -155,6 +141,7 @@ function packSpreads(assets, startSpreadIndex, epigraphFragments = []) {
         }
         if (idx === assets.length - 1 || (diptychRun > 0 && diptychRun % 4 === 0)) {
             diptychRun = 0;
+            const isLast = idx === assets.length - 1;
             const rAsset = assets[idx++];
             const midFrag = idx < assets.length && frags[fragIdx] ? frags[fragIdx++] : null;
             spreads.push({
@@ -162,7 +149,10 @@ function packSpreads(assets, startSpreadIndex, epigraphFragments = []) {
                 layout: midFrag ? 'monolith-epigraph' : 'monolith',
                 locked: false,
                 verso: midFrag ? { fragmentId: midFrag.fragmentId } : null,
-                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-82') },
+                recto: {
+                    assetId: rAsset.assetId,
+                    scale: pickSafeScale(rAsset, isLast ? 'full-bleed' : 'inset-82'),
+                },
             });
             continue;
         }
@@ -175,7 +165,50 @@ function packSpreads(assets, startSpreadIndex, epigraphFragments = []) {
     return { spreads, nextSpreadIndex: sNum };
 }
 
-export function buildCandidateLedger(inventory, { seed = 1, constraints = {} } = {}) {
+function buildBookMovements({ orderedBw, orderedColor, verseFragments, picturesOnly }) {
+    const byPrefix = (prefixes) =>
+        verseFragments.filter((f) => prefixes.some((p) => f.fragmentId.startsWith(`${p}-`)));
+    if (orderedColor.length === 0) {
+        const monoFrags = picturesOnly ? [] : verseFragments.slice(0, 4);
+        const s1 = packSpreads(orderedBw, 1, monoFrags);
+        return [{ movementId: 'SYS.01', title: 'THRESHOLD', modality: 'bw', spreads: s1.spreads }];
+    }
+
+    const bwSplit = Math.max(1, Math.min(orderedBw.length - 1, Math.ceil(orderedBw.length * 0.36)));
+    const colSplit = Math.max(1, Math.ceil(orderedColor.length * 0.5));
+    const m1Assets = orderedBw.slice(0, bwSplit);
+    const m4Assets = orderedBw.slice(bwSplit);
+    const m2Assets = orderedColor.slice(0, colSplit);
+    const m3Assets = orderedColor.slice(colSplit);
+
+    const f1 = picturesOnly ? [] : byPrefix(['p1']).slice(0, 2);
+    const f2 = picturesOnly ? [] : byPrefix(['p2', 'p3']).slice(0, 2);
+    const f3 = picturesOnly ? [] : byPrefix(['p4', 'p5']).slice(0, 2);
+    const f4 = picturesOnly
+        ? []
+        : verseFragments.filter((f) => f.language === 'zh-Hans').slice(0, 3);
+
+    const s1 = packSpreads(
+        m1Assets,
+        1,
+        picturesOnly ? [] : f1.length > 0 ? f1 : verseFragments.slice(0, 1)
+    );
+    const s2 = packSpreads(m2Assets, s1.nextSpreadIndex, f2);
+    const s3 = packSpreads(m3Assets, s2.nextSpreadIndex, f3);
+    const s4 = packSpreads(m4Assets, s3.nextSpreadIndex, f4);
+
+    return [
+        { movementId: 'SYS.01', title: 'THRESHOLD', modality: 'bw', spreads: s1.spreads },
+        { movementId: 'SYS.02', title: 'KINEMATICS', modality: 'color', spreads: s2.spreads },
+        { movementId: 'SYS.03', title: 'PHANTOM', modality: 'color', spreads: s3.spreads },
+        { movementId: 'SYS.04', title: 'SINGULARITY', modality: 'bw', spreads: s4.spreads },
+    ];
+}
+
+export function buildCandidateLedger(
+    inventory,
+    { seed = 1, constraints = {}, seriesIds = null, picturesOnly = false } = {}
+) {
     const bwAssets = inventory.assets.filter((a) => a.modality === 'bw');
     const pinnedOpener =
         constraints.pinnedOpenerAssetId || bwAssets[0]?.assetId || inventory.assets[0]?.assetId;
@@ -193,32 +226,26 @@ export function buildCandidateLedger(inventory, { seed = 1, constraints = {} } =
         .sort((a, b) => (b.metrics?.luma255 ?? 0) - (a.metrics?.luma255 ?? 0));
     const orderedColor = optimizeComponentOrder(colorAssets, { seed, bannedPairs });
 
-    const bwSplit = Math.max(1, Math.min(orderedBw.length - 1, Math.ceil(orderedBw.length * 0.36)));
-    const colSplit = Math.max(1, Math.ceil(orderedColor.length * 0.5));
-
-    const m1Assets = orderedBw.slice(0, bwSplit);
-    const m4Assets = orderedBw.slice(bwSplit);
-    const m2Assets = orderedColor.slice(0, colSplit);
-    const m3Assets = orderedColor.slice(colSplit);
-
-    const verseFragments = (inventory.fragments || []).filter((f) => f.text.length <= 240);
-    const byPrefix = (prefixes) =>
-        verseFragments.filter((f) => prefixes.some((p) => f.fragmentId.startsWith(`${p}-`)));
-    const f1 = byPrefix(['p1']).slice(0, 2);
-    const f2 = byPrefix(['p2', 'p3']).slice(0, 2);
-    const f3 = byPrefix(['p4', 'p5']).slice(0, 2);
-    const f4 = verseFragments.filter((f) => f.language === 'zh-Hans').slice(0, 3);
-
-    const s1 = packSpreads(m1Assets, 1, f1.length > 0 ? f1 : verseFragments.slice(0, 1));
-    const s2 = packSpreads(m2Assets, s1.nextSpreadIndex, f2);
-    const s3 = packSpreads(m3Assets, s2.nextSpreadIndex, f3);
-    const s4 = packSpreads(m4Assets, s3.nextSpreadIndex, f4);
+    const verseFragments = picturesOnly
+        ? []
+        : (inventory.fragments || []).filter((f) => f.text.length <= 240);
+    const movements = buildBookMovements({ orderedBw, orderedColor, verseFragments, picturesOnly });
+    const nextConstraints = {
+        strictModalitySeparation: true,
+        requireCompletePool: true,
+        pinnedOpenerAssetId: pinnedOpener,
+        pinnedCloserAssetId: pinnedCloser,
+        bannedAssetPairs: bannedPairs,
+    };
+    if (Array.isArray(seriesIds) && seriesIds.length > 0) {
+        nextConstraints.seriesIds = seriesIds;
+    }
 
     return {
         schemaVersion: 1,
         editionId: 'infinite-systems',
         title: 'INFINITE SYSTEMS',
-        subtitle: 'Photographs 2021–2026',
+        subtitle: picturesOnly ? 'Photographs' : 'Photographs 2021–2026',
         author: 'Zhuang Liu',
         revision: 1,
         parentRevision: null,
@@ -228,7 +255,9 @@ export function buildCandidateLedger(inventory, { seed = 1, constraints = {} } =
             reviewer: 'Zhuang Liu',
             approvedAt: '2026-11-17T00:00:00+08:00',
         },
-        includeCommentaryAppendix: true,
+        includeCommentaryAppendix: !picturesOnly,
+        includeMovementDividers: !picturesOnly,
+        includeFolios: !picturesOnly,
         assets: inventory.assets.map((a) => ({
             assetId: a.assetId,
             source: a.source,
@@ -239,28 +268,24 @@ export function buildCandidateLedger(inventory, { seed = 1, constraints = {} } =
             altText: a.altText,
         })),
         fragments: verseFragments,
-        constraints: {
-            strictModalitySeparation: true,
-            requireCompletePool: true,
-            pinnedOpenerAssetId: pinnedOpener,
-            pinnedCloserAssetId: pinnedCloser,
-            bannedAssetPairs: bannedPairs,
-        },
-        movements: [
-            { movementId: 'SYS.01', title: 'THRESHOLD', modality: 'bw', spreads: s1.spreads },
-            { movementId: 'SYS.02', title: 'KINEMATICS', modality: 'color', spreads: s2.spreads },
-            { movementId: 'SYS.03', title: 'PHANTOM', modality: 'color', spreads: s3.spreads },
-            { movementId: 'SYS.04', title: 'SINGULARITY', modality: 'bw', spreads: s4.spreads },
-        ],
+        constraints: nextConstraints,
+        movements,
     };
 }
 
-export async function run() {
-    const inventory = await collectPoolInventory();
+export async function run(args = []) {
+    const seriesIds = parseSeriesArg(args);
+    const picturesOnly = args.includes('--pictures-only') || args.includes('--no-text');
+    const explicitSeries = args.includes('--series') || args.some((a) => a.startsWith('--series='));
+    const inventory = await collectPoolInventory({ seriesIds });
     const outDir = path.join(process.cwd(), '.cache', 'book-runs');
     fs.mkdirSync(outDir, { recursive: true });
     for (const seed of [1, 2, 3, 4]) {
-        const candidate = buildCandidateLedger(inventory, { seed });
+        const candidate = buildCandidateLedger(inventory, {
+            seed,
+            seriesIds: explicitSeries ? seriesIds : null,
+            picturesOnly,
+        });
         fs.writeFileSync(
             path.join(outDir, `proposal-seed-${seed}.json`),
             `${JSON.stringify(candidate, null, 2)}\n`,

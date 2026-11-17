@@ -129,26 +129,26 @@
       #let isSym = pg.layout == "symmetric-diptych" and not isFull
       #let isAsym = pg.layout == "asymmetric-diptych" and not isFull
       #let isDiag = pg.layout == "diagonal-offset" and not isFull
-      #let topHang = if isFull { 44mm } else if isDiag and pg.side == "recto" { 96mm } else if isDiag { 40mm } else { 50mm }
+      #let topHang = if isFull { 44mm } else if isDiag and pg.side == "recto" { 92mm } else if isDiag { 38mm } else { 48mm }
       #let outerRail = if isFull {
         0mm
       } else if isSym {
-        38.6mm
+        210mm - 14mm - pg.slot.placedWidthMm * 1mm
       } else if isAsym {
         if pg.side == "verso" { 21.8mm } else { 70.5mm }
       } else if isDiag {
-        26mm
+        18mm
       } else {
         (210mm - pg.slot.placedWidthMm * 1mm) / 2
       }
       #let plateInset = if isFull {
         (top: topHang, left: 0mm, right: 0mm)
       } else if isSym {
-        if pg.side == "verso" { (top: topHang, right: 16mm) } else { (top: topHang, left: 16mm) }
+        if pg.side == "verso" { (top: topHang, right: 14mm) } else { (top: topHang, left: 14mm) }
       } else if isAsym {
         if pg.side == "verso" { (top: topHang, right: 16mm) } else { (top: topHang, left: 24mm) }
       } else if isDiag {
-        if pg.side == "verso" { (top: topHang, left: 26mm) } else { (top: topHang, right: 26mm) }
+        if pg.side == "verso" { (top: topHang, left: 18mm) } else { (top: topHang, right: 18mm) }
       } else {
         (top: topHang)
       }
@@ -195,7 +195,7 @@
         PHOTOMETRIC LUMINANCE TRAJECTORY · LUMA255(t) ACROSS #ir.totalPlates PLATES
       ]
       #v(2.5mm)
-      #renderWaveform(wf, widthMm: 170, heightMm: 26, showAccent: true)
+      #renderWaveform(wf, widthMm: 170, heightMm: 26, showAccent: wf.any(w => w.modality == "color"))
       #v(6mm)
       #text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[MOVEMENT ARCHITECTURE]
       #v(2.5mm)

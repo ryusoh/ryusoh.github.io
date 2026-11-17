@@ -117,8 +117,15 @@ function checkSpreadSlot(slot, movement, assetMap, placedAssetIds, errors) {
 
 function validateMovements(ledger, assetMap, errors) {
     const movements = ledger.movements || [];
-    if (movements.length !== 4) {
+    const hasColor = [...assetMap.values()].some((a) => a.modality === 'color');
+    const expById = new Map(EXPECTED_MOVEMENTS.map((e) => [e.id, e]));
+
+    if (hasColor && movements.length !== 4) {
         errors.push('Ledger must contain exactly 4 movements (SYS.01..SYS.04).');
+        return [];
+    }
+    if (!hasColor && (movements.length < 1 || movements.length > 4)) {
+        errors.push('Monochrome ledger must contain 1 to 4 movements (SYS.01..SYS.04).');
         return [];
     }
 
@@ -127,13 +134,26 @@ function validateMovements(ledger, assetMap, errors) {
     );
     const placedList = [];
     const placedSet = new Set();
+    const seenMovIds = new Set();
 
-    for (let i = 0; i < EXPECTED_MOVEMENTS.length; i++) {
-        const exp = EXPECTED_MOVEMENTS[i];
+    for (let i = 0; i < movements.length; i++) {
         const mov = movements[i];
-        if (mov.movementId !== exp.id || mov.title !== exp.title || mov.modality !== exp.modality) {
-            errors.push(`Movement ${i + 1} must be ${exp.id} // ${exp.title} (${exp.modality}).`);
+        const exp = hasColor ? EXPECTED_MOVEMENTS[i] : expById.get(mov.movementId);
+        if (
+            !exp ||
+            mov.movementId !== exp.id ||
+            mov.title !== exp.title ||
+            mov.modality !== exp.modality
+        ) {
+            const label = hasColor
+                ? `${EXPECTED_MOVEMENTS[i].id} // ${EXPECTED_MOVEMENTS[i].title} (${EXPECTED_MOVEMENTS[i].modality})`
+                : 'a valid SYS.01..SYS.04 bw movement';
+            errors.push(`Movement ${i + 1} must be ${label}.`);
         }
+        if (seenMovIds.has(mov.movementId)) {
+            errors.push(`Duplicate movementId: ${mov.movementId}`);
+        }
+        seenMovIds.add(mov.movementId);
         for (const spread of mov.spreads || []) {
             if (!VALID_LAYOUTS.has(spread.layout)) {
                 errors.push(`Invalid spread layout ${spread.layout} in ${spread.spreadId}`);
