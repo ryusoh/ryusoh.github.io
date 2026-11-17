@@ -1380,14 +1380,14 @@ movements:
                 assetId: p1-dscf4775
                 scale: full-bleed
           - spreadId: s02
-            layout: asymmetric-diptych
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p1-dscf4402-8
-                scale: full-bleed
+                scale: inset-74
             recto:
                 assetId: p6-dscf0617
-                scale: inset-55
+                scale: inset-74
           - spreadId: s03
             layout: symmetric-diptych
             locked: false
@@ -1398,104 +1398,104 @@ movements:
                 assetId: p6-dscf5378
                 scale: inset-74
           - spreadId: s04
-            layout: monolith
-            locked: false
-            verso: null
-            recto:
-                assetId: p1-dscf2441-3
-                scale: inset-82
-          - spreadId: s05
-            layout: diagonal-offset
+            layout: symmetric-diptych
             locked: false
             verso:
+                assetId: p1-dscf2441-3
+                scale: inset-74
+            recto:
                 assetId: p6-dscf7027-6
                 scale: inset-74
-            recto:
-                assetId: p6-dscf8985-2
-                scale: inset-74
-          - spreadId: s06
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p1-dscf8974-2
-                scale: full-bleed
-            recto:
-                assetId: p1-dscf8961-2
-                scale: inset-55
-          - spreadId: s07
+          - spreadId: s05
             layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p6-dscf9277
+                assetId: p6-dscf8985-2
                 scale: inset-74
             recto:
-                assetId: p1-286fc1b3-5576-440b-8718-2e872c98e713
+                assetId: p1-dscf8974-2
                 scale: inset-74
-          - spreadId: s08
+          - spreadId: s06
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf8961-2
+                scale: inset-74
+            recto:
+                assetId: p6-dscf9277
+                scale: inset-74
+          - spreadId: s07
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p6-dscf0548-3
+                assetId: p1-286fc1b3-5576-440b-8718-2e872c98e713
                 scale: inset-82
-          - spreadId: s09
-            layout: diagonal-offset
-            locked: false
-            verso:
-                assetId: p1-dscf0361-2
-                scale: inset-74
-            recto:
-                assetId: p5-dscf9004-3
-                scale: inset-74
-          - spreadId: s10
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p1-dscf7141
-                scale: full-bleed
-            recto:
-                assetId: p6-dscf2964-6
-                scale: inset-55
-          - spreadId: s11
+          - spreadId: s08
             layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p1-dscf5423-5
+                assetId: p6-dscf0548-3
                 scale: inset-74
             recto:
-                assetId: p6-dscf9002-2
+                assetId: p1-dscf0361-2
                 scale: inset-74
+          - spreadId: s09
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p5-dscf9004-3
+                scale: inset-74
+            recto:
+                assetId: p1-dscf7141
+                scale: inset-74
+          - spreadId: s10
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf2964-6
+                scale: inset-74
+            recto:
+                assetId: p1-dscf5423-5
+                scale: inset-74
+          - spreadId: s11
+            layout: monolith
+            locked: false
+            verso: null
+            recto:
+                assetId: p6-dscf9002-2
+                scale: inset-82
     - movementId: SYS.02
       title: KINEMATICS
       modality: color
       spreads:
           - spreadId: s12
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p3-dscf7728
-                scale: full-bleed
-            recto:
-                assetId: p3-dscf1113
-                scale: inset-55
-          - spreadId: s13
-            layout: symmetric-diptych
-            locked: false
-            verso:
-                assetId: p2-dscf8444-3
-                scale: inset-74
-            recto:
-                assetId: p2-dscf8739
-                scale: inset-74
-          - spreadId: s14
             layout: monolith
             locked: false
             verso: null
             recto:
+                assetId: p3-dscf7728
+                scale: full-bleed
+          - spreadId: s13
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf1113
+                scale: inset-74
+            recto:
+                assetId: p2-dscf8444-3
+                scale: inset-74
+          - spreadId: s14
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-dscf8739
+                scale: inset-74
+            recto:
                 assetId: p3-dscf7672-2
-                scale: inset-82
+                scale: inset-74
           - spreadId: s15
-            layout: diagonal-offset
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p4-r0001059-4
@@ -1504,14 +1504,14 @@ movements:
                 assetId: p4-dscf0896-2
                 scale: inset-74
           - spreadId: s16
-            layout: asymmetric-diptych
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p5-dscf0525
-                scale: full-bleed
+                scale: inset-74
             recto:
                 assetId: p3-dscf6946
-                scale: inset-55
+                scale: inset-74
           - spreadId: s17
             layout: symmetric-diptych
             locked: false
@@ -1529,7 +1529,7 @@ movements:
                 assetId: p3-dscf0490
                 scale: inset-82
           - spreadId: s19
-            layout: diagonal-offset
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p5-dscf5407-2
@@ -1538,14 +1538,14 @@ movements:
                 assetId: p3-b5b35521-9a08-4b1c-aab3-429d75a3769e
                 scale: inset-74
           - spreadId: s20
-            layout: asymmetric-diptych
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p4-dscf3446-2
-                scale: full-bleed
+                scale: inset-74
             recto:
                 assetId: p5-2025-05-11-0020
-                scale: inset-55
+                scale: inset-74
           - spreadId: s21
             layout: symmetric-diptych
             locked: false
@@ -1556,30 +1556,30 @@ movements:
                 assetId: p3-dscf7753-3
                 scale: inset-74
           - spreadId: s22
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-18f4c334-bd6b-4c91-8cd8-8615ad7adf67
+                scale: inset-40
+            recto:
+                assetId: p2-dscf0883-3
+                scale: inset-74
+          - spreadId: s23
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p3-dscf7765
+                scale: inset-74
+            recto:
+                assetId: p4-dscf9185
+                scale: inset-74
+          - spreadId: s24
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p4-18f4c334-bd6b-4c91-8cd8-8615ad7adf67
-                scale: inset-40
-          - spreadId: s23
-            layout: diagonal-offset
-            locked: false
-            verso:
-                assetId: p2-dscf0883-3
-                scale: inset-74
-            recto:
-                assetId: p3-dscf7765
-                scale: inset-74
-          - spreadId: s24
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p4-dscf9185
-                scale: full-bleed
-            recto:
                 assetId: p3-dscf4237-2
-                scale: inset-55
+                scale: inset-82
           - spreadId: s25
             layout: symmetric-diptych
             locked: false
@@ -1590,102 +1590,97 @@ movements:
                 assetId: p2-dscf4295-2
                 scale: inset-74
           - spreadId: s26
-            layout: monolith
-            locked: false
-            verso: null
-            recto:
-                assetId: p4-dscf4250-3
-                scale: inset-82
-          - spreadId: s27
-            layout: diagonal-offset
+            layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p3-r0001972-4
+                assetId: p4-dscf4250-3
                 scale: inset-74
             recto:
-                assetId: p3-8b0245dc-4c12-4cd1-a6b0-96883bfaf25b
-                scale: inset-55
-          - spreadId: s28
-            layout: asymmetric-diptych
+                assetId: p3-r0001972-4
+                scale: inset-74
+          - spreadId: s27
+            layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p4-dscf6872-5
-                scale: full-bleed
+                assetId: p3-8b0245dc-4c12-4cd1-a6b0-96883bfaf25b
+                scale: inset-74
             recto:
+                assetId: p4-dscf6872-5
+                scale: inset-74
+          - spreadId: s28
+            layout: symmetric-diptych
+            locked: false
+            verso:
                 assetId: p5-6adf762fee94f2f49e98757c54749236
-                scale: inset-55
+                scale: inset-74
+            recto:
+                assetId: p4-dscf6250-6
+                scale: inset-74
           - spreadId: s29
             layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p4-dscf6250-6
+                assetId: p3-img_4582
                 scale: inset-74
             recto:
-                assetId: p3-img_4582
+                assetId: p3-dscf8671
                 scale: inset-74
           - spreadId: s30
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p3-dscf8671
+                assetId: p4-dscf8631
                 scale: inset-82
           - spreadId: s31
-            layout: diagonal-offset
+            layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p4-dscf8631
-                scale: inset-74
-            recto:
                 assetId: p3-dscf8563-5
                 scale: inset-74
+            recto:
+                assetId: p4-dscf9642-2
+                scale: inset-74
           - spreadId: s32
-            layout: asymmetric-diptych
+            layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p4-dscf9642-2
-                scale: full-bleed
-            recto:
                 assetId: p3-dscf7318-3
-                scale: inset-55
+                scale: inset-74
+            recto:
+                assetId: p2-dscf3495-2
+                scale: inset-74
+    - movementId: SYS.03
+      title: PHANTOM
+      modality: color
+      spreads:
           - spreadId: s33
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p2-dscf3495-2
-                scale: inset-82
-    - movementId: SYS.03
-      title: PHANTOM
-      modality: color
-      spreads:
-          - spreadId: s34
-            layout: asymmetric-diptych
-            locked: false
-            verso:
                 assetId: p3-dscf1137
                 scale: full-bleed
-            recto:
+          - spreadId: s34
+            layout: symmetric-diptych
+            locked: false
+            verso:
                 assetId: p4-dscf5453-2
-                scale: inset-55
+                scale: inset-74
+            recto:
+                assetId: p2-dscf7452
+                scale: inset-74
           - spreadId: s35
             layout: symmetric-diptych
             locked: false
             verso:
-                assetId: p2-dscf7452
-                scale: inset-74
-            recto:
                 assetId: p4-dscf1897-2
                 scale: inset-74
-          - spreadId: s36
-            layout: monolith
-            locked: false
-            verso: null
             recto:
                 assetId: p2-dscf3487-3
-                scale: inset-82
-          - spreadId: s37
-            layout: diagonal-offset
+                scale: inset-74
+          - spreadId: s36
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p3-dscf3632
@@ -1693,16 +1688,16 @@ movements:
             recto:
                 assetId: p2-r0002358
                 scale: inset-74
-          - spreadId: s38
-            layout: asymmetric-diptych
+          - spreadId: s37
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p5-dscf8231
-                scale: full-bleed
+                scale: inset-74
             recto:
                 assetId: p2-dscf0418-2
-                scale: inset-55
-          - spreadId: s39
+                scale: inset-74
+          - spreadId: s38
             layout: symmetric-diptych
             locked: false
             verso:
@@ -1711,15 +1706,15 @@ movements:
             recto:
                 assetId: p2-dscf7203-9
                 scale: inset-74
-          - spreadId: s40
+          - spreadId: s39
             layout: monolith
             locked: false
             verso: null
             recto:
                 assetId: p2-dscf0406-2
                 scale: inset-82
-          - spreadId: s41
-            layout: diagonal-offset
+          - spreadId: s40
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p5-dscf6274
@@ -1727,16 +1722,16 @@ movements:
             recto:
                 assetId: p2-dscf8593-3
                 scale: inset-74
-          - spreadId: s42
-            layout: asymmetric-diptych
+          - spreadId: s41
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p4-dscf1207-5
-                scale: full-bleed
+                scale: inset-74
             recto:
                 assetId: p5-dscf1557-3
-                scale: inset-55
-          - spreadId: s43
+                scale: inset-74
+          - spreadId: s42
             layout: symmetric-diptych
             locked: false
             verso:
@@ -1745,32 +1740,32 @@ movements:
             recto:
                 assetId: p4-dscf7212-2
                 scale: inset-74
+          - spreadId: s43
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-dscf0310-3
+                scale: inset-74
+            recto:
+                assetId: p2-dscf3445-2
+                scale: inset-74
           - spreadId: s44
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p4-940e2644-c690-41f0-9898-0efb79c69dc5
+                scale: inset-74
+            recto:
+                assetId: p2-dscf8402-3
+                scale: inset-74
+          - spreadId: s45
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p4-dscf0310-3
-                scale: inset-82
-          - spreadId: s45
-            layout: diagonal-offset
-            locked: false
-            verso:
-                assetId: p2-dscf3445-2
-                scale: inset-74
-            recto:
-                assetId: p4-940e2644-c690-41f0-9898-0efb79c69dc5
-                scale: inset-55
-          - spreadId: s46
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p2-dscf8402-3
-                scale: full-bleed
-            recto:
                 assetId: p3-dscf5759-5
-                scale: inset-55
-          - spreadId: s47
+                scale: inset-82
+          - spreadId: s46
             layout: symmetric-diptych
             locked: false
             verso:
@@ -1779,103 +1774,98 @@ movements:
             recto:
                 assetId: p5-dscf9159
                 scale: inset-74
-          - spreadId: s48
-            layout: monolith
-            locked: false
-            verso: null
-            recto:
-                assetId: p2-dscf3433
-                scale: inset-82
-          - spreadId: s49
-            layout: diagonal-offset
-            locked: false
-            verso:
-                assetId: p4-dscf4090
-                scale: inset-74
-            recto:
-                assetId: p2-dscf5150-4
-                scale: inset-74
-          - spreadId: s50
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p3-dscf3579
-                scale: full-bleed
-            recto:
-                assetId: p2-dscf8772
-                scale: inset-55
-          - spreadId: s51
+          - spreadId: s47
             layout: symmetric-diptych
             locked: false
             verso:
+                assetId: p2-dscf3433
+                scale: inset-74
+            recto:
+                assetId: p4-dscf4090
+                scale: inset-74
+          - spreadId: s48
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-dscf5150-4
+                scale: inset-74
+            recto:
+                assetId: p3-dscf3579
+                scale: inset-74
+          - spreadId: s49
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-dscf8772
+                scale: inset-74
+            recto:
                 assetId: p5-img760
                 scale: inset-74
-            recto:
+          - spreadId: s50
+            layout: symmetric-diptych
+            locked: false
+            verso:
                 assetId: p2-dscf2862-3
                 scale: inset-74
-          - spreadId: s52
-            layout: monolith
-            locked: false
-            verso: null
             recto:
                 assetId: p2-r0004664
-                scale: inset-82
-          - spreadId: s53
-            layout: diagonal-offset
-            locked: false
-            verso:
-                assetId: p3-dscf5719-3
                 scale: inset-74
-            recto:
-                assetId: p5-dscf8149-7
-                scale: inset-74
-          - spreadId: s54
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p3-dscf5338
-                scale: full-bleed
-            recto:
-                assetId: p2-a20e2e39-af83-4fd0-a6f7-3d2243a753dc
-                scale: inset-55
-          - spreadId: s55
+          - spreadId: s51
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p5-849bdefe-8868-48a8-b31d-adb58f0161022
+                assetId: p3-dscf5719-3
                 scale: inset-82
+          - spreadId: s52
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p5-dscf8149-7
+                scale: inset-74
+            recto:
+                assetId: p3-dscf5338
+                scale: inset-74
+          - spreadId: s53
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p2-a20e2e39-af83-4fd0-a6f7-3d2243a753dc
+                scale: inset-74
+            recto:
+                assetId: p5-849bdefe-8868-48a8-b31d-adb58f0161022
+                scale: inset-74
     - movementId: SYS.04
       title: SINGULARITY
       modality: bw
       spreads:
-          - spreadId: s56
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p6-dscf3362-3
-                scale: full-bleed
-            recto:
-                assetId: p6-dscf0658-3
-                scale: inset-55
-          - spreadId: s57
-            layout: symmetric-diptych
-            locked: false
-            verso:
-                assetId: p6-dscf8978
-                scale: inset-74
-            recto:
-                assetId: p1-dscf5891-9
-                scale: inset-74
-          - spreadId: s58
+          - spreadId: s54
             layout: monolith
             locked: false
             verso: null
             recto:
+                assetId: p6-dscf3362-3
+                scale: full-bleed
+          - spreadId: s55
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf0658-3
+                scale: inset-74
+            recto:
+                assetId: p6-dscf8978
+                scale: inset-74
+          - spreadId: s56
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf5891-9
+                scale: inset-74
+            recto:
                 assetId: p6-dscf7202-2
-                scale: inset-82
-          - spreadId: s59
-            layout: diagonal-offset
+                scale: inset-74
+          - spreadId: s57
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p6-dscf8873-3
@@ -1883,16 +1873,16 @@ movements:
             recto:
                 assetId: p6-dscf0283-2
                 scale: inset-74
-          - spreadId: s60
-            layout: asymmetric-diptych
+          - spreadId: s58
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p6-dscf0175
-                scale: full-bleed
+                scale: inset-74
             recto:
                 assetId: p6-dscf7178
-                scale: inset-55
-          - spreadId: s61
+                scale: inset-74
+          - spreadId: s59
             layout: symmetric-diptych
             locked: false
             verso:
@@ -1901,15 +1891,15 @@ movements:
             recto:
                 assetId: p6-dscf1649
                 scale: inset-74
-          - spreadId: s62
+          - spreadId: s60
             layout: monolith
             locked: false
             verso: null
             recto:
                 assetId: p1-dscf1157
                 scale: inset-82
-          - spreadId: s63
-            layout: diagonal-offset
+          - spreadId: s61
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p6-dscf1741
@@ -1917,16 +1907,16 @@ movements:
             recto:
                 assetId: p1-dscf6943
                 scale: inset-74
-          - spreadId: s64
-            layout: asymmetric-diptych
+          - spreadId: s62
+            layout: symmetric-diptych
             locked: false
             verso:
                 assetId: p6-dscf8998
-                scale: full-bleed
+                scale: inset-74
             recto:
                 assetId: p1-dscf5916-4
-                scale: inset-55
-          - spreadId: s65
+                scale: inset-74
+          - spreadId: s63
             layout: symmetric-diptych
             locked: false
             verso:
@@ -1935,32 +1925,32 @@ movements:
             recto:
                 assetId: p6-dscf1916-2
                 scale: inset-74
+          - spreadId: s64
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf2057
+                scale: inset-74
+            recto:
+                assetId: p6-dscf1906-2
+                scale: inset-74
+          - spreadId: s65
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf2432-2
+                scale: inset-74
+            recto:
+                assetId: p6-dscf1119
+                scale: inset-74
           - spreadId: s66
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p6-dscf2057
+                assetId: p6-dscf1924
                 scale: inset-82
           - spreadId: s67
-            layout: diagonal-offset
-            locked: false
-            verso:
-                assetId: p6-dscf1906-2
-                scale: inset-74
-            recto:
-                assetId: p1-dscf2432-2
-                scale: inset-74
-          - spreadId: s68
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p6-dscf1119
-                scale: full-bleed
-            recto:
-                assetId: p6-dscf1924
-                scale: inset-55
-          - spreadId: s69
             layout: symmetric-diptych
             locked: false
             verso:
@@ -1969,37 +1959,37 @@ movements:
             recto:
                 assetId: p6-dscf1664
                 scale: inset-74
+          - spreadId: s68
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf1093
+                scale: inset-74
+            recto:
+                assetId: p6-dscf0332_2
+                scale: inset-74
+          - spreadId: s69
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p6-dscf0759-2
+                scale: inset-74
+            recto:
+                assetId: p6-dscf9004-6
+                scale: inset-74
           - spreadId: s70
+            layout: symmetric-diptych
+            locked: false
+            verso:
+                assetId: p1-dscf5903-2
+                scale: inset-74
+            recto:
+                assetId: p6-dscf0245
+                scale: inset-74
+          - spreadId: s71
             layout: monolith
             locked: false
             verso: null
             recto:
-                assetId: p1-dscf1093
-                scale: inset-82
-          - spreadId: s71
-            layout: diagonal-offset
-            locked: false
-            verso:
-                assetId: p6-dscf0332_2
-                scale: inset-74
-            recto:
-                assetId: p6-dscf0759-2
-                scale: inset-74
-          - spreadId: s72
-            layout: asymmetric-diptych
-            locked: false
-            verso:
-                assetId: p6-dscf9004-6
-                scale: full-bleed
-            recto:
-                assetId: p1-dscf5903-2
-                scale: inset-55
-          - spreadId: s73
-            layout: symmetric-diptych
-            locked: false
-            verso:
-                assetId: p6-dscf0245
-                scale: inset-74
-            recto:
                 assetId: p6-dscf0167-2
-                scale: inset-74
+                scale: inset-82
