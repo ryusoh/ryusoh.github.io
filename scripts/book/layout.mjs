@@ -13,7 +13,20 @@ const SCALE_TO_WIDTH_MM = Object.freeze({
     'inset-82': 246,
     'inset-74': 222,
     'inset-55': 165,
+    'inset-40': 120,
 });
+
+function toTypstAssetPath(rawPath, rootDir) {
+    if (!rawPath || !rootDir) {
+        return rawPath || '';
+    }
+    const abs = path.isAbsolute(rawPath) ? rawPath : path.resolve(rootDir, rawPath);
+    const rel = path.relative(rootDir, abs);
+    if (!rel.startsWith('..') && !path.isAbsolute(rel)) {
+        return `/${rel.split(path.sep).join('/')}`;
+    }
+    return rawPath;
+}
 
 export function computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeightMm) {
     const ppiW = widthPx / (placedWidthMm / 25.4);
@@ -21,25 +34,28 @@ export function computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeig
     return Number(Math.min(ppiW, ppiH).toFixed(3));
 }
 
-function buildPlateSlot(slot, assetMap, derivativeMap, plateCounter) {
+function buildPlateSlot(slot, assetMap, { derivativeMap, assetMetrics, rootDir }, plateCounter) {
     if (!slot || !slot.assetId) {
         return null;
     }
     const asset = assetMap.get(slot.assetId);
     const deriv = derivativeMap[slot.assetId] || {};
+    const invMeta = assetMetrics[slot.assetId] || {};
     const scale = slot.scale || 'inset-74';
     const placedWidthMm = SCALE_TO_WIDTH_MM[scale] || 222;
-    const placedHeightMm = Number(((placedWidthMm * 2) / 3).toFixed(2));
-    const widthPx = deriv.width || asset?.metrics?.width || 2048;
-    const heightPx = deriv.height || asset?.metrics?.height || 1365;
+    const widthPx = deriv.width || asset?.metrics?.width || invMeta.width || 2048;
+    const heightPx = deriv.height || asset?.metrics?.height || invMeta.height || 1365;
+    const aspect = widthPx > 0 ? heightPx / widthPx : 2 / 3;
+    const placedHeightMm = Number((placedWidthMm * aspect).toFixed(2));
     const plateNum = plateCounter.next();
+    const rawPath = deriv.outputPath || asset?.source || '';
 
     return {
         kind: 'plate',
         plateNumber: plateNum,
         plateLabel: String(plateNum).padStart(3, '0'),
         assetId: slot.assetId,
-        path: deriv.outputPath || asset?.source || '',
+        path: toTypstAssetPath(rawPath, rootDir),
         altText: asset?.altText || '',
         modality: asset?.modality || 'bw',
         scale,
@@ -50,11 +66,16 @@ function buildPlateSlot(slot, assetMap, derivativeMap, plateCounter) {
     };
 }
 
-export function compileLayoutIr(ledger, profile, { derivativeMap = {} } = {}) {
+export function compileLayoutIr(
+    ledger,
+    profile,
+    { derivativeMap = {}, assetMetrics = {}, rootDir = null } = {}
+) {
     const assetMap = new Map((ledger.assets || []).map((a) => [a.assetId, a]));
     const fragmentMap = new Map((ledger.fragments || []).map((f) => [f.fragmentId, f]));
     let pCount = 0;
     const plateCounter = { next: () => ++pCount };
+    const slotOpts = { derivativeMap, assetMetrics, rootDir };
     const pages = [];
 
     const pushPage = (side, content) => {
@@ -98,9 +119,9 @@ export function compileLayoutIr(ledger, profile, { derivativeMap = {} } = {}) {
                     language: frag?.language || 'en',
                 };
             } else if (sp.verso?.assetId) {
-                versoSlot = buildPlateSlot(sp.verso, assetMap, derivativeMap, plateCounter);
+                versoSlot = buildPlateSlot(sp.verso, assetMap, slotOpts, plateCounter);
             }
-            const rectoSlot = buildPlateSlot(sp.recto, assetMap, derivativeMap, plateCounter);
+            const rectoSlot = buildPlateSlot(sp.recto, assetMap, slotOpts, plateCounter);
 
             pushPage('verso', {
                 pageType: 'spread-verso',
@@ -152,6 +173,21 @@ export function compileLayoutIr(ledger, profile, { derivativeMap = {} } = {}) {
     };
 }
 
+export function loadCachedAssetMetrics(rootDir) {
+    const invPath = path.join(rootDir, '.cache', 'book-runs', 'inventory.json');
+    if (!fs.existsSync(invPath)) {
+        return {};
+    }
+    const inv = JSON.parse(fs.readFileSync(invPath, 'utf8'));
+    const metrics = {};
+    for (const a of inv.assets || []) {
+        if (a.metrics) {
+            metrics[a.assetId] = a.metrics;
+        }
+    }
+    return metrics;
+}
+
 export async function run(args = []) {
     const profileId = args.includes('screen') ? 'screen' : 'display';
     const rootDir = process.cwd();
@@ -163,7 +199,8 @@ export async function run(args = []) {
     }
     const ledger = yamlLoad(fs.readFileSync(ledgerPath, 'utf8'));
     const profile = JSON.parse(fs.readFileSync(profilePath, 'utf8'));
-    const ir = compileLayoutIr(ledger, profile);
+    const assetMetrics = loadCachedAssetMetrics(rootDir);
+    const ir = compileLayoutIr(ledger, profile, { assetMetrics, rootDir });
     const outPath = path.join(rootDir, '.cache', 'book-runs', `layout-ir-${profileId}.json`);
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
     fs.writeFileSync(outPath, `${JSON.stringify(ir, null, 2)}\n`, 'utf8');
