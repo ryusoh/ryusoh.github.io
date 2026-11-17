@@ -618,7 +618,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -c .gitignore && git check-ignore .cache/book-img/test.jpg .cache/book-runs/run-01/proposal.json`
 - **Guardrail:** Never ignore `book/` or `assets/fonts/book/`, which store Git-tracked schemas, profiles, `book/sequence.yaml`, and pinned fonts.
 
-#### WO-02 `[low]` — Create canonical ledger JSON Schema (`book/schema/sequence.schema.json`)
+#### WO-02 `[low]` `[DONE]` — Create canonical ledger JSON Schema (`book/schema/sequence.schema.json`)
 
 - **File:** `book/schema/sequence.schema.json`
 - **Find:** `(new file — must not exist prior to this work order)`
