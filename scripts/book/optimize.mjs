@@ -100,7 +100,39 @@ function pickSafeScale(asset, desiredScale) {
     return desiredScale;
 }
 
-function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
+function buildDiptychSpread(spreadId, vAsset, rAsset, diptychRun) {
+    if (diptychRun % 4 === 2) {
+        return {
+            spreadId,
+            layout: 'asymmetric-diptych',
+            locked: false,
+            verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-82') },
+            recto: { assetId: rAsset.assetId, scale: 'inset-55' },
+        };
+    }
+    if (diptychRun % 6 === 0) {
+        return {
+            spreadId,
+            layout: 'diagonal-offset',
+            locked: false,
+            verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
+            recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
+        };
+    }
+    return {
+        spreadId,
+        layout: 'symmetric-diptych',
+        locked: false,
+        verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
+        recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
+    };
+}
+
+function packSpreads(assets, startSpreadIndex, epigraphFragments = []) {
+    const frags = Array.isArray(epigraphFragments)
+        ? epigraphFragments.filter(Boolean)
+        : [epigraphFragments].filter(Boolean);
+    let fragIdx = 0;
     const spreads = [];
     let idx = 0;
     let sNum = startSpreadIndex;
@@ -108,36 +140,27 @@ function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
 
     while (idx < assets.length) {
         const spreadId = `s${String(sNum++).padStart(2, '0')}`;
-        if (idx === 0 && epigraphFragment) {
-            const rAsset = assets[idx++];
-            spreads.push({
-                spreadId,
-                layout: 'monolith-epigraph',
-                locked: sNum === 2,
-                verso: { fragmentId: epigraphFragment.fragmentId },
-                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
-            });
-            continue;
-        }
         if (idx === 0) {
             const rAsset = assets[idx++];
+            const openerFrag = frags[fragIdx++] || null;
             spreads.push({
                 spreadId,
-                layout: 'monolith',
-                locked: false,
-                verso: null,
+                layout: openerFrag ? 'monolith-epigraph' : 'monolith',
+                locked: sNum === 2 && Boolean(openerFrag),
+                verso: openerFrag ? { fragmentId: openerFrag.fragmentId } : null,
                 recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
             });
             continue;
         }
-        if (idx === assets.length - 1 || (diptychRun > 0 && diptychRun % 5 === 0)) {
+        if (idx === assets.length - 1 || (diptychRun > 0 && diptychRun % 4 === 0)) {
             diptychRun = 0;
             const rAsset = assets[idx++];
+            const midFrag = idx < assets.length && frags[fragIdx] ? frags[fragIdx++] : null;
             spreads.push({
                 spreadId,
-                layout: 'monolith',
+                layout: midFrag ? 'monolith-epigraph' : 'monolith',
                 locked: false,
-                verso: null,
+                verso: midFrag ? { fragmentId: midFrag.fragmentId } : null,
                 recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-82') },
             });
             continue;
@@ -145,13 +168,7 @@ function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
         diptychRun++;
         const vAsset = assets[idx++];
         const rAsset = assets[idx++];
-        spreads.push({
-            spreadId,
-            layout: 'symmetric-diptych',
-            locked: false,
-            verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
-            recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
-        });
+        spreads.push(buildDiptychSpread(spreadId, vAsset, rAsset, diptychRun));
     }
     return { spreads, nextSpreadIndex: sNum };
 }
@@ -182,10 +199,18 @@ export function buildCandidateLedger(inventory, { seed = 1, constraints = {} } =
     const m2Assets = orderedColor.slice(0, colSplit);
     const m3Assets = orderedColor.slice(colSplit);
 
-    const s1 = packSpreads(m1Assets, 1, inventory.fragments[0] || null);
-    const s2 = packSpreads(m2Assets, s1.nextSpreadIndex, null);
-    const s3 = packSpreads(m3Assets, s2.nextSpreadIndex, null);
-    const s4 = packSpreads(m4Assets, s3.nextSpreadIndex, null);
+    const verseFragments = (inventory.fragments || []).filter((f) => f.text.length <= 240);
+    const byPrefix = (prefixes) =>
+        verseFragments.filter((f) => prefixes.some((p) => f.fragmentId.startsWith(`${p}-`)));
+    const f1 = byPrefix(['p1']).slice(0, 2);
+    const f2 = byPrefix(['p2', 'p3']).slice(0, 2);
+    const f3 = byPrefix(['p4', 'p5']).slice(0, 2);
+    const f4 = verseFragments.filter((f) => f.language === 'zh-Hans').slice(0, 3);
+
+    const s1 = packSpreads(m1Assets, 1, f1.length > 0 ? f1 : verseFragments.slice(0, 1));
+    const s2 = packSpreads(m2Assets, s1.nextSpreadIndex, f2);
+    const s3 = packSpreads(m3Assets, s2.nextSpreadIndex, f3);
+    const s4 = packSpreads(m4Assets, s3.nextSpreadIndex, f4);
 
     return {
         schemaVersion: 1,
@@ -211,7 +236,7 @@ export function buildCandidateLedger(inventory, { seed = 1, constraints = {} } =
             rightsStatus: a.rightsStatus,
             altText: a.altText,
         })),
-        fragments: inventory.fragments.slice(0, 8),
+        fragments: verseFragments,
         constraints: {
             strictModalitySeparation: true,
             requireCompletePool: true,
