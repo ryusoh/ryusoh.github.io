@@ -46,16 +46,18 @@
   #if idx > 0 [ #pagebreak() ]
   #if pg.pageType == "cover" [
     #block(width: 100%, height: 100%)[
-      #block(width: 100%, height: 48mm, inset: (x: 18mm, top: 14mm, bottom: 0mm))[
+      #block(width: 100%, height: 48mm, inset: (x: 18mm, top: 11mm, bottom: 0mm))[
         #grid(
           columns: (1fr, auto),
           text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.2pt, fill: rgb("#8A9099"))[ZHUANG LIU · MONOGRAPH],
           text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.0pt, fill: rgb("#8A9099"))[2021–2026],
         )
-        #v(4.5mm)
+        #v(4mm)
         #heading(level: 1, bookmarked: true)[
           #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 17pt, tracking: 2.4pt, fill: rgb("#E6E4DF"))[INFINITE SYSTEMS]
         ]
+        #v(2.2mm)
+        #text(font: "JetBrains Mono", size: 6pt, tracking: 0.9pt, fill: rgb("#8A9099"))[#pg.signature]
       ]
       #if pg.at("coverImagePath", default: none) != none [
         #place(
@@ -65,12 +67,6 @@
           ]
         )
       ]
-      #place(
-        bottom + left,
-        dx: 18mm,
-        dy: -10mm,
-        text(font: "JetBrains Mono", size: 6.5pt, tracking: 0.8pt, fill: rgb("#8A9099"))[#pg.signature],
-      )
     ]
   ] else if pg.pageType == "phase-divider" [
     #let mRoman = pg.at("movementRoman", default: "I")

@@ -72,7 +72,7 @@ function buildPlateSlot(
         seriesId: (asset?.seriesId || seriesMatch?.[1] || 'p1').toUpperCase(),
         path: toTypstAssetPath(rawPath, rootDir),
         altText: asset?.altText || '',
-        shortCaption: String(asset?.altText || '').slice(0, 68),
+        shortCaption: truncateCaption(asset?.altText, 62),
         modality: asset?.modality || 'bw',
         luma255,
         labL,
@@ -86,6 +86,15 @@ function buildPlateSlot(
 
 const ROMAN_NUMERALS = Object.freeze(['I', 'II', 'III', 'IV']);
 const INDEX_PAGE_SIZE = 32;
+
+function truncateCaption(rawText, maxLen = 62) {
+    const clean = String(rawText || '').trim();
+    if (clean.length <= maxLen) {
+        return clean;
+    }
+    const cut = clean.slice(0, maxLen).replace(/\s+\S*$/, '');
+    return `${cut || clean.slice(0, maxLen)}…`;
+}
 
 function buildEpigraphSlot(verso, fragmentMap) {
     const frag = fragmentMap.get(verso.fragmentId);
@@ -152,7 +161,9 @@ export function compileLayoutIr(
     const movementSummaries = [];
 
     const pushPage = (side, content) => {
-        pages.push({ pageNumber: pages.length + 1, side, ...content });
+        const entry = { pageNumber: pages.length + 1, side, ...content };
+        pages.push(entry);
+        return entry;
     };
 
     pushPage('recto', {
@@ -174,7 +185,7 @@ export function compileLayoutIr(
         prevModality = mov.modality;
 
         pushPage('verso', { pageType: 'void', modality: mov.modality });
-        const dividerPage = {
+        const dividerPage = pushPage('recto', {
             pageType: 'phase-divider',
             movementId: mov.movementId,
             movementRoman: ROMAN_NUMERALS[movIdx] || String(movIdx + 1),
@@ -186,8 +197,7 @@ export function compileLayoutIr(
             plateCount: 0,
             meanLuma: 0,
             waveformSlice: [],
-        };
-        pushPage('recto', dividerPage);
+        });
         const movPlates = [];
 
         for (const sp of mov.spreads || []) {
