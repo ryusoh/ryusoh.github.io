@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Photobook effective resolution</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+<style>html,body,#chart{margin:0;width:100%;height:100%;background:#f7f5f0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}</style>
+</head>
+<body><div id="chart"></div><script>
+const chart=echarts.init(document.getElementById('chart'),null,{renderer:'canvas'});
+chart.setOption({
+ backgroundColor:'#f7f5f0',animation:false,
+ title:{text:'A 2048 px web master cannot fill 300 mm at 200 PPI',subtext:'Maximum 3:2 frame width by effective resolution; full-page placement and 3 mm bleed shown for comparison',left:54,top:32,textStyle:{color:'#17191d',fontSize:27,fontWeight:650},subtextStyle:{color:'#62666d',fontSize:15}},
+ grid:{left:230,right:100,top:155,bottom:90},
+ xAxis:{type:'value',name:'Placed frame width (mm)',nameLocation:'middle',nameGap:48,min:0,max:340,axisLabel:{color:'#42464c',fontSize:14},nameTextStyle:{color:'#17191d',fontSize:16},splitLine:{lineStyle:{color:'#dedbd4'}}},
+ yAxis:{type:'category',data:['300 PPI · fine print','240 PPI · native tag','200 PPI · minimum target','Full trim · 173.4 PPI'],axisLabel:{color:'#282c31',fontSize:16},axisTick:{show:false},axisLine:{lineStyle:{color:'#7b7f85'}}},
+ series:[{type:'bar',barWidth:42,data:[
+  {value:173.40,itemStyle:{color:'#424c59'}},
+  {value:216.75,itemStyle:{color:'#637a83'}},
+  {value:260.10,itemStyle:{color:'#8b9b91'}},
+  {value:300,itemStyle:{color:'#ce2323'}}
+ ],label:{show:true,position:'right',color:'#17191d',fontSize:16,formatter:p=>p.value.toFixed(1)+' mm'},markLine:{silent:true,symbol:'none',lineStyle:{color:'#17191d',type:'dashed',width:1.5},label:{show:true,formatter:'300 mm trim',position:'end',distance:10,color:'#17191d',fontSize:14},data:[{xAxis:300}]}}],
+ graphic:[{type:'text',right:70,top:116,style:{text:'With 3 mm bleed, the same 2048 × 1365 source yields 168.3 PPI at 306 × 206 mm.',fill:'#62666d',font:'14px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'}}]
+});
+</script></body></html>

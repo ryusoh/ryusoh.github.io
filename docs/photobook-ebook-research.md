@@ -15,67 +15,43 @@ If we build an eBook photobook titled _**Infinite Systems**_ (outputting a PDF f
 
 ### 2.1 The Short Answer
 
+**Retain the editorial direction and Typst-centered renderer, but build governance before optimization.** The durable system is a human-approved, file-based editorial state machine surrounded by proposal-generating agents—not an autonomous book-writing pipeline.
+
 1. **Pool Eligibility & Modality Partition Rule — Strictly the 127 Sequenced Photos, Split into Disjoint B&W (`51`) and Color (`76`) Sub-Pools:**
     - **Gatekeeping (`index.md` authority):** Only the **127 photographs actively sequenced in `assets/img/p1/index.md` through `assets/img/p6/index.md`** enter the photobook candidate pool (`201.0 MB` total; `127/127` landscape `3:2` orientation; `82.7%` low-key chiaroscuro or mid-tone twilight). The **12 unsequenced orphan files** sitting on disk (`1` in `p3`, `11` in `p6`) are deliberate editorial outtakes and **must be strictly ignored**.
-    - **Strict B&W vs. Color Separation:** Pixel-level chroma analysis (`sharp` 95th-percentile RGB channel delta $P_{95}(\max(|R-G|, |G-B|, |R-B|))$) across the 127 eligible photos reveals two disjoint visual modalities:
-        - **Monochrome / B&W Sub-Pool (`51` photos, `40.2%`):** All `18/18` in `p1` (pure B&W), all `32/32` in `p6` (pure B&W), and `1/13` in `p5` (`p5/DSCF9004-3.jpg`, a tinted monochrome self-portrait).
-        - **Color Sub-Pool (`76` photos, `59.8%`):** All `21/21` in `p2`, all `23/23` in `p3`, all `20/20` in `p4`, and `12/13` in `p5`.
-    - **Never mix B&W and Color on the same spread or within the same movement:** The agentic orchestrator partitions the search graph into two disjoint sub-graphs ($\binom{51}{2} = 1,275$ B&W pairings and $\binom{76}{2} = 2,850$ Color pairings), separated at the macro-book level by an explicit **Phase Transition Divider** spread.
-2. **Apply Rich Sutton's _The Bitter Lesson_ to Visual Curation & 2D Spread Search — Not to Free-Form AI Poetry:**
-    - **Dissolve the 6 web-folder silos (`p1`–`p6`) within each modality sub-pool:** Pooling `p1` + `p6` + `p5/DSCF9004-3.jpg` (`1,275` B&W pairs) and `p2` + `p3` + `p4` + `p5-color` (`2,850` Color pairs) yields **4,125 valid cross-series pairings** (versus only 153 inside `p1`). Crucially, separating B&W from Color also fixes a metric blind spot in CIELAB $\Delta E$: without modality partitioning, a dark low-saturation color photo ($a^* \approx -1, b^* \approx -2$) has near-zero $\Delta E$ distance to a dark B&W photo ($a^_=0, b^_=0$), which would otherwise trick a naive optimizer into pairing them.
-    - **Modality-Specific Search Objectives:** In the **Color Sub-Pool (`76` frames)**, the optimizer uses full CIELAB chromatic distance ($\Delta E$), luminance contrast ($\Delta L^_$), and gaze/vector geometry. In the **B&W Sub-Pool (`51` frames)** where $a^_ = b^* = 0$, chromatic $\Delta E$ collapses to $\Delta L^_$, so the optimizer re-weights its objective function to \*\*Luminance Contrast ($\Delta L^_$), Local Tonal Entropy / Grain Density, and Compositional Vector Geometry\*\*.
-    - **Forbid unconstrained LLM-generated interstitial poetry:** Sutton's _Bitter Lesson_ works where an objective verifier exists; without one, free-form LLM poetry regresses to the training distribution's mean (cliché purple prose) and violates Roland Barthes's _studium_ vs. _punctum_ boundary documented in [`docs/critique-calibration-design.md`](file:///Users/lz/dev/ryusoh.github.io/docs/critique-calibration-design.md#L15-L17). Instead, the agent orchestrates text through three constrained moves:
-        1. **Visual Silence (~90% of spreads):** Let facing plates and white space carry the narrative gap ([`docs/sequence-skill-architecture.md`](file:///Users/lz/dev/ryusoh.github.io/docs/sequence-skill-architecture.md#L94)).
-        2. **Authentic Corpus Retrieval & Placement:** Pool the human-curated stanzas from `assets/img/p1..p6/index.md` (plus any optional author-supplied `book/fragments.md`) and let the agentic search **select, trim, and place** only the 5–10 authentic fragments that create maximum intellectual counterpoint against specific spreads.
-        3. **Back-of-Book Curatorial Appendix:** Route AI analytical commentary (`role`, `subject`, `thematicMeaning`, `vectors` from `commentary.json`) into an end-of-book **Plate Index / System Colophon Appendix** rather than placing synthetic prose between plates.
-3. **Persist the Agentic Edit in a Declarative State Ledger (`book/sequence.yaml`) for Long-Term Maintenance:**
-    - Because a globally orchestrated photobook no longer maps 1:1 to the web chapter order, the agentic orchestrator writes its discovered spread architecture to a git-tracked ledger (`book/sequence.yaml`) encoding movements (`modality: 'bw' | 'color'`), spreads (`verso`, `recto`, `layout`, `epigraph`), and human taste constraints (`locked: true` spreads, `banned` pairs).
-    - Future photo additions/deletions in `assets/img/p<N>/index.md` are automatically classified by `sharp` into the `bw` or `color` sub-pool and trigger either a fast **incremental repair** (inserting new pool photos into optimal same-modality spread slots while preserving `locked` spreads) or a **full global re-orchestration** for a new edition.
-4. **Visual Identity for _Infinite Systems_ ("Obsidian Darkroom + Telemetry Red" on `300 × 200 mm` 3:2 Spreads):**
-    - Because `100%` of the 127 eligible photos are `3:2` landscape and `82.7%` are low-key Exhalation ($L^* \le 75$) or mid-tone Grounding ($75 < L^* < 135$) frames, the book uses an **Obsidian Void (`#070709`)** primary canvas on **`300 mm × 200 mm` (3:2)** pages (`600 mm × 200 mm` open spread), preventing screen glare from crushing shadow detail while allowing full-bleed plates to fill 100% of the page with zero cropping.
-    - Scale monotony is prevented via **five modular spread archetypes** (`The Monolith`, `Asymmetric Weight Diptych`, `Symmetric Collision Diptych`, `Diagonal Modular Offset`, and `System Phase Divider`) set on a 12-column × 8-row Swiss grid with `Syne`, `Glow Sans SC`, and tabular monospace telemetry (`#CE2323` accent).
-5. **Render via Typst (`v0.15.1`, Apache-2.0) + Dual-Tier `sharp` Cache + `/PageLayout /TwoPageRight`:**
-    - **Primary Recommended Renderer — Typst (`v0.15.1`):** Reads structured JSON/YAML directly (`json()`, `yaml()`), embeds JPEG streams losslessly via `/DCTDecode` without re-encoding (`crates/typst-pdf/src/image.rs`), preserves per-image embedded ICC profiles (including the 10 sequenced Display P3 images), natively handles mixed Latin (`Syne`) + Simplified Chinese (`Glow Sans SC`) typography with automatic CJK-Latin spacing and font subsetting, supports custom page geometry and print bleed (`#set page(bleed: ...)`), emits PDF/A archival standards (`--pdf-standard a-2b` / `a-4`), and guarantees bit-for-bit reproducible builds via `--creation-timestamp` / `SOURCE_DATE_EPOCH`.
-    - **Zero-Install Immediate Alternative — Headless Chrome (`Skia/PDF m157`, already installed) + CSS Paged Media (`@page`):** Empirically verified on this machine to pass through original sRGB and Display P3 JPEG streams byte-for-byte without re-compression when EXIF orientation is top-left (`src/pdf/SkPDFBitmap.cpp`), while supporting CSS `@page` sizes, named pages, the 16 CSS `@page` margin boxes (Chrome 131+), existing `.woff2` web fonts, and PDF document outlines (`--generate-pdf-document-outline`).
-    - **Dual-tier PDF payload (`master` vs. `screen`) + Two-Page Spread Catalog Flag:** Pre-normalizing via `sharp` into `.cache/book-img/` produces both a lossless-passthrough `dist/infinite-systems-master.pdf` (`~155 MB` after downsampling 5 oversized `>2048px` outliers) and a portable MozJPEG `q82` `dist/infinite-systems-screen.pdf` (`~45–55 MB` for all 127 frames, or `~30–38 MB` for an 85-frame pruned edit), stamped with `/PageLayout /TwoPageRight` (ISO 32000-1:2008 §7.7.2, Table 28).
+    - **Strict B&W vs. Color Separation:** Pixel-level chroma analysis (`sharp` 95th-percentile RGB channel delta $P_{95}(\max(|R-G|, |G-B|, |R-B|))$) across the 127 eligible photos reveals two disjoint visual modalities: **51 B&W** (`18` in `p1`, `32` in `p6`, and one tinted monochrome frame in `p5`) and **76 Color** (`21` in `p2`, `23` in `p3`, `20` in `p4`, and `12` in `p5`).
+    - **Never mix B&W and Color on the same spread or within the same movement:** The orchestrator partitions the search into two disjoint graph components. They contain **1,275 total B&W pairs** and **2,850 total Color pairs**, separated at the macro-book level by an explicit **Phase Transition Divider** spread. These are not all cross-series pairs: after subtracting intra-series pairs, the actual cross-series counts are **626 B&W** and **2,131 Color**.
+2. **Apply Rich Sutton's _The Bitter Lesson_ to Visual Curation & 2D Spread Search — Not to Free-Form AI Poetry or Autonomous Editorial Approval:**
+    - **Dissolve the 6 web-folder silos within each modality component:** Pooling creates **4,125 valid same-modality pairs**, of which **2,757 cross a former web-series boundary**. Separating B&W from Color also avoids a metric blind spot in CIELAB CIE76 $\Delta E$: a dark low-saturation color photo can have near-zero color distance to a dark B&W photo even though their editorial modalities differ.
+    - **Version every metric:** Breath thresholds `75` and `135` belong to weighted sRGB **`luma255`** on a 0–255 scale, not CIELAB **`lab.L`** on a 0–100 scale. Color search can use CIE76 chromatic distance, `lab.L` contrast, and gaze/vector geometry; B&W search emphasizes luminance, tonal entropy/grain, and composition without assuming that a tinted monochrome source has exactly zero chroma.
+    - **Generate proposals, not approved edits:** Start with seeded multi-start beam search and local swaps/relocations. Emit several Pareto-diverse candidates with score deltas and before/after proofs. Locks, bans, rights failures, parity, and modality are hard constraints; aesthetic scores only rank otherwise valid candidates.
+    - **Forbid unconstrained LLM-generated interstitial poetry:** Preserve **visual silence (~90% of spreads)**, retrieve only from the closed authentic corpus, and route AI analytical commentary to the back-of-book appendix. Fragment placement defaults to verbatim text. Any excerpt is a separately reviewable proposal with exact source ranges and retained attribution; “authentic” does not imply author-original or cleared for arbitrary trimming.
+3. **Persist Approved Editorial State in a Versioned Ledger (`book/sequence.yaml`):**
+    - The ledger records stable movement, spread, page, asset, and fragment IDs; asset source revisions; output-independent editorial decisions; locks/bans/pins; and proposal provenance. A logical `assetId` survives re-export, while `sourceSha256` identifies a particular byte revision.
+    - Optimizers and `book-sync` write **candidate proposals only**. Human approval promotes a specific proposal against a specific parent ledger revision. New photos become unplaced candidates; deletion from a locked spread is a human-resolution conflict, never an automatic repair. Application requires an explicit plan/proposal ID, full validation, and atomic replacement.
+4. **Visual Identity for _Infinite Systems_ (“Obsidian Darkroom + Telemetry Red”), with an Explicit Resolution Decision:**
+    - The proposed **`300 mm × 200 mm`** page preserves the common 3:2 frame without cropping, but a `2048 × 1365 px` source provides only **173.355 PPI** at trim size and **168.306 PPI** with 3 mm bleed. The first implementation must therefore choose a screen/display edition, a smaller/lower-PPI physical proof, or high-resolution press sources; it must not call the web-export build press-ready.
+    - Scale monotony is prevented via **five modular spread archetypes** on a 12-column × 8-row Swiss grid with `Syne`, `Glow Sans SC`, and tabular monospace telemetry. On `#070709`, `#6E737B` (**4.218:1**), `#4A4E54` (**2.405:1**), and `#CE2323` (**3.727:1**) cannot carry meaningful small text; reserve them for decoration, large text, or non-text accents and introduce accessible semantic text tokens.
+5. **Render via Typst + Content-Addressed `sharp` Derivatives + Destination-Specific Output Profiles:**
+    - **Primary renderer — Typst (`v0.15.1`, Apache-2.0):** structured JSON/YAML input, JPEG `/DCTDecode` passthrough, embedded ICC preservation, CJK/Latin typography, custom page geometry and bleed, PDF/A and PDF/UA targets, and timestamp controls. Reproducibility additionally requires pinned fonts/tools/ICC inputs, stable input order, locale/timezone capture, optimizer configuration, and deterministic post-processing; `SOURCE_DATE_EPOCH` alone is not a guarantee.
+    - **Output profiles:** `screen` for portable viewing, `display` for high-quality screen output, `archive-pdfa` for a declared and validated archival target, and printer-specific `press` only after a print contract exists. PDF/A does not imply high resolution or press readiness, and PDF/X requires a printer-specific output intent and proofing policy.
+    - **Release evidence:** QPDF structural checks, Poppler inspection/rasterization, effective-PPI/page-box/font/glyph checks, final-artifact reproducibility, and veraPDF when PDF/A or PDF/UA is declared. `/PageLayout /TwoPageRight` is only an initial viewer preference, not print imposition. Semantic accessibility and human visual/assistive-technology review remain mandatory.
 
-### 2.2 End-to-End Architecture Diagram
+### 2.2 Authority Boundaries and End-to-End Architecture
 
-```mermaid
-flowchart TD
-    subgraph Source ["1. Eligible Pool & Authentic Corpus (Git-Tracked)"]
-        MD["assets/img/p1..p6/index.md<br/>(Gatekeeper: Only 127 Sequenced Photos Eligible;<br/>12 Unsequenced Orphans Strictly Ignored)"]
-        FRAG["Authentic Text Corpus<br/>(Existing p1..p6 '>' Stanzas + book/fragments.md)"]
-        COMM["assets/img/p1..p6/commentary.json<br/>(Analytical Critiques -> Back-of-Book Appendix)"]
-    end
+Source photographs, authentic text, rights information, and human taste decisions are authoritative. A deterministic inventory derives observations without modifying them. Candidate generation proposes sequences and layouts; only human approval changes the approved ledger. The approved ledger then flows through canonical layout IR, deterministic renderers, release gates, and a signed-off edition. LLMs may explain or propose inside the candidate stage, but no LLM call belongs in deterministic inventory, validation, layout, rendering, or preflight.
 
-    subgraph Agentic ["2. 'Bitter Lesson' Agentic Orchestrator (Modality-Partitioned Search)"]
-        CLASS["Sharp Pixel-Chroma Modality Classifier<br/>Splits Pool: 51 B&W (p1, p6, 1 in p5) vs. 76 Color (p2, p3, p4, 12 in p5)"]
-        SEARCH["Bipartite Cross-Series Spread Optimizer<br/>(1,275 B&W Pairs + 2,850 Color Pairs -> Never Mix B&W and Color)"]
-        LEDGER["book/sequence.yaml (Declarative Book Ledger)<br/>(B&W Movements, Color Movements, 2D Spreads, Locks/Bans)"]
-    end
+![Authority boundaries in the ebook orchestration system](assets/photobook-ebook-review/orchestration-boundaries.png)
 
-    subgraph Engine ["3. Deterministic PDF Compiler (Node.js + Sharp + Typst)"]
-        SHARP["Sharp Asset Normalizer (.cache/book-img/)<br/>Master tier (passthrough) vs. Screen tier (q82 MozJPEG / B&W Gray)"]
-        TYPST["Typst Compiler (book/photobook.typ)<br/>#set page, #image(icc: auto), CJK/Latin Fonts, Outlines"]
-        POST["PDF Catalog Finisher (gs pdfmark / qpdf)<br/>Sets /PageLayout /TwoPageRight & /PageMode /UseOutlines"]
-    end
+| Boundary                  | May write                                                               | Must never do                                                                |
+| ------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Source ingest / inventory | Disposable inventory JSON, hashes, metrics, candidate-pool observations | Overwrite originals, trim text, or silently import an asset into an edition  |
+| Candidate agent           | Versioned proposal, rationale, and proof diff                           | Write the approved ledger or promote its own candidate                       |
+| Human decision            | Approval/rejection and a new reviewed ledger revision                   | Delegate final editorial or rights approval to a score                       |
+| Deterministic compiler    | Layout IR, renderer source, derivatives, and output manifest            | Invoke an LLM, discover new edition members implicitly, or relax constraints |
+| Release gate              | Final preflight and sign-off record                                     | Declare visual, accessibility, or press approval without human evidence      |
 
-    subgraph Output ["4. Derived Artifacts (Gitignored dist/)"]
-        PDF_OUT["dist/infinite-systems-master.pdf & dist/infinite-systems-screen.pdf"]
-    end
-
-    MD --> CLASS
-    FRAG --> SEARCH
-    COMM --> TYPST
-    CLASS --> SEARCH
-    SEARCH <--> LEDGER
-    LEDGER --> SHARP
-    LEDGER --> TYPST
-    SHARP --> TYPST
-    TYPST --> POST
-    POST --> PDF_OUT
-```
+Approved state is reviewed and versioned; derived state is disposable and reproducible. Candidate runs belong under a gitignored run directory such as `.cache/book-runs/<runId>/`, while the approved ledger and explicit editorial decisions remain Git-tracked. The existing web builder's `ensureImageVariants()` sanitizes source JPEG metadata and must not be reused by the book pipeline. Only non-mutating parser/metric components from the sequence tooling are candidates for reuse.
 
 ---
 
@@ -107,6 +83,11 @@ flowchart TD
 6. **ISO PDF Standards & Print Production Specifications**
     - **ISO 32000-1:2008 (PDF 1.7 Specification)**: [Clause 7.7.2 _Document Catalog_ (Table 28: `PageLayout` and `PageMode`)](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf), Clause 8.4.5 _Graphics State Parameter Dictionaries_, Clause 8.6.5.5 _ICCBased Colour Spaces_, and Clause 14.11.2 _Page Boundaries_ (`MediaBox`, `CropBox`, `BleedBox`, `TrimBox`, `ArtBox`).
     - **Blurb Print Specifications**: [Image Quality & Resolution Checklist (300 PPI standard)](https://www.blurb.com/blog/image-quality-checklist/) and [A Brief Note on Color Management (PDF/X-3, CMYK vs. sRGB workflow)](https://www.blurb.com/downloads/pdf_to_book/BriefNoteColor.pdf).
+7. **Validation, Accessibility, Asset, and Reproducibility Contracts**
+    - [Typst accessibility guide](kimi-cite://web?url=https%3A%2F%2Ftypst.app%2Fdocs%2Fguides%2Faccessibility%2F 'citation'), [veraPDF CLI validation](kimi-cite://web?url=https%3A%2F%2Fdocs.verapdf.org%2Fcli%2Fvalidation%2F 'citation'), and [W3C fixed-layout EPUB accessibility](kimi-cite://web?url=https%3A%2F%2Fwww.w3.org%2FTR%2Fepub-fxl-a11y%2F 'citation').
+    - [QPDF CLI documentation](kimi-cite://web?url=https%3A%2F%2Fqpdf.readthedocs.io%2Fen%2Fstable%2Fcli.html 'citation'), [Sharp output documentation](kimi-cite://web?url=https%3A%2F%2Fsharp.pixelplumbing.com%2Fapi-output%2F 'citation'), and [Ajv JSON Schema documentation](kimi-cite://web?url=https%3A%2F%2Fajv.js.org%2Fjson-schema.html 'citation').
+    - [Reproducible build environment](kimi-cite://web?url=https%3A%2F%2Freproducible-builds.org%2Fdocs%2Fperimeter%2F 'citation') and [SOURCE_DATE_EPOCH specification](kimi-cite://web?url=https%3A%2F%2Freproducible-builds.org%2Fspecs%2Fsource-date-epoch%2F 'citation').
+    - [OR-Tools CP-SAT documentation](kimi-cite://web?url=https%3A%2F%2For-tools.github.io%2Fdocs%2Fpdoc%2Fortools%2Fsat%2Fpython%2Fcp_model.html 'citation'), [pymoo minimize interface](kimi-cite://web?url=https%3A%2F%2Fpymoo.org%2Finterface%2Fminimize.html 'citation'), and [Ghostscript PDF documentation](kimi-cite://web?url=https%3A%2F%2Fghostscript.readthedocs.io%2F_%2Fdownloads%2Fen%2Flatest%2Fpdf%2F 'citation').
 
 ---
 
@@ -133,23 +114,36 @@ _(`*Note on p5`: 12 of 13 sequenced frames in `p5` are color, while 1 frame—`a
 1. **Strict Pool Boundary (`index.md` Gatekeeping)**:
     - Only the **127 JPEG filenames explicitly listed in `assets/img/p1..p6/index.md`** are ingested into the photobook pool.
     - The 12 unsequenced JPEGs on disk (`p3/DSCF2056-2.jpg` and 11 files in `p6/`) are outtakes rejected during gallery curation and are **strictly ignored** by the book pipeline.
-2. **Bipartite Modality Split: 51 Black-and-White (`40.2%`) vs. 76 Color (`59.8%`)**:
-    - Measuring per-pixel RGB channel spread $\Delta_{\text{RGB}} = \max(|R-G|, |G-B|, |R-B|)$ across a `160 × 160` downsample of each eligible image via `sharp` cleanly partitions the 127-photo pool without manual tagging:
-        - **Pure B&W (`50` frames, $P\_{95}(\Delta\_{\text{RGB}}) \le 3$):** All `18` frames in `p1` and all `32` frames in `p6`. (Notably, even though these 50 files are pure grayscale, they are stored on disk as 3-channel RGB JPEGs, including 4 with Display P3 ICC tags.)
-        - **Tinted / Warm Monochrome (`1` frame, $3 < P\_{95}(\Delta\_{\text{RGB}}) \le 12$):** `p5/DSCF9004-3.jpg` ($P_{95} = 11$). Grouping it with the B&W sub-pool (and optionally neutralizing its slight warm cast in the book cache so it matches `p1` and `p6` silver-gelatin neutrality) prevents it from clashing with color frames.
+2. **Disjoint Modality Partition: 51 Black-and-White (`40.2%`) vs. 76 Color (`59.8%`)**:
+    - Measuring per-pixel RGB channel spread $\Delta_{\text{RGB}} = \max(|R-G|, |G-B|, |R-B|)$ across a `160 × 160` downsample of each eligible image via `sharp` partitions the current 127-photo pool. The classifier must record its metric version and confidence and permit human override; neutralizing the tinted monochrome frame is an output-profile derivative decision, not a destructive source edit.
+        - **Pure B&W (`50` frames, $P\_{95}(\Delta\_{\text{RGB}}) \le 3$):** All `18` frames in `p1` and all `32` frames in `p6`. These grayscale files are stored as 3-channel RGB JPEGs, including 4 with Display P3 ICC tags.
+        - **Tinted / Warm Monochrome (`1` frame, $3 < P\_{95}(\Delta\_{\text{RGB}}) \le 12$):** `p5/DSCF9004-3.jpg` ($P_{95} = 11$). Its slight warm cast means the optimizer must not assume exactly zero chroma for every member of the B&W component.
         - **Color (`76` frames, $P\_{95}(\Delta\_{\text{RGB}}) > 12$):** All `21` frames in `p2`, all `23` in `p3`, all `20` in `p4`, and `12` in `p5`.
+    - The graph components are **disjoint**, not bipartite. A verso/recto assignment model could be bipartite, but that would be a separate mathematical construction. Pair counts must distinguish all permissible pairs from cross-series pairs:
+
+    | Modality | Web-series groups   | All same-modality pairs | Intra-series pairs | Actual cross-series pairs |
+    | -------- | ------------------- | ----------------------: | -----------------: | ------------------------: |
+    | B&W      | `18 / 32 / 1`       |               **1,275** |                649 |                   **626** |
+    | Color    | `21 / 23 / 20 / 12` |               **2,850** |                719 |                 **2,131** |
+    | Combined | 127 frames          |               **4,125** |              1,368 |                 **2,757** |
+
 3. **Uniform 3:2 Landscape Orientation & Photometric Chiaroscuro Distribution**:
     - **100% (`127 / 127`) of the eligible photographs are Landscape (`width > height`, 3:2 aspect ratio)**. There are zero portrait-orientation photographs in the sequenced pool.
-    - Across the 127 frames, **38 are Exhalations** ($L^* \le 75$, deep chiaroscuro/nocturnal shadow), **67 are Grounding** ($75 < L^* < 135$, dense urban twilight/mid-tones), and only **22 are Inhalations** ($L^* \ge 135$, bright daylight). Thus **82.7% (`105 / 127`)** of the work operates in low-key shadow or mid-tone atmospheric density.
+    - Across the 127 frames, **38 are Exhalations** (`luma255 ≤ 75`), **67 are Grounding** (`75 < luma255 < 135`), and only **22 are Inhalations** (`luma255 ≥ 135`). Thus **82.7% (`105 / 127`)** operates in low-key shadow or mid-tone atmospheric density. These thresholds use the existing parser's weighted sRGB luma on a **0–255** scale. CIELAB lightness remains a separate versioned field, `lab.L`, on a **0–100** scale; the current chromatic transition metric is explicitly **CIE76**, not a generic modern perceptual difference.
 4. **Pixel dimensions & effective print resolution**:
-    - **114 of 127 eligible JPEGs** have a long edge of **`2048 px`** (`109` at `2048 × 1365` and `5` at `2048 × 1364`), i.e., standard 3:2 aspect ratio exported at `240 DPI` metadata tag (`sips -g pixelWidth -g pixelHeight -g dpiWidth`).
-    - **5 of 127 JPEGs** are higher-resolution exports (`p3`: `6240 × 4160` at 28.9 MB and `4675 × 3117` at 8.5 MB; `p5`: `3840 × 2560` at 5.6 MB, `3475 × 2268` at 4.9 MB, and `3079 × 2045` at 2.9 MB).
-    - **8 of 127 JPEGs** are lower-resolution crops (`p2`: `1860 × 1240`, `1676 × 1117`; `p3`: `1363 × 907`; `p4`: `2047 × 1365`, `1364 × 908`, `910 × 607`; `p5`: `1960 × 1306`, `1946 × 1297`, `1937 × 1291`).
-    - Per Blurb's print resolution specification ([Blurb Image Quality Checklist](https://www.blurb.com/blog/image-quality-checklist/)), print production targets **300 PPI** at 100% scale (with 150–200 PPI as the acceptable floor). A `2048 × 1365 px` image supports:
-        - **At 300 PPI (fine-press standard)**: up to **`6.83 × 4.55 in` (`173.4 × 115.6 mm`)**.
-        - **At 240 PPI (native Lightroom tag)**: up to **`8.53 × 5.69 in` (`216.7 × 144.5 mm`)**.
-        - **At 200 PPI (viewing-distance floor)**: up to **`10.24 × 6.83 in` (`260.1 × 173.4 mm`)**.
-        - **For screen/eBook PDF viewing**: `2048 × 1365 px` is ideal for Retina/4K tablet and laptop displays without upscaling. If a large-format physical print edition (`10 × 8 in` or `13 × 11 in` at 300 PPI $\approx 3900 \times 3300\text{ px}$) is later desired, full-resolution JPEG/TIFF masters from the personal archive ([`docs/archive-protocol.md`](file:///Users/lz/dev/ryusoh.github.io/docs/archive-protocol.md)) must be substituted into the build directory while keeping `book/sequence.yaml` unchanged.
+    - **114 of 127 eligible JPEGs** have a long edge of **`2048 px`** (`109` at `2048 × 1365` and `5` at `2048 × 1364`), i.e., standard 3:2 aspect ratio exported at `240 DPI` metadata tag. That metadata tag does not determine effective PPI; effective PPI is source pixels divided by placed physical dimensions.
+    - **5 of 127 JPEGs** are higher-resolution exports (`p3`: `6240 × 4160` at 28.9 MB and `4675 × 3117` at 8.5 MB; `p5`: `3840 × 2560` at 5.6 MB, `3475 × 2268` at 4.9 MB, and `3079 × 2045` at 2.9 MB). **8** are lower-resolution crops, so preflight must be per placement rather than a pool-wide average.
+    - At the proposed **300 × 200 mm** trim, `2048 × 1365 px` yields **173.355 PPI**; at **306 × 206 mm** including 3 mm bleed, it yields **168.306 PPI**. Its maximum widths at 200 / 240 / 300 PPI are **260.096 / 216.747 / 173.397 mm**, respectively. For screen/display viewing, the export remains useful without upscaling; for a physical edition, reduce page/placement size, explicitly accept and physically proof a lower-PPI artist's edition, or map the same logical `assetId` to full-resolution archive sources.
+
+    ![Effective resolution of 2048 × 1365 px sources at candidate page sizes](assets/photobook-ebook-review/effective-resolution.png)
+
+    | Required output geometry     |            200 PPI |            240 PPI |            300 PPI |
+    | ---------------------------- | -----------------: | -----------------: | -----------------: |
+    | 300 × 200 mm trim            | **2363 × 1575 px** | **2835 × 1890 px** | **3544 × 2363 px** |
+    | 306 × 206 mm including bleed |                  — |                  — | **3615 × 2434 px** |
+
+    Blurb's production checklist recommends 300 PPI, bleed checks, 200% inspection, calibrated soft proofing, and a physical proof; archival PDF/A status does not alter any of these pixel requirements. [Blurb image-quality checklist](kimi-cite://web?url=https%3A%2F%2Fwww.blurb.com%2Fblog%2Fimage-quality-checklist%2F 'citation') The arithmetic in this subsection is reproducible with `python docs/assets/photobook-ebook-review/calculate_metrics.py`.
+
 5. **Mixed ICC Color Profiles (`sRGB` + `Display P3`)**:
     - Among the 127 eligible JPEGs, **117 carry `sRGB IEC61966-2.1`** and **10 carry Apple `Display P3` ICC profiles** (`p1`: 2, `p2`: 2, `p4`: 1, `p5`: 3, `p6`: 2). Any PDF generator that strips ICC profiles and tags images as uncalibrated `/DeviceRGB` will cause the Display P3 color images to appear desaturated or hue-shifted in color-managed PDF viewers.
 6. **Multilingual Typography (`Latin` + `Simplified Chinese`)**:
@@ -173,11 +167,11 @@ _(`*Note on p5`: 12 of 13 sequenced frames in `p5` are color, while 1 frame—`a
     - Typst natively loads structured files via [`json("path.json")`](https://typst.app/docs/reference/data-loading/json/) and [`yaml("path.yaml")`](https://typst.app/docs/reference/data-loading/yaml/), allowing `book/photobook.typ` to render directly from `yaml("sequence.yaml")`.
 - **Typography, CJK Support, and Font Format Constraints**:
     - Typst's [`text` element](https://typst.app/docs/reference/text/text/#parameters-font) accepts a priority fallback array `#set text(font: ("Syne", "Glow Sans SC Extended"), cjk-latin-spacing: auto)` and supports `covers: "latin-in-cjk"`.
-    - Font loading in `typst-kit` delegates to `fontdb` ([`RazrFalcon/fontdb/src/lib.rs:301`](https://github.com/RazrFalcon/fontdb/blob/master/src/lib.rs#L301)): `"Will load ttf, otf, ttc and otc fonts."` Typst **does not load `.woff2` web fonts**. While `GlowSansSC-*.otf` is already in `~/Library/Fonts/`, `Syne` is currently stored in the repo only as `.woff2` (`assets/fonts/syne-latin.woff2`), so a static `.ttf` or `.otf` file for `Syne` must be placed in `assets/fonts/` (or decompressed from `syne-latin.woff2` via `fontTools.ttLib.woff2.decompress`) when using Typst.
+    - Font loading in `typst-kit` delegates to `fontdb` ([`RazrFalcon/fontdb/src/lib.rs:301`](https://github.com/RazrFalcon/fontdb/blob/master/src/lib.rs#L301)): `"Will load ttf, otf, ttc and otc fonts."` Typst **does not load `.woff2` web fonts**. Although `GlowSansSC-*.otf` is installed locally and `Syne` exists in the repo as `.woff2`, a reproducible book build must vendor and hash-pin the exact static `.ttf`/`.otf` Latin and CJK font files and their license notices rather than depending on system fonts.
 - **PDF Standards, Outlines, and Reproducibility**:
     - Per the [Typst PDF Reference](https://typst.app/docs/reference/pdf/), `--pdf-standard` supports `1.4`, `1.5`, `1.6`, `1.7` (default), `2.0`, `a-1b`, `a-1a`, `a-2b`, `a-2u`, `a-2a`, `a-3b`, `a-3u`, `a-3a`, `a-4`, `a-4f`, `a-4e`, and `ua-1`. **PDF/X (`pdf/x-1a`, `pdf/x-4`) is not yet natively supported by Typst `0.15.1`.**
     - Headings with `bookmarked: true` (or `outlined: true` by default) automatically populate the PDF bookmark outline tree ([`heading.bookmarked`](https://typst.app/docs/reference/model/heading/#parameters-bookmarked)).
-    - Reproducible builds are enforced via `--creation-timestamp <UNIX_TIMESTAMP>` or `SOURCE_DATE_EPOCH` ([`crates/typst-cli/src/args.rs:425-429`](https://github.com/typst/typst/blob/v0.15.1/crates/typst-cli/src/args.rs#L425-L429)) combined with `--ignore-system-fonts --font-path assets/fonts`.
+    - Typst provides timestamp inputs through `--creation-timestamp <UNIX_TIMESTAMP>` or `SOURCE_DATE_EPOCH` ([`crates/typst-cli/src/args.rs:425-429`](https://github.com/typst/typst/blob/v0.15.1/crates/typst-cli/src/args.rs#L425-L429)) and isolated font loading through `--ignore-system-fonts --font-path assets/fonts`. These are necessary controls, not a complete reproducibility guarantee; §8.2 defines the remaining environment and final-artifact requirements.
 
 #### 2. Headless Chrome (`v157.0.8103.79`) + CSS Paged Media — Zero-Install Alternative
 
@@ -223,108 +217,128 @@ _(`*Note on p5`: 12 of 13 sequenced frames in `p5` are color, while 1 frame—`a
 
 ### 5.1 Applying Rich Sutton's _The Bitter Lesson_ to Photobook Curation
 
-In _The Bitter Lesson_ ([Sutton, 2019](http://www.incompleteideas.net/IncIdeas/BitterLesson.html)), Rich Sutton demonstrates that general methods scaling with **search** and **computation** reliably outperform systems constrained by human-engineered domain buckets and manual heuristics.
+In _The Bitter Lesson_ ([Sutton, 2019](http://www.incompleteideas.net/IncIdeas/BitterLesson.html)), Sutton argues for general methods that leverage search and learning as computation scales. Applied here, the useful insight is to explore more visual arrangements rather than encoding only web-folder adjacency. It does **not** supply an objective verifier for photographic meaning or literary quality. The machine can compute colorimetry, geometry, gaze, and semantic motifs—the Barthesian **_studium_**—while the human author supplies the **_punctum_**, lived biographical truth, and final editorial judgment. Search therefore expands the candidate space; it never becomes an autonomous acceptance oracle.
 
-Applied to `ryusoh.github.io`, this yields a clear architectural division between **modality-partitioned visual graph search** (where agentic compute dominates) and **poetic voice / taste calibration** (where unconstrained LLM generation fails):
+The initial optimizer should be modest, deterministic, and inspectable: **seeded multi-start beam search followed by local moves** such as swaps, relocations, bounded reversals, and alternative approved spread archetypes. It should emit several Pareto-diverse proposals—one emphasizing cross-series montage, another tonal breathing, another geometric continuity, and another preservation of the current order—each with a structured diff and per-objective score deltas. A candidate is valid only if it satisfies every hard constraint. A locked spread, banned pair, rights failure, modality violation, missing required placement, or recto/verso parity error cannot be traded away against a better aesthetic score.
 
-1. **Where Agentic Search Wins: Dissolving the `p1`–`p6` Silos Within Disjoint B&W (`51`) and Color (`76`) Sub-Pools**
-    - The 6 web galleries (`p1`–`p6`) are chronological/thematic buckets created for web navigation. Locking a photobook into those 6 buckets restricts diptych search to intra-folder neighbors (e.g., $\binom{18}{2} = 153$ pairs in `p1`).
-    - However, because the 127 eligible photos consist of **51 B&W frames** (`p1` [18], `p6` [32], `p5/DSCF9004-3.jpg` [1]) and **76 Color frames** (`p2` [21], `p3` [23], `p4` [20], `p5` [12]), **pooling all 127 without a modality partition would introduce a critical colorimetric failure mode**: in CIELAB space ([`.agents/skills/sequence/scripts/metrics.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/metrics.mjs)), a dark low-saturation color photograph ($L^_=18, a^_=-1.5, b^_=-3.0$) has a tiny Euclidean color distance ($\Delta E\_{76} \approx 3.4$) to a dark B&W photograph ($L^_=18, a^_=0, b^_=0$). An unpartitioned optimizer would therefore pair dark color frames with B&W frames on the same spread, causing jarring perceptual friction.
-    - **The Bipartite Modality Rule:** The orchestrator enforces an infinite cost barrier ($C(i, j) = \infty$) between `modality: "bw"` and `modality: "color"`, partitioning the global search into two pure sub-graphs:
-        - **Monochrome Search Graph (`51` frames across `p1`, `p6`, and `p5/DSCF9004-3.jpg`):** $\binom{51}{2} = 1,275$ cross-series B&W pairings. Because $a^* \approx 0$ and $b^* \approx 0$ for all pure B&W frames, chromatic $\Delta E$ collapses to $\Delta L^_$. Therefore, the B&W optimizer replaces chromatic distance with \*\*Luminance Step Contrast ($\Delta L^_$), Local Tonal Entropy / Grain Texture Contrast, and Gaze/Vector Geometry\*\*.
-        - **Color Search Graph (`76` frames across `p2`, `p3`, `p4`, and `p5`):** $\binom{76}{2} = 2,850$ cross-series Color pairings, evaluated with full CIELAB chromatic $\Delta E$, luminance respiratory cycles, and gaze/vector momentum.
-    - **Macro-Editing & Pruning:** Rather than mechanically dumping all 127 frames into 6 web chapters, the agentic orchestrator can either select the highest-tension **75–100 frame monograph cut** or sequence all 127 frames across **pure-B&W movements** and **pure-Color movements** separated by an explicit **Phase Transition Divider** spread (§6.3).
-    - **2D Spread Optimization (`verso` + `recto`):** Unlike vertical web scrolling, a photobook opened in `TwoPageRight` mode is experienced as **2-page spreads**. The agentic search evaluates each spread as a unified 2D composition (`The Monolith`, `Asymmetric Weight Diptych`, `Symmetric Collision Diptych`, `Diagonal Modular Offset`, or `System Phase Divider` — detailed in §6.3) using only same-modality photographs.
-2. **Where Unconstrained Generation Fails: The Text Policy (Silence, Retrieval & Appendix)**
-    - Sutton's _Bitter Lesson_ presupposes an objective reward verifier (such as game victory or physical prediction error). In literary verse, no external verifier exists; unguided LLM generation optimizes for high-probability training tokens, producing overwrought, cliché "AI poetry" that explains the image and destroys what Jason Eskenazi calls **The Elliptical Gap** ([`docs/sequence-skill-architecture.md`](file:///Users/lz/dev/ryusoh.github.io/docs/sequence-skill-architecture.md#L94)).
-    - As established in [`docs/critique-calibration-design.md`](file:///Users/lz/dev/ryusoh.github.io/docs/critique-calibration-design.md#L15-L17) via Roland Barthes, the machine can compute the **_studium_** (colorimetry, geometry, gaze, semantic motifs), while only the human author supplies the **_punctum_** (lived biographical truth).
-    - Therefore, the agentic orchestrator is strictly forbidden from inventing free-form poetic verses between plates and instead executes three disciplined text operations:
-        1. **Visual Silence (~90% of spreads):** Most spreads contain zero body text—allowing the collision of facing images and page turns to carry the rhythm.
-        2. **Authentic Corpus Retrieval & Placement:** All human-curated `>` stanzas from `assets/img/p1..p6/index.md` (plus any raw author notes/lyrics in an optional `book/fragments.md`) form a closed **Authentic Text Pool**. The agent uses semantic + tonal search to **select, trim, and position** only the 5–12 authentic fragments that create the sharpest intellectual montage at movement thresholds or voltas.
-        3. **Back-of-Book Curatorial Appendix (`commentary.json`):** The AI's analytical critiques (`role`, `subject`, `thematicMeaning`, `vectors` from `assets/img/p1..p6/commentary.json`) are compiled into an **Illustrated Plate Notes / System Colophon Appendix** at the back of the PDF (following the museum monograph convention), keeping the photographic plates uncluttered.
+| Search layer           | Initial implementation                                                      | Later option only if measurements justify it                  |
+| ---------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Candidate construction | Seeded multi-start beam search with bounded candidate lists                 | CP-SAT for tightly constrained global subproblems             |
+| Local improvement      | Swaps, relocations, bounded reversals, archetype alternatives               | Simulated annealing or larger-neighborhood search             |
+| Editorial diversity    | Several seeded candidates with explicit objective weights                   | Multi-objective Pareto optimization with stored history       |
+| Hard constraints       | Predicate validation before scoring                                         | Circuit constraints for a Hamiltonian-path/cycle formulation  |
+| Explanation            | Per-move reason, score delta, constraint checks, before/after contact sheet | Natural-language summary grounded only in the structured diff |
+| Acceptance             | Human approval against a specific parent ledger revision                    | No autonomous acceptance tier                                 |
 
-### 5.2 Externalized State Ledger (`book/sequence.yaml`) & Long-Term Maintenance
+Within the disjoint B&W and Color components, all **4,125 same-modality pairs** remain available, including same-series transitions; the **2,757 cross-series pairs** can receive their own explicitly named objective. The color component can use CIE76 chromatic distance, `lab.L` contrast, `luma255` respiratory cycles, and gaze/vector momentum. The B&W component emphasizes luminance steps, local tonal entropy/grain, and compositional geometry without assuming that its tinted member has exactly zero chroma. Macro-editing may propose a **75–100 frame monograph cut** or retain all 127 frames, but omissions remain reviewable proposals. Each spread is evaluated as a unified verso/recto composition using the archetypes in §6.3, not inferred from the PDF viewer's `/TwoPageRight` preference.
 
-In accordance with the repository's **State-Oriented Architecture** (`AGENTS.md`), the globally orchestrated book structure is persisted in a single declarative, git-tracked ledger: `book/sequence.yaml`. Each movement declares its `modality` (`'bw'` or `'color'`), and the build validator rejects any spread or movement that mixes B&W and Color frames.
+The text policy remains **silence, verbatim retrieval, and appendix**. Most spreads contain no body text. The closed Authentic Text Pool consists of human-curated stanzas and optional author-supplied fragments, but each fragment needs a stable `fragmentId`, exact source range, verbatim text, language, author/attribution, originality status, rights/review status, and excerpt policy. Selecting and placing a complete fragment can be automated as a proposal. Abridgement requires a separate excerpt-range proposal and human approval; third-party footer/citation attribution can never be dropped. AI analytical commentary belongs in the back-of-book Plate Index/System Colophon, not as synthetic poetry between plates. A small deterministic index or direct model-assisted retrieval is sufficient for roughly 122 fragments; a vector database is unnecessary at this scale.
+
+### 5.2 Versioned State Ledger, Text Provenance, and Long-Term Maintenance
+
+In accordance with the repository's **State-Oriented Architecture**, approved book structure lives in `book/sequence.yaml`; candidate proposals and derived inventories live elsewhere. The ledger uses stable logical IDs rather than array positions or filenames as identity. A photograph retains its `assetId` after a crop/color re-export, while `sourceSha256` identifies the new byte revision. Every proposal records its parent ledger revision, source fingerprint, generator version, random seed, objective configuration hash, and metric versions. Approval applies only when the parent revision still matches, and schema migrations are explicit and tested.
+
+The following is an **illustrative contract, not an implemented file**. Output-specific dimensions, ICC operations, and rendering options belong in versioned output profiles; the editorial ledger records only the selected profile reference and output-independent decisions.
 
 ```yaml
-title: 'INFINITE SYSTEMS'
-subtitle: 'Photographs 2021–2026'
-author: 'Zhuang Liu'
-theme: 'obsidian' # "obsidian" (#070709 primary canvas)
-pageSize:
-    width: '300mm'
-    height: '200mm'
-    bleed: '0mm' # Set to "3mm" when exporting for print
+schemaVersion: 1
+editionId: 'infinite-systems'
+revision: 1
+parentRevision: null
+sourceFingerprint: '<canonical-source-set-hash>'
+approval:
+    proposalId: 'manual-seed-001'
+    reviewer: 'Zhuang Liu'
+    approvedAt: '2026-11-17T00:00:00+08:00'
+outputProfile: 'display-v1'
 includeCommentaryAppendix: true
 
-# Human taste constraints (Reward Oracle for future agentic re-sequencing)
+assets:
+    - assetId: 'p1-dscf4775'
+      source: 'assets/img/p1/DSCF4775.jpg'
+      sourceSha256: '<64-hex-source-revision>'
+      modality: 'bw'
+      rightsStatus: 'approved'
+      altText: 'A diagonal shaft of light crosses a dark transit car.'
+    - assetId: 'p5-dscf9004-3'
+      source: 'assets/img/p5/DSCF9004-3.jpg'
+      sourceSha256: '<64-hex-source-revision>'
+      modality: 'bw'
+      rightsStatus: 'approved'
+      altText: 'A high-grain self-portrait in a white helmet.'
+
+fragments:
+    - fragmentId: 'p1-lines-15-17'
+      source: 'assets/img/p1/index.md'
+      sourceRange: { startLine: 15, endLine: 17 }
+      language: 'en'
+      text: "The sun goes down\nI feel the light betray me"
+      attribution: '<required-verbatim-attribution>'
+      originality: 'third-party'
+      rightsStatus: 'review-required'
+      excerptPolicy: 'verbatim-only'
+
 constraints:
-    strictModalitySeparation: true # Never mix B&W and Color in any spread or movement
-    neutralizeTintedMonochrome: true # Neutralize p5/DSCF9004-3.jpg to pure grayscale in B&W movements
-    pinnedOpener: 'p1/DSCF4775.jpg'
-    pinnedCloser: 'p6/DSCF0167-2.jpg'
-    bannedPairs:
-        - ['p2/DSCF8739.jpg', 'p4/DSCF6872-5.jpg']
+    strictModalitySeparation: true
+    pinnedOpenerAssetId: 'p1-dscf4775'
+    pinnedCloserAssetId: 'p6-dscf0167-2'
+    bannedAssetPairs:
+        - ['p2-dscf8739', 'p4-dscf6872-5']
 
 movements:
-    - id: 'SYS.01'
+    - movementId: 'SYS.01'
       title: 'SINGULARITY'
-      modality: 'bw' # Strictly draws from the 51-photo B&W sub-pool (p1, p6, p5/DSCF9004-3.jpg)
+      modality: 'bw'
       spreads:
-          - id: 's01'
+          - spreadId: 's01'
             layout: 'monolith-epigraph'
-            locked: true # Human-approved spread; preserved across incremental updates
-            versoText:
-                source: 'p1/index.md#L15-L17'
-                lines:
-                    - 'The sun goes down'
-                    - 'I feel the light betray me'
-            recto: 'p1/DSCF4775.jpg'
-            rectoScale: 'full-bleed'
-          - id: 's02'
-            layout: 'asymmetric-diptych'
-            locked: false
-            verso: 'p6/DSCF8985-2.JPG'
-            versoScale: 'full-bleed'
-            recto: 'p1/DSCF1093.jpg'
-            rectoScale: 'inset-55'
-    - id: 'SYS.02'
-      title: 'CHROMATIC IGNITION'
-      modality: 'color' # Strictly draws from the 76-photo Color sub-pool (p2, p3, p4, p5-color)
-      spreads:
-          - id: 's18'
-            layout: 'symmetric-diptych'
-            locked: false
-            verso: 'p4/DSCF6872-5.jpg'
-            recto: 'p2/DSCF8772.jpg'
+            locked: true
+            verso: { fragmentId: 'p1-lines-15-17' }
+            recto: { assetId: 'p1-dscf4775', scale: 'full-bleed' }
 ```
+
+| Contract area           | Required fields or semantic invariants                                                                                                  |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Envelope                | `schemaVersion`, edition/revision IDs, parent revision, canonical source fingerprint, approval provenance                               |
+| Assets                  | Stable `assetId`, logical source path, `sourceSha256`, modality, rights status, alternative text or decorative designation              |
+| Movements/spreads/pages | Stable IDs, ordered relationships, verso/recto parity, archetype, locks, pins, omissions                                                |
+| Text fragments          | Exact source range, verbatim text, language, attribution, originality, rights/review status, excerpt policy                             |
+| Constraints             | Locked spreads, banned pairs, pinned opener/closer, required/forbidden placements; all are hard constraints                             |
+| Proposal                | Proposal ID, parent revision, generator/config/metric versions, seed, structured change reasons                                         |
+| Output manifest         | Final page order, asset revisions and derivative recipes, effective PPI, ICC actions, font/tool/ICC hashes, page boxes, post-processing |
+| Release evidence        | Final artifact and preflight hashes, two-build result, human visual/accessibility/print sign-offs where applicable                      |
 
 #### How Long-Term Operations Work (`Add`, `Delete`, `Adjust`, `Resequence`)
 
-| Editorial Action                              | How You Do It (Long-Term Ritual)                                                                                    | Pool & Modality Effect (`index.md` + `sharp` Classifier)                                                            | Photobook Effect (`book/sequence.yaml` $\to$ `dist/*.pdf`)                                                                         |
-| :-------------------------------------------- | :------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- |
-| **Add a new photo to the repo**               | Add `NEW.jpg` to `assets/img/p<N>/` and list it in `assets/img/p<N>/index.md`.                                      | Enters eligible pool (`127` $\to$ `128`); `sharp` auto-classifies $P_{95}(\Delta_{\text{RGB}})$ as `bw` or `color`. | `make book-sync` runs **incremental search** restricted to movements matching `NEW.jpg`'s modality (`bw` or `color`).              |
-| **Drop an unsequenced file into `p<N>/`**     | File sits in `assets/img/p<N>/` but is **not** listed in `p<N>/index.md`.                                           | **Ignored** (excluded from pool, just like the 12 existing orphans).                                                | Zero effect on the photobook.                                                                                                      |
-| **Delete a photo from `p<N>/index.md`**       | Remove the `FILENAME.jpg` line from `assets/img/p<N>/index.md`.                                                     | Expelled from the eligible book pool (`127` $\to$ `126`).                                                           | `make book-sync` removes the frame from `book/sequence.yaml` and locally repairs the affected spread within the same modality.     |
-| **Adjust image crop / color in Lightroom**    | Re-export `assets/img/p<N>/FILENAME.jpg` with the same filename.                                                    | Pool membership unchanged; file `mtime` updates.                                                                    | `make book` refreshes `.cache/book-img/` and re-embeds the updated JPEG stream in seconds without altering `book/sequence.yaml`.   |
-| **Approve or reject an AI spread**            | Set `locked: true` on spreads you love or add a disliked pair to `constraints.bannedPairs` in `book/sequence.yaml`. | Updates the human-in-the-loop reward constraints.                                                                   | Future agentic optimization passes treat `locked: true` spreads and `bannedPairs` as hard boundaries.                              |
-| **Re-orchestrate a new Edition from scratch** | Run agentic global search (`make book-orchestrate`) over the current eligible pool (`p1..p6/index.md`).             | Reads all currently sequenced photos across `p1`–`p6`, partitioned into `bw` and `color` sub-graphs.                | Computes a fresh global multi-movement edit while respecting `strictModalitySeparation` and `constraints` in `book/sequence.yaml`. |
+`book-sync` is **plan-only by default**. A separate `book-apply --plan <id>` operation validates the approved plan and atomically replaces the ledger; it never chooses an autonomous repair. A new source revision invalidates derivatives and triggers revalidation of affected placements without changing the photograph's logical identity. Derived caches are content-addressed by source hash plus the complete canonical recipe, not by modification time and size.
 
-### 5.3 Solving the 201 MB Payload Problem: Dual-Tier & Modality-Aware Asset Normalization
+| Editorial action                               | Inventory/plan behavior                                                                 | Approved-ledger behavior                                                |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Add a sequenced photo                          | Classify it with a versioned metric and add it to the **unplaced candidate pool**       | No automatic insertion; only an approved proposal may place it          |
+| Drop an unsequenced file into `p<N>/`          | Ignore it, as with the current 12 outtakes                                              | No effect                                                               |
+| Delete an unplaced photo                       | Remove it from future candidate pools                                                   | No effect                                                               |
+| Delete a photo used by an unlocked spread      | Emit a deletion/repair proposal with affected pages and alternatives                    | Apply only after human review                                           |
+| Delete a photo used by a **locked** spread     | Emit a blocking human-resolution conflict                                               | Never auto-delete or substitute                                         |
+| Re-export a crop/color under the same filename | Preserve `assetId`; update `sourceSha256`; invalidate the source+recipe cache           | Retain placement, but require affected PPI/visual checks before release |
+| Approve/reject a candidate spread              | Record locks, bans, or taste decisions as editorial input                               | Future proposals treat them as hard constraints                         |
+| Re-orchestrate an edition                      | Generate a fresh candidate against the current approved revision and source fingerprint | Never overwrite the current edition directly                            |
 
-Our audit in §4.1 showed that the 127 eligible JPEGs across `p1`–`p6` total **201.0 MB** because several files are high-bit-depth exports (notably `assets/img/p3/DSCF7318-3.jpg` at `6240 × 4160` / **28.9 MB** and `assets/img/p3/DSCF5759-5.jpg` at `4675 × 3117` / **8.5 MB**, while the median JPEG across the repo is **1.20 MB**), and the 50 pure-B&W files in `p1` and `p6` are stored as 3-channel RGB files.
+### 5.3 Output Profiles, Content-Addressed Derivatives, and the 201 MB Payload
 
-Because `sharp` (`^0.35.5`) is already a first-class dependency in [`package.json`](file:///Users/lz/dev/ryusoh.github.io/package.json#L38), the book build script normalizes eligible images into `.cache/book-img/<tier>/` (cached by file `mtime` + size, just like `ensureImageVariants()` in `scripts/build-page.mjs:85-164`):
+The 127 eligible JPEGs total **201.0 MB**, including several large exports and 50 pure-B&W photographs stored as 3-channel RGB JPEGs. Sharp is already a repository dependency, but the book must not reuse `ensureImageVariants()` from the web builder because that routine sanitizes source JPEG metadata. Book derivatives are written only under `.cache/book-img/`; originals remain read-only. Prior payload reductions are **estimates to be measured on the built artifact**, not guaranteed output sizes.
 
-1. **`--tier master` (Archival / 4K Display Master)**:
-    - Any JPEG with `max(width, height) <= 2048` and file size `<= 3 MB` is symlinked/copied **untouched** (100% lossless `/DCTDecode` passthrough, preserving embedded Display P3 and sRGB ICC profiles).
-    - If `neutralizeTintedMonochrome: true` is enabled for `p5/DSCF9004-3.jpg` ($P_{95} = 11$), `sharp` converts that single frame to neutral grayscale so its tone matches the 50 pure-B&W frames in `p1` and `p6`.
-    - Only the 5 oversized `>2048px` frames in `p3`/`p5` are resized via `sharp(input).resize(2048, 2048, { fit: 'inside', withoutEnlargement: true }).keepIccProfile().jpeg({ quality: 92, mozjpeg: true })`, cutting ~42 MB of bloat from those 5 files alone (`~155 MB` for all 127 frames, or `~105 MB` for an 85-frame pruned monograph).
-2. **`--tier screen` (Lightweight Distributable eBook)**:
-    - For the **76 Color frames**: runs `sharp(input).resize(2048, 2048, { fit: 'inside', withoutEnlargement: true }).toColorspace('srgb').jpeg({ quality: 82, mozjpeg: true, chromaSubsampling: '4:2:0' })`.
-    - For the **51 B&W frames**: runs `.greyscale()` (`b-w` 1-channel `/DeviceGray` JPEG at `quality: 84, mozjpeg: true`), eliminating redundant 3-channel chroma planes and guaranteeing zero green/magenta cast across displays while shrinking B&W file sizes by an extra ~25%.
-    - Reduces overall PDF size from **201 MB $\to$ ~42–46 MB** for all 127 frames (or **~28–32 MB** for an 85-frame pruned monograph).
+Output names must describe destinations rather than implying unrelated guarantees. A PDF can be small, archival, high-resolution, accessible, or press-ready independently of the other properties.
+
+| Profile        | Purpose                               | Minimum contract                                                                                                                |
+| -------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `screen`       | Portable electronic distribution      | Explicit sRGB conversion for transformed color assets, quality/size measurement, navigation and accessibility metadata          |
+| `display`      | Higher-quality screen/display edition | Lossless JPEG passthrough where eligible or documented high-quality derivatives; no press-readiness claim                       |
+| `archive-pdfa` | Long-term archival target             | A declared PDF/A level validated by veraPDF on the final post-processed file; resolution reported independently                 |
+| `press`        | A specific physical printer/process   | High-resolution source mapping, trim/bleed/page boxes, effective-PPI gate, printer output intent, soft proof and physical proof |
+
+Every derivative cache key is the hash of **`sourceSha256` + canonical recipe + Sharp/libvips version + ICC profile bytes**. The recipe records resize geometry, resampling, compression, grayscale/neutralization, and ICC behavior. Modification time and size are diagnostics only. Untouched JPEG passthrough and color-managed transformed derivatives are separate recipe classes. Sharp removes processed-output metadata by default, so ICC preservation or conversion must be deliberate and tested rather than inferred from the input. [Sharp output documentation](kimi-cite://web?url=https%3A%2F%2Fsharp.pixelplumbing.com%2Fapi-output%2F 'citation')
+
+The tinted B&W frame may be neutralized only as an approved derivative recipe, while its source and logical asset identity remain unchanged. B&W screen derivatives may use one-channel grayscale after visual review. A future `press` profile maps the same `assetId` to sufficiently large archive exports and measures effective PPI from the actual placed bleed dimensions. Upscaling, if ever chosen, is an explicit reviewed recipe and does not make the underlying source genuinely higher resolution. PDF/X conversion is printer-specific: Ghostscript output-intent settings and every post-processing operation must be captured and validated, not replaced by a generic conversion command. [Ghostscript PDF documentation](kimi-cite://web?url=https%3A%2F%2Fghostscript.readthedocs.io%2F_%2Fdownloads%2Fen%2Flatest%2Fpdf%2F 'citation')
 
 ### 5.4 Setting Two-Page Spread View (`/PageLayout /TwoPageRight`)
 
@@ -333,7 +347,7 @@ Per **ISO 32000-1:2008 §7.7.2 (_Document Catalog_, Table 28)** ([PDF 32000-1:20
 - `/PageLayout /TwoPageRight`: `"Display the pages two at a time, with odd-numbered pages on the right."` This is the standard photobook layout: Page 1 (the front cover) appears alone on the right-hand side, and subsequent even/odd pairs (`2–3`, `4–5`, ...) appear as facing spreads.
 - `/PageMode /UseOutlines`: Opens the PDF with the movement bookmark sidebar visible.
 
-Because neither Typst `0.15.1` (`crates/typst-pdf/src/convert.rs`) nor Headless Chrome (`SkPDFDocument`) exposes a CLI flag for `/PageLayout /TwoPageRight`, the build script stamps `/PageLayout /TwoPageRight /PageMode /UseOutlines` on the `/Type /Catalog` dictionary (or via `qpdf` / Ghostscript `pdfmark`) **without touching or re-encoding any `/DCTDecode` image stream**.
+`/TwoPageRight` is an **initial viewer preference**, not printer imposition and not a guarantee of reader behavior. Page order, recto/verso parity, and page boxes must be validated independently. If catalog finalization is required, the build script may set `/PageLayout /TwoPageRight` and `/PageMode /UseOutlines` without re-encoding image streams, then rerun every structural and standards check on the final artifact. QPDF provides structural/JSON inspection and `--deterministic-id`, but its documentation does not promise identical output across different QPDF versions; the post-processor version therefore belongs in the build manifest and two-build test. [QPDF CLI documentation](kimi-cite://web?url=https%3A%2F%2Fqpdf.readthedocs.io%2Fen%2Fstable%2Fcli.html 'citation')
 
 ---
 
@@ -354,15 +368,21 @@ Following [`docs/design-research.md`](file:///Users/lz/dev/ryusoh.github.io/docs
 
 ### 6.2 Color Scheme & Surface Physics: "Obsidian Darkroom + Telemetry Red"
 
-Because **82.7% (`105 / 127`)** of the eligible photographs are low-key Exhalations ($L^* \le 75$) or mid-tone Grounding frames ($75 < L^* < 135$), placing them on a `#FFFFFF` white page creates high-luminance screen glare on OLED/Mini-LED displays, forcing the viewer's pupils to constrict and crushing shadow detail ($L^* \in [10, 35]$). Moreover, a neutral `#070709` obsidian canvas unifies the B&W movements and the Color movements while respecting their internal separation:
+Because **82.7% (`105 / 127`)** of the eligible photographs are low-key Exhalations (`luma255 ≤ 75`) or mid-tone Grounding frames (`75 < luma255 < 135`), a white digital canvas can create distracting luminance contrast with the plates. A neutral `#070709` obsidian canvas unifies the B&W and Color movements while respecting their editorial separation. This screen-oriented surface requires a **separate print soft-proof strategy**: digital near-black does not translate directly to printable rich black, shadow detail, or total ink behavior.
 
-| Surface / Token Role                             | Hex Code  | Optical & Editorial Purpose                                                                                                                                                                                                                                                                                                       |
-| :----------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Primary Plate Canvas (~90% of pages)**         | `#070709` | **Obsidian Void:** Near-true black with a neutral floor. Shadow edges dissolve into the page so silver-gelatin B&W highlights and color neon glow off the screen.                                                                                                                                                                 |
-| **Appendix / Dossier Canvas (Endmatter)**        | `#111317` | **Blueprint Slate** (or `#EAE6DF` **Archival Bone** in print mode): Visually separates the back-of-book System Colophon and Plate Index from the photographic plates.                                                                                                                                                             |
-| **Primary Display & Epigraph Text**              | `#E6E4DF` | **Silver Bone:** Avoids harsh `#FFFFFF` halation against `#070709`, matching the warmth of silver-gelatin highlights.                                                                                                                                                                                                             |
-| **Secondary Telemetry & Folio Text**             | `#6E737B` | **Tungsten Grey:** Used for subtle plate indices (`[042]`), movement coordinates, and colophon metadata.                                                                                                                                                                                                                          |
-| **Surgical Signal Accent (Rules & Coordinates)** | `#CE2323` | **Safelight / Telemetry Red:** Inherited from [`docs/design-research.md`](file:///Users/lz/dev/ryusoh.github.io/docs/design-research.md#L72-L74). Restricted to movement phase-divider rules, waveform threshold markers, and cover telemetry—**never placed on B&W plate spreads** so monochrome spreads remain 100% achromatic. |
+Contrast ratios below were calculated against `#070709` using WCAG relative luminance. Meaningful small text requires at least **4.5:1**; decorative folios may be PDF artifacts, but plate numbers, telemetry, and colophon text that convey information cannot be made exempt merely by calling them decorative.
+
+| Surface / token role            | Hex code                              | Contrast on obsidian | Permitted role                                                                   |
+| ------------------------------- | ------------------------------------- | -------------------: | -------------------------------------------------------------------------------- |
+| Primary Plate Canvas            | `#070709`                             |                    — | Obsidian page surface                                                            |
+| Appendix / Dossier Canvas       | `#111317` or print-specific `#EAE6DF` |  Measure per pairing | Endmatter surface                                                                |
+| Primary Display & Epigraph Text | `#E6E4DF`                             |         **15.840:1** | Primary text                                                                     |
+| Secondary Epigraph Text         | `#D8D5CE`                             |         **13.733:1** | Secondary text                                                                   |
+| Tungsten Grey                   | `#6E737B`                             |          **4.218:1** | Decorative only at small sizes; lighten for meaningful text                      |
+| Dark Folio Grey                 | `#4A4E54`                             |          **2.405:1** | Non-text decoration only                                                         |
+| Safelight / Telemetry Red       | `#CE2323`                             |          **3.727:1** | Large text or non-text accent; introduce a lighter red for small meaningful text |
+
+The red accent remains restricted to movement phase-divider rules, waveform markers, and non-text cover telemetry, and is never placed on B&W plate spreads. The arithmetic is reproducible with `python docs/assets/photobook-ebook-review/calculate_metrics.py`.
 
 ### 6.3 Page Geometry (`300 × 200 mm`) & The Five Spread Layout Archetypes
 
@@ -371,6 +391,8 @@ Because **82.7% (`105 / 127`)** of the eligible photographs are low-key Exhalati
 - Because **100% (`127 / 127`) of the eligible photographs have a 3:2 landscape aspect ratio**, setting the single-page trim size to **`300 mm × 200 mm`** (`1.5 : 1` page ratio; `600 mm × 200 mm` / `3 : 1` panoramic dual-page spread in `TwoPageRight` view) guarantees that:
     - Any **full-bleed single-page plate** fills **100.0% of the page (`300 × 200 mm`) with zero cropping** of the original 3:2 camera frame.
     - Any **inset plate** maintains uniform, harmonic margins across top, bottom, and outer edges.
+
+This is a **geometric** guarantee only. A common web export provides **168.306 PPI** when extended over the 306 × 206 mm bleed geometry, so this trim size is suitable for the display concept but is not a press-resolution decision. The output profile must either reduce placed dimensions, document and physically proof a lower-PPI choice, or substitute high-resolution sources while retaining the same `assetId`.
 
 #### 2. The Five Spread Layout Archetypes (Preventing 3:2 Scale Monotony)
 
@@ -398,7 +420,7 @@ When every photograph shares the same 3:2 aspect ratio, placing identically size
 ```
 
 1. **Archetype 1 — `The Monolith` (`monolith` / `monolith-epigraph`, ~30% of spreads):**
-    - Left page (`verso`) is pure `#070709` negative space (or carries a 2-line retrieved authentic epigraph anchored at the lower-left grid intersection); right page (`recto`) holds a single full-bleed (`100%`) or large inset (`82%` width) plate. Used for movement openers, deep Exhalations ($L^* \le 75$), and emotional climaxes.
+    - Left page (`verso`) is pure `#070709` negative space (or carries a 2-line retrieved authentic epigraph anchored at the lower-left grid intersection); right page (`recto`) holds a single full-bleed (`100%`) or large inset (`82%` width) plate. Used for movement openers, deep Exhalations (`luma255 ≤ 75`), and emotional climaxes.
 2. **Archetype 2 — `Asymmetric Weight Diptych` (`asymmetric-diptych`, ~25% of spreads):**
     - One page is `100%` full-bleed (`0 mm` margin, visceral primary impact); the facing page holds a smaller `55%`-width inset plate of the **same modality (`bw` or `color`)** surrounded by deep obsidian margin, acting as an observational echo or psychological afterimage.
 3. **Archetype 3 — `Symmetric Collision Diptych` (`symmetric-diptych`, ~30% of spreads):**
@@ -410,14 +432,14 @@ When every photograph shares the same 3:2 aspect ratio, placing identically size
 
 ### 6.4 Typography System & Micro-Layout Rules
 
-| Typographic Voice               | Typeface & Source Path                                                     | Scale, Tracking & Role                                                                                                                          |
-| :------------------------------ | :------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1. Display / Architectural**  | **`Syne`** (`ExtraBold 800` / `Bold 700`, `assets/fonts/`)                 | Book title (`28 pt`, tracking `+0.12em` uppercase) and movement headers (`14 pt`, tracking `+0.16em`).                                          |
-| **2. Bilingual Epigraph Verse** | **`Syne Regular`** (Latin) + **`GlowSansSC-Extended-Light/Regular`** (CJK) | Retrieved stanzas on `monolith-epigraph` and `phase-divider` spreads (`10 pt`, line-height `1.75`, color `#D8D5CE`, `cjk-latin-spacing: auto`). |
-| **3. System Telemetry / Folio** | **Tabular Monospace** (`JetBrains Mono` / `SF Mono` / `DejaVu Sans Mono`)  | Outer-corner plate numbers (`7.5 pt`, `tabular-nums`, `#4A4E54`), movement coordinates, and back-of-book CIELAB / EXIF tables (`8 pt`).         |
+| Typographic Voice               | Typeface & Source Path                                                     | Scale, Tracking & Role                                                                                                                                                                               |
+| :------------------------------ | :------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. Display / Architectural**  | **`Syne`** (`ExtraBold 800` / `Bold 700`, `assets/fonts/`)                 | Book title (`28 pt`, tracking `+0.12em` uppercase) and movement headers (`14 pt`, tracking `+0.16em`).                                                                                               |
+| **2. Bilingual Epigraph Verse** | **`Syne Regular`** (Latin) + **`GlowSansSC-Extended-Light/Regular`** (CJK) | Retrieved stanzas on `monolith-epigraph` and `phase-divider` spreads (`10 pt`, line-height `1.75`, color `#D8D5CE`, `cjk-latin-spacing: auto`).                                                      |
+| **3. System Telemetry / Folio** | **Tabular Monospace** (`JetBrains Mono` / `SF Mono` / `DejaVu Sans Mono`)  | Outer-corner plate numbers (`7.5 pt`, `tabular-nums`, `#D8D5CE` when meaningful), movement coordinates, and back-of-book CIELAB / EXIF tables (`8 pt`). `#4A4E54` is restricted to decorative marks. |
 
-- **Zero Captions on Plate Spreads:** Never print filenames, titles, dates, or AI commentary beneath photographs on plate pages. Only a minimal `7.5 pt` tabular-monospace plate index (`042`) appears in the bottom outer margin (`10 mm` from trim) on inset pages, and is suppressed entirely on full-bleed pages.
-- **Achromatic Purity on B&W Plate Spreads:** On all spreads within a `modality: 'bw'` movement, zero chromatic elements (`#CE2323` or otherwise) may appear; folio numbers use neutral `#4A4E54` and epigraph text uses neutral `#D8D8D8` so the viewer's eye remains in pure silver-halide monochrome adaptation.
+- **Zero Captions on Plate Spreads:** Never print filenames, titles, dates, or AI commentary beneath photographs on plate pages. Only a minimal `7.5 pt` tabular-monospace plate index (`042`) appears in the bottom outer margin (`10 mm` from trim) on inset pages, and is suppressed entirely on full-bleed pages. If the number conveys navigation information, it uses an accessible text token and has a nonvisual semantic equivalent.
+- **Achromatic Purity on B&W Plate Spreads:** On all spreads within a `modality: 'bw'` movement, zero chromatic elements (`#CE2323` or otherwise) may appear. Meaningful folio numbers use neutral `#D8D5CE`; `#4A4E54` is decorative only; epigraph text uses neutral `#D8D5CE` so the viewer remains in monochrome adaptation.
 
 ### 6.5 Cover Design Concepts for _Infinite Systems_
 
@@ -442,50 +464,135 @@ When every photograph shares the same 3:2 aspect ratio, placing identically size
 
 1. **Option A (Recommended) — _The Cybernetic Monolith_ (MACK / Lars Müller Systems Aesthetic):**
     - Sets `INFINITE SYSTEMS` in `Syne ExtraBold` across the upper Swiss grid above a `0.5 pt` `#CE2323` rule on `#070709` Obsidian Void.
-    - Anchors an asymmetric inset chiaroscuro photograph (such as `p1/DSCF4775.jpg`, the diagonal shaft of sunlight piercing the dark transit car) on the right grid columns, balanced on the lower-left by the actual **Photometric Luminance Waveform $L^\*(t)$** of the compiled book rendered as a razor-sharp vector trace and the system spec line `127 STATES · 51 MONO / 76 CHROMA`.
+    - Anchors an asymmetric inset chiaroscuro photograph (such as `p1/DSCF4775.jpg`, the diagonal shaft of sunlight piercing the dark transit car) on the right grid columns, balanced on the lower-left by the actual **Photometric Luminance Waveform `luma255(t)`** of the compiled book rendered as a razor-sharp vector trace and the system spec line `127 STATES · 51 MONO / 76 CHROMA`.
 2. **Option B — _Full-Bleed Nocturne with Negative-Space Typography_ (Steidl / Moriyama Style):**
     - Uses a full-bleed `300 × 200 mm` nocturnal photograph with expansive natural shadow (`p1/DSCF4775.jpg` or `p6/DSCF8985-2.JPG`), placing `INFINITE SYSTEMS` (`18 pt` `Syne Bold`, tracking `+0.18em`, `#E6E4DF`) and `ZHUANG LIU` (`9 pt` monospace) directly inside the dark negative space of the image with zero boxes or borders.
 3. **Option C — _The State-Space Matrix_ (Contact-Sheet Dossier Cover):**
-    - Renders a Swiss contact-sheet matrix of all 127 colorimetric CIELAB $(L^_, a^_, b^*)$ swatches on `#070709`—visually revealing the 51 achromatic grayscale swatches alongside the 76 chromatic swatches—with a `#CE2323` crosshair highlighting the opener state and `INFINITE SYSTEMS` spanning the upper grid.
+    - Renders a Swiss contact-sheet matrix of all 127 colorimetric CIELAB `(lab.L, lab.a, lab.b)` swatches on `#070709`—visually revealing the 51 achromatic grayscale swatches alongside the 76 chromatic swatches—with a `#CE2323` crosshair highlighting the opener state and `INFINITE SYSTEMS` spanning the upper grid.
 
 ### 6.6 Back-of-Book "System Colophon & Plate Index"
 
 Because the monograph is titled _**Infinite Systems**_ and is orchestrated by an agentic neuro-symbolic pipeline, the final 6–8 pages of the PDF make the underlying system visible as part of the artwork:
 
-1. **System Telemetry Spread:** Embeds the full-book **Photometric Luminance Waveform $L^\*(t)$** (showing the B&W and Color phase regions) and **Hamiltonian Pairwise Transition Energy Graph** (generated by [`.agents/skills/sequence/scripts/charts.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/charts.mjs)) across a double-page spread.
+1. **System Telemetry Spread:** Embeds the full-book **Photometric Luminance Waveform `luma255(t)`** (showing the B&W and Color phase regions) and **Hamiltonian Pairwise Transition Energy Graph** (generated by [`.agents/skills/sequence/scripts/charts.mjs`](file:///Users/lz/dev/ryusoh.github.io/.agents/skills/sequence/scripts/charts.mjs)) across a double-page spread. CIELAB telemetry is reported separately as `lab.L`, `lab.a`, and `lab.b`.
 2. **Illustrated Plate Index & Curatorial Notes:** A structured contact-sheet index (`[001]`–`[N]`) pairing miniature thumbnails with their source coordinates (`p1`–`p6`), modality tag (`MONO` vs. `CHROMA`), CIELAB values (`L*, a*, b*`), and the curatorial critique from `assets/img/p1..p6/commentary.json`.
+
+### 6.7 Accessibility, Reading Order, and Font Provenance
+
+Accessibility is a semantic and review requirement, not a compiler flag. Typst's accessibility guidance requires meaningful semantic elements, explicit reading order, alternative text for meaningful images, language and region, a document title, and both automated and manual testing. [Typst accessibility guide](kimi-cite://web?url=https%3A%2F%2Ftypst.app%2Fdocs%2Fguides%2Faccessibility%2F 'citation') The ledger therefore needs alternative text or an explicitly decorative designation for each placement, language metadata for mixed Latin/CJK fragments, movement and heading semantics, and a reading-order policy for asymmetric spreads. PDF/UA validation, when claimed, applies to the final post-processed file and does not replace assistive-technology review.
+
+Fonts must be self-contained, hash-pinned, and distributed with their license notices. Typst does not load the repository's `.woff2` files, so the build needs pinned `.ttf`/`.otf` binaries for both Latin and CJK rather than relying on `/Users/lz/Library/Fonts`. Syne is licensed under SIL OFL 1.1; the exact font files and license text used by the book still need to be versioned. [Syne license](kimi-cite://web?url=https%3A%2F%2Fraw.githubusercontent.com%2Fgoogle%2Ffonts%2Fmain%2Fofl%2Fsyne%2FOFL.txt 'citation') Font preflight must inspect embedding/subsetting and missing glyphs, including CJK punctuation.
+
+EPUB is not an implied output of the PDF pipeline. If fixed-layout EPUB later becomes a target, it needs a separate profile covering alternative descriptions, reading order, navigation, and small-screen legibility, plus EPUBCheck validation pinned at implementation time. [W3C fixed-layout EPUB accessibility](kimi-cite://web?url=https%3A%2F%2Fwww.w3.org%2FTR%2Fepub-fxl-a11y%2F 'citation')
 
 ---
 
 ## 7. Concrete Implementation Blueprint (When Ready to Build)
 
-To keep the repository clean and aligned with `AGENTS.md` and `docs/page-generation-pipeline.md`:
+### 7.1 Directory Layout and Required Scripts
 
-1. **One-Time Environment Setup**:
-    - Install Typst (`brew install typst`) or use existing Headless Chrome (`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`).
-    - Place a static `.ttf` or `.otf` copy of `Syne` (`Syne-Bold.ttf`, `Syne-Regular.ttf`) in `assets/fonts/` alongside the existing `.woff2` files (or decompress `assets/fonts/syne-latin.woff2` via Python `fontTools`), while referencing `/Users/lz/Library/Fonts/GlowSansSC-Extended-Bold.otf` and `GlowSansSC-Extended-Regular.otf` for CJK text.
-2. **Directory & File Layout**:
-    - `book/sequence.yaml` — Git-tracked declarative book ledger for _Infinite Systems_ generated by the agentic orchestrator (enforcing `strictModalitySeparation: true` between `modality: 'bw'` and `modality: 'color'` movements) and refined via human `locked` / `bannedPairs` constraints.
-    - `book/fragments.md` (optional) — Additional authentic author notes/quotes eligible for retrieval alongside the existing `>` stanzas in `assets/img/p1..p6/index.md`.
-    - `book/photobook.typ` — Canonical Typst template implementing the `#070709` Obsidian canvas, `300 × 200 mm` 12×8 Swiss grid, the 5 spread archetypes, B&W achromatic folio rules, cover layout, and back-of-book System Colophon.
-    - `scripts/build-book.mjs` — Node.js pipeline that:
-        1. Collects the **eligible pool** exclusively from `parseMarkdownSource()` across `assets/img/p1..p6/index.md` (ignoring all unsequenced files on disk),
-        2. Classifies each eligible image via `sharp` pixel-chroma analysis ($P_{95}(\Delta_{\text{RGB}}) \le 12 \implies \text{bw}$, $> 12 \implies \text{color}$) and validates that no spread or movement in `book/sequence.yaml` mixes B&W and Color frames,
-        3. Reconciles pool additions/deletions against `book/sequence.yaml` within the matching modality sub-pool,
-        4. Normalizes images via `sharp` into `.cache/book-img/{master,screen}/` (neutralizing `p5/DSCF9004-3.jpg` in B&W movements and encoding B&W screen-tier images as 1-channel `/DeviceGray`),
-        5. Compiles `book/photobook.typ` via `typst compile` (with `--creation-timestamp` for reproducibility), and
-        6. Stamps `/PageLayout /TwoPageRight` into `dist/infinite-systems-screen.pdf` and `dist/infinite-systems-master.pdf` (gitignored via `dist/` in [`.gitignore`](file:///Users/lz/dev/ryusoh.github.io/.gitignore#L9)).
-3. **Makefile Interface**:
-    - `make book` $\to$ Deterministically compiles `book/sequence.yaml` into `dist/infinite-systems-screen.pdf` and `dist/infinite-systems-master.pdf`.
-    - `make book-sync` $\to$ Reconciles `book/sequence.yaml` with any photos added to or deleted from `assets/img/p1..p6/index.md` (preserving `locked: true` spreads and modality separation).
+The implementation should use the repository's existing Node.js tooling and a single `scripts/book.mjs` dispatcher with focused modules under `scripts/book/`. Command names must expose the authority boundary: `inventory` observes, `optimize` proposes, `sync` plans, `apply` promotes an approved plan, and `render` consumes only an approved ledger revision. None of these scripts or Make targets exists yet; the names below are the proposed interface, not commands verified in this research session.
+
+| Proposed file                | Responsibility                                                                                                                       | Default output and safety behavior                                     |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `scripts/book/inventory.mjs` | Read explicitly listed photographs/text; hash bytes; inspect dimensions/ICC; compute versioned metrics; identify unplaced candidates | Disposable inventory JSON; **read-only toward all sources**            |
+| `scripts/book/validate.mjs`  | JSON Schema plus semantic invariants, path safety, provenance, locks, parity, and output profiles                                    | Structured errors/warnings; no automatic repair                        |
+| `scripts/book/assets.mjs`    | Content-addressed derivatives with explicit ICC behavior                                                                             | Writes only to `.cache/book-img/`; never mutates source images         |
+| `scripts/book/optimize.mjs`  | Seeded, constraint-valid sequence/layout candidates                                                                                  | Proposal JSON and rationale; cannot write the approved ledger          |
+| `scripts/book/sync.mjs`      | Diff inventory against approved state; detect additions, revisions, deletions, locked conflicts                                      | Plan by default; explicit apply requires plan ID and atomic validation |
+| `scripts/book/layout.mjs`    | Approved ledger + output profile → renderer-neutral canonical layout IR                                                              | Deterministic JSON with stable ordering and effective-PPI annotations  |
+| `scripts/book/render.mjs`    | Compile layout IR with Typst and perform pinned finalization                                                                         | Selected output profile, final manifest, post-processing record        |
+| `scripts/book/proof.mjs`     | Rasterize final PDF spreads; generate contact sheets and candidate before/after diffs                                                | Review evidence, never approval                                        |
+| `scripts/book/preflight.mjs` | Structural, geometry, image, font, metadata, standards, accessibility, reproducibility checks                                        | Machine-readable report; nonzero exit on required failures             |
+
+The canonical data files are `book/sequence.yaml` for approved editorial state, versioned schemas under `book/schema/`, destination definitions under `book/profiles/`, optional authentic additions in `book/fragments.md`, and `book/photobook.typ` for the renderer. Candidate runs, layout IR, caches, proofs, and preflight output remain derived and gitignored. The approved ledger must not contain volatile absolute paths or unversioned metric output.
+
+Proposed Make targets are `book-inventory`, `book-validate`, `book-plan`, `book-apply`, `book-orchestrate`, `book`, `book-proof`, `book-preflight`, and `book-repro`. `book-orchestrate` stops at candidate generation; `book` renders only approved state; `book-apply` requires a plan/proposal ID whose parent revision still matches; and `book-repro` builds the final post-processed artifact twice in clean temporary directories. These targets should not be documented as runnable examples until their implementations have actually been exercised.
+
+### 7.2 Required Skill and External Tools
+
+Add one canonical **`.agents/skills/photobook/SKILL.md`**, not a separate skill for every script. It should define edition lifecycle, strict source non-mutation, proposal/approval protocol, allowed file sets, artifact locations, locked-conflict behavior, and a resume protocol anchored in `git status`, approved ledger revision, and the active run manifest. The existing web-focused `sequence` skill offers reusable non-mutating low-level parsing and image analysis, but its plain-text extraction is not yet sufficient for book provenance. Share neutral metric code only when both consumers need the same versioned contract. A separate `book-release` or `print-handoff` skill is justified only when printer-specific work becomes recurrent. After adding the skill, regenerate commands with `python3 tools/sync_commands.py` and verify `make sync-check` as part of that implementation.
+
+| Capability                     | Tool or skill               | Priority                        | Observed status / implementation note                                                                                                                                                       |
+| ------------------------------ | --------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Editorial orchestration        | New `photobook` skill       | **MVP**                         | Proposal-only automation, explicit approval, disk-backed resume state                                                                                                                       |
+| Schema validation              | **Ajv** + custom invariants | **MVP**                         | Not currently a dependency; use JSON Schema draft 2020-12 and machine-readable diagnostics. [Ajv documentation](kimi-cite://web?url=https%3A%2F%2Fajv.js.org%2Fjson-schema.html 'citation') |
+| PDF compilation                | **Typst**                   | **MVP**                         | Not currently installed; pin compiler and self-contained fonts before build claims                                                                                                          |
+| Structural PDF checks          | **QPDF**                    | **MVP**                         | Not currently installed; use structural checks, JSON inspection, deterministic finalization where appropriate                                                                               |
+| PDF inspection/raster proofs   | **Poppler**                 | **MVP**                         | Not currently installed; inspect fonts/page data and rasterize the final artifact                                                                                                           |
+| PDF/A or PDF/UA declaration    | **veraPDF**                 | **Before claiming conformance** | Not currently installed; validate the final file with the declared profile. [veraPDF CLI validation](kimi-cite://web?url=https%3A%2F%2Fdocs.verapdf.org%2Fcli%2Fvalidation%2F 'citation')   |
+| Source/color inspection        | **Sharp, ExifTool**         | Existing / **MVP**              | Preserve originals; make ICC transformations explicit                                                                                                                                       |
+| Optional PDF post-processing   | **Ghostscript, QPDF**       | Profile-dependent               | Ghostscript is installed; record every operation and avoid generic PDF/X recipes                                                                                                            |
+| Browser renderer fallback      | Existing Headless Chrome    | Experimental alternative        | Useful for comparison, not the primary reproducible/standards pipeline                                                                                                                      |
+| Constraint/global optimization | OR-Tools CP-SAT or pymoo    | Optional later                  | Add only after baseline proposals and objective benchmarks exist                                                                                                                            |
+| Fixed-layout EPUB              | EPUBCheck                   | Only if EPUB is commissioned    | PDF support does not imply EPUB support                                                                                                                                                     |
+
+Advanced solvers are not MVP dependencies. OR-Tools CP-SAT provides circuit constraints suitable for a later Hamiltonian formulation, while pymoo offers seeded multi-objective optimization and history. [OR-Tools CP-SAT documentation](kimi-cite://web?url=https%3A%2F%2For-tools.github.io%2Fdocs%2Fpdoc%2Fortools%2Fsat%2Fpython%2Fcp_model.html 'citation') [pymoo minimize interface](kimi-cite://web?url=https%3A%2F%2Fpymoo.org%2Finterface%2Fminimize.html 'citation') Neither addresses editorial authority, and introducing a Python optimization core before the JavaScript inventory and ledger contracts would add complexity without reducing the main risks. Likewise, avoid a general agent framework, a vector database for roughly 122 fragments, Paged.js as a second pagination engine, or another PDF library without a demonstrated missing capability.
 
 ---
 
-## 8. Open Questions & What Could Not Be Verified
+## 8. Validation, Reproducibility, and Release Gates
 
-1. **Local `typst` binary execution on this machine**:
-    - `typst` is not currently installed in `/opt/homebrew/bin` on this machine (`which typst` returned `not found`), and per research session constraints no new packages were installed. All Typst `v0.15.1` claims were verified directly against the official `v0.15.1` Rust source code (`crates/typst-pdf/src/image.rs`, `crates/typst-cli/src/args.rs`, `LaurenzV/krilla/src/graphics/image/mod.rs`) and `typst.app/docs` reference documentation. (By contrast, the Headless Chrome `m157` PDF passthrough and ICC profile preservation claims were executed and verified locally on this machine.)
-2. **Availability of High-Resolution (`>2048px`) Master Exports Outside the Repo**:
-    - In this repository, 114 of the 127 eligible JPEGs are `2048 × 1365 px` (or `2048 × 1364 px`) web masters. While `docs/archive-protocol.md` and `docs/contact-sheet-ledger-design.md` document that RAW + full-resolution JPEG masters exist in the external 3-2-1 archive, those external drives are outside the workspace. Consequently, whether all 127 sequenced frames have `>=3600px` print masters ready for a large-format (`12 × 8 in` @ 300 PPI) physical press run could not be verified from the repo alone.
-3. **Native PDF/X-4 Support Timeline in Typst**:
-    - While Typst `0.15.1` supports PDF/A (`a-1` through `a-4`) and PDF/UA-1, native `PDF/X-4` (`ISO 15930-7`) export for commercial CMYK offset printing is not yet in a released Typst version. If a commercial offset printer strictly requires a validated `PDF/X-4` file with a CMYK Output Intent before Typst ships PDF/X support, Ghostscript (`gs -dPDFX ...`, `v10.07.1` installed locally) or WeasyPrint (`--pdf-variant pdf/x-4`, after pre-converting the 10 sequenced Display P3 images to sRGB/CMYK via `sharp`) would be required for the final print-press handoff.
+### 8.1 Test Layers and Final-Artifact Preflight
+
+Validation must occur at several layers because schema validation cannot establish editorial or PDF correctness. Automated tests use synthetic `p99`/`p98` fixtures and hermetic scratch paths, never production `p1`–`p6` membership, counts, or filenames. Behavioral changes require tests that fail before and pass after; no test may write into production asset directories.
+
+| Test layer                 | Required cases                                                                                 | Release evidence                               |
+| -------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Schema and migration       | Old/new schema fixtures, unknown fields, invalid enums, migration idempotence                  | Validation report with no required errors      |
+| Identity and path safety   | Duplicate IDs, missing assets, renamed paths, revised hashes, traversal attempts               | Structured diagnostics; no out-of-scope writes |
+| Editorial constraints      | Locks, bans, pins, recto/verso parity, modality, required omissions                            | Constraint report for every candidate          |
+| Text governance            | Verbatim ranges, attribution retention, third-party rights, excerpt approval                   | Fragment/provenance report                     |
+| Derivative cache           | Source-byte, recipe, ICC, and tool-version changes; valid cache reuse                          | Content-addressed cache tests and manifest     |
+| Optimizer                  | Same-seed reproducibility, distinct-seed diversity, invalid-move rejection, score explanations | Proposal JSON plus before/after proof          |
+| PDF structure and geometry | QPDF check, page count, Media/Crop/Trim/Bleed boxes, catalog preferences                       | Final-artifact structural report               |
+| Images and fonts           | Effective PPI, ICC actions, font embedding/subsetting, missing glyphs                          | Per-page image/font report                     |
+| Standards/accessibility    | Declared veraPDF profile, title/language, alt text, reading order, contrast policy             | Automated report plus manual review record     |
+| Reproducibility            | Two clean final builds with identical inputs and pinned environment                            | Hash comparison and semantic diff where needed |
+
+Preflight runs on the **final post-processed PDF**, not just the Typst intermediate. QPDF checks structure and supports JSON inspection; Poppler supplies independent page/font inspection and raster proofs; custom checks calculate effective PPI from placed dimensions and assert page boxes, metadata, outlines, ICC actions, and font/glyph expectations. When PDF/A or PDF/UA is declared, veraPDF supplies machine-readable validation for that profile. These tools complement rather than replace one another.
+
+### 8.2 Reproducible Build Perimeter
+
+`SOURCE_DATE_EPOCH` standardizes a timestamp input, but reproducibility also depends on compiler and post-processor versions, OS/architecture where relevant, Sharp/libvips, exact fonts and licenses, ICC profiles, locale, timezone, input ordering, optimizer seed/configuration, metric versions, and every finalization step. [SOURCE_DATE_EPOCH specification](kimi-cite://web?url=https%3A%2F%2Freproducible-builds.org%2Fspecs%2Fsource-date-epoch%2F 'citation') Record this environment in the output manifest rather than claiming that one flag guarantees identical bytes. [Reproducible build environment](kimi-cite://web?url=https%3A%2F%2Freproducible-builds.org%2Fdocs%2Fperimeter%2F 'citation')
+
+The release test compares two final artifacts produced in clean temporary directories. Byte comparison is desirable where the pinned toolchain supports it. If bytes differ, compare canonical layout IR and semantic PDF features—page order/boxes, text, image streams and ICC objects, fonts, outlines, and metadata—to locate the nondeterministic layer. QPDF's deterministic-ID option can remove one source of variation, but QPDF itself must be version-pinned. No release claim is based solely on an intermediate PDF or a single build.
+
+### 8.3 Human Review That Cannot Be Automated Away
+
+Editorial review judges sequence, omissions, fragment placement, and treatment of third-party text. Visual review inspects rasterized spreads at fit-to-screen and high magnification, including shadow detail, crop behavior, gutter safety, font fallback, CJK punctuation, and phase dividers. Accessibility review exercises reading order and alternative text with assistive technology rather than treating PDF/UA validation as proof of usability. Print review requires calibrated soft proofing and a physical artifact before press readiness is claimed. `/PageLayout /TwoPageRight` remains a viewer preference, not evidence of spread correctness or printer imposition. [Adobe PDF 1.7 specification](kimi-cite://web?url=https%3A%2F%2Fopensource.adobe.com%2Fdc-acrobat-sdk-docs%2Fpdfstandards%2FPDF32000_2008.pdf 'citation')
+
+The release record references the exact final artifact hash and records the appropriate human approvals. Automated preflight can prove structural and measurable properties; it cannot certify artistic quality, visual parity, reading experience, or physical print quality.
+
+---
+
+## 9. Phased Implementation Roadmap
+
+The roadmap delivers a trustworthy vertical slice before search sophistication. The first optimizer is not a prerequisite for the first trustworthy PDF: a manually approved miniature ledger can exercise layout, rendering, and release while candidate generation remains under development.
+
+| Phase                              | Deliverables                                                                                                                                 | Acceptance gate                                                                              |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **0. Correct and decide**          | Corrected pair/metric/graph terminology; trim/bleed/PPI policy; initial destination profile                                                  | Quantitative examples match this document; one initial output profile is explicitly selected |
+| **1. Trusted state**               | Versioned ledger/proposal schemas, Ajv validator, semantic invariants, stable asset/fragment IDs, read-only inventory and source fingerprint | Synthetic valid/invalid fixtures pass/fail correctly; source bytes remain unchanged          |
+| **2. Safe proposals**              | Plan-only sync, seeded baseline optimizer, proposal provenance, approval/apply protocol, atomic ledger writes                                | New assets remain unplaced; locked deletions block; stale proposals cannot apply             |
+| **3. Deterministic display build** | Content-addressed assets, canonical layout IR, Typst renderer, display manifest, contact sheets, QPDF/Poppler preflight                      | Approved fixture renders without network/LLM calls; page/image/font geometry is verified     |
+| **4. Release quality**             | Two-build reproducibility, semantic PDF diff, alt text/language/reading order, contrast remediation, veraPDF where claimed                   | Final artifact passes automated gates and human review is recorded                           |
+| **5. Print handoff**               | High-resolution source mapping, printer-specific press profile, output intent, calibrated soft proof, physical proof record                  | Effective PPI and printer contract pass; no press-ready claim before physical approval       |
+| **Optional extensions**            | CP-SAT/pymoo experiments, EPUB/EPUBCheck, separate release skill                                                                             | Added only after a measured optimization need or real delivery requirement                   |
+
+The smallest valuable first milestone is **schema + read-only inventory + validation CLI**. It establishes the vocabulary and authority boundaries required by every later optimizer and renderer without making autonomous edits. In parallel, the destination decision must be made explicitly: screen/display using current web exports, a smaller or lower-PPI physical proof, or full-size print using high-resolution archive sources. That choice changes output profiles and evidence requirements, not the stable editorial asset identities.
+
+---
+
+## 10. Open Questions & What Could Not Be Verified
+
+1. **Initial destination and physical-resolution policy**:
+    - The common `2048 × 1365 px` source does not meet 200/240/300 PPI at the proposed full-page 300 × 200 mm geometry. The first implementation must choose screen/display, a smaller or explicitly lower-PPI proof, or high-resolution press inputs. No physical-print quality claim is made by this research.
+2. **Availability of high-resolution master exports outside the repo**:
+    - The external 3-2-1 archive is outside the workspace. Whether all 127 sequenced frames have suitable print masters could not be verified. The press design therefore maps stable `assetId` values to alternative source revisions rather than assuming their existence.
+3. **Local renderer and validation binaries**:
+    - Typst, QPDF, Poppler utilities, and veraPDF were not installed in the observed environment; no new packages were installed during this review. Typst claims were checked against official documentation/source, while Chrome PDF passthrough was previously verified locally. Actual Typst output, deterministic finalization, and standards conformance remain unverified until those tools are installed and exercised.
+4. **Native PDF/X-4 support and printer requirements**:
+    - Typst `0.15.1` does not natively provide PDF/X-4. A printer requiring PDF/X must supply its output-intent and proofing contract; Ghostscript or another renderer cannot be declared sufficient through a generic command. Any conversion and subsequent conformance/appearance checks remain future implementation work.
+5. **Real accessibility and visual behavior**:
+    - Alternative-text quality, asymmetric-spread reading order, font fallback, CJK glyph coverage, shadow detail, and spread aesthetics require generated artifacts and human review. No visual parity, accessibility conformance, or press-readiness claim is established by this document alone.
