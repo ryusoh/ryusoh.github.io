@@ -60,20 +60,80 @@ function buildPlateSlot(
     const plateNum = plateCounter.next();
     const rawPath = deriv.outputPath || asset?.source || '';
 
+    const seriesMatch = String(slot.assetId).match(/^(p[0-9]+)-/);
+    const luma255 = Number(asset?.metrics?.luma255 ?? invMeta.luma255 ?? 48);
+    const labL = Number((asset?.metrics?.lab?.L ?? invMeta.lab?.L ?? 20).toFixed(1));
+
     return {
         kind: 'plate',
         plateNumber: plateNum,
         plateLabel: String(plateNum).padStart(3, '0'),
         assetId: slot.assetId,
+        seriesId: (asset?.seriesId || seriesMatch?.[1] || 'p1').toUpperCase(),
         path: toTypstAssetPath(rawPath, rootDir),
         altText: asset?.altText || '',
+        shortCaption: String(asset?.altText || '').slice(0, 68),
         modality: asset?.modality || 'bw',
+        luma255,
+        labL,
         scale,
         placedWidthMm,
         placedHeightMm,
         effectivePpi: computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeightMm),
         showFolio: scale !== 'full-bleed',
     };
+}
+
+const ROMAN_NUMERALS = Object.freeze(['I', 'II', 'III', 'IV']);
+const INDEX_PAGE_SIZE = 32;
+
+function buildEpigraphSlot(verso, fragmentMap) {
+    const frag = fragmentMap.get(verso.fragmentId);
+    return {
+        kind: 'epigraph',
+        fragmentId: verso.fragmentId,
+        text: frag?.text || '',
+        attribution: frag?.attribution || null,
+        language: frag?.language || 'en',
+    };
+}
+
+function appendColophonPages(
+    pages,
+    pushPage,
+    { ledger, profile, placedPlates, movementSummaries }
+) {
+    if (!ledger.includeCommentaryAppendix) {
+        return;
+    }
+    const surface = profile.tokens?.surfaceDossier || '#111317';
+    pushPage('verso', {
+        pageType: 'colophon-telemetry',
+        surface,
+        sourceFingerprintShort: String(ledger.sourceFingerprint || '').slice(0, 16),
+        movementSummaries,
+    });
+    const chunks = [];
+    for (let i = 0; i < placedPlates.length; i += INDEX_PAGE_SIZE) {
+        chunks.push(placedPlates.slice(i, i + INDEX_PAGE_SIZE));
+    }
+    if (chunks.length === 0) {
+        chunks.push([]);
+    }
+    chunks.forEach((entries, idx) => {
+        const side = idx % 2 === 0 ? 'recto' : 'verso';
+        const rangeStart = entries[0]?.plateLabel || '001';
+        const rangeEnd = entries[entries.length - 1]?.plateLabel || rangeStart;
+        pushPage(side, {
+            pageType: 'colophon-index',
+            surface,
+            indexPageNumber: idx + 1,
+            indexPageCount: chunks.length,
+            rangeLabel: `${rangeStart}–${rangeEnd}`,
+            totalPlates: placedPlates.length,
+            entries,
+        });
+    });
 }
 
 export function compileLayoutIr(
@@ -88,12 +148,13 @@ export function compileLayoutIr(
     const pageSize = profile?.pageSize || { widthMm: 210, heightMm: 260, bleedMm: 0 };
     const slotOpts = { derivativeMap, assetMetrics, rootDir, pageWidthMm: pageSize.widthMm };
     const pages = [];
+    const placedPlates = [];
+    const movementSummaries = [];
 
     const pushPage = (side, content) => {
         pages.push({ pageNumber: pages.length + 1, side, ...content });
     };
 
-    // Page 1 (Recto): Canonical Cover — The Cybernetic Monolith
     pushPage('recto', {
         pageType: 'cover',
         title: ledger.title,
@@ -105,7 +166,7 @@ export function compileLayoutIr(
     });
 
     let prevModality = null;
-    for (const mov of ledger.movements || []) {
+    (ledger.movements || []).forEach((mov, movIdx) => {
         if (prevModality && prevModality !== mov.modality) {
             pushPage('verso', { pageType: 'phase-reset-void', modality: mov.modality });
             pushPage('recto', { pageType: 'phase-reset-void', modality: mov.modality });
@@ -113,27 +174,38 @@ export function compileLayoutIr(
         prevModality = mov.modality;
 
         pushPage('verso', { pageType: 'void', modality: mov.modality });
-        pushPage('recto', {
+        const dividerPage = {
             pageType: 'phase-divider',
             movementId: mov.movementId,
+            movementRoman: ROMAN_NUMERALS[movIdx] || String(movIdx + 1),
+            movementIndexLabel: `0${movIdx + 1} / 04`,
             title: mov.title,
             modality: mov.modality,
-        });
+            modalityLabel: mov.modality === 'bw' ? 'Achromatic Silver' : 'Chromatic',
+            plateRange: '001–001',
+            plateCount: 0,
+            meanLuma: 0,
+            waveformSlice: [],
+        };
+        pushPage('recto', dividerPage);
+        const movPlates = [];
 
         for (const sp of mov.spreads || []) {
             let versoSlot = null;
             if (sp.verso?.fragmentId) {
-                const frag = fragmentMap.get(sp.verso.fragmentId);
-                versoSlot = {
-                    kind: 'epigraph',
-                    fragmentId: sp.verso.fragmentId,
-                    text: frag?.text || '',
-                    language: frag?.language || 'en',
-                };
+                versoSlot = buildEpigraphSlot(sp.verso, fragmentMap);
             } else if (sp.verso?.assetId) {
                 versoSlot = buildPlateSlot(sp.verso, assetMap, slotOpts, plateCounter);
+                if (versoSlot) {
+                    placedPlates.push(versoSlot);
+                    movPlates.push(versoSlot);
+                }
             }
             const rectoSlot = buildPlateSlot(sp.recto, assetMap, slotOpts, plateCounter);
+            if (rectoSlot) {
+                placedPlates.push(rectoSlot);
+                movPlates.push(rectoSlot);
+            }
 
             pushPage('verso', {
                 pageType: 'spread-verso',
@@ -150,19 +222,31 @@ export function compileLayoutIr(
                 slot: rectoSlot,
             });
         }
-    }
 
-    if (ledger.includeCommentaryAppendix) {
-        pushPage('verso', {
-            pageType: 'colophon-telemetry',
-            surface: profile.tokens?.surfaceDossier || '#111317',
+        const firstLbl = movPlates[0]?.plateLabel || '001';
+        const lastLbl = movPlates[movPlates.length - 1]?.plateLabel || firstLbl;
+        const sumLuma = movPlates.reduce((acc, p) => acc + p.luma255, 0);
+        dividerPage.plateRange = `${firstLbl}–${lastLbl}`;
+        dividerPage.plateCount = movPlates.length;
+        dividerPage.meanLuma = movPlates.length
+            ? Number((sumLuma / movPlates.length).toFixed(1))
+            : 0;
+        dividerPage.waveformSlice = movPlates.map((p) => ({
+            plateNumber: p.plateNumber,
+            luma255: p.luma255,
+        }));
+        movementSummaries.push({
+            movementId: mov.movementId,
+            movementRoman: dividerPage.movementRoman,
+            title: mov.title,
+            modalityLabel: dividerPage.modalityLabel,
+            plateRange: dividerPage.plateRange,
+            plateCount: dividerPage.plateCount,
+            meanLuma: dividerPage.meanLuma,
         });
-        pushPage('recto', {
-            pageType: 'colophon-index',
-            surface: profile.tokens?.surfaceDossier || '#111317',
-            totalPlates: pCount,
-        });
-    }
+    });
+
+    appendColophonPages(pages, pushPage, { ledger, profile, placedPlates, movementSummaries });
 
     const canonicalPayload = JSON.stringify({
         editionId: ledger.editionId,
@@ -180,6 +264,12 @@ export function compileLayoutIr(
         tokens: profile.tokens,
         totalPages: pages.length,
         totalPlates: pCount,
+        waveform: placedPlates.map((p) => ({
+            plateNumber: p.plateNumber,
+            luma255: p.luma255,
+            labL: p.labL,
+            modality: p.modality,
+        })),
         layoutHash,
         pages,
     };
