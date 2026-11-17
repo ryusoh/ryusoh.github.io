@@ -1836,7 +1836,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/validate.mjs tests/js/book-validate.test.js && ./scripts/run-npx.sh eslint scripts/book/validate.mjs tests/js/book-validate.test.js && ./scripts/run-npx.sh jest tests/js/book-validate.test.js`
 - **Guardrail:** Keep `validate.mjs` zero-dependency (using existing `js-yaml`) so validation runs without mutating `package-lock.json`.
 
-#### WO-08 `[low]` — Implement seeded beam-search + 2-opt optimizer, plan-only sync, and initial `book/sequence.yaml` (`scripts/book/optimize.mjs`, `scripts/book/sync.mjs`, `tests/js/book-optimize.test.js`)
+#### WO-08 `[low]` `[DONE]` — Implement seeded beam-search + 2-opt optimizer, plan-only sync, and initial `book/sequence.yaml` (`scripts/book/optimize.mjs`, `scripts/book/sync.mjs`, `tests/js/book-optimize.test.js`)
 
 - **File:** `scripts/book/optimize.mjs`, `scripts/book/sync.mjs`, and `tests/js/book-optimize.test.js`
 - **Find:** `(new files — must not exist prior to this work order)`
