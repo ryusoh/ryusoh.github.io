@@ -809,7 +809,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w book/schema/sequence.schema.json && node -e "const s = JSON.parse(require('fs').readFileSync('book/schema/sequence.schema.json','utf8')); if (s.properties.editionId.const !== 'infinite-systems') process.exit(1);"`
 - **Guardrail:** Keep `additionalProperties: false` on every object level so unrecognised YAML keys fail validation immediately.
 
-#### WO-03 `[trivial]` — Create the two locked output profile definitions (`book/profiles/display.json` and `book/profiles/screen.json`)
+#### WO-03 `[trivial]` `[DONE]` — Create the two locked output profile definitions (`book/profiles/display.json` and `book/profiles/screen.json`)
 
 - **File:** `book/profiles/display.json` and `book/profiles/screen.json`
 - **Find:** `(new files — must not exist prior to this work order)`

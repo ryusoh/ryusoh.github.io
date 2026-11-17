@@ -1,0 +1,20 @@
+{
+    "profileId": "screen",
+    "artifactName": "infinite-systems-screen.pdf",
+    "pdfStandard": "1.7",
+    "pageSize": { "widthMm": 300, "heightMm": 200, "bleedMm": 0 },
+    "viewerPreferences": { "pageLayout": "TwoPageRight", "pageMode": "UseOutlines" },
+    "colorContract": {
+        "colorAssets": "srgb-2048-mozjpeg-q82-420",
+        "bwAssets": "device-gray-1ch-2048-mozjpeg-q84"
+    },
+    "tokens": {
+        "surfacePlate": "#070709",
+        "surfaceDossier": "#111317",
+        "textPrimary": "#E6E4DF",
+        "textSecondary": "#D8D5CE",
+        "textTelemetry": "#8A9099",
+        "ruleMuted": "#2A2D34",
+        "accentSignal": "#CE2323"
+    }
+}

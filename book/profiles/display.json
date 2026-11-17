@@ -1,0 +1,20 @@
+{
+    "profileId": "display",
+    "artifactName": "infinite-systems-display.pdf",
+    "pdfStandard": "a-2b",
+    "pageSize": { "widthMm": 300, "heightMm": 200, "bleedMm": 0 },
+    "viewerPreferences": { "pageLayout": "TwoPageRight", "pageMode": "UseOutlines" },
+    "colorContract": {
+        "colorAssets": "passthrough-or-downsample-2048-keep-icc-q92",
+        "bwAssets": "passthrough-or-neutralize-grayscale-2048-q92"
+    },
+    "tokens": {
+        "surfacePlate": "#070709",
+        "surfaceDossier": "#111317",
+        "textPrimary": "#E6E4DF",
+        "textSecondary": "#D8D5CE",
+        "textTelemetry": "#8A9099",
+        "ruleMuted": "#2A2D34",
+        "accentSignal": "#CE2323"
+    }
+}
