@@ -867,7 +867,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w book/profiles/display.json book/profiles/screen.json && node -e "for (const p of ['display','screen']) { const d = JSON.parse(require('fs').readFileSync('book/profiles/'+p+'.json','utf8')); if (d.tokens.textTelemetry !== '#8A9099' || d.pageSize.widthMm !== 300) process.exit(1); }"`
 - **Guardrail:** Do not create `press.json` or `epub.json`; only `display` and `screen` are in scope (§2.1 #5, §5.3).
 
-#### WO-04 `[low]` — Create the CLI dispatcher (`scripts/book.mjs`)
+#### WO-04 `[low]` `[DONE]` — Create the CLI dispatcher (`scripts/book.mjs`)
 
 - **File:** `scripts/book.mjs`
 - **Find:** `(new file — must not exist prior to this work order)`
