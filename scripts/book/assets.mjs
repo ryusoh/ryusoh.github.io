@@ -17,6 +17,27 @@ export const REQUIRED_BOOK_FONTS = Object.freeze([
     'JetBrainsMono-Regular.ttf',
 ]);
 
+export function verifyBookFonts(fontDir) {
+    const missing = [];
+    const hasStaticSyne = ['Syne-ExtraBold.ttf', 'Syne-Bold.ttf', 'Syne-Regular.ttf'].every((f) =>
+        fs.existsSync(path.join(fontDir, f))
+    );
+    const hasVariableSyne = fs.existsSync(path.join(fontDir, 'Syne-Variable.ttf'));
+    if (!hasStaticSyne && !hasVariableSyne) {
+        missing.push('Syne-Variable.ttf (or Syne-{Regular,Bold,ExtraBold}.ttf)');
+    }
+    for (const file of [
+        'GlowSansSC-Extended-Regular.otf',
+        'GlowSansSC-Extended-Bold.otf',
+        'JetBrainsMono-Regular.ttf',
+    ]) {
+        if (!fs.existsSync(path.join(fontDir, file))) {
+            missing.push(file);
+        }
+    }
+    return { valid: missing.length === 0, missing };
+}
+
 export function computeDerivativeKey({
     sourceSha256,
     profileId,
