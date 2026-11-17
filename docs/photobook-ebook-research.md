@@ -950,7 +950,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w scripts/book.mjs && ./scripts/run-npx.sh eslint scripts/book.mjs && node scripts/book.mjs --help`
 - **Guardrail:** Do not import subcommand modules eagerly at the top of `scripts/book.mjs`; keep dynamic `await import(targetModule)` inside `runCli()` so `--help` works before `WO-06`–`WO-12` are implemented.
 
-#### WO-05 `[trivial]` — Wire photobook targets into `Makefile`
+#### WO-05 `[trivial]` `[DONE]` — Wire photobook targets into `Makefile`
 
 - **File:** `Makefile` (lines 1, 35–36, and 245–247; note that `<TAB>` below represents a single literal ASCII TAB `\t` character in `Makefile`)
 - **Find (Anchor 1, line 1):**

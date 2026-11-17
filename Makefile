@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -33,6 +33,9 @@ help:
 	@echo "  ledger-critique Run the critic on a sheet (make ledger-critique SLUG=<day> [VERDICTS=<file.json>])"
 	@echo "  gaze-models   Download ONNX face models and verify checksums via MODELS.lock"
 	@echo "  fonts         Extract CJK characters and generate subsetted WOFF2 webfont"
+	@echo "  book          Compile approved Infinite Systems PDF editions (display + screen)"
+	@echo "  book-plan     Plan pool additions/deletions against book/sequence.yaml"
+	@echo "  book-preview  Launch two-tier live preview and exact-PDF review server"
 
 hooks:
 	@if [ ! -f .pre-commit-config.yaml ]; then \
@@ -245,3 +248,34 @@ gaze-models:
 # Character extraction and WOFF2 font subsetting
 fonts:
 	@python3 tools/subset_fonts.py
+
+# Photobook eBook pipeline (docs/photobook-ebook-research.md)
+book-inventory:
+	@node scripts/book.mjs inventory
+
+book-validate:
+	@node scripts/book.mjs validate
+
+book-plan:
+	@node scripts/book.mjs plan
+
+book-apply:
+	@node scripts/book.mjs apply --plan "$(PLAN)"
+
+book-orchestrate:
+	@node scripts/book.mjs orchestrate
+
+book:
+	@node scripts/book.mjs render
+
+book-preview:
+	@node scripts/book.mjs preview
+
+book-proof:
+	@node scripts/book.mjs proof
+
+book-preflight:
+	@node scripts/book.mjs preflight
+
+book-repro:
+	@node scripts/book.mjs repro
