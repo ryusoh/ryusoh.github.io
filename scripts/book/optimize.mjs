@@ -92,6 +92,20 @@ export function optimizeComponentOrder(
     return ordered;
 }
 
+function pickSafeScale(asset, desiredScale) {
+    const widthPx = asset?.metrics?.width || 2048;
+    if (widthPx < 1100) {
+        return 'inset-40';
+    }
+    if (widthPx < 1450) {
+        return 'inset-55';
+    }
+    if (widthPx < 1775 && (desiredScale === 'full-bleed' || desiredScale === 'inset-82')) {
+        return 'inset-74';
+    }
+    return desiredScale;
+}
+
 function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
     const spreads = [];
     let idx = 0;
@@ -102,32 +116,36 @@ function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
     while (idx < assets.length) {
         const spreadId = `s${String(sNum++).padStart(2, '0')}`;
         if (idx === 0 && epigraphFragment) {
+            const rAsset = assets[idx++];
             spreads.push({
                 spreadId,
                 layout: 'monolith-epigraph',
                 locked: sNum === 2,
                 verso: { fragmentId: epigraphFragment.fragmentId },
-                recto: { assetId: assets[idx++].assetId, scale: 'full-bleed' },
+                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
             });
         } else if (idx === assets.length - 1 || cycle[cIdx % cycle.length] === 'monolith') {
             cIdx++;
+            const rAsset = assets[idx++];
             spreads.push({
                 spreadId,
                 layout: 'monolith',
                 locked: false,
                 verso: null,
-                recto: { assetId: assets[idx++].assetId, scale: 'inset-82' },
+                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-82') },
             });
         } else {
             const layout = cycle[cIdx++ % cycle.length];
-            const vScale = layout === 'asymmetric-diptych' ? 'full-bleed' : 'inset-74';
-            const rScale = layout === 'asymmetric-diptych' ? 'inset-55' : 'inset-74';
+            const vDesired = layout === 'asymmetric-diptych' ? 'full-bleed' : 'inset-74';
+            const rDesired = layout === 'asymmetric-diptych' ? 'inset-55' : 'inset-74';
+            const vAsset = assets[idx++];
+            const rAsset = assets[idx++];
             spreads.push({
                 spreadId,
                 layout,
                 locked: false,
-                verso: { assetId: assets[idx++].assetId, scale: vScale },
-                recto: { assetId: assets[idx++].assetId, scale: rScale },
+                verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, vDesired) },
+                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, rDesired) },
             });
         }
     }
