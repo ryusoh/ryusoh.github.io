@@ -43,3 +43,8 @@ contact-sheets/
 # Generated ledger digests (JSON.stringify output is not prettier-stable);
 # they are machine-written artifacts, like coverage/ and reports/.
 contact-sheet-ledger/
+
+# Photobook build cache & candidate run artifacts — gitignored, machine-written
+# (scripts/book.mjs). Whole-repo prettier must not fail on cached runs.
+.cache/book-img/
+.cache/book-runs/
