@@ -35,7 +35,7 @@
   fill: rgb("#070709"),
 )
 #set text(
-  font: ("Glow Sans SC Extended", "Syne"),
+  font: ("Syne", "Glow Sans SC Extended"),
   fill: rgb("#E6E4DF"),
   size: 9.5pt,
   cjk-latin-spacing: auto,
@@ -56,14 +56,14 @@
         bottom + right,
         dx: -14mm,
         dy: -18mm,
-        block(width: 114mm)[
+        block(width: 122mm)[
           #align(right)[
-            #text(font: ("Glow Sans SC Extended", "Syne"), weight: "regular", size: 16pt, tracking: 3.0pt, fill: rgb("#D8D5CE"))[ZHUANG LIU]
-            #v(5mm)
             #set par(leading: 0.72em)
             #heading(level: 1, bookmarked: true)[
-              #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 42pt, tracking: 1.8pt, fill: rgb("#E6E4DF"))[INFINITE \ SYSTEMS]
+              #text(font: ("Syne", "Glow Sans SC Extended"), weight: "bold", size: 37pt, tracking: 0.4pt, fill: rgb("#E6E4DF"))[INFINITE \ SYSTEMS]
             ]
+            #v(3.5mm)
+            #text(font: ("Syne", "Glow Sans SC Extended"), weight: "medium", size: 17pt, tracking: 1.4pt, fill: rgb("#D8D5CE"))[Zhuang Liu]
           ]
         ]
       )
@@ -88,7 +88,7 @@
       #text(font: "JetBrains Mono", size: 8pt, tracking: 1.5pt, fill: rgb("#8A9099"))[#mRoman]
       #v(2.5mm)
       #heading(level: 1, bookmarked: true)[
-        #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 15pt, tracking: 2.2pt, fill: rgb("#E6E4DF"))[#pg.title]
+        #text(font: ("Syne", "Glow Sans SC Extended"), weight: "bold", size: 15pt, tracking: 1.0pt, fill: rgb("#E6E4DF"))[#pg.title]
       ]
       #v(1fr)
       #if mWf.len() > 1 [
@@ -111,7 +111,7 @@
         #v(5mm)
         #set par(leading: 1.05em, spacing: 1.5em, justify: false)
         #set text(
-          font: ("Glow Sans SC Extended", "Syne"),
+          font: ("Syne", "Glow Sans SC Extended"),
           lang: epigraphLang,
           script: epigraphScript,
           fill: rgb("#D8D5CE"),
@@ -204,7 +204,7 @@
         #grid(
           columns: (18mm, 34mm, 38mm, 28mm, 1fr),
           text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#m.movementId],
-          text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 7pt, fill: rgb("#E6E4DF"))[#m.title],
+          text(font: ("Syne", "Glow Sans SC Extended"), weight: "bold", size: 7pt, fill: rgb("#E6E4DF"))[#m.title],
           text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#D8D5CE"))[#m.modalityLabel],
           text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[PLATES #m.plateRange],
           align(right, text(font: "JetBrains Mono", size: 6.5pt, fill: rgb("#8A9099"))[#m.plateCount FRAMES · L #m.meanLuma]),

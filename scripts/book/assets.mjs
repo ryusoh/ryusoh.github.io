@@ -73,14 +73,28 @@ export async function ensureCoverDerivative({
         sourceSha256: `${srcHash}-crop-${crop.left}x${crop.width}`,
         profileId,
         modality: 'bw',
-        derivativeRecipe: 'cover-portrait-b-w',
+        derivativeRecipe: 'cover-portrait-b-w-clean-v2',
     });
     const outDir = path.join(cacheDir, profileId);
     fs.mkdirSync(outDir, { recursive: true });
     const outPath = path.join(outDir, `cover-dscf5076-2-${key.slice(0, 16)}.jpg`);
     if (!fs.existsSync(outPath)) {
+        const chainPatch = await sharp({
+            create: { width: 140, height: 125, channels: 3, background: { r: 0, g: 0, b: 0 } },
+        })
+            .png()
+            .toBuffer();
+        const dustPatch = await sharp({
+            create: { width: 16, height: 16, channels: 3, background: { r: 0, g: 0, b: 0 } },
+        })
+            .png()
+            .toBuffer();
         await sharp(srcPath)
             .extract(crop)
+            .composite([
+                { input: chainPatch, top: 1240, left: 320 },
+                { input: dustPatch, top: 562, left: 1038 },
+            ])
             .toColorspace('b-w')
             .jpeg({ quality: profileId === 'display' ? 92 : 84, mozjpeg: true })
             .toFile(outPath);
