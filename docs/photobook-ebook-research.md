@@ -2327,7 +2327,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/optimize.mjs scripts/book/sync.mjs tests/js/book-optimize.test.js && ./scripts/run-npx.sh eslint scripts/book/optimize.mjs scripts/book/sync.mjs tests/js/book-optimize.test.js && ./scripts/run-npx.sh jest tests/js/book-optimize.test.js`
 - **Guardrail:** Deletion of an asset referenced by a `locked: true` spread must always emit a `locked-spread-deletion` conflict and never auto-repair.
 
-#### WO-09 `[low]` — Implement content-addressed `sharp` derivative builder & font manifest (`scripts/book/assets.mjs` + `tests/js/book-assets.test.js`)
+#### WO-09 `[low]` `[DONE]` — Implement content-addressed `sharp` derivative builder & font manifest (`scripts/book/assets.mjs` + `tests/js/book-assets.test.js`)
 
 - **File:** `scripts/book/assets.mjs` and `tests/js/book-assets.test.js`
 - **Find:** `(new files — must not exist prior to this work order)`
@@ -2404,7 +2404,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
                 ) {
                     await sharp(srcPath)
                         .resize(2048, 2048, { fit: 'inside', withoutEnlargement: true })
-                        .greyscale()
+                        .toColorspace('b-w')
                         .jpeg({ quality: 92, mozjpeg: true })
                         .toFile(outPath);
                     action = 'neutralize-grayscale-q92';
@@ -2422,7 +2422,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
             } else if (asset.modality === 'bw') {
                 await sharp(srcPath)
                     .resize(2048, 2048, { fit: 'inside', withoutEnlargement: true })
-                    .greyscale()
+                    .toColorspace('b-w')
                     .jpeg({ quality: 84, mozjpeg: true })
                     .toFile(outPath);
                 action = 'device-gray-1ch-q84';
