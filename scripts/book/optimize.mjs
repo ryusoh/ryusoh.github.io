@@ -100,8 +100,8 @@ function pickSafeScale(asset, desiredScale) {
     return desiredScale;
 }
 
-function buildDiptychSpread(spreadId, vAsset, rAsset, diptychRun) {
-    if (diptychRun % 4 === 2) {
+function buildDiptychSpread(spreadId, vAsset, rAsset, diptychCounter) {
+    if (diptychCounter % 5 === 2) {
         return {
             spreadId,
             layout: 'asymmetric-diptych',
@@ -110,7 +110,7 @@ function buildDiptychSpread(spreadId, vAsset, rAsset, diptychRun) {
             recto: { assetId: rAsset.assetId, scale: 'inset-55' },
         };
     }
-    if (diptychRun % 6 === 0) {
+    if (diptychCounter % 5 === 4) {
         return {
             spreadId,
             layout: 'diagonal-offset',
@@ -137,6 +137,7 @@ function packSpreads(assets, startSpreadIndex, epigraphFragments = []) {
     let idx = 0;
     let sNum = startSpreadIndex;
     let diptychRun = 0;
+    let diptychTotal = 0;
 
     while (idx < assets.length) {
         const spreadId = `s${String(sNum++).padStart(2, '0')}`;
@@ -166,9 +167,10 @@ function packSpreads(assets, startSpreadIndex, epigraphFragments = []) {
             continue;
         }
         diptychRun++;
+        diptychTotal++;
         const vAsset = assets[idx++];
         const rAsset = assets[idx++];
-        spreads.push(buildDiptychSpread(spreadId, vAsset, rAsset, diptychRun));
+        spreads.push(buildDiptychSpread(spreadId, vAsset, rAsset, diptychTotal));
     }
     return { spreads, nextSpreadIndex: sNum };
 }
