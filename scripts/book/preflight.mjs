@@ -2,10 +2,16 @@
  * Final-artifact preflight (WCAG AA contrast, PDF catalog structure, PPI floor, and two-build reproducibility).
  */
 
+import { execFileSync } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { load as yamlLoad } from 'js-yaml';
+import { verifyBookFonts } from './assets.mjs';
+import { loadCachedAssetMetrics, compileLayoutIr } from './layout.mjs';
+import { buildProfileArtifact } from './render.mjs';
+import { validateLedgerObject } from './validate.mjs';
 
 export function relativeLuminance(hexColor) {
     const hex = String(hexColor).replace('#', '');
@@ -75,13 +81,113 @@ export async function verifyTwoBuildReproducibility(buildInDirFn) {
     }
 }
 
-export async function run() {
+async function runRepro(rootDir) {
+    const ledgerPath = path.join(rootDir, 'book', 'sequence.yaml');
+    if (!fs.existsSync(ledgerPath)) {
+        process.stderr.write(`Missing approved ledger: ${ledgerPath}\n`);
+        return 1;
+    }
+    const ledger = yamlLoad(fs.readFileSync(ledgerPath, 'utf8'));
     const profile = JSON.parse(
-        fs.readFileSync(path.join(process.cwd(), 'book', 'profiles', 'display.json'), 'utf8')
+        fs.readFileSync(path.join(rootDir, 'book', 'profiles', 'display.json'), 'utf8')
     );
-    const check = checkContrastTokens(profile.tokens);
-    if (!check.passed) {
-        process.stderr.write(`${check.errors.join('\n')}\n`);
+    const assetMetrics = loadCachedAssetMetrics(rootDir);
+    const sandboxDir = path.join(rootDir, '.cache', 'book-runs', 'repro-sandbox');
+    const repro = await verifyTwoBuildReproducibility(async () => {
+        fs.rmSync(sandboxDir, { recursive: true, force: true });
+        try {
+            return await buildProfileArtifact(ledger, profile, {
+                rootDir,
+                cacheDir: path.join(sandboxDir, 'img'),
+                runsDir: path.join(sandboxDir, 'runs'),
+                outDir: path.join(sandboxDir, 'dist'),
+                assetMetrics,
+            });
+        } finally {
+            fs.rmSync(sandboxDir, { recursive: true, force: true });
+        }
+    });
+    if (!repro.passed) {
+        process.stderr.write(
+            `Reproducibility check FAILED: layout(${repro.layoutHashA.slice(0, 8)} vs ${repro.layoutHashB.slice(0, 8)}), pdf(${repro.pdfSha256A.slice(0, 8)} vs ${repro.pdfSha256B.slice(0, 8)})\n`
+        );
+        return 1;
+    }
+    process.stdout.write(
+        `Reproducibility check PASSED: layout=${repro.layoutHashA.slice(0, 12)}, pdf=${repro.pdfSha256A.slice(0, 12)}\n`
+    );
+    return 0;
+}
+
+function checkMinPpi(ir, errors) {
+    const lowPpi = [];
+    for (const pg of ir.pages) {
+        if (pg.slot?.kind === 'plate' && pg.slot.effectivePpi < 150) {
+            lowPpi.push(`${pg.slot.assetId} (${pg.slot.effectivePpi} PPI at ${pg.slot.scale})`);
+        }
+    }
+    if (lowPpi.length > 0) {
+        errors.push(`PPI floor (<150) failed: ${lowPpi.join(', ')}`);
+    }
+}
+
+function checkBuiltPdfs(rootDir, profileIds, errors) {
+    for (const pid of profileIds) {
+        const pdfPath = path.join(rootDir, 'dist', `infinite-systems-${pid}.pdf`);
+        if (!fs.existsSync(pdfPath)) {
+            continue;
+        }
+        const cat = checkPdfCatalogStructure(fs.readFileSync(pdfPath));
+        if (!cat.passed) {
+            errors.push(...cat.errors.map((e) => `${pid}: ${e}`));
+        }
+        try {
+            execFileSync('qpdf', ['--check', pdfPath], { stdio: 'pipe' });
+        } catch (err) {
+            errors.push(`${pid}: qpdf --check failed (${err.message})`);
+        }
+    }
+}
+
+export async function run(_args = [], { subcommand = 'preflight' } = {}) {
+    const rootDir = process.cwd();
+    if (subcommand === 'repro') {
+        return runRepro(rootDir);
+    }
+
+    const errors = [];
+    const profileIds = ['display', 'screen'];
+    const profiles = {};
+    for (const pid of profileIds) {
+        const profile = JSON.parse(
+            fs.readFileSync(path.join(rootDir, 'book', 'profiles', `${pid}.json`), 'utf8')
+        );
+        profiles[pid] = profile;
+        const cCheck = checkContrastTokens(profile.tokens);
+        if (!cCheck.passed) {
+            errors.push(...cCheck.errors.map((e) => `${pid}: ${e}`));
+        }
+    }
+
+    const ledgerPath = path.join(rootDir, 'book', 'sequence.yaml');
+    if (fs.existsSync(ledgerPath)) {
+        const ledger = yamlLoad(fs.readFileSync(ledgerPath, 'utf8'));
+        const vCheck = validateLedgerObject(ledger);
+        if (!vCheck.valid) {
+            errors.push(...vCheck.errors);
+        }
+        const fonts = verifyBookFonts(path.join(rootDir, 'assets', 'fonts', 'book'));
+        if (!fonts.valid) {
+            errors.push(`Missing book fonts: ${fonts.missing.join(', ')}`);
+        }
+        const assetMetrics = loadCachedAssetMetrics(rootDir);
+        const ir = compileLayoutIr(ledger, profiles.display, { assetMetrics, rootDir });
+        checkMinPpi(ir, errors);
+        checkBuiltPdfs(rootDir, profileIds, errors);
+    }
+
+    if (errors.length > 0) {
+        process.stderr.write(`${errors.join('\n')}\n`);
         return 1;
     }
     process.stdout.write('Preflight checks passed.\n');
