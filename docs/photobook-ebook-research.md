@@ -2533,7 +2533,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/assets.mjs tests/js/book-assets.test.js && ./scripts/run-npx.sh eslint scripts/book/assets.mjs tests/js/book-assets.test.js && ./scripts/run-npx.sh jest tests/js/book-assets.test.js`
 - **Guardrail:** Cache keys must hash `sourceSha256 + profileId + modality + derivativeRecipe + sharpVersion`, never `mtime` or file size alone.
 
-#### WO-10 `[low] [visual]` — Implement canonical layout IR (`scripts/book/layout.mjs`), Typst template (`book/photobook.typ`), and QPDF `/TwoPageRight` renderer (`scripts/book/render.mjs` + `tests/js/book-render.test.js`)
+#### WO-10 `[low] [visual]` `[DONE]` — Implement canonical layout IR (`scripts/book/layout.mjs`), Typst template (`book/photobook.typ`), and QPDF `/TwoPageRight` renderer (`scripts/book/render.mjs` + `tests/js/book-render.test.js`)
 
 - **File:** `scripts/book/layout.mjs`, `book/photobook.typ`, `scripts/book/render.mjs`, and `tests/js/book-render.test.js`
 - **Find:** `(new files — must not exist prior to this work order)`
