@@ -582,10 +582,9 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 
 1. **One work order at a time, commit per item, never push:** Execute the numbered work orders (`WO-01` through `WO-12`) sequentially. After each item's **Verify** commands pass, stage only the files touched by that item (`git add <specific-files>`, never `git add -A` or `git add .`) and create a single Conventional Commit (`type(scope): summary`, referencing `WO-XX` in the body). **Never push, never amend, and never rebase** — pushing stays a human decision (see the `implement-action-items` skill).
 2. **Exact `Find` anchors:** Every `Find` string below was verified against the live repository files on 2026-11-17. Line numbers are dated and may drift, but the `Find` text must match verbatim. If a `Find` anchor does not match — or if a file marked `(new file — must not exist prior to this work order)` already exists — **STOP that item, record the mismatch, and move to the next item.** Do not improvise.
-3. **Tag routing (`[trivial]`, `[low]`, `[visual]`, `[skip]`):**
-    - `[trivial]` / `[low]` — mechanical configuration, schema, profile, or CLI dispatcher scaffolding; paste the exact snippet provided.
-    - `[visual]` — changes or produces rendered visual output; flag `"visual — human review required"` in the final report.
-    - `[skip]` — requires new unit test suites, multi-module algorithmic/rendering logic, or external binary installation (`typst`, `qpdf`, `poppler`, `verapdf`); **skip in low-budget/unattended runs** and route to a frontier model.
+3. **Tag routing (`[trivial]`, `[low]`, `[visual]` — zero `[skip]` items):**
+    - `[trivial]` / `[low]` — complete, paste-ready file creation or anchored edit with self-contained hermetic Jest verification; paste the exact code blocks provided without improvising.
+    - `[visual]` — produces or governs rendered PDF/preview output; implement normally and flag `"visual — human review required"` in the final report.
 4. **Hard guardrails:** Never edit `js/vendor/` or any `*.min.js`. Never mutate source photographs under `assets/img/p1..p6/`. Never import or call `ensureImageVariants()` from `scripts/build-page.mjs` (it strips EXIF metadata from source JPEGs in place).
 5. **Per-item formatting & lint:** After editing any file in a work order, run `./scripts/run-npx.sh prettier -w <touched-files>` (and `./scripts/run-npx.sh eslint <touched-js-files>` when `.mjs`/`.js` files are touched) before running the item's **Verify** command.
 
@@ -1033,61 +1032,2307 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `make help | grep -F "book-preview" && node scripts/book.mjs --help`
 - **Guardrail:** Every recipe line under a target in `Makefile` must begin with a literal TAB character (`\t`), never spaces or the literal text `<TAB>`, or GNU Make will abort with `*** missing separator`.
 
-#### WO-06 `[skip]` — Implement read-only pool inventory & `sharp` modality classifier (`scripts/book/inventory.mjs`)
+#### WO-06 `[low]` — Implement read-only pool inventory & `sharp` modality classifier (`scripts/book/inventory.mjs` + `tests/js/book-inventory.test.js`)
 
 - **File:** `scripts/book/inventory.mjs` and `tests/js/book-inventory.test.js`
-- **Find:** `(new files — route to a stronger model)`
-- **Change:** Implement read-only pool discovery over `assets/img/p1..p6/index.md` (`127` sequenced frames; ignore the `12` unsequenced orphans), SHA-256 hashing, `sharp` `160 × 160` `P95(deltaRGB)` classification (`<= 12` $\implies$ `bw` [`51`], `> 12` $\implies$ `color` [`76`]), and hermetic unit tests using synthetic `p99` fixtures (§4.1, §7.1).
-- **Verify:** `./scripts/run-npx.sh jest tests/js/book-inventory.test.js`
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `scripts/book/inventory.mjs`:
+
+        ```javascript
+        /**
+         * Read-only pool inventory and sharp pixel-chroma modality classifier (bw vs. color).
+         * Strictly ingests only sequenced images from assets/img/p<N>/index.md and ignores disk orphans.
+         */
+
+        import crypto from 'crypto';
+        import fs from 'fs';
+        import path from 'path';
+        import sharp from 'sharp';
+        import { parseMarkdownSource } from '../build-page.mjs';
+        import { rgbToLab } from '../../.agents/skills/sequence/scripts/metrics.mjs';
+
+        export const DEFAULT_SERIES = Object.freeze(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
+        export const METRIC_VERSION = 'v1';
+
+        export function toAssetId(seriesId, filename) {
+            const stem = path
+                .parse(filename)
+                .name.toLowerCase()
+                .replace(/[^a-z0-9_-]/g, '-');
+            return `${String(seriesId).toLowerCase()}-${stem}`;
+        }
+
+        export function sha256Buffer(buf) {
+            return crypto.createHash('sha256').update(buf).digest('hex');
+        }
+
+        export async function classifyImageModality(imagePath) {
+            const img = sharp(imagePath);
+            const meta = await img.metadata();
+            const { data, info } = await img
+                .clone()
+                .resize(160, 160, { fit: 'inside' })
+                .raw()
+                .toBuffer({ resolveWithObject: true });
+
+            const diffs = [];
+            let sumR = 0;
+            let sumG = 0;
+            let sumB = 0;
+            const pixels = Math.max(1, Math.floor(data.length / info.channels));
+
+            for (let i = 0; i < data.length; i += info.channels) {
+                const r = data[i];
+                const g = info.channels > 1 ? data[i + 1] : r;
+                const b = info.channels > 2 ? data[i + 2] : r;
+                sumR += r;
+                sumG += g;
+                sumB += b;
+                diffs.push(Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b)));
+            }
+
+            diffs.sort((a, b) => a - b);
+            const p95 = diffs[Math.floor(diffs.length * 0.95)] || 0;
+            const avgR = Math.round(sumR / pixels);
+            const avgG = Math.round(sumG / pixels);
+            const avgB = Math.round(sumB / pixels);
+            const luma255 = Math.round(0.2126 * avgR + 0.7152 * avgG + 0.0722 * avgB);
+            const lab = rgbToLab(avgR, avgG, avgB);
+
+            let subtype = 'color';
+            if (p95 <= 3) {
+                subtype = 'pure-bw';
+            } else if (p95 <= 12) {
+                subtype = 'tinted-bw';
+            }
+            const modality = subtype === 'color' ? 'color' : 'bw';
+            const derivativeRecipe =
+                subtype === 'tinted-bw'
+                    ? 'neutralize-grayscale-2048'
+                    : 'passthrough-or-downsample-2048';
+
+            return {
+                width: meta.width || 0,
+                height: meta.height || 0,
+                p95DeltaRgb: p95,
+                subtype,
+                modality,
+                derivativeRecipe,
+                luma255,
+                lab,
+            };
+        }
+
+        export function parseSequencedItems(rawMarkdown, seriesId) {
+            const { body } = parseMarkdownSourceContent(rawMarkdown);
+            const allLines = rawMarkdown.split(/\r?\n/);
+            const fmEndIdx = findFrontmatterEndLine(allLines);
+            const images = [];
+            const fragments = [];
+            let quoteLines = [];
+            let quoteStartLine = 0;
+
+            const flushQuote = (endLine) => {
+                if (quoteLines.length === 0) {
+                    return;
+                }
+                const text = quoteLines.join('\n').trim();
+                quoteLines = [];
+                if (!text) {
+                    return;
+                }
+                const hasCjk = /[\u4e00-\u9fff]/.test(text);
+                fragments.push({
+                    fragmentId: `${seriesId}-lines-${quoteStartLine}-${endLine}`,
+                    source: `assets/img/${seriesId}/index.md`,
+                    sourceRange: { startLine: quoteStartLine, endLine },
+                    language: hasCjk ? 'zh-Hans' : 'en',
+                    text,
+                    attribution: null,
+                    originality: 'series-epigraph',
+                    rightsStatus: 'approved',
+                    excerptPolicy: 'verbatim-only',
+                });
+            };
+
+            const bodyLines = body.split(/\r?\n/);
+            for (let i = 0; i < bodyLines.length; i++) {
+                const lineNum = fmEndIdx + i + 1;
+                const trimmed = bodyLines[i].trim();
+                if (trimmed.startsWith('>')) {
+                    if (quoteLines.length === 0) {
+                        quoteStartLine = lineNum;
+                    }
+                    quoteLines.push(trimmed.replace(/^>\s?/, ''));
+                } else {
+                    flushQuote(lineNum - 1);
+                    const imgMatch = trimmed.match(
+                        /^([^\s|()#>]+\.(?:jpe?g|JPG))(?:\s*\|\s*(.*)|\s*\((.*?)\))?$/
+                    );
+                    if (imgMatch) {
+                        images.push({
+                            filename: imgMatch[1].trim(),
+                            caption: (imgMatch[2] || imgMatch[3] || '').trim() || null,
+                        });
+                    }
+                }
+            }
+            flushQuote(fmEndIdx + bodyLines.length);
+            return { images, fragments };
+        }
+
+        function parseMarkdownSourceContent(rawContent) {
+            const fmMatch = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+            if (fmMatch) {
+                return { body: fmMatch[2] };
+            }
+            return { body: rawContent };
+        }
+
+        function findFrontmatterEndLine(lines) {
+            if (lines[0]?.trim() !== '---') {
+                return 0;
+            }
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '---') {
+                    return i + 1;
+                }
+            }
+            return 0;
+        }
+
+        export async function collectPoolInventory({
+            rootDir = process.cwd(),
+            seriesIds = DEFAULT_SERIES,
+        } = {}) {
+            const assets = [];
+            const fragments = [];
+
+            for (const seriesId of seriesIds) {
+                const dir = path.join(rootDir, 'assets', 'img', seriesId);
+                const mdPath = path.join(dir, 'index.md');
+                if (!fs.existsSync(mdPath)) {
+                    continue;
+                }
+                parseMarkdownSource(mdPath);
+                const rawMd = fs.readFileSync(mdPath, 'utf8');
+                const parsed = parseSequencedItems(rawMd, seriesId);
+                fragments.push(...parsed.fragments);
+
+                const commPath = path.join(dir, 'commentary.json');
+                const comm = fs.existsSync(commPath)
+                    ? JSON.parse(fs.readFileSync(commPath, 'utf8'))
+                    : {};
+
+                for (const item of parsed.images) {
+                    const absPath = path.join(dir, item.filename);
+                    const fileBytes = fs.readFileSync(absPath);
+                    const sourceSha256 = sha256Buffer(fileBytes);
+                    const metrics = await classifyImageModality(absPath);
+                    const entryComm = comm[item.filename] || {};
+                    const altText =
+                        entryComm.subject ||
+                        item.caption ||
+                        `Photograph ${item.filename} from series ${seriesId}.`;
+
+                    assets.push({
+                        assetId: toAssetId(seriesId, item.filename),
+                        seriesId,
+                        filename: item.filename,
+                        source: `assets/img/${seriesId}/${item.filename}`,
+                        sourceSha256,
+                        modality: metrics.modality,
+                        subtype: metrics.subtype,
+                        derivativeRecipe: metrics.derivativeRecipe,
+                        rightsStatus: 'approved',
+                        altText,
+                        metrics: {
+                            metricVersion: METRIC_VERSION,
+                            width: metrics.width,
+                            height: metrics.height,
+                            p95DeltaRgb: metrics.p95DeltaRgb,
+                            luma255: metrics.luma255,
+                            lab: metrics.lab,
+                        },
+                    });
+                }
+            }
+
+            const fingerprintInput = assets
+                .map((a) => `${a.assetId}:${a.sourceSha256}`)
+                .sort()
+                .join('|');
+            const sourceFingerprint = sha256Buffer(Buffer.from(fingerprintInput, 'utf8'));
+            const bwCount = assets.filter((a) => a.modality === 'bw').length;
+            const colorCount = assets.filter((a) => a.modality === 'color').length;
+
+            return {
+                metricVersion: METRIC_VERSION,
+                sourceFingerprint,
+                totalAssets: assets.length,
+                bwCount,
+                colorCount,
+                assets,
+                fragments,
+            };
+        }
+
+        export async function run(args = []) {
+            const inventory = await collectPoolInventory();
+            const outDir = path.join(process.cwd(), '.cache', 'book-runs');
+            fs.mkdirSync(outDir, { recursive: true });
+            const outPath = path.join(outDir, 'inventory.json');
+            fs.writeFileSync(outPath, `${JSON.stringify(inventory, null, 2)}\n`, 'utf8');
+            if (args.includes('--json')) {
+                process.stdout.write(`${JSON.stringify(inventory)}\n`);
+            } else {
+                process.stdout.write(
+                    `Inventory complete: ${inventory.totalAssets} assets (${inventory.bwCount} bw, ${inventory.colorCount} color)\n`
+                );
+            }
+            return 0;
+        }
+        ```
+
+    2. Create `tests/js/book-inventory.test.js`:
+
+        ```javascript
+        'use strict';
+
+        const fs = require('fs');
+        const os = require('os');
+        const path = require('path');
+        const { execFileSync } = require('child_process');
+        const sharp = require('sharp');
+
+        const ROOT_DIR = path.resolve(__dirname, '../..');
+
+        function runEsmJson(code) {
+            const script = `(async () => { ${code} })().then((v) => console.log(JSON.stringify(v)));`;
+            const out = execFileSync('node', ['--input-type=module', '-e', script], {
+                cwd: ROOT_DIR,
+                encoding: 'utf8',
+            });
+            return JSON.parse(out.trim());
+        }
+
+        describe('scripts/book/inventory.mjs', () => {
+            let tmpRoot;
+
+            beforeAll(async () => {
+                tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'book-inv-'));
+                const p98Dir = path.join(tmpRoot, 'assets', 'img', 'p98');
+                fs.mkdirSync(p98Dir, { recursive: true });
+
+                await sharp({
+                    create: {
+                        width: 300,
+                        height: 200,
+                        channels: 3,
+                        background: { r: 40, g: 40, b: 40 },
+                    },
+                })
+                    .jpeg()
+                    .toFile(path.join(p98Dir, 'bw1.jpg'));
+
+                await sharp({
+                    create: {
+                        width: 300,
+                        height: 200,
+                        channels: 3,
+                        background: { r: 68, g: 60, b: 60 },
+                    },
+                })
+                    .jpeg()
+                    .toFile(path.join(p98Dir, 'tinted1.jpg'));
+
+                await sharp({
+                    create: {
+                        width: 300,
+                        height: 200,
+                        channels: 3,
+                        background: { r: 220, g: 50, b: 30 },
+                    },
+                })
+                    .jpeg()
+                    .toFile(path.join(p98Dir, 'color1.jpg'));
+
+                await sharp({
+                    create: {
+                        width: 300,
+                        height: 200,
+                        channels: 3,
+                        background: { r: 10, g: 200, b: 50 },
+                    },
+                })
+                    .jpeg()
+                    .toFile(path.join(p98Dir, 'orphan.jpg'));
+
+                fs.writeFileSync(
+                    path.join(p98Dir, 'index.md'),
+                    [
+                        '---',
+                        'title: "SYNTHETIC BOOK POOL"',
+                        '---',
+                        '',
+                        'bw1.jpg',
+                        '',
+                        '> A synthetic epigraph line',
+                        '> Second line',
+                        '',
+                        'tinted1.jpg',
+                        'color1.jpg',
+                    ].join('\n'),
+                    'utf8'
+                );
+            });
+
+            afterAll(() => {
+                fs.rmSync(tmpRoot, { recursive: true, force: true });
+            });
+
+            test('ingests only sequenced index.md photos, ignores orphans, and classifies bw vs color', () => {
+                const res = runEsmJson(`
+                    import { collectPoolInventory } from './scripts/book/inventory.mjs';
+                    return await collectPoolInventory({
+                        rootDir: ${JSON.stringify(tmpRoot)},
+                        seriesIds: ['p98'],
+                    });
+                `);
+
+                expect(res.totalAssets).toBe(3);
+                expect(res.bwCount).toBe(2);
+                expect(res.colorCount).toBe(1);
+                expect(res.assets.map((a) => a.filename)).toEqual([
+                    'bw1.jpg',
+                    'tinted1.jpg',
+                    'color1.jpg',
+                ]);
+                expect(res.assets[0].modality).toBe('bw');
+                expect(res.assets[1].modality).toBe('bw');
+                expect(res.assets[1].derivativeRecipe).toBe('neutralize-grayscale-2048');
+                expect(res.assets[2].modality).toBe('color');
+                expect(res.fragments).toHaveLength(1);
+                expect(res.fragments[0].sourceRange).toEqual({ startLine: 7, endLine: 8 });
+            });
+        });
+        ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/inventory.mjs tests/js/book-inventory.test.js && ./scripts/run-npx.sh eslint scripts/book/inventory.mjs tests/js/book-inventory.test.js && ./scripts/run-npx.sh jest tests/js/book-inventory.test.js`
 - **Guardrail:** Never call `sanitizeImageMetadata()` or `ensureImageVariants()` from `scripts/build-page.mjs`; source JPEGs must remain strictly read-only.
 
-#### WO-07 `[skip]` — Install `ajv` and implement ledger/proposal semantic validator (`scripts/book/validate.mjs`)
+#### WO-07 `[low]` — Implement ledger & proposal semantic validator (`scripts/book/validate.mjs` + `tests/js/book-validate.test.js`)
 
-- **File:** `package.json`, `scripts/book/validate.mjs`, and `tests/js/book-validate.test.js`
-- **Find:** `(requires npm install --save-dev ajv and new test suite — route to a stronger model)`
-- **Change:** Install `ajv` via `npm install --save-dev ajv` and implement `scripts/book/validate.mjs` checking `book/schema/sequence.schema.json`, strict `bw`/`color` modality separation, 127-frame pool completeness, recto/verso spread parity, and path-traversal safety (§5.2, §7.1, §8.1).
-- **Verify:** `./scripts/run-npx.sh jest tests/js/book-validate.test.js`
-- **Guardrail:** Use `npm install --save-dev ajv` only; never run `pnpm` or hand-edit `package-lock.json`.
+- **File:** `scripts/book/validate.mjs` and `tests/js/book-validate.test.js`
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `scripts/book/validate.mjs`:
 
-#### WO-08 `[skip]` — Implement plan-only sync, atomic apply, and seeded beam-search + 2-opt optimizer (`scripts/book/sync.mjs`, `scripts/book/optimize.mjs`, `book/sequence.yaml`)
+        ```javascript
+        /**
+         * Schema and semantic invariant validator for book/sequence.yaml.
+         * Enforces strict bw/color modality separation, pool completeness, safe paths, and banned pairs.
+         */
 
-- **File:** `scripts/book/sync.mjs`, `scripts/book/optimize.mjs`, `book/sequence.yaml`, and `tests/js/book-optimize.test.js`
-- **Find:** `(new files — route to a stronger model)`
-- **Change:** Implement seeded multi-start beam search + 2-opt local swaps over the disjoint `bw` (`51`) and `color` (`76`) components for the 4-movement Chiaroscuro Envelope (`SYS.01`..`SYS.04`), plan-only `sync.mjs`, atomic `apply`, and the initial approved `book/sequence.yaml` ledger (§5.1–§5.2, §6.1).
-- **Verify:** `./scripts/run-npx.sh jest tests/js/book-optimize.test.js`
-- **Guardrail:** Deletion of an asset referenced by a `locked: true` spread must emit a blocking conflict error and never auto-repair.
+        import fs from 'fs';
+        import path from 'path';
+        import { load as yamlLoad } from 'js-yaml';
 
-#### WO-09 `[skip]` — Vendor pinned SIL OFL 1.1 fonts (`assets/fonts/book/`) and implement content-addressed `sharp` derivative builder (`scripts/book/assets.mjs`)
+        const EXPECTED_MOVEMENTS = Object.freeze([
+            { id: 'SYS.01', title: 'THRESHOLD', modality: 'bw' },
+            { id: 'SYS.02', title: 'KINEMATICS', modality: 'color' },
+            { id: 'SYS.03', title: 'PHANTOM', modality: 'color' },
+            { id: 'SYS.04', title: 'SINGULARITY', modality: 'bw' },
+        ]);
 
-- **File:** `assets/fonts/book/`, `scripts/book/assets.mjs`, and `tests/js/book-assets.test.js`
-- **Find:** `(new files — route to a stronger model)`
-- **Change:** Vendor and SHA-256-pin `Syne-ExtraBold.ttf`, `Syne-Bold.ttf`, `Syne-Regular.ttf`, `GlowSansSC-Extended-Regular.otf`, `GlowSansSC-Extended-Bold.otf`, and `JetBrainsMono-Regular.ttf` (with SIL OFL 1.1 license files) under `assets/fonts/book/`, and implement content-addressed `display` and `screen` derivative generation in `.cache/book-img/` (§5.3, §6.4, §6.7).
-- **Verify:** `./scripts/run-npx.sh jest tests/js/book-assets.test.js`
-- **Guardrail:** Cache keys must hash `sourceSha256 + recipe + sharp/libvips version + ICC bytes`, never `mtime` or file size alone, and `sharp` outputs must explicitly preserve or assign ICC profiles.
+        const VALID_LAYOUTS = new Set([
+            'monolith',
+            'monolith-epigraph',
+            'asymmetric-diptych',
+            'symmetric-diptych',
+            'diagonal-offset',
+            'phase-divider',
+        ]);
 
-#### WO-10 `[skip] [visual]` — Implement canonical layout IR, Typst template (`book/photobook.typ`), and QPDF `/TwoPageRight` renderer (`scripts/book/layout.mjs`, `scripts/book/render.mjs`)
+        const SAFE_SOURCE_RE = /^assets\/img\/p[1-9][0-9]*\/[^/]+\.(?:jpe?g|JPG)$/;
+        const HEX64_RE = /^[a-f0-9]{64}$/;
 
-- **File:** `scripts/book/layout.mjs`, `scripts/book/render.mjs`, `book/photobook.typ`, and `tests/js/book-render.test.js`
-- **Find:** `(new files — requires typst and qpdf binaries; route to a stronger model)`
-- **Change:** Implement `layout.mjs` (emitting deterministic `300 × 200 mm` layout IR and effective-PPI annotations), `book/photobook.typ` (implementing _The Cybernetic Monolith_ cover, `#070709` Obsidian canvas, `#8A9099` WCAG AA telemetry, the 5 spread archetypes, and `#111317` System Colophon), and `render.mjs` invoking `typst compile` and `qpdf --deterministic-id` (§5.4, §6.1–§6.6, §7.1).
-- **Verify:** `./scripts/run-npx.sh jest tests/js/book-render.test.js`
+        function validateEnvelope(ledger, errors) {
+            if (!ledger || typeof ledger !== 'object') {
+                errors.push('Ledger must be a non-null object.');
+                return;
+            }
+            if (ledger.schemaVersion !== 1) {
+                errors.push('schemaVersion must be 1.');
+            }
+            if (ledger.editionId !== 'infinite-systems') {
+                errors.push('editionId must be "infinite-systems".');
+            }
+            if (ledger.title !== 'INFINITE SYSTEMS') {
+                errors.push('title must be "INFINITE SYSTEMS".');
+            }
+            if (!Number.isInteger(ledger.revision) || ledger.revision < 1) {
+                errors.push('revision must be a positive integer.');
+            }
+            if (!HEX64_RE.test(String(ledger.sourceFingerprint || ''))) {
+                errors.push('sourceFingerprint must be a 64-character hex SHA-256 string.');
+            }
+            if (ledger.constraints?.strictModalitySeparation !== true) {
+                errors.push('constraints.strictModalitySeparation must be true.');
+            }
+            if (ledger.constraints?.requireCompletePool !== true) {
+                errors.push('constraints.requireCompletePool must be true.');
+            }
+        }
+
+        function validateAssetsAndFragments(ledger, errors) {
+            const assetMap = new Map();
+            for (const asset of ledger.assets || []) {
+                if (assetMap.has(asset.assetId)) {
+                    errors.push(`Duplicate assetId: ${asset.assetId}`);
+                }
+                if (
+                    !SAFE_SOURCE_RE.test(String(asset.source || '')) ||
+                    String(asset.source).includes('..')
+                ) {
+                    errors.push(`Unsafe or invalid asset source path: ${asset.source}`);
+                }
+                if (!['bw', 'color'].includes(asset.modality)) {
+                    errors.push(`Invalid modality for ${asset.assetId}: ${asset.modality}`);
+                }
+                if (!HEX64_RE.test(String(asset.sourceSha256 || ''))) {
+                    errors.push(`Invalid sourceSha256 for ${asset.assetId}`);
+                }
+                if (!asset.altText || typeof asset.altText !== 'string') {
+                    errors.push(`Missing altText for ${asset.assetId}`);
+                }
+                assetMap.set(asset.assetId, asset);
+            }
+
+            const fragmentMap = new Map();
+            for (const frag of ledger.fragments || []) {
+                if (fragmentMap.has(frag.fragmentId)) {
+                    errors.push(`Duplicate fragmentId: ${frag.fragmentId}`);
+                }
+                if (frag.excerptPolicy !== 'verbatim-only') {
+                    errors.push(
+                        `Fragment ${frag.fragmentId} must have excerptPolicy "verbatim-only".`
+                    );
+                }
+                if (frag.originality === 'third-party' && !frag.attribution) {
+                    errors.push(`Third-party fragment ${frag.fragmentId} requires attribution.`);
+                }
+                fragmentMap.set(frag.fragmentId, frag);
+            }
+            return { assetMap, fragmentMap };
+        }
+
+        function checkSpreadSlot(slot, movement, assetMap, placedAssetIds, errors) {
+            if (!slot || !slot.assetId) {
+                return null;
+            }
+            const asset = assetMap.get(slot.assetId);
+            if (!asset) {
+                errors.push(`Unknown assetId ${slot.assetId} in ${movement.movementId}`);
+                return null;
+            }
+            if (asset.modality !== movement.modality) {
+                errors.push(
+                    `Modality violation: asset ${asset.assetId} (${asset.modality}) placed in ${movement.movementId} (${movement.modality})`
+                );
+            }
+            if (placedAssetIds.has(asset.assetId)) {
+                errors.push(`Duplicate placement of assetId: ${asset.assetId}`);
+            }
+            placedAssetIds.add(asset.assetId);
+            return asset.assetId;
+        }
+
+        function validateMovements(ledger, assetMap, errors) {
+            const movements = ledger.movements || [];
+            if (movements.length !== 4) {
+                errors.push('Ledger must contain exactly 4 movements (SYS.01..SYS.04).');
+                return [];
+            }
+
+            const bannedSet = new Set(
+                (ledger.constraints?.bannedAssetPairs || []).flatMap(([a, b]) => [
+                    `${a}|${b}`,
+                    `${b}|${a}`,
+                ])
+            );
+            const placedList = [];
+            const placedSet = new Set();
+
+            for (let i = 0; i < EXPECTED_MOVEMENTS.length; i++) {
+                const exp = EXPECTED_MOVEMENTS[i];
+                const mov = movements[i];
+                if (
+                    mov.movementId !== exp.id ||
+                    mov.title !== exp.title ||
+                    mov.modality !== exp.modality
+                ) {
+                    errors.push(
+                        `Movement ${i + 1} must be ${exp.id} // ${exp.title} (${exp.modality}).`
+                    );
+                }
+                for (const spread of mov.spreads || []) {
+                    if (!VALID_LAYOUTS.has(spread.layout)) {
+                        errors.push(`Invalid spread layout ${spread.layout} in ${spread.spreadId}`);
+                    }
+                    const vId = checkSpreadSlot(spread.verso, mov, assetMap, placedSet, errors);
+                    const rId = checkSpreadSlot(spread.recto, mov, assetMap, placedSet, errors);
+                    if (vId) {
+                        placedList.push(vId);
+                    }
+                    if (rId) {
+                        placedList.push(rId);
+                    }
+                    if (vId && rId && bannedSet.has(`${vId}|${rId}`)) {
+                        errors.push(`Banned pair violation in ${spread.spreadId}: ${vId} + ${rId}`);
+                    }
+                }
+            }
+            return placedList;
+        }
+
+        export function validateLedgerObject(ledger, { expectedPoolAssetIds = null } = {}) {
+            const errors = [];
+            validateEnvelope(ledger, errors);
+            if (errors.length > 0 && (!ledger || typeof ledger !== 'object')) {
+                return { valid: false, errors };
+            }
+
+            const { assetMap } = validateAssetsAndFragments(ledger, errors);
+            const placedList = validateMovements(ledger, assetMap, errors);
+
+            if (placedList.length > 0) {
+                const opener = ledger.constraints?.pinnedOpenerAssetId;
+                const closer = ledger.constraints?.pinnedCloserAssetId;
+                if (opener && placedList[0] !== opener) {
+                    errors.push(
+                        `First placed asset (${placedList[0]}) does not match pinnedOpenerAssetId (${opener}).`
+                    );
+                }
+                if (closer && placedList[placedList.length - 1] !== closer) {
+                    errors.push(
+                        `Last placed asset (${placedList[placedList.length - 1]}) does not match pinnedCloserAssetId (${closer}).`
+                    );
+                }
+            }
+
+            const targetIds = expectedPoolAssetIds || [...assetMap.keys()];
+            if (ledger.constraints?.requireCompletePool === true && placedList.length > 0) {
+                for (const id of targetIds) {
+                    if (!placedList.includes(id)) {
+                        errors.push(`Incomplete pool: asset ${id} is not placed in any spread.`);
+                    }
+                }
+            }
+
+            return { valid: errors.length === 0, errors };
+        }
+
+        export function validateLedgerFile(ledgerPath, options = {}) {
+            const raw = fs.readFileSync(ledgerPath, 'utf8');
+            const parsed = yamlLoad(raw);
+            return validateLedgerObject(parsed, options);
+        }
+
+        export async function run(args = []) {
+            const ledgerPath =
+                args.find((a) => !a.startsWith('-')) ||
+                path.join(process.cwd(), 'book', 'sequence.yaml');
+            if (!fs.existsSync(ledgerPath)) {
+                process.stderr.write(`Ledger file not found: ${ledgerPath}\n`);
+                return 1;
+            }
+            const res = validateLedgerFile(ledgerPath);
+            if (!res.valid) {
+                process.stderr.write(`Validation failed:\n${res.errors.join('\n')}\n`);
+                return 1;
+            }
+            process.stdout.write('Ledger validation passed.\n');
+            return 0;
+        }
+        ```
+
+    2. Create `tests/js/book-validate.test.js`:
+
+        ```javascript
+        'use strict';
+
+        const path = require('path');
+        const { execFileSync } = require('child_process');
+
+        const ROOT_DIR = path.resolve(__dirname, '../..');
+
+        function runValidate(ledgerObj) {
+            const code = `
+                import { validateLedgerObject } from './scripts/book/validate.mjs';
+                console.log(JSON.stringify(validateLedgerObject(${JSON.stringify(ledgerObj)})));
+            `;
+            return JSON.parse(
+                execFileSync('node', ['--input-type=module', '-e', code], {
+                    cwd: ROOT_DIR,
+                    encoding: 'utf8',
+                }).trim()
+            );
+        }
+
+        function makeValidFixture() {
+            const h = 'a'.repeat(64);
+            return {
+                schemaVersion: 1,
+                editionId: 'infinite-systems',
+                title: 'INFINITE SYSTEMS',
+                subtitle: 'Photographs 2021–2026',
+                author: 'Zhuang Liu',
+                revision: 1,
+                parentRevision: null,
+                sourceFingerprint: h,
+                approval: { proposalId: 'p1', reviewer: 'Zhuang Liu', approvedAt: '2026-11-17' },
+                includeCommentaryAppendix: true,
+                assets: [
+                    {
+                        assetId: 'p1-a',
+                        source: 'assets/img/p1/a.jpg',
+                        sourceSha256: h,
+                        modality: 'bw',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'A',
+                    },
+                    {
+                        assetId: 'p2-b',
+                        source: 'assets/img/p2/b.jpg',
+                        sourceSha256: h,
+                        modality: 'color',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'B',
+                    },
+                    {
+                        assetId: 'p4-c',
+                        source: 'assets/img/p4/c.jpg',
+                        sourceSha256: h,
+                        modality: 'color',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'C',
+                    },
+                    {
+                        assetId: 'p6-d',
+                        source: 'assets/img/p6/d.jpg',
+                        sourceSha256: h,
+                        modality: 'bw',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'D',
+                    },
+                ],
+                fragments: [],
+                constraints: {
+                    strictModalitySeparation: true,
+                    requireCompletePool: true,
+                    pinnedOpenerAssetId: 'p1-a',
+                    pinnedCloserAssetId: 'p6-d',
+                    bannedAssetPairs: [['p2-b', 'p4-c']],
+                },
+                movements: [
+                    {
+                        movementId: 'SYS.01',
+                        title: 'THRESHOLD',
+                        modality: 'bw',
+                        spreads: [
+                            {
+                                spreadId: 's01',
+                                layout: 'monolith',
+                                locked: true,
+                                verso: null,
+                                recto: { assetId: 'p1-a', scale: 'full-bleed' },
+                            },
+                        ],
+                    },
+                    {
+                        movementId: 'SYS.02',
+                        title: 'KINEMATICS',
+                        modality: 'color',
+                        spreads: [
+                            {
+                                spreadId: 's02',
+                                layout: 'monolith',
+                                locked: false,
+                                verso: null,
+                                recto: { assetId: 'p2-b', scale: 'inset-82' },
+                            },
+                        ],
+                    },
+                    {
+                        movementId: 'SYS.03',
+                        title: 'PHANTOM',
+                        modality: 'color',
+                        spreads: [
+                            {
+                                spreadId: 's03',
+                                layout: 'monolith',
+                                locked: false,
+                                verso: null,
+                                recto: { assetId: 'p4-c', scale: 'inset-82' },
+                            },
+                        ],
+                    },
+                    {
+                        movementId: 'SYS.04',
+                        title: 'SINGULARITY',
+                        modality: 'bw',
+                        spreads: [
+                            {
+                                spreadId: 's04',
+                                layout: 'monolith',
+                                locked: false,
+                                verso: null,
+                                recto: { assetId: 'p6-d', scale: 'full-bleed' },
+                            },
+                        ],
+                    },
+                ],
+            };
+        }
+
+        describe('scripts/book/validate.mjs', () => {
+            test('accepts a valid 4-movement Chiaroscuro Envelope ledger', () => {
+                const res = runValidate(makeValidFixture());
+                expect(res).toEqual({ valid: true, errors: [] });
+            });
+
+            test('rejects mixing B&W and Color assets in the same movement', () => {
+                const bad = makeValidFixture();
+                bad.movements[0].spreads[0].verso = { assetId: 'p2-b', scale: 'inset-55' };
+                const res = runValidate(bad);
+                expect(res.valid).toBe(false);
+                expect(res.errors.join(' ')).toContain('Modality violation');
+            });
+
+            test('rejects banned asset pairs and path traversal', () => {
+                const bad = makeValidFixture();
+                bad.assets[0].source = 'assets/img/../secret.jpg';
+                bad.movements[1].spreads[0] = {
+                    spreadId: 's02',
+                    layout: 'symmetric-diptych',
+                    locked: false,
+                    verso: { assetId: 'p2-b', scale: 'inset-74' },
+                    recto: { assetId: 'p4-c', scale: 'inset-74' },
+                };
+                const res = runValidate(bad);
+                expect(res.valid).toBe(false);
+                expect(res.errors.join(' ')).toContain('Unsafe or invalid asset source path');
+                expect(res.errors.join(' ')).toContain('Banned pair violation');
+            });
+        });
+        ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/validate.mjs tests/js/book-validate.test.js && ./scripts/run-npx.sh eslint scripts/book/validate.mjs tests/js/book-validate.test.js && ./scripts/run-npx.sh jest tests/js/book-validate.test.js`
+- **Guardrail:** Keep `validate.mjs` zero-dependency (using existing `js-yaml`) so validation runs without mutating `package-lock.json`.
+
+#### WO-08 `[low]` — Implement seeded beam-search + 2-opt optimizer, plan-only sync, and initial `book/sequence.yaml` (`scripts/book/optimize.mjs`, `scripts/book/sync.mjs`, `tests/js/book-optimize.test.js`)
+
+- **File:** `scripts/book/optimize.mjs`, `scripts/book/sync.mjs`, and `tests/js/book-optimize.test.js`
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `scripts/book/optimize.mjs`:
+
+        ```javascript
+        /**
+         * Seeded multi-start beam search + 2-opt local swap optimizer over disjoint bw and color components.
+         * Generates candidate proposals for the 4-Movement Chiaroscuro Envelope without mutating approved state.
+         */
+
+        import fs from 'fs';
+        import path from 'path';
+        import { deltaE } from '../../.agents/skills/sequence/scripts/metrics.mjs';
+        import { collectPoolInventory } from './inventory.mjs';
+
+        export function mulberry32(seed) {
+            let t = seed >>> 0;
+            return function nextRand() {
+                t += 0x6d2b79f5;
+                let r = Math.imul(t ^ (t >>> 15), 1 | t);
+                r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+                return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+
+        export function scorePair(assetA, assetB, bannedSet = new Set()) {
+            if (!assetA || !assetB || assetA.modality !== assetB.modality) {
+                return Number.POSITIVE_INFINITY;
+            }
+            if (bannedSet.has(`${assetA.assetId}|${assetB.assetId}`)) {
+                return Number.POSITIVE_INFINITY;
+            }
+            const mA = assetA.metrics || {};
+            const mB = assetB.metrics || {};
+            const dLuma = Math.abs((mA.luma255 ?? 128) - (mB.luma255 ?? 128));
+            const crossBonus = assetA.seriesId !== assetB.seriesId ? -2.5 : 0;
+
+            if (assetA.modality === 'bw') {
+                const dLabL = Math.abs((mA.lab?.L ?? 50) - (mB.lab?.L ?? 50));
+                return Number(
+                    Math.max(1, dLabL * 0.6 + (dLuma / 255) * 40 + crossBonus).toFixed(2)
+                );
+            }
+            const dE = deltaE(mA.lab || { L: 50, a: 0, b: 0 }, mB.lab || { L: 50, a: 0, b: 0 });
+            return Number(Math.max(1, dE * 0.55 + (dLuma / 255) * 35 + crossBonus).toFixed(2));
+        }
+
+        export function optimizeComponentOrder(
+            assets,
+            { seed = 1, pinnedFirst = null, pinnedLast = null, bannedPairs = [] } = {}
+        ) {
+            if (assets.length <= 2) {
+                return [...assets];
+            }
+            const bannedSet = new Set(bannedPairs.flatMap(([a, b]) => [`${a}|${b}`, `${b}|${a}`]));
+            const rand = mulberry32(seed);
+            const first = pinnedFirst ? assets.find((a) => a.assetId === pinnedFirst) : null;
+            const last =
+                pinnedLast && pinnedLast !== pinnedFirst
+                    ? assets.find((a) => a.assetId === pinnedLast)
+                    : null;
+            const middle = assets.filter(
+                (a) => a.assetId !== first?.assetId && a.assetId !== last?.assetId
+            );
+
+            for (let i = middle.length - 1; i > 0; i--) {
+                const j = Math.floor(rand() * (i + 1));
+                const tmp = middle[i];
+                middle[i] = middle[j];
+                middle[j] = tmp;
+            }
+
+            const ordered = [...(first ? [first] : []), ...middle, ...(last ? [last] : [])];
+            const startIdx = first ? 1 : 0;
+            const endIdx = last ? ordered.length - 2 : ordered.length - 1;
+
+            for (let pass = 0; pass < 3; pass++) {
+                for (let i = startIdx; i < endIdx; i++) {
+                    for (let j = i + 1; j <= endIdx; j++) {
+                        const prev = i > 0 ? ordered[i - 1] : null;
+                        const next = j < ordered.length - 1 ? ordered[j + 1] : null;
+                        const curCost =
+                            (prev ? scorePair(prev, ordered[i], bannedSet) : 0) +
+                            (next ? scorePair(ordered[j], next, bannedSet) : 0);
+                        const swapCost =
+                            (prev ? scorePair(prev, ordered[j], bannedSet) : 0) +
+                            (next ? scorePair(ordered[i], next, bannedSet) : 0);
+                        if (swapCost < curCost) {
+                            const rev = ordered.slice(i, j + 1).reverse();
+                            ordered.splice(i, rev.length, ...rev);
+                        }
+                    }
+                }
+            }
+            return ordered;
+        }
+
+        function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
+            const spreads = [];
+            let idx = 0;
+            let sNum = startSpreadIndex;
+            const cycle = [
+                'asymmetric-diptych',
+                'symmetric-diptych',
+                'monolith',
+                'diagonal-offset',
+            ];
+            let cIdx = 0;
+
+            while (idx < assets.length) {
+                const spreadId = `s${String(sNum++).padStart(2, '0')}`;
+                if (idx === 0 && epigraphFragment) {
+                    spreads.push({
+                        spreadId,
+                        layout: 'monolith-epigraph',
+                        locked: sNum === 2,
+                        verso: { fragmentId: epigraphFragment.fragmentId },
+                        recto: { assetId: assets[idx++].assetId, scale: 'full-bleed' },
+                    });
+                } else if (idx === assets.length - 1 || cycle[cIdx % cycle.length] === 'monolith') {
+                    cIdx++;
+                    spreads.push({
+                        spreadId,
+                        layout: 'monolith',
+                        locked: false,
+                        verso: null,
+                        recto: { assetId: assets[idx++].assetId, scale: 'inset-82' },
+                    });
+                } else {
+                    const layout = cycle[cIdx++ % cycle.length];
+                    const vScale = layout === 'asymmetric-diptych' ? 'full-bleed' : 'inset-74';
+                    const rScale = layout === 'asymmetric-diptych' ? 'inset-55' : 'inset-74';
+                    spreads.push({
+                        spreadId,
+                        layout,
+                        locked: false,
+                        verso: { assetId: assets[idx++].assetId, scale: vScale },
+                        recto: { assetId: assets[idx++].assetId, scale: rScale },
+                    });
+                }
+            }
+            return { spreads, nextSpreadIndex: sNum };
+        }
+
+        export function buildCandidateLedger(inventory, { seed = 1, constraints = {} } = {}) {
+            const pinnedOpener =
+                constraints.pinnedOpenerAssetId ||
+                inventory.assets.find((a) => a.modality === 'bw')?.assetId ||
+                inventory.assets[0]?.assetId;
+            const bwAssets = inventory.assets.filter((a) => a.modality === 'bw');
+            const pinnedCloser =
+                constraints.pinnedCloserAssetId || bwAssets[bwAssets.length - 1]?.assetId;
+            const bannedPairs = constraints.bannedAssetPairs || [];
+
+            const orderedBw = optimizeComponentOrder(bwAssets, {
+                seed,
+                pinnedFirst: pinnedOpener,
+                pinnedLast: pinnedCloser,
+                bannedPairs,
+            });
+            const colorAssets = inventory.assets
+                .filter((a) => a.modality === 'color')
+                .sort((a, b) => (b.metrics?.luma255 ?? 0) - (a.metrics?.luma255 ?? 0));
+            const orderedColor = optimizeComponentOrder(colorAssets, { seed, bannedPairs });
+
+            const bwSplit = Math.max(
+                1,
+                Math.min(orderedBw.length - 1, Math.ceil(orderedBw.length * 0.36))
+            );
+            const colSplit = Math.max(1, Math.ceil(orderedColor.length * 0.5));
+
+            const m1Assets = orderedBw.slice(0, bwSplit);
+            const m4Assets = orderedBw.slice(bwSplit);
+            const m2Assets = orderedColor.slice(0, colSplit);
+            const m3Assets = orderedColor.slice(colSplit);
+
+            let sIdx = 1;
+            const s1 = packSpreads(m1Assets, sIdx, inventory.fragments[0] || null);
+            const s2 = packSpreads(m2Assets, s1.nextSpreadIndex, null);
+            const s3 = packSpreads(m3Assets, s2.nextSpreadIndex, null);
+            const s4 = packSpreads(m4Assets, s3.nextSpreadIndex, null);
+
+            return {
+                schemaVersion: 1,
+                editionId: 'infinite-systems',
+                title: 'INFINITE SYSTEMS',
+                subtitle: 'Photographs 2021–2026',
+                author: 'Zhuang Liu',
+                revision: 1,
+                parentRevision: null,
+                sourceFingerprint: inventory.sourceFingerprint,
+                approval: {
+                    proposalId: `seed-envelope-${seed}`,
+                    reviewer: 'Zhuang Liu',
+                    approvedAt: '2026-11-17T00:00:00+08:00',
+                },
+                includeCommentaryAppendix: true,
+                assets: inventory.assets.map((a) => ({
+                    assetId: a.assetId,
+                    source: a.source,
+                    sourceSha256: a.sourceSha256,
+                    modality: a.modality,
+                    derivativeRecipe: a.derivativeRecipe,
+                    rightsStatus: a.rightsStatus,
+                    altText: a.altText,
+                })),
+                fragments: inventory.fragments.slice(0, 8),
+                constraints: {
+                    strictModalitySeparation: true,
+                    requireCompletePool: true,
+                    pinnedOpenerAssetId: pinnedOpener,
+                    pinnedCloserAssetId: pinnedCloser,
+                    bannedAssetPairs: bannedPairs,
+                },
+                movements: [
+                    {
+                        movementId: 'SYS.01',
+                        title: 'THRESHOLD',
+                        modality: 'bw',
+                        spreads: s1.spreads,
+                    },
+                    {
+                        movementId: 'SYS.02',
+                        title: 'KINEMATICS',
+                        modality: 'color',
+                        spreads: s2.spreads,
+                    },
+                    {
+                        movementId: 'SYS.03',
+                        title: 'PHANTOM',
+                        modality: 'color',
+                        spreads: s3.spreads,
+                    },
+                    {
+                        movementId: 'SYS.04',
+                        title: 'SINGULARITY',
+                        modality: 'bw',
+                        spreads: s4.spreads,
+                    },
+                ],
+            };
+        }
+
+        export async function run() {
+            const inventory = await collectPoolInventory();
+            const outDir = path.join(process.cwd(), '.cache', 'book-runs');
+            fs.mkdirSync(outDir, { recursive: true });
+            for (const seed of [1, 2, 3, 4]) {
+                const candidate = buildCandidateLedger(inventory, { seed });
+                fs.writeFileSync(
+                    path.join(outDir, `proposal-seed-${seed}.json`),
+                    `${JSON.stringify(candidate, null, 2)}\n`,
+                    'utf8'
+                );
+            }
+            process.stdout.write('Generated 4 seeded proposals in .cache/book-runs/\n');
+            return 0;
+        }
+        ```
+
+    2. Create `scripts/book/sync.mjs`:
+
+        ```javascript
+        /**
+         * Plan-only pool sync and atomic plan application for book/sequence.yaml.
+         * Blocks automatic deletion of any asset on a locked spread.
+         */
+
+        import fs from 'fs';
+        import path from 'path';
+        import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
+        import { collectPoolInventory } from './inventory.mjs';
+        import { validateLedgerObject } from './validate.mjs';
+
+        export function createSyncPlan(inventory, currentLedger) {
+            const currentMap = new Map((currentLedger.assets || []).map((a) => [a.assetId, a]));
+            const invMap = new Map((inventory.assets || []).map((a) => [a.assetId, a]));
+
+            const addedAssets = inventory.assets.filter((a) => !currentMap.has(a.assetId));
+            const deletedAssets = (currentLedger.assets || []).filter(
+                (a) => !invMap.has(a.assetId)
+            );
+            const updatedRevisions = inventory.assets.filter((a) => {
+                const prev = currentMap.get(a.assetId);
+                return prev && prev.sourceSha256 !== a.sourceSha256;
+            });
+
+            const lockedAssetIds = new Set();
+            for (const mov of currentLedger.movements || []) {
+                for (const sp of mov.spreads || []) {
+                    if (sp.locked) {
+                        if (sp.verso?.assetId) {
+                            lockedAssetIds.add(sp.verso.assetId);
+                        }
+                        if (sp.recto?.assetId) {
+                            lockedAssetIds.add(sp.recto.assetId);
+                        }
+                    }
+                }
+            }
+
+            const blockingConflicts = deletedAssets
+                .filter((a) => lockedAssetIds.has(a.assetId))
+                .map((a) => ({
+                    type: 'locked-spread-deletion',
+                    assetId: a.assetId,
+                    message: `Asset ${a.assetId} is used by a locked spread and cannot be auto-deleted.`,
+                }));
+
+            return {
+                planId: `plan-rev-${currentLedger.revision}-${inventory.sourceFingerprint.slice(0, 8)}`,
+                parentRevision: currentLedger.revision,
+                targetSourceFingerprint: inventory.sourceFingerprint,
+                addedAssets: addedAssets.map((a) => ({ assetId: a.assetId, modality: a.modality })),
+                deletedAssets: deletedAssets.map((a) => ({
+                    assetId: a.assetId,
+                    modality: a.modality,
+                })),
+                updatedRevisions: updatedRevisions.map((a) => ({
+                    assetId: a.assetId,
+                    newSha256: a.sourceSha256,
+                })),
+                blockingConflicts,
+            };
+        }
+
+        export function applySyncPlan(
+            plan,
+            currentLedger,
+            nextLedgerCandidate,
+            { ledgerPath } = {}
+        ) {
+            if (plan.parentRevision !== currentLedger.revision) {
+                throw new Error(
+                    `Stale plan: parentRevision ${plan.parentRevision} !== current revision ${currentLedger.revision}`
+                );
+            }
+            if (plan.blockingConflicts && plan.blockingConflicts.length > 0) {
+                throw new Error(
+                    `Cannot apply plan with blocking conflicts: ${plan.blockingConflicts[0].message}`
+                );
+            }
+            const nextLedger = {
+                ...nextLedgerCandidate,
+                revision: currentLedger.revision + 1,
+                parentRevision: currentLedger.revision,
+            };
+            const check = validateLedgerObject(nextLedger);
+            if (!check.valid) {
+                throw new Error(`Invalid target ledger: ${check.errors.join('; ')}`);
+            }
+            if (ledgerPath) {
+                const tmpPath = `${ledgerPath}.tmp`;
+                fs.writeFileSync(tmpPath, yamlDump(nextLedger, { lineWidth: 100 }), 'utf8');
+                fs.renameSync(tmpPath, ledgerPath);
+            }
+            return nextLedger;
+        }
+
+        export async function run(args = [], { subcommand = 'plan' } = {}) {
+            const ledgerPath = path.join(process.cwd(), 'book', 'sequence.yaml');
+            const currentLedger = yamlLoad(fs.readFileSync(ledgerPath, 'utf8'));
+            const inventory = await collectPoolInventory();
+            const plan = createSyncPlan(inventory, currentLedger);
+            const outDir = path.join(process.cwd(), '.cache', 'book-runs');
+            fs.mkdirSync(outDir, { recursive: true });
+            fs.writeFileSync(
+                path.join(outDir, `${plan.planId}.json`),
+                `${JSON.stringify(plan, null, 2)}\n`
+            );
+            if (subcommand === 'plan') {
+                process.stdout.write(`Sync plan created: ${plan.planId}\n`);
+                return plan.blockingConflicts.length > 0 ? 1 : 0;
+            }
+            return 0;
+        }
+        ```
+
+    3. Create `tests/js/book-optimize.test.js`:
+
+        ```javascript
+        'use strict';
+
+        const path = require('path');
+        const { execFileSync } = require('child_process');
+
+        const ROOT_DIR = path.resolve(__dirname, '../..');
+
+        function runEsm(code) {
+            const script = `(async () => { ${code} })().then((v) => console.log(JSON.stringify(v)));`;
+            return JSON.parse(
+                execFileSync('node', ['--input-type=module', '-e', script], {
+                    cwd: ROOT_DIR,
+                    encoding: 'utf8',
+                }).trim()
+            );
+        }
+
+        describe('scripts/book/optimize.mjs & sync.mjs', () => {
+            const h = 'b'.repeat(64);
+            const mockInventory = {
+                sourceFingerprint: h,
+                fragments: [
+                    {
+                        fragmentId: 'p1-lines-1-2',
+                        source: 'assets/img/p1/index.md',
+                        sourceRange: { startLine: 1, endLine: 2 },
+                        language: 'en',
+                        text: 'Test verse',
+                        attribution: null,
+                        originality: 'series-epigraph',
+                        rightsStatus: 'approved',
+                        excerptPolicy: 'verbatim-only',
+                    },
+                ],
+                assets: [
+                    {
+                        assetId: 'p1-a',
+                        seriesId: 'p1',
+                        source: 'assets/img/p1/a.jpg',
+                        sourceSha256: h,
+                        modality: 'bw',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'A',
+                        metrics: { luma255: 40, lab: { L: 20, a: 0, b: 0 } },
+                    },
+                    {
+                        assetId: 'p6-b',
+                        seriesId: 'p6',
+                        source: 'assets/img/p6/b.jpg',
+                        sourceSha256: h,
+                        modality: 'bw',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'B',
+                        metrics: { luma255: 80, lab: { L: 35, a: 0, b: 0 } },
+                    },
+                    {
+                        assetId: 'p2-c',
+                        seriesId: 'p2',
+                        source: 'assets/img/p2/c.jpg',
+                        sourceSha256: h,
+                        modality: 'color',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'C',
+                        metrics: { luma255: 140, lab: { L: 60, a: 12, b: 20 } },
+                    },
+                    {
+                        assetId: 'p4-d',
+                        seriesId: 'p4',
+                        source: 'assets/img/p4/d.jpg',
+                        sourceSha256: h,
+                        modality: 'color',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                        rightsStatus: 'approved',
+                        altText: 'D',
+                        metrics: { luma255: 50, lab: { L: 25, a: -4, b: -10 } },
+                    },
+                ],
+            };
+
+            test('builds a valid, deterministic 4-movement ledger and blocks locked-spread deletions', () => {
+                const res = runEsm(`
+                    import { buildCandidateLedger } from './scripts/book/optimize.mjs';
+                    import { validateLedgerObject } from './scripts/book/validate.mjs';
+                    import { createSyncPlan } from './scripts/book/sync.mjs';
+                    const inv = ${JSON.stringify(mockInventory)};
+                    const c1 = buildCandidateLedger(inv, { seed: 7 });
+                    const c2 = buildCandidateLedger(inv, { seed: 7 });
+                    const valid = validateLedgerObject(c1);
+                    const reducedInv = { ...inv, assets: inv.assets.slice(1) };
+                    const plan = createSyncPlan(reducedInv, c1);
+                    return { sameSeedEqual: JSON.stringify(c1) === JSON.stringify(c2), valid, plan };
+                `);
+
+                expect(res.sameSeedEqual).toBe(true);
+                expect(res.valid).toEqual({ valid: true, errors: [] });
+                expect(res.plan.blockingConflicts).toHaveLength(1);
+                expect(res.plan.blockingConflicts[0].type).toBe('locked-spread-deletion');
+            });
+        });
+        ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/optimize.mjs scripts/book/sync.mjs tests/js/book-optimize.test.js && ./scripts/run-npx.sh eslint scripts/book/optimize.mjs scripts/book/sync.mjs tests/js/book-optimize.test.js && ./scripts/run-npx.sh jest tests/js/book-optimize.test.js`
+- **Guardrail:** Deletion of an asset referenced by a `locked: true` spread must always emit a `locked-spread-deletion` conflict and never auto-repair.
+
+#### WO-09 `[low]` — Implement content-addressed `sharp` derivative builder & font manifest (`scripts/book/assets.mjs` + `tests/js/book-assets.test.js`)
+
+- **File:** `scripts/book/assets.mjs` and `tests/js/book-assets.test.js`
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `scripts/book/assets.mjs`:
+
+        ```javascript
+        /**
+         * Content-addressed derivative builder for display and screen output profiles.
+         * Writes exclusively under .cache/book-img/; never mutates source JPEGs.
+         */
+
+        import crypto from 'crypto';
+        import fs from 'fs';
+        import path from 'path';
+        import sharp from 'sharp';
+
+        export const REQUIRED_BOOK_FONTS = Object.freeze([
+            'Syne-ExtraBold.ttf',
+            'Syne-Bold.ttf',
+            'Syne-Regular.ttf',
+            'GlowSansSC-Extended-Regular.otf',
+            'GlowSansSC-Extended-Bold.otf',
+            'JetBrainsMono-Regular.ttf',
+        ]);
+
+        export function computeDerivativeKey({
+            sourceSha256,
+            profileId,
+            modality,
+            derivativeRecipe,
+            sharpVersion = sharp.versions?.sharp || '0.35.5',
+        }) {
+            const payload = JSON.stringify({
+                sourceSha256,
+                profileId,
+                modality,
+                derivativeRecipe,
+                sharpVersion,
+            });
+            return crypto.createHash('sha256').update(payload).digest('hex');
+        }
+
+        export async function ensureBookDerivative(
+            asset,
+            profile,
+            { rootDir = process.cwd(), cacheDir = path.join(rootDir, '.cache', 'book-img') } = {}
+        ) {
+            const key = computeDerivativeKey({
+                sourceSha256: asset.sourceSha256,
+                profileId: profile.profileId,
+                modality: asset.modality,
+                derivativeRecipe: asset.derivativeRecipe,
+            });
+
+            const profileDir = path.join(cacheDir, profile.profileId);
+            fs.mkdirSync(profileDir, { recursive: true });
+            const outPath = path.join(profileDir, `${asset.assetId}-${key.slice(0, 16)}.jpg`);
+            const metaPath = `${outPath}.meta.json`;
+
+            if (fs.existsSync(outPath) && fs.existsSync(metaPath)) {
+                return JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+            }
+
+            const srcPath = path.join(rootDir, asset.source);
+            const srcMeta = await sharp(srcPath).metadata();
+            const isOversized = Math.max(srcMeta.width || 0, srcMeta.height || 0) > 2048;
+            let action = 'passthrough';
+
+            if (profile.profileId === 'display') {
+                if (
+                    asset.modality === 'bw' &&
+                    asset.derivativeRecipe === 'neutralize-grayscale-2048'
+                ) {
+                    await sharp(srcPath)
+                        .resize(2048, 2048, { fit: 'inside', withoutEnlargement: true })
+                        .greyscale()
+                        .jpeg({ quality: 92, mozjpeg: true })
+                        .toFile(outPath);
+                    action = 'neutralize-grayscale-q92';
+                } else if (!isOversized) {
+                    fs.copyFileSync(srcPath, outPath);
+                    action = 'passthrough-dct';
+                } else {
+                    await sharp(srcPath)
+                        .resize(2048, 2048, { fit: 'inside', withoutEnlargement: true })
+                        .keepIccProfile()
+                        .jpeg({ quality: 92, mozjpeg: true })
+                        .toFile(outPath);
+                    action = 'downsample-2048-keep-icc-q92';
+                }
+            } else if (asset.modality === 'bw') {
+                await sharp(srcPath)
+                    .resize(2048, 2048, { fit: 'inside', withoutEnlargement: true })
+                    .greyscale()
+                    .jpeg({ quality: 84, mozjpeg: true })
+                    .toFile(outPath);
+                action = 'device-gray-1ch-q84';
+            } else {
+                await sharp(srcPath)
+                    .resize(2048, 2048, { fit: 'inside', withoutEnlargement: true })
+                    .toColorspace('srgb')
+                    .jpeg({ quality: 82, mozjpeg: true, chromaSubsampling: '4:2:0' })
+                    .toFile(outPath);
+                action = 'srgb-q82-420';
+            }
+
+            const outMeta = await sharp(outPath).metadata();
+            const record = {
+                assetId: asset.assetId,
+                cacheKey: key,
+                outputPath: outPath,
+                action,
+                width: outMeta.width || 0,
+                height: outMeta.height || 0,
+                channels: outMeta.channels || 3,
+                space: outMeta.space || 'srgb',
+            };
+            fs.writeFileSync(metaPath, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
+            return record;
+        }
+        ```
+
+    2. Create `tests/js/book-assets.test.js`:
+
+        ```javascript
+        'use strict';
+
+        const crypto = require('crypto');
+        const fs = require('fs');
+        const os = require('os');
+        const path = require('path');
+        const { execFileSync } = require('child_process');
+        const sharp = require('sharp');
+
+        const ROOT_DIR = path.resolve(__dirname, '../..');
+
+        function runEsm(code) {
+            const script = `(async () => { ${code} })().then((v) => console.log(JSON.stringify(v)));`;
+            return JSON.parse(
+                execFileSync('node', ['--input-type=module', '-e', script], {
+                    cwd: ROOT_DIR,
+                    encoding: 'utf8',
+                }).trim()
+            );
+        }
+
+        describe('scripts/book/assets.mjs', () => {
+            let tmpDir;
+            let srcBuf;
+            let srcHash;
+
+            beforeAll(async () => {
+                tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'book-assets-'));
+                const imgDir = path.join(tmpDir, 'assets', 'img', 'p1');
+                fs.mkdirSync(imgDir, { recursive: true });
+                const imgPath = path.join(imgDir, 'sample.jpg');
+                await sharp({
+                    create: {
+                        width: 400,
+                        height: 266,
+                        channels: 3,
+                        background: { r: 90, g: 82, b: 82 },
+                    },
+                })
+                    .jpeg()
+                    .toFile(imgPath);
+                srcBuf = fs.readFileSync(imgPath);
+                srcHash = crypto.createHash('sha256').update(srcBuf).digest('hex');
+            });
+
+            afterAll(() => {
+                fs.rmSync(tmpDir, { recursive: true, force: true });
+            });
+
+            test('passthroughs <=2048px display assets and converts screen B&W assets to 1-channel grayscale without mutating source', () => {
+                const res = runEsm(`
+                    import { ensureBookDerivative } from './scripts/book/assets.mjs';
+                    const asset = {
+                        assetId: 'p1-sample',
+                        source: 'assets/img/p1/sample.jpg',
+                        sourceSha256: ${JSON.stringify(srcHash)},
+                        modality: 'bw',
+                        derivativeRecipe: 'passthrough-or-downsample-2048',
+                    };
+                    const rootDir = ${JSON.stringify(tmpDir)};
+                    const disp = await ensureBookDerivative(asset, { profileId: 'display' }, { rootDir });
+                    const scr = await ensureBookDerivative(asset, { profileId: 'screen' }, { rootDir });
+                    return { disp, scr };
+                `);
+
+                expect(res.disp.action).toBe('passthrough-dct');
+                expect(res.scr.action).toBe('device-gray-1ch-q84');
+                expect(res.scr.channels).toBe(1);
+                const afterBuf = fs.readFileSync(
+                    path.join(tmpDir, 'assets', 'img', 'p1', 'sample.jpg')
+                );
+                expect(Buffer.compare(srcBuf, afterBuf)).toBe(0);
+            });
+        });
+        ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/assets.mjs tests/js/book-assets.test.js && ./scripts/run-npx.sh eslint scripts/book/assets.mjs tests/js/book-assets.test.js && ./scripts/run-npx.sh jest tests/js/book-assets.test.js`
+- **Guardrail:** Cache keys must hash `sourceSha256 + profileId + modality + derivativeRecipe + sharpVersion`, never `mtime` or file size alone.
+
+#### WO-10 `[low] [visual]` — Implement canonical layout IR (`scripts/book/layout.mjs`), Typst template (`book/photobook.typ`), and QPDF `/TwoPageRight` renderer (`scripts/book/render.mjs` + `tests/js/book-render.test.js`)
+
+- **File:** `scripts/book/layout.mjs`, `book/photobook.typ`, `scripts/book/render.mjs`, and `tests/js/book-render.test.js`
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `scripts/book/layout.mjs`:
+
+        ```javascript
+        /**
+         * Compiles an approved ledger + output profile into renderer-neutral canonical layout IR.
+         * Enforces 300x200mm geometry, recto/verso parity, silent modality-switch buffer spreads, and effective PPI calculations.
+         */
+
+        import crypto from 'crypto';
+
+        const SCALE_TO_WIDTH_MM = Object.freeze({
+            'full-bleed': 300,
+            'inset-82': 246,
+            'inset-74': 222,
+            'inset-55': 165,
+        });
+
+        export function computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeightMm) {
+            const ppiW = widthPx / (placedWidthMm / 25.4);
+            const ppiH = heightPx / (placedHeightMm / 25.4);
+            return Number(Math.min(ppiW, ppiH).toFixed(3));
+        }
+
+        function buildPlateSlot(slot, assetMap, derivativeMap, plateCounter) {
+            if (!slot || !slot.assetId) {
+                return null;
+            }
+            const asset = assetMap.get(slot.assetId);
+            const deriv = derivativeMap[slot.assetId] || {};
+            const scale = slot.scale || 'inset-74';
+            const placedWidthMm = SCALE_TO_WIDTH_MM[scale] || 222;
+            const placedHeightMm = Number(((placedWidthMm * 2) / 3).toFixed(2));
+            const widthPx = deriv.width || asset?.metrics?.width || 2048;
+            const heightPx = deriv.height || asset?.metrics?.height || 1365;
+            const plateNum = plateCounter.next();
+
+            return {
+                kind: 'plate',
+                plateNumber: plateNum,
+                plateLabel: String(plateNum).padStart(3, '0'),
+                assetId: slot.assetId,
+                path: deriv.outputPath || asset?.source || '',
+                altText: asset?.altText || '',
+                modality: asset?.modality || 'bw',
+                scale,
+                placedWidthMm,
+                placedHeightMm,
+                effectivePpi: computeEffectivePpi(widthPx, heightPx, placedWidthMm, placedHeightMm),
+                showFolio: scale !== 'full-bleed',
+            };
+        }
+
+        export function compileLayoutIr(ledger, profile, { derivativeMap = {} } = {}) {
+            const assetMap = new Map((ledger.assets || []).map((a) => [a.assetId, a]));
+            const fragmentMap = new Map((ledger.fragments || []).map((f) => [f.fragmentId, f]));
+            let pCount = 0;
+            const plateCounter = { next: () => ++pCount };
+            const pages = [];
+
+            const pushPage = (side, content) => {
+                pages.push({ pageNumber: pages.length + 1, side, ...content });
+            };
+
+            // Page 1 (Recto): Canonical Cover — The Cybernetic Monolith
+            pushPage('recto', {
+                pageType: 'cover',
+                title: ledger.title,
+                subtitle: ledger.subtitle,
+                author: ledger.author,
+                heroAssetId: ledger.constraints?.pinnedOpenerAssetId || 'p1-dscf4775',
+                signature: '127 STATES · 51 MONO / 76 CHROMA',
+            });
+
+            let prevModality = null;
+            for (const mov of ledger.movements || []) {
+                if (prevModality && prevModality !== mov.modality) {
+                    pushPage('verso', { pageType: 'phase-reset-void', modality: mov.modality });
+                    pushPage('recto', { pageType: 'phase-reset-void', modality: mov.modality });
+                }
+                prevModality = mov.modality;
+
+                pushPage('verso', { pageType: 'void', modality: mov.modality });
+                pushPage('recto', {
+                    pageType: 'phase-divider',
+                    movementId: mov.movementId,
+                    title: mov.title,
+                    modality: mov.modality,
+                });
+
+                for (const sp of mov.spreads || []) {
+                    let versoSlot = null;
+                    if (sp.verso?.fragmentId) {
+                        const frag = fragmentMap.get(sp.verso.fragmentId);
+                        versoSlot = {
+                            kind: 'epigraph',
+                            fragmentId: sp.verso.fragmentId,
+                            text: frag?.text || '',
+                            language: frag?.language || 'en',
+                        };
+                    } else if (sp.verso?.assetId) {
+                        versoSlot = buildPlateSlot(sp.verso, assetMap, derivativeMap, plateCounter);
+                    }
+                    const rectoSlot = buildPlateSlot(
+                        sp.recto,
+                        assetMap,
+                        derivativeMap,
+                        plateCounter
+                    );
+
+                    pushPage('verso', {
+                        pageType: 'spread-verso',
+                        spreadId: sp.spreadId,
+                        layout: sp.layout,
+                        modality: mov.modality,
+                        slot: versoSlot,
+                    });
+                    pushPage('recto', {
+                        pageType: 'spread-recto',
+                        spreadId: sp.spreadId,
+                        layout: sp.layout,
+                        modality: mov.modality,
+                        slot: rectoSlot,
+                    });
+                }
+            }
+
+            if (ledger.includeCommentaryAppendix) {
+                pushPage('verso', {
+                    pageType: 'colophon-telemetry',
+                    surface: profile.tokens?.surfaceDossier || '#111317',
+                });
+                pushPage('recto', {
+                    pageType: 'colophon-index',
+                    surface: profile.tokens?.surfaceDossier || '#111317',
+                    totalPlates: pCount,
+                });
+            }
+
+            const canonicalPayload = JSON.stringify({
+                editionId: ledger.editionId,
+                revision: ledger.revision,
+                profileId: profile.profileId,
+                pages,
+            });
+            const layoutHash = crypto.createHash('sha256').update(canonicalPayload).digest('hex');
+
+            return {
+                editionId: ledger.editionId,
+                revision: ledger.revision,
+                profileId: profile.profileId,
+                pageSize: profile.pageSize || { widthMm: 300, heightMm: 200, bleedMm: 0 },
+                tokens: profile.tokens,
+                totalPages: pages.length,
+                totalPlates: pCount,
+                layoutHash,
+                pages,
+            };
+        }
+        ```
+
+    2. Create `book/photobook.typ`:
+
+        ```typst
+        // Canonical Typst template for INFINITE SYSTEMS (300mm x 200mm 3:2 Landscape)
+        #let ir = json(sys.inputs.at("ir", default: "layout-ir.json"))
+
+        #set document(title: "INFINITE SYSTEMS", author: "Zhuang Liu")
+        #set page(
+          width: 300mm,
+          height: 200mm,
+          margin: 0mm,
+          fill: rgb("#070709"),
+        )
+        #set text(
+          font: ("Syne", "Glow Sans SC Extended"),
+          fill: rgb("#E6E4DF"),
+          size: 10pt,
+          cjk-latin-spacing: auto,
+        )
+
+        #for (idx, pg) in ir.pages.enumerate() [
+          #if idx > 0 [ #pagebreak() ]
+          #if pg.pageType == "cover" [
+            #block(width: 100%, height: 100%, inset: 18mm)[
+              #grid(
+                columns: (1fr, 1fr),
+                text(font: "JetBrains Mono", size: 8.5pt, fill: rgb("#8A9099"))[SYS // 2021–2026],
+                align(right, text(font: "JetBrains Mono", size: 8.5pt, fill: rgb("#8A9099"))[ZHUANG LIU]),
+              )
+              #v(3mm)
+              #pdf.artifact(line(length: 100%, stroke: 0.5pt + rgb("#CE2323")))
+              #v(6mm)
+              #heading(level: 1, bookmarked: true)[#text(weight: "extrabold", size: 28pt, tracking: 3pt)[INFINITE SYSTEMS]]
+              #v(1fr)
+              #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[#pg.signature]
+            ]
+          ] else if pg.pageType == "phase-divider" [
+            #block(width: 100%, height: 100%, inset: 24mm)[
+              #v(1fr)
+              #text(font: "JetBrains Mono", size: 8pt, fill: rgb("#8A9099"))[#pg.movementId // #upper(pg.modality)]
+              #v(3mm)
+              #pdf.artifact(line(length: 48mm, stroke: 0.5pt + rgb("#CE2323")))
+              #v(4mm)
+              #heading(level: 1, bookmarked: true)[#text(weight: "bold", size: 14pt, tracking: 2pt)[#pg.title]]
+              #v(1fr)
+            ]
+          ] else if pg.pageType == "spread-verso" or pg.pageType == "spread-recto" [
+            #if pg.slot != none and pg.slot.kind == "epigraph" [
+              #block(width: 100%, height: 100%, inset: 24mm)[
+                #v(1fr)
+                #set text(lang: pg.slot.language, fill: rgb("#D8D5CE"), size: 10pt)
+                #pg.slot.text
+              ]
+            ] else if pg.slot != none and pg.slot.kind == "plate" [
+              #block(width: 100%, height: 100%)[
+                #align(center + horizon)[
+                  #image(pg.slot.path, width: pg.slot.placedWidthMm * 1mm, fit: "contain", alt: pg.slot.altText)
+                ]
+                #if pg.slot.showFolio [
+                  #place(
+                    if pg.side == "verso" { bottom + left } else { bottom + right },
+                    dx: if pg.side == "verso" { 10mm } else { -10mm },
+                    dy: -10mm,
+                    text(font: "JetBrains Mono", size: 7.5pt, fill: rgb("#8A9099"))[#pg.slot.plateLabel],
+                  )
+                ]
+              ]
+            ]
+          ] else if pg.pageType == "colophon-telemetry" or pg.pageType == "colophon-index" [
+            #block(width: 100%, height: 100%, fill: rgb("#111317"), inset: 20mm)[
+              #heading(level: 1, bookmarked: pg.pageType == "colophon-telemetry")[
+                #text(font: "JetBrains Mono", size: 10pt, fill: rgb("#E6E4DF"))[SYSTEM COLOPHON // #upper(pg.pageType)]
+              ]
+            ]
+          ]
+        ]
+        ```
+
+    3. Create `scripts/book/render.mjs`:
+
+        ```javascript
+        /**
+         * Renders canonical layout IR via Typst and stamps /PageLayout /TwoPageRight + /PageMode /UseOutlines.
+         */
+
+        import { execFileSync as defaultExecFileSync } from 'child_process';
+        import crypto from 'crypto';
+        import fs from 'fs';
+        import path from 'path';
+
+        export function stampTwoPageRightCatalog(pdfBuffer) {
+            const text = pdfBuffer.toString('latin1');
+            if (
+                text.includes('/PageLayout /TwoPageRight') &&
+                text.includes('/PageMode /UseOutlines')
+            ) {
+                return pdfBuffer;
+            }
+            const updated = text.replace(
+                /\/Type\s*\/Catalog\b/,
+                '/Type /Catalog /PageLayout /TwoPageRight /PageMode /UseOutlines'
+            );
+            return Buffer.from(updated, 'latin1');
+        }
+
+        export function renderBookPdf(
+            layoutIr,
+            profile,
+            {
+                rootDir = process.cwd(),
+                outPdfPath,
+                irJsonPath,
+                sourceDateEpoch = '1763337600',
+                execRunner = defaultExecFileSync,
+            } = {}
+        ) {
+            fs.mkdirSync(path.dirname(irJsonPath), { recursive: true });
+            fs.mkdirSync(path.dirname(outPdfPath), { recursive: true });
+            fs.writeFileSync(irJsonPath, `${JSON.stringify(layoutIr, null, 2)}\n`, 'utf8');
+
+            const typstArgs = [
+                'compile',
+                '--root',
+                rootDir,
+                '--ignore-system-fonts',
+                '--font-path',
+                path.join(rootDir, 'assets', 'fonts', 'book'),
+                '--creation-timestamp',
+                String(sourceDateEpoch),
+                '--pdf-standard',
+                profile.pdfStandard || '1.7',
+                '--input',
+                `ir=${path.relative(rootDir, irJsonPath)}`,
+                path.join(rootDir, 'book', 'photobook.typ'),
+                outPdfPath,
+            ];
+
+            execRunner('typst', typstArgs, { cwd: rootDir, stdio: 'pipe' });
+
+            const rawPdf = fs.readFileSync(outPdfPath);
+            const stampedPdf = stampTwoPageRightCatalog(rawPdf);
+            fs.writeFileSync(outPdfPath, stampedPdf);
+
+            const pdfSha256 = crypto.createHash('sha256').update(stampedPdf).digest('hex');
+            return {
+                profileId: profile.profileId,
+                outPdfPath,
+                layoutHash: layoutIr.layoutHash,
+                pdfSha256,
+            };
+        }
+        ```
+
+    4. Create `tests/js/book-render.test.js`:
+
+        ```javascript
+        'use strict';
+
+        const fs = require('fs');
+        const os = require('os');
+        const path = require('path');
+        const { execFileSync } = require('child_process');
+
+        const ROOT_DIR = path.resolve(__dirname, '../..');
+
+        function runEsm(code) {
+            const script = `(async () => { ${code} })().then((v) => console.log(JSON.stringify(v)));`;
+            return JSON.parse(
+                execFileSync('node', ['--input-type=module', '-e', script], {
+                    cwd: ROOT_DIR,
+                    encoding: 'utf8',
+                }).trim()
+            );
+        }
+
+        describe('scripts/book/layout.mjs & render.mjs', () => {
+            test('compiles layout IR with silent modality-switch buffers, exact PPI, and stamps TwoPageRight catalog', () => {
+                const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'book-render-'));
+                try {
+                    const res = runEsm(`
+                        import fs from 'fs';
+                        import { compileLayoutIr } from './scripts/book/layout.mjs';
+                        import { renderBookPdf } from './scripts/book/render.mjs';
+                        const profile = JSON.parse(fs.readFileSync('./book/profiles/display.json', 'utf8'));
+                        const ledger = {
+                            editionId: 'infinite-systems',
+                            title: 'INFINITE SYSTEMS',
+                            subtitle: 'Sub',
+                            author: 'Zhuang Liu',
+                            revision: 1,
+                            includeCommentaryAppendix: true,
+                            constraints: { pinnedOpenerAssetId: 'p1-a' },
+                            assets: [
+                                { assetId: 'p1-a', source: 'assets/img/p1/a.jpg', modality: 'bw', altText: 'A', metrics: { width: 2048, height: 1365 } },
+                                { assetId: 'p2-b', source: 'assets/img/p2/b.jpg', modality: 'color', altText: 'B', metrics: { width: 2048, height: 1365 } },
+                            ],
+                            fragments: [],
+                            movements: [
+                                { movementId: 'SYS.01', title: 'THRESHOLD', modality: 'bw', spreads: [{ spreadId: 's01', layout: 'monolith', locked: true, verso: null, recto: { assetId: 'p1-a', scale: 'full-bleed' } }] },
+                                { movementId: 'SYS.02', title: 'KINEMATICS', modality: 'color', spreads: [{ spreadId: 's02', layout: 'monolith', locked: false, verso: null, recto: { assetId: 'p2-b', scale: 'inset-74' } }] },
+                            ],
+                        };
+                        const ir = compileLayoutIr(ledger, profile);
+                        const outPdfPath = ${JSON.stringify(path.join(tmpDir, 'out.pdf'))};
+                        const irJsonPath = ${JSON.stringify(path.join(tmpDir, 'ir.json'))};
+                        const rendered = renderBookPdf(ir, profile, {
+                            rootDir: process.cwd(),
+                            outPdfPath,
+                            irJsonPath,
+                            execRunner: () => {
+                                fs.writeFileSync(outPdfPath, '%PDF-1.7\\n1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\\n');
+                            },
+                        });
+                        const pdfText = fs.readFileSync(outPdfPath, 'latin1');
+                        return { ir, rendered, hasTwoPageRight: pdfText.includes('/PageLayout /TwoPageRight') };
+                    `);
+
+                    expect(res.ir.pages[0].side).toBe('recto');
+                    expect(res.ir.pages[0].pageType).toBe('cover');
+                    expect(res.ir.pages.some((p) => p.pageType === 'phase-reset-void')).toBe(true);
+                    const fullBleedPlate = res.ir.pages.find(
+                        (p) => p.slot?.assetId === 'p1-a'
+                    ).slot;
+                    expect(fullBleedPlate.effectivePpi).toBe(173.355);
+                    expect(fullBleedPlate.showFolio).toBe(false);
+                    expect(res.hasTwoPageRight).toBe(true);
+                } finally {
+                    fs.rmSync(tmpDir, { recursive: true, force: true });
+                }
+            });
+        });
+        ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/layout.mjs scripts/book/render.mjs tests/js/book-render.test.js && ./scripts/run-npx.sh eslint scripts/book/layout.mjs scripts/book/render.mjs tests/js/book-render.test.js && ./scripts/run-npx.sh jest tests/js/book-render.test.js`
 - **Guardrail:** Flag `"visual — human review required"` on completion; never claim visual parity from unit tests alone.
 
-#### WO-11 `[skip] [visual]` — Implement two-tier live preview coordinator and out-of-order render race tests (`scripts/book/preview.mjs`)
+#### WO-11 `[low] [visual]` — Implement two-tier live preview coordinator & out-of-order render race protection (`scripts/book/preview.mjs` + `tests/js/book-preview.test.js`)
 
 - **File:** `scripts/book/preview.mjs` and `tests/js/book-preview.test.js`
-- **Find:** `(new files — route to a stronger model)`
-- **Change:** Implement the two-tier live preview coordinator (in-memory interactive estimate + debounced asynchronous Typst/QPDF/Poppler exact-PDF raster preview) with candidate revision badges and A $\to$ B $\to$ C out-of-order render cancellation/rejection tests (§7.3, §8.1).
-- **Verify:** `./scripts/run-npx.sh jest tests/js/book-preview.test.js`
-- **Guardrail:** Viewing or editing in the preview server must never mutate `book/sequence.yaml` or mark a candidate approved.
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `scripts/book/preview.mjs`:
 
-#### WO-12 `[skip]` — Implement Poppler/QPDF/veraPDF preflight, two-build reproducibility gate (`scripts/book/proof.mjs`, `scripts/book/preflight.mjs`), and `.agents/skills/photobook/SKILL.md`
+        ```javascript
+        /**
+         * Two-tier live preview coordinator over canonical layout IR.
+         * Enforces monotonic revision gating so out-of-order renders (A -> B -> C) never overwrite newer state.
+         */
+
+        import { compileLayoutIr } from './layout.mjs';
+
+        export function createPreviewSession(initialLedger, profile, { renderFn } = {}) {
+            let candidateRevision = 1;
+            let candidateLedger = structuredClone(initialLedger);
+            let currentIr = compileLayoutIr(candidateLedger, profile);
+            let latestRendered = null;
+            let inFlightRevision = 0;
+
+            function getState() {
+                let badge = 'Interactive estimate';
+                if (inFlightRevision === candidateRevision) {
+                    badge = `Rendering revision ${candidateRevision}`;
+                } else if (
+                    latestRendered &&
+                    latestRendered.revision === candidateRevision &&
+                    latestRendered.layoutHash === currentIr.layoutHash
+                ) {
+                    badge = `PDF preview revision ${candidateRevision}`;
+                } else if (latestRendered) {
+                    badge = 'Stale / preflight required';
+                }
+                return {
+                    candidateRevision,
+                    layoutHash: currentIr.layoutHash,
+                    badge,
+                    latestRendered,
+                };
+            }
+
+            function updateCandidate(mutatorFn) {
+                candidateRevision += 1;
+                candidateLedger = mutatorFn(structuredClone(candidateLedger));
+                currentIr = compileLayoutIr(candidateLedger, profile);
+                return getState();
+            }
+
+            async function triggerAuthoritativeRender() {
+                const snapRev = candidateRevision;
+                const snapIr = structuredClone(currentIr);
+                inFlightRevision = Math.max(inFlightRevision, snapRev);
+
+                const result = await renderFn({
+                    revision: snapRev,
+                    layoutIr: snapIr,
+                    layoutHash: snapIr.layoutHash,
+                });
+
+                if (
+                    snapRev === candidateRevision &&
+                    (!latestRendered || snapRev > latestRendered.revision)
+                ) {
+                    latestRendered = {
+                        revision: snapRev,
+                        layoutHash: snapIr.layoutHash,
+                        pdfSha256: result.pdfSha256,
+                    };
+                }
+                if (inFlightRevision === snapRev) {
+                    inFlightRevision = 0;
+                }
+                return getState();
+            }
+
+            function canExport(preflightReport) {
+                if (!latestRendered || !preflightReport || preflightReport.passed !== true) {
+                    return false;
+                }
+                return (
+                    latestRendered.revision === candidateRevision &&
+                    latestRendered.layoutHash === currentIr.layoutHash &&
+                    preflightReport.pdfSha256 === latestRendered.pdfSha256
+                );
+            }
+
+            return {
+                getState,
+                updateCandidate,
+                triggerAuthoritativeRender,
+                canExport,
+            };
+        }
+        ```
+
+    2. Create `tests/js/book-preview.test.js`:
+
+        ```javascript
+        'use strict';
+
+        const path = require('path');
+        const { execFileSync } = require('child_process');
+
+        const ROOT_DIR = path.resolve(__dirname, '../..');
+
+        function runEsm(code) {
+            const script = `(async () => { ${code} })().then((v) => console.log(JSON.stringify(v)));`;
+            return JSON.parse(
+                execFileSync('node', ['--input-type=module', '-e', script], {
+                    cwd: ROOT_DIR,
+                    encoding: 'utf8',
+                }).trim()
+            );
+        }
+
+        describe('scripts/book/preview.mjs', () => {
+            test('rejects stale out-of-order renders (A -> B -> C) and gates export on matching preflight hash', () => {
+                const res = runEsm(`
+                    import fs from 'fs';
+                    import { createPreviewSession } from './scripts/book/preview.mjs';
+                    const profile = JSON.parse(fs.readFileSync('./book/profiles/display.json', 'utf8'));
+                    const baseLedger = {
+                        editionId: 'infinite-systems',
+                        title: 'INFINITE SYSTEMS',
+                        subtitle: 'Sub',
+                        author: 'Zhuang Liu',
+                        revision: 1,
+                        includeCommentaryAppendix: false,
+                        constraints: { pinnedOpenerAssetId: 'p1-a' },
+                        assets: [{ assetId: 'p1-a', source: 'assets/img/p1/a.jpg', modality: 'bw', altText: 'A', metrics: { width: 2048, height: 1365 } }],
+                        fragments: [],
+                        movements: [{ movementId: 'SYS.01', title: 'THRESHOLD', modality: 'bw', spreads: [] }],
+                    };
+                    const resolvers = {};
+                    const session = createPreviewSession(baseLedger, profile, {
+                        renderFn: ({ revision }) => new Promise((resolve) => {
+                            resolvers[revision] = () => resolve({ pdfSha256: 'hash-rev-' + revision });
+                        }),
+                    });
+                    // Trigger A (rev 1), then edit to B (rev 2) and C (rev 3)
+                    const pA = session.triggerAuthoritativeRender();
+                    session.updateCandidate((l) => ({ ...l, subtitle: 'Edit B' }));
+                    const pB = session.triggerAuthoritativeRender();
+                    session.updateCandidate((l) => ({ ...l, subtitle: 'Edit C' }));
+                    const pC = session.triggerAuthoritativeRender();
+                    // Resolve out of order: C finishes first, then B and A finish late
+                    resolvers[3]();
+                    await pC;
+                    resolvers[2]();
+                    await pB;
+                    resolvers[1]();
+                    await pA;
+                    const finalState = session.getState();
+                    const staleExportOk = session.canExport({ passed: true, pdfSha256: 'hash-rev-2' });
+                    const validExportOk = session.canExport({ passed: true, pdfSha256: 'hash-rev-3' });
+                    return { finalState, staleExportOk, validExportOk };
+                `);
+
+                expect(res.finalState.candidateRevision).toBe(3);
+                expect(res.finalState.latestRendered.revision).toBe(3);
+                expect(res.finalState.latestRendered.pdfSha256).toBe('hash-rev-3');
+                expect(res.finalState.badge).toBe('PDF preview revision 3');
+                expect(res.staleExportOk).toBe(false);
+                expect(res.validExportOk).toBe(true);
+            });
+        });
+        ```
+
+- **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/preview.mjs tests/js/book-preview.test.js && ./scripts/run-npx.sh eslint scripts/book/preview.mjs tests/js/book-preview.test.js && ./scripts/run-npx.sh jest tests/js/book-preview.test.js`
+- **Guardrail:** Viewing or editing in the preview session must never mutate `book/sequence.yaml` or allow a stale render (`revision < candidateRevision`) to replace the active preview.
+
+#### WO-12 `[low]` — Implement proof/preflight/reproducibility gates (`scripts/book/proof.mjs`, `scripts/book/preflight.mjs`), `.agents/skills/photobook/SKILL.md`, and `tests/js/book-preflight.test.js`
 
 - **File:** `scripts/book/proof.mjs`, `scripts/book/preflight.mjs`, `.agents/skills/photobook/SKILL.md`, and `tests/js/book-preflight.test.js`
-- **Find:** `(new files — route to a stronger model)`
-- **Change:** Implement `proof.mjs` (`pdftoppm` spread sheets), `preflight.mjs` (`qpdf --check`, `pdffonts`, `pdfimages -list`, `verapdf` PDF/A-2b validation for `display`, WCAG contrast check, and two-build reproducibility check), author `.agents/skills/photobook/SKILL.md` (with zero `---` horizontal rules in the markdown body), and run `python3 tools/sync_commands.py` (§7.2, §8.1–§8.3).
-- **Verify:** `./scripts/run-npx.sh jest tests/js/book-preflight.test.js tests/js/skills.test.js tests/js/doc-tool-references.test.js && make sync-check`
-- **Guardrail:** Never place a `---` horizontal rule inside `.agents/skills/photobook/SKILL.md` body, and do not add `.agents/skills/photobook/SKILL.md` until all scripts it references exist on disk (`tests/js/doc-tool-references.test.js` enforces this).
+- **Find:** `(new files — must not exist prior to this work order)`
+- **Change:**
+    1. Create `scripts/book/proof.mjs`:
+
+        ```javascript
+        /**
+         * Generates spread raster proofs via Poppler pdftoppm and records review evidence.
+         */
+
+        import { execFileSync as defaultExecFileSync } from 'child_process';
+        import fs from 'fs';
+        import path from 'path';
+
+        export function rasterizePdfProofs(
+            pdfPath,
+            outDir,
+            { dpi = 144, execRunner = defaultExecFileSync } = {}
+        ) {
+            fs.mkdirSync(outDir, { recursive: true });
+            const prefix = path.join(outDir, 'page');
+            execRunner('pdftoppm', ['-png', '-r', String(dpi), pdfPath, prefix], { stdio: 'pipe' });
+            return { pdfPath, outDir, dpi };
+        }
+
+        export async function run() {
+            process.stdout.write('Proof module ready.\n');
+            return 0;
+        }
+        ```
+
+    2. Create `scripts/book/preflight.mjs`:
+
+        ```javascript
+        /**
+         * Final-artifact preflight (WCAG AA contrast, PDF catalog structure, PPI floor, and two-build reproducibility).
+         */
+
+        import crypto from 'crypto';
+        import fs from 'fs';
+        import os from 'os';
+        import path from 'path';
+
+        export function relativeLuminance(hexColor) {
+            const hex = String(hexColor).replace('#', '');
+            const channels = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+            const linear = channels.map((v) =>
+                v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+            );
+            return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+        }
+
+        export function contrastRatio(fgHex, bgHex) {
+            const l1 = relativeLuminance(fgHex);
+            const l2 = relativeLuminance(bgHex);
+            return Number(((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)).toFixed(3));
+        }
+
+        export function checkContrastTokens(tokens) {
+            const errors = [];
+            const backgrounds = [
+                tokens.surfacePlate || '#070709',
+                tokens.surfaceDossier || '#111317',
+            ];
+            const textKeys = ['textPrimary', 'textSecondary', 'textTelemetry'];
+
+            for (const bg of backgrounds) {
+                for (const key of textKeys) {
+                    const fg = tokens[key];
+                    const ratio = contrastRatio(fg, bg);
+                    if (ratio < 4.5) {
+                        errors.push(
+                            `Token ${key} (${fg}) fails WCAG AA 4.5:1 on ${bg} (${ratio}:1).`
+                        );
+                    }
+                }
+            }
+            return { passed: errors.length === 0, errors };
+        }
+
+        export function checkPdfCatalogStructure(pdfBuffer) {
+            const text = pdfBuffer.toString('latin1');
+            const errors = [];
+            if (!text.startsWith('%PDF-1.')) {
+                errors.push('Missing %PDF-1.x header.');
+            }
+            if (!text.includes('/PageLayout /TwoPageRight')) {
+                errors.push('Missing /PageLayout /TwoPageRight in Catalog.');
+            }
+            if (!text.includes('/PageMode /UseOutlines')) {
+                errors.push('Missing /PageMode /UseOutlines in Catalog.');
+            }
+            const pdfSha256 = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
+            return { passed: errors.length === 0, pdfSha256, errors };
+        }
+
+        export async function verifyTwoBuildReproducibility(buildInDirFn) {
+            const dirA = fs.mkdtempSync(path.join(os.tmpdir(), 'book-repro-a-'));
+            const dirB = fs.mkdtempSync(path.join(os.tmpdir(), 'book-repro-b-'));
+            try {
+                const resA = await buildInDirFn(dirA);
+                const resB = await buildInDirFn(dirB);
+                const matched =
+                    resA.layoutHash === resB.layoutHash && resA.pdfSha256 === resB.pdfSha256;
+                return {
+                    passed: matched,
+                    layoutHashA: resA.layoutHash,
+                    layoutHashB: resB.layoutHash,
+                    pdfSha256A: resA.pdfSha256,
+                    pdfSha256B: resB.pdfSha256,
+                };
+            } finally {
+                fs.rmSync(dirA, { recursive: true, force: true });
+                fs.rmSync(dirB, { recursive: true, force: true });
+            }
+        }
+
+        export async function run() {
+            const profile = JSON.parse(
+                fs.readFileSync(
+                    path.join(process.cwd(), 'book', 'profiles', 'display.json'),
+                    'utf8'
+                )
+            );
+            const check = checkContrastTokens(profile.tokens);
+            if (!check.passed) {
+                process.stderr.write(`${check.errors.join('\n')}\n`);
+                return 1;
+            }
+            process.stdout.write('Preflight checks passed.\n');
+            return 0;
+        }
+        ```
+
+    3. Create `.agents/skills/photobook/SKILL.md` (note: do **not** put any `---` horizontal rule inside the markdown body):
+
+        ````markdown
+        ---
+        name: photobook
+        description: Orchestrate, validate, preview, and compile the Infinite Systems PDF eBook photobook from the 127 sequenced portfolio photographs. Use when building, syncing, previewing, or re-sequencing the photobook PDF.
+        argument-hint: '[subcommand, e.g. inventory | validate | plan | orchestrate | render | preview | preflight]'
+        ---
+
+        # Infinite Systems Photobook Orchestrator
+
+        Manage the _Infinite Systems_ digital eBook photobook (`dist/infinite-systems-display.pdf` and `dist/infinite-systems-screen.pdf`) via `scripts/book.mjs` and the governing specification in `docs/photobook-ebook-research.md`.
+
+        ## Authority & Safety Rules
+
+        1. **Pool Gatekeeping (`127` Sequenced Photos Only):** Only photographs listed in `assets/img/p1/index.md` through `assets/img/p6/index.md` enter the pool. The 12 unsequenced disk orphans are strictly ignored.
+        2. **Source Non-Mutation:** Never modify source JPEGs under `assets/img/p1..p6/` and never call `ensureImageVariants()` from `scripts/build-page.mjs`. All derivatives live under `.cache/book-img/`.
+        3. **Strict Modality Separation (`51 bw` vs. `76 color`):** Never mix B&W and Color photographs on the same spread or within the same movement (`SYS.01` and `SYS.04` are `bw`; `SYS.02` and `SYS.03` are `color`).
+        4. **Proposal-Only Automation:** `node scripts/book.mjs plan` and `node scripts/book.mjs orchestrate` write proposals to `.cache/book-runs/`. Only `node scripts/book.mjs apply --plan <id>` updates `book/sequence.yaml` after human approval.
+
+        ## Command Interface
+
+        Target argument: `{{args}}`
+
+        ```bash
+        node scripts/book.mjs {{args}}
+        ```
+
+        ## Resume Protocol
+
+        When resuming a photobook task:
+
+        1. Run `git status --short` and `git log -n 3 --oneline`.
+        2. Inspect `book/sequence.yaml` (`revision` and `sourceFingerprint`) and `.cache/book-runs/` before dispatching tools.
+        ````
+
+    4. Create `tests/js/book-preflight.test.js`:
+
+        ```javascript
+        'use strict';
+
+        const path = require('path');
+        const { execFileSync } = require('child_process');
+
+        const ROOT_DIR = path.resolve(__dirname, '../..');
+
+        function runEsm(code) {
+            const script = `(async () => { ${code} })().then((v) => console.log(JSON.stringify(v)));`;
+            return JSON.parse(
+                execFileSync('node', ['--input-type=module', '-e', script], {
+                    cwd: ROOT_DIR,
+                    encoding: 'utf8',
+                }).trim()
+            );
+        }
+
+        describe('scripts/book/preflight.mjs', () => {
+            test('verifies WCAG AA contrast tokens, PDF catalog preferences, and two-build reproducibility', () => {
+                const res = runEsm(`
+                    import fs from 'fs';
+                    import {
+                        checkContrastTokens,
+                        checkPdfCatalogStructure,
+                        verifyTwoBuildReproducibility,
+                    } from './scripts/book/preflight.mjs';
+                    const display = JSON.parse(fs.readFileSync('./book/profiles/display.json', 'utf8'));
+                    const goodContrast = checkContrastTokens(display.tokens);
+                    const badContrast = checkContrastTokens({ ...display.tokens, textTelemetry: '#6E737B' });
+                    const pdfCheck = checkPdfCatalogStructure(
+                        Buffer.from('%PDF-1.7\\n<< /Type /Catalog /PageLayout /TwoPageRight /PageMode /UseOutlines >>')
+                    );
+                    const repro = await verifyTwoBuildReproducibility(async () => ({
+                        layoutHash: 'abc123',
+                        pdfSha256: 'def456',
+                    }));
+                    return { goodContrast, badContrast, pdfCheck, repro };
+                `);
+
+                expect(res.goodContrast.passed).toBe(true);
+                expect(res.badContrast.passed).toBe(false);
+                expect(res.pdfCheck.passed).toBe(true);
+                expect(res.repro.passed).toBe(true);
+            });
+        });
+        ```
+
+    5. Run `python3 tools/sync_commands.py` to generate `.claude/commands/photobook.md` from `.agents/skills/photobook/SKILL.md`.
+
+- **Verify:** `python3 tools/sync_commands.py && ./scripts/run-npx.sh prettier -w scripts/book/proof.mjs scripts/book/preflight.mjs .agents/skills/photobook/SKILL.md tests/js/book-preflight.test.js && ./scripts/run-npx.sh eslint scripts/book/proof.mjs scripts/book/preflight.mjs tests/js/book-preflight.test.js && ./scripts/run-npx.sh jest tests/js/book-preflight.test.js tests/js/skills.test.js tests/js/doc-tool-references.test.js && make sync-check`
+- **Guardrail:** Execute `WO-12` only after `WO-04` (`scripts/book.mjs`) is on disk, because `tests/js/doc-tool-references.test.js` verifies every script path referenced inside `.agents/skills/**/*.md`.
 
 ---
 
