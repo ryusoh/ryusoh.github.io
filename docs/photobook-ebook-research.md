@@ -3107,7 +3107,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/preview.mjs tests/js/book-preview.test.js && ./scripts/run-npx.sh eslint scripts/book/preview.mjs tests/js/book-preview.test.js && ./scripts/run-npx.sh jest tests/js/book-preview.test.js`
 - **Guardrail:** Viewing or editing in the preview session must never mutate `book/sequence.yaml` or allow a stale render (`revision < candidateRevision`) to replace the active preview.
 
-#### WO-12 `[low]` — Implement proof/preflight/reproducibility gates (`scripts/book/proof.mjs`, `scripts/book/preflight.mjs`), `.agents/skills/photobook/SKILL.md`, and `tests/js/book-preflight.test.js`
+#### WO-12 `[low]` `[DONE]` — Implement proof/preflight/reproducibility gates (`scripts/book/proof.mjs`, `scripts/book/preflight.mjs`), `.agents/skills/photobook/SKILL.md`, and `tests/js/book-preflight.test.js`
 
 - **File:** `scripts/book/proof.mjs`, `scripts/book/preflight.mjs`, `.agents/skills/photobook/SKILL.md`, and `tests/js/book-preflight.test.js`
 - **Find:** `(new files — must not exist prior to this work order)`
