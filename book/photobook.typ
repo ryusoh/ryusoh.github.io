@@ -51,9 +51,27 @@
         #pg.slot.text
       ]
     ] else if pg.slot != none and pg.slot.kind == "plate" [
+      #let isSym = pg.layout == "symmetric-diptych" and pg.slot.scale != "full-bleed"
+      #let isDiag = pg.layout == "diagonal-offset" and pg.slot.scale != "full-bleed"
+      #let plateAlign = if isSym {
+        if pg.side == "verso" { right + horizon } else { left + horizon }
+      } else if isDiag {
+        if pg.side == "verso" { left + top } else { right + bottom }
+      } else {
+        center + horizon
+      }
+      #let plateInset = if isSym {
+        if pg.side == "verso" { (right: 14mm) } else { (left: 14mm) }
+      } else if isDiag {
+        18mm
+      } else {
+        0mm
+      }
       #block(width: 100%, height: 100%)[
-        #align(center + horizon)[
-          #image(pg.slot.path, width: pg.slot.placedWidthMm * 1mm, height: pg.slot.placedHeightMm * 1mm, fit: "contain", alt: pg.slot.altText)
+        #block(width: 100%, height: 100%, inset: plateInset)[
+          #align(plateAlign)[
+            #image(pg.slot.path, width: pg.slot.placedWidthMm * 1mm, height: pg.slot.placedHeightMm * 1mm, fit: "contain", alt: pg.slot.altText)
+          ]
         ]
         #if pg.slot.showFolio [
           #place(
