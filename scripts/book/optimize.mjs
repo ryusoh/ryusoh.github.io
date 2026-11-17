@@ -97,7 +97,12 @@ function pickSafeScale(asset, desiredScale) {
     if (widthPx < 1100) {
         return 'inset-40';
     }
-    if (widthPx < 1450) {
+    if (
+        widthPx < 1300 &&
+        (desiredScale === 'full-bleed' ||
+            desiredScale === 'inset-82' ||
+            desiredScale === 'inset-74')
+    ) {
         return 'inset-55';
     }
     if (widthPx < 1775 && (desiredScale === 'full-bleed' || desiredScale === 'inset-82')) {
@@ -110,8 +115,7 @@ function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
     const spreads = [];
     let idx = 0;
     let sNum = startSpreadIndex;
-    const cycle = ['asymmetric-diptych', 'symmetric-diptych', 'monolith', 'diagonal-offset'];
-    let cIdx = 0;
+    let diptychRun = 0;
 
     while (idx < assets.length) {
         const spreadId = `s${String(sNum++).padStart(2, '0')}`;
@@ -124,8 +128,21 @@ function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
                 verso: { fragmentId: epigraphFragment.fragmentId },
                 recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
             });
-        } else if (idx === assets.length - 1 || cycle[cIdx % cycle.length] === 'monolith') {
-            cIdx++;
+            continue;
+        }
+        if (idx === 0) {
+            const rAsset = assets[idx++];
+            spreads.push({
+                spreadId,
+                layout: 'monolith',
+                locked: false,
+                verso: null,
+                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'full-bleed') },
+            });
+            continue;
+        }
+        if (idx === assets.length - 1 || (diptychRun > 0 && diptychRun % 5 === 0)) {
+            diptychRun = 0;
             const rAsset = assets[idx++];
             spreads.push({
                 spreadId,
@@ -134,20 +151,18 @@ function packSpreads(assets, startSpreadIndex, epigraphFragment = null) {
                 verso: null,
                 recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-82') },
             });
-        } else {
-            const layout = cycle[cIdx++ % cycle.length];
-            const vDesired = layout === 'asymmetric-diptych' ? 'full-bleed' : 'inset-74';
-            const rDesired = layout === 'asymmetric-diptych' ? 'inset-55' : 'inset-74';
-            const vAsset = assets[idx++];
-            const rAsset = assets[idx++];
-            spreads.push({
-                spreadId,
-                layout,
-                locked: false,
-                verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, vDesired) },
-                recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, rDesired) },
-            });
+            continue;
         }
+        diptychRun++;
+        const vAsset = assets[idx++];
+        const rAsset = assets[idx++];
+        spreads.push({
+            spreadId,
+            layout: 'symmetric-diptych',
+            locked: false,
+            verso: { assetId: vAsset.assetId, scale: pickSafeScale(vAsset, 'inset-74') },
+            recto: { assetId: rAsset.assetId, scale: pickSafeScale(rAsset, 'inset-74') },
+        });
     }
     return { spreads, nextSpreadIndex: sNum };
 }
