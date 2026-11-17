@@ -3,8 +3,8 @@ editionId: infinite-systems
 title: INFINITE SYSTEMS
 subtitle: Photographs 2021–2026
 author: Zhuang Liu
-revision: 1
-parentRevision: null
+revision: 2
+parentRevision: 1
 sourceFingerprint: 9d2901560132539dddc9792f82d69775e9c96f9e7defbdd6e89e1b40d44b2b45
 approval:
     proposalId: seed-envelope-1
@@ -1245,7 +1245,6 @@ fragments:
       language: en
       text: |-
           The sun goes down
-
           I feel the light betray me
       attribution: null
       originality: series-epigraph
@@ -1259,7 +1258,6 @@ fragments:
       language: en
       text: |-
           Far from the world of you and I
-
           Where oceans bleed into the sky
       attribution: null
       originality: series-epigraph
@@ -1273,9 +1271,7 @@ fragments:
       language: en
       text: |-
           God save us everyone
-
           Will we burn inside the fires
-
           of a thousand suns
       attribution: null
       originality: series-epigraph
@@ -1289,7 +1285,6 @@ fragments:
       language: en
       text: |-
           When I close my eyes tonight
-
           To symphonies of blinding light
       attribution: null
       originality: series-epigraph
@@ -1303,7 +1298,6 @@ fragments:
       language: en
       text: |-
           Lift me up, let me go
-
           Lift me up, let me go
       attribution: null
       originality: series-epigraph
@@ -1354,7 +1348,6 @@ fragments:
       language: en
       text: |-
           Forever meant nothing
-          <br />
           When we had nothing
       attribution: null
       originality: series-epigraph
