@@ -54,19 +54,16 @@
       ]
       #place(
         bottom + right,
-        dx: -16mm,
-        dy: -22mm,
-        block(width: 72mm)[
+        dx: -14mm,
+        dy: -18mm,
+        block(width: 114mm)[
           #align(right)[
-            #text(font: "JetBrains Mono", size: 6.5pt, tracking: 1.2pt, fill: rgb("#8A9099"))[ZHUANG LIU · 2021–2026]
-            #v(3mm)
+            #text(font: ("Glow Sans SC Extended", "Syne"), weight: "regular", size: 16pt, tracking: 3.0pt, fill: rgb("#D8D5CE"))[ZHUANG LIU]
+            #v(5mm)
+            #set par(leading: 0.72em)
             #heading(level: 1, bookmarked: true)[
-              #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 18pt, tracking: 2.2pt, fill: rgb("#E6E4DF"))[INFINITE \ SYSTEMS]
+              #text(font: ("Glow Sans SC Extended", "Syne"), weight: "bold", size: 42pt, tracking: 1.8pt, fill: rgb("#E6E4DF"))[INFINITE \ SYSTEMS]
             ]
-            #v(4mm)
-            #pdf.artifact(align(right, line(length: 24mm, stroke: 0.35pt + rgb("#8A9099"))))
-            #v(3mm)
-            #text(font: "JetBrains Mono", size: 6pt, tracking: 0.9pt, fill: rgb("#8A9099"))[#pg.signature]
           ]
         ]
       )
