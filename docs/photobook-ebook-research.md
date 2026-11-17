@@ -2934,7 +2934,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/layout.mjs scripts/book/render.mjs tests/js/book-render.test.js && ./scripts/run-npx.sh eslint scripts/book/layout.mjs scripts/book/render.mjs tests/js/book-render.test.js && ./scripts/run-npx.sh jest tests/js/book-render.test.js`
 - **Guardrail:** Flag `"visual — human review required"` on completion; never claim visual parity from unit tests alone.
 
-#### WO-11 `[low] [visual]` — Implement two-tier live preview coordinator & out-of-order render race protection (`scripts/book/preview.mjs` + `tests/js/book-preview.test.js`)
+#### WO-11 `[low] [visual]` `[DONE]` — Implement two-tier live preview coordinator & out-of-order render race protection (`scripts/book/preview.mjs` + `tests/js/book-preview.test.js`)
 
 - **File:** `scripts/book/preview.mjs` and `tests/js/book-preview.test.js`
 - **Find:** `(new files — must not exist prior to this work order)`
