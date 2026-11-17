@@ -84,26 +84,102 @@ export function applySyncPlan(plan, currentLedger, nextLedgerCandidate, { ledger
     return nextLedger;
 }
 
+async function formatLedgerYaml(ledger, rootDir = process.cwd()) {
+    const rawYaml = yamlDump(ledger, { indent: 4, lineWidth: 100 });
+    try {
+        const prettier = (await import('prettier')).default;
+        const cfg = await prettier.resolveConfig(path.join(rootDir, '.prettierrc.cjs'));
+        return await prettier.format(rawYaml, { ...(cfg || {}), parser: 'yaml' });
+    } catch {
+        return rawYaml;
+    }
+}
+
+function extractPlanId(args) {
+    const idx = args.indexOf('--plan');
+    if (idx >= 0 && args[idx + 1]) {
+        return args[idx + 1];
+    }
+    const eqArg = args.find((a) => a.startsWith('--plan='));
+    if (eqArg) {
+        return eqArg.slice('--plan='.length);
+    }
+    return args.find((a) => !a.startsWith('-')) || '';
+}
+
+function resolveCandidateFile(rootDir, planId) {
+    const runsDir = path.join(rootDir, '.cache', 'book-runs');
+    const candidates = [
+        path.resolve(rootDir, planId),
+        path.join(runsDir, `${planId}.json`),
+        path.join(runsDir, `proposal-${planId}.json`),
+    ];
+    return candidates.find((p) => fs.existsSync(p)) || null;
+}
+
 export async function run(args = [], { subcommand = 'plan' } = {}) {
-    const ledgerPath = path.join(process.cwd(), 'book', 'sequence.yaml');
-    const currentLedger = yamlLoad(fs.readFileSync(ledgerPath, 'utf8'));
-    const inventory = await collectPoolInventory();
+    const rootDir = process.cwd();
+    const ledgerPath = path.join(rootDir, 'book', 'sequence.yaml');
+    const hasLedger = fs.existsSync(ledgerPath);
+    const currentLedger = hasLedger
+        ? yamlLoad(fs.readFileSync(ledgerPath, 'utf8'))
+        : { revision: 0, assets: [], movements: [] };
+    const inventory = await collectPoolInventory({ rootDir });
     const plan = createSyncPlan(inventory, currentLedger);
-    const outDir = path.join(process.cwd(), '.cache', 'book-runs');
+    const outDir = path.join(rootDir, '.cache', 'book-runs');
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(
         path.join(outDir, `${plan.planId}.json`),
         `${JSON.stringify(plan, null, 2)}\n`
     );
+
     if (subcommand === 'plan') {
-        process.stdout.write(`Sync plan created: ${plan.planId}\n`);
+        const proposals = fs.readdirSync(outDir).filter((f) => f.startsWith('proposal-'));
+        process.stdout.write(
+            `Sync plan created: ${plan.planId} (added=${plan.addedAssets.length}, deleted=${plan.deletedAssets.length}, updated=${plan.updatedRevisions.length})\n`
+        );
+        if (!hasLedger && proposals.length > 0) {
+            process.stdout.write(`Available candidate proposals: ${proposals.join(', ')}\n`);
+        }
         return plan.blockingConflicts.length > 0 ? 1 : 0;
     }
-    const planArgIdx = args.indexOf('--plan');
-    const planId = planArgIdx >= 0 ? args[planArgIdx + 1] : '';
+
+    const planId = extractPlanId(args);
     if (!planId) {
         process.stderr.write('Missing required --plan <id>\n');
         return 1;
     }
+    const candidatePath = resolveCandidateFile(rootDir, planId);
+    if (!candidatePath) {
+        process.stderr.write(`Candidate plan not found: ${planId}\n`);
+        return 1;
+    }
+    const candidate = JSON.parse(fs.readFileSync(candidatePath, 'utf8'));
+    if (!candidate || !Array.isArray(candidate.movements)) {
+        process.stderr.write(`Plan file ${candidatePath} is not an applyable sequence ledger.\n`);
+        return 1;
+    }
+
+    const expectedPoolAssetIds = inventory.assets.map((a) => a.assetId);
+    if (!hasLedger) {
+        const initialLedger = { ...candidate, revision: 1, parentRevision: null };
+        const check = validateLedgerObject(initialLedger, { expectedPoolAssetIds });
+        if (!check.valid) {
+            process.stderr.write(`Invalid initial ledger: ${check.errors.join('; ')}\n`);
+            return 1;
+        }
+        fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
+        const tmpPath = `${ledgerPath}.tmp`;
+        fs.writeFileSync(tmpPath, await formatLedgerYaml(initialLedger, rootDir), 'utf8');
+        fs.renameSync(tmpPath, ledgerPath);
+        process.stdout.write(`Initialized ${ledgerPath} at revision 1 from ${planId}\n`);
+        return 0;
+    }
+
+    const nextLedger = applySyncPlan(plan, currentLedger, candidate);
+    const tmpPath = `${ledgerPath}.tmp`;
+    fs.writeFileSync(tmpPath, await formatLedgerYaml(nextLedger, rootDir), 'utf8');
+    fs.renameSync(tmpPath, ledgerPath);
+    process.stdout.write(`Applied ${planId}: revision ${nextLedger.revision}\n`);
     return 0;
 }
