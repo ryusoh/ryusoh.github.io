@@ -1422,7 +1422,7 @@ Automated preflight proves structural, colorimetric, and standards invariants; h
 - **Verify:** `./scripts/run-npx.sh prettier -w scripts/book/inventory.mjs tests/js/book-inventory.test.js && ./scripts/run-npx.sh eslint scripts/book/inventory.mjs tests/js/book-inventory.test.js && ./scripts/run-npx.sh jest tests/js/book-inventory.test.js`
 - **Guardrail:** Never call `sanitizeImageMetadata()` or `ensureImageVariants()` from `scripts/build-page.mjs`; source JPEGs must remain strictly read-only.
 
-#### WO-07 `[low]` — Implement ledger & proposal semantic validator (`scripts/book/validate.mjs` + `tests/js/book-validate.test.js`)
+#### WO-07 `[low]` `[DONE]` — Implement ledger & proposal semantic validator (`scripts/book/validate.mjs` + `tests/js/book-validate.test.js`)
 
 - **File:** `scripts/book/validate.mjs` and `tests/js/book-validate.test.js`
 - **Find:** `(new files — must not exist prior to this work order)`
