@@ -205,7 +205,7 @@ test_sample.jpg | by @test.photographer
                 `data-fallbacks='["https://lyeutsaon-mirror.oss-cn-hangzhou.aliyuncs.com/assets/img/${testPageId}/test_sample-1200.webp"]'`
             );
             expect(html).toContain(
-                "img-src 'self' data: https://www.google-analytics.com https://lyeutsaon-mirror.oss-cn-hangzhou.aliyuncs.com"
+                "img-src 'self' data: https://lyeutsaon-mirror.oss-cn-hangzhou.aliyuncs.com"
             );
             expect(html).toContain(`href="/${testPageId}/"`);
             expect(html).toContain('aria-current="page"');

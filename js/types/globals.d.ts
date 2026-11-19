@@ -125,14 +125,6 @@ interface Window {
         handleVendorLoaderError: (e: unknown) => void;
         logWarning: (msg: string, e?: unknown) => void;
     };
-    GoogleAnalyticsObject?: string;
-    ga?: {
-        (...args: unknown[]): void;
-        q?: IArguments[];
-        l?: number;
-        create?: Function;
-        send?: Function;
-    };
     skipWaiting?: () => Promise<void>;
     clients?: {
         claim: () => Promise<void>;

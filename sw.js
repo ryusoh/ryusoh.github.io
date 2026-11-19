@@ -14,7 +14,6 @@ const CORE_ASSETS = [
     '/js/service-worker-register.js',
     '/js/page-transition.js',
     '/js/mobile-dock.js',
-    '/js/ga.js',
 ];
 
 /**
