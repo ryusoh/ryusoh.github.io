@@ -4,65 +4,53 @@ description: Fix make precommit-fix / quality-gate failures (formatting, lint, J
 argument-hint: '[optional: a specific failing file or test name to focus on]'
 ---
 
-Get the commit gate green: fix whatever is making `make precommit-fix`, `make check`,
-or the Jest suite fail. If `{{args}}` is non-empty, start with that file/test.
+Get the quality gate green: fix whatever is failing `make precommit-fix`,
+`make gate`, `make check`, or the Jest suite. If `{{args}}` is non-empty, start
+with that file or test.
 
-**Key gotcha first:** `make precommit-fix` ends with `|| true` and `git add -u`, so it
-**always exits 0** and auto-stages — a clean-looking run can still hide failures. Do not
-trust its exit code. (Exception: it now fails loudly if pre-commit itself is not
-installed — previously a missing `pre_commit` module silently skipped every hook and
-still exited 0.) The real signals are:
+## Gate signals
 
-- `make check` — format-check + lint (prettier + eslint + stylelint). Deterministic.
-- `make test` — the **full** Jest suite + coverage (`jest --coverage`). This is what
-  catches test failures the gate's per-file `--findRelatedTests` hook misses.
-- `make precommit` — the strict, no-`|| true` run of every hook across all files.
+- `make gate` — CI parity (`make check` + `make test`), without auto-fix or
+  staging (safe alongside foreign uncommitted work).
+- `make check` — format-check + lint (ESLint/Stylelint/markdownlint/depcheck) +
+  `tsc` + `sync-check` + `sync-pages-check` + `thinking-check` +
+  `bot-pr-check`.
+- `make test` — full Jest suite + coverage floor (`jest --coverage`).
+- `make precommit-fix` — runs pre-commit auto-fixes, stages tracked files via
+  `git add -u`, re-runs hooks check-only (`SKIP=jest-related`), then runs
+  `npm test` (details: `docs/gates.md`).
+- **CI pre-commit logs:** inspect `gh pr checks <N>` →
+  `gh run view --job <id> --log` and anchor on the hook whose status line says
+  `Failed` (the `jest-related` hook uses `--coverageThreshold="{}"` and
+  `set -o pipefail`, so a non-zero exit is a real test failure).
 
-**Diagnosing CI pre-commit failures:** read the job log
-(`gh pr checks <N>` → `gh run view --job <id> --log`) and trust only the hook whose
-status line says `Failed` — other hooks may print fatal-looking output yet pass.
-Historically the `jest-related` hook was the worst offender: scoped
-`--findRelatedTests --coverage` runs printed `Jest: Coverage ... does not meet "global"
-threshold` errors while its exit code was swallowed by the output-filter pipe. That is
-fixed — the hook now runs with `--coverageThreshold="{}"` (scoped runs can't meet the
-whole-suite floor; that floor gates in `make test`/CI) and `set -o pipefail`, so a
-non-zero `jest-related` now means a real test failure.
+## Steps
 
-Work through these steps:
-
-1. **Reproduce, don't guess.** Run `make check` and `make test`; capture output to a
-   file (`make test > /tmp/t.log 2>&1`) so you can grep it. Note the failing suites and
-   the exact error lines (`grep -E "✕|●|FAIL |Cannot|TypeError|Tests:" /tmp/t.log`).
-
-2. **Diagnose against the known jsdom-26 / jest-30 traps** — these are the usual cause,
-   and they are documented in `docs/testing-notes.md` (read it before inventing a fix):
-    - `delete window.location`, `delete global.document`, or `Object.defineProperty` on
-      `location` / `document` / `href` **throws** (they are non-configurable). Mock via
-      `history.pushState` / `replaceState`, a long `location.hash`, or a `vm` context.
-    - Assigning to `window.location.search` or `.href` emits a navigation "not
-      implemented" console error; in a `beforeEach` it floods output and looks like
-      a failure even when tests pass. Use the History API instead.
-    - Throwing **getters** on `window` are silently bypassed — inject errors via
+1. **Reproduce deterministically.** Run `make check` and capture `make test`
+   (`make test > /tmp/t.log 2>&1`, then
+   `grep -E "✕|●|FAIL |Cannot|TypeError|Tests:" /tmp/t.log`).
+2. **Check known jsdom-26 / jest-30 traps (`docs/testing-notes.md`):**
+    - `delete window.location`, `delete global.document`, or
+      `Object.defineProperty` on `location`/`document`/`href` throws
+      (non-configurable). Mock via `history.pushState`/`replaceState`,
+      `location.hash`, or a `vm` context.
+    - Assigning to `window.location.search` or `.href` logs a navigation "not
+      implemented" error that floods output; use the History API instead.
+    - Throwing getters on `window` are silently bypassed — inject errors via
       function-value mocks or setters.
-
-    Add a new dated entry to `docs/testing-notes.md` if you hit a trap not listed there.
-
+    - Add a new dated entry to `docs/testing-notes.md` for any unlisted trap.
 3. **Fix at the right altitude.**
-    - Prefer repairing the test with the correct pattern from step 2.
-    - If a test is **broken _and_ redundant** with another that already covers the same
-      branch (common when an agent adds a "without vm" variant of a guard test), delete
-      the broken one — note the equivalent test that preserves coverage.
-    - A giant `pnpm-lock.yaml` diff is usually benign drift, not a regression (see
-      `CLAUDE.md`); confirm it matches `package.json` rather than reverting it.
-
-4. **Re-verify, and don't chase ghosts.** Re-run `make check` and `make test`. If a suite
-   fails once but passes on re-run (e.g. a slow `block-navigation` run), it's a **flake**,
-   not your bug — run `make test` 2–3× to confirm before spending tokens on it; report it
-   as a heads-up rather than "fixing" it.
-
-5. **Confirm the gate.** End on `make precommit-fix` exit 0 with every hook `Passed`, a
-   clean `make check`, and a green full `make test`.
-
-6. **Report & stop.** Summarize the root cause, the fix, and any flake/heads-up. **Do not
-   commit** unless explicitly asked (project rule in `CLAUDE.md`); leave changes staged
-   and say so.
+    - Repair the test with the right jsdom pattern from step 2.
+    - Remove a broken test that duplicates another test already covering the
+      same branch (cite the equivalent test preserving coverage).
+    - Expect benign `pnpm-lock.yaml` drift during dependency bumps — confirm it
+      matches `package.json` (`package-lock.json` is authoritative per
+      `AGENTS.md`).
+4. **Separate flakes from bugs.** Re-run `make check` and `make test`. If a
+   suite fails once and passes on 2–3 re-runs (e.g. a slow `block-navigation`
+   run), report it as a flake rather than churning code.
+5. **Confirm the gate.** End with `make gate` green (or `make precommit-fix`
+   exit 0 with every hook `Passed` when no foreign uncommitted work is in the
+   tree).
+6. **Report and stop.** Summarize root cause, fix, and any flake. Commit only
+   when explicitly asked (`AGENTS.md`).

@@ -1,50 +1,32 @@
 ---
-description: Ship a branch — fix quality failures, merge to main, and delete the branch
+description: Ship a branch — fix quality failures, squash-merge to master, and delete the branch
 argument-hint: '<branch_name>'
 ---
 
-You are tasked with shipping the branch: **$ARGUMENTS**.
+Ship branch **$ARGUMENTS** into `master`:
 
-Follow these steps precisely:
-
-1. **Checkout and Sync:**
-    - Fetch all branches: `git fetch origin`
-    - Checkout the branch: `git checkout $ARGUMENTS`
-    - Ensure it's up to date: `git pull origin $ARGUMENTS`
-
-2. **Fix Quality and CI Failures:**
-    - Run checks: `make check`.
-    - If it fails due to formatting, fix it: `make fmt`.
-    - Run all tests: `make test`.
-    - Verify everything is clean: `make check`.
-    - If changes were made, commit them: `git commit -am "style: fix quality failures"`.
-
-3. **Merge into Main (prefer a squash merge):**
-    - Switch to master: `git checkout master`
-    - Pull latest: `git pull origin master`
-    - Squash-merge the branch: `git merge --squash $ARGUMENTS` — one clean commit
-      on master, no matter how messy the branch history is.
-    - Commit once with a single conventional-commit message describing the
-      whole change (e.g. reuse the branch's main commit subject): `git commit`.
-    - **Conflict Resolution:** If conflicts occur:
-        - List conflicted files: `git status`.
-        - Read and resolve each conflict manually or using tools.
-        - Add resolved files: `git add <file>`.
-        - Complete the commit: `git commit`.
-
-4. **Final Verification:**
-    - Run `make check` and `make test` on the merged `master` branch to ensure no regressions.
-
-5. **Cleanup:**
-    - **Ask for acknowledgement before pushing changes.**
-    - Push master: `git push origin master`.
-    - Delete the local branch: `git branch -d $ARGUMENTS`. After a squash merge
-      Git does not consider the branch merged, so `-d` refuses — use
-      `git branch -D $ARGUMENTS` once the squash commit is pushed and you are
-      sure nothing unshipped remains.
-    - Delete the remote branch: `git push origin --delete $ARGUMENTS`. If a
-      pre-push hook mistakes the delete for history rewriting, retry the
-      delete alone with `git push --no-verify origin --delete $ARGUMENTS`.
-
-6. **Report:**
-    - Summarize the actions taken, including any conflicts resolved.
+1. **Sync:** `git fetch origin`, check out `$ARGUMENTS` (or use its existing
+   worktree from `git worktree list`), and pull `origin/$ARGUMENTS` if tracked.
+2. **Pass quality checks on the branch:** run `make check` (apply `make fmt` /
+   `make fix` if formatting or lint fails) and `make test`. Commit any fixes
+   with a descriptive Conventional Commits subject.
+3. **Squash-merge into `master`** from the primary checkout (first entry in
+   `git worktree list`):
+    - `git checkout master && git pull origin master`
+    - `git merge --squash $ARGUMENTS`
+    - Resolve any conflicts (`git status`, edit, `git add <file>`), then commit
+      once with a single Conventional Commits subject describing the whole
+      change.
+4. **Final verification on `master`:** run `make check` and `make test`.
+5. **Confirm and push:** ask the user for acknowledgement before pushing, then
+   `git push origin master`.
+6. **Cleanup:**
+    - Remove any linked worktree for the branch (`git worktree remove <path>`).
+    - Delete the local branch: `git branch -d $ARGUMENTS` (after a squash merge,
+      use `git branch -D $ARGUMENTS` once pushed and nothing unshipped remains).
+    - Delete the remote branch if it exists:
+      `git push origin --delete $ARGUMENTS` (if a pre-push hook mistakes the
+      delete for history rewriting, retry alone with
+      `git push --no-verify origin --delete $ARGUMENTS`).
+7. **Report:** summarize commits created, gate results, conflicts resolved, and
+   branches/worktrees cleaned up.

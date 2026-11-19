@@ -6,204 +6,143 @@ argument-hint: '[workflow run number, run URL, or workflow name]'
 
 Rescue this failed GitHub Actions workflow end to end: **{{args}}**
 
-Invocation explicitly authorizes edits, tests, commits, pushes, PR creation,
-squash merges, workflow dispatches/reruns, deployment/mirror verification, and
-cleanup. Do not ask for further confirmation. Stop only for a real blocker such
-as unavailable authentication, missing required secrets/credentials, or a change
-requiring human visual review; report that blocker precisely.
+Invocation authorizes the full loop — edits, tests, commits, pushes, PR
+creation, squash merge, workflow dispatch/rerun, deployment/mirror
+verification, and cleanup — without pausing for confirmation. Stop only on a
+real blocker (missing auth or secrets, or a change requiring human visual
+review) and report it precisely.
 
-## 1. Anchor the target and current state
+## 1. Anchor target and state
 
-Re-resolve the run from GitHub rather than trusting a stale page or run title.
-A workflow `run_number` (for example #523) is not the API `run.id`.
+Resolve the run live from GitHub (`run_number` like `#523` differs from the
+API `run.id`). Use authenticated `gh` when available, or public GitHub APIs
+for metadata plus an authenticated browser for logs, PRs, and manual dispatch;
+keep credentials out of command output and URLs.
 
-```bash
-git status --short
-git branch --show-current
-git log --oneline -3
-```
+- Run `git status --short`, `git branch --show-current`, and
+  `git log --oneline -3`.
+- Record workflow path, run number/ID, head SHA/branch, failing jobs/steps,
+  and URL. Compare recent runs across the last-success → first-failure
+  boundary (runtime/dependency versions and error signatures).
+- Read the workflow YAML and governing subsystem docs: `docs/gates.md` (CI
+  gates, coverage floor, Stryker), `docs/china-image-mirror-plan.md`
+  (`mirror-check.yml`, `scripts/sync-mirror.sh`),
+  `docs/page-generation-pipeline.md` (`p*` shell sync), and
+  `docs/js-typing-strategy.md` (`tsc -p jsconfig.json`).
+- Check overlapping PRs with `python3 tools/prior_prs.py` (or the public pulls
+  API if `gh` is unauthenticated).
 
-- Record the workflow name/path, run number and ID, head SHA/branch, failing
-  jobs/steps, conclusion, and HTML URL.
-- Check recent runs to find the last success and first consecutive failure.
-  Compare dependency/runtime versions and error signatures across that boundary.
-- Read the workflow YAML and the subsystem docs governing the failing surface
-  before editing: `docs/gates.md` for CI gates, `tools/check_bot_pr_hygiene.py`,
-  coverage floor, and Stryker; `docs/china-image-mirror-plan.md` for
-  `mirror-check.yml` and `scripts/sync-mirror.sh`;
-  `docs/page-generation-pipeline.md` for `p*` shell sync;
-  `docs/js-typing-strategy.md` for `tsc -p jsconfig.json`.
-- Check open/recently closed PRs for overlapping work with
-  `python3 tools/prior_prs.py`; if unauthenticated `gh` makes it fail, query
-  the public pulls API instead.
-- Create a todo list covering diagnosis, fix/regression tests, shipping, fresh
-  workflow execution, and post-merge verification. Keep exactly one item in
-  progress.
+## 2. Reproduce before theorizing
 
-Use authenticated `gh` when available. Otherwise use public GitHub APIs for run
-metadata and an authenticated browser for logs, PR creation/merge, and manual
-dispatch. Never print credentials or place API keys in URLs.
+Read the failing step log bottom-up: Actions echoes every shell line (even
+untaken `if` branches), so anchor on the step ending in
+`##[error]Process completed with exit code ...`. A fast sub-minute PR failure
+usually comes from `ci.yml`'s early guards (`Reject empty pull request` or
+`Reject bot PR hygiene violations`), before Jest runs.
 
-## 2. Establish the failure before theorizing
+Build the tightest deterministic local loop (watch it fail before the fix,
+pass after):
 
-Read the actual failing step log bottom-up. Capture the first actionable error,
-final exit status, runtime/dependency versions, and which hook or step actually
-reported `##[error]Process completed with exit code ...`. Do not mistake echoed
-`run:` lines (printed in cyan) or earlier non-failing hook output for the root
-error. A fast sub-minute failure on a PR usually comes from `ci.yml`'s early
-guards (`Reject empty pull request` or `Reject bot PR hygiene violations`), not
-the Jest suite.
+1. Scoped check or test (`npx jest <path/to/test>`, `make lint-js`,
+   `make lint-css`, `make type`, `make sync-check`, `make sync-pages-check`,
+   or `python3 -m pytest tools/__tests__/`).
+2. Local CI-parity gate (`make check`, `make test`, `make gate`, or
+   `SKIP=jest-related pre-commit run --all-files`).
+3. Isolated version reproduction, `make mirror-check` (`scripts/check-mirror.sh`)
+   for `mirror-check.yml`, or `npx stryker run --mutate` for `mutation.yml`.
+4. Replay of a captured HTTP/HTML response or synthetic fixture `p99` / `p98`
+   (keep tests decoupled from living galleries `p1`–`p6`).
+5. Workflow rerun only when no local seam exists (e.g. transient Pages backend
+   errors in `pages.yml` or secrets-gated Claude workflows).
 
-Build the tightest deterministic loop that exercises this exact symptom:
+Put scratch tests in gitignored `tests/js/_*.test.js` or
+`tests/fixtures/sequence-scratch/` and clean them up afterward. For Jest/jsdom
+failures, read `docs/testing-notes.md` (and consult `fix-precommit`).
 
-1. scoped check or test at the real call site (`npx jest <path/to/test>`,
-   `make lint-js`, `make lint-css`, `make type`, `make sync-check`,
-   `make sync-pages-check`, or `python3 -m pytest tools/__tests__/`);
-2. local CI-parity gate (`make check`, `make test`, `make gate`, or
-   `SKIP=jest-related pre-commit run --all-files`);
-3. isolated reproduction of resolved action/Node/npm/Python tool versions, or
-   `make mirror-check` (`scripts/check-mirror.sh`) for `mirror-check.yml`, or
-   `npx stryker run --mutate` for `mutation.yml`;
-4. replay of a captured HTTP/HTML response or local synthetic fixture (`p99` /
-   `p98` — never couple unit tests to production galleries `p1`–`p6`);
-5. workflow rerun only when no local seam exists (for example, transient GitHub
-   Pages backend rejections in `pages.yml` or secrets-gated Claude workflows).
+Classify before editing:
 
-Watch the loop fail before the fix and pass afterward. Keep scratch tests in
-gitignored `tests/js/_*.test.js` or `tests/fixtures/sequence-scratch/` and
-delete temporary diagnostic artifacts afterward. For a difficult diagnosis, rank
-3–5 falsifiable hypotheses before probing (and consult `fix-precommit` for CI
-gate, ESLint, or Jest failures). For a Jest/jsdom issue, read
-`docs/testing-notes.md` before inventing a workaround (Jest runs silent, and
-`window.location` is non-configurable).
-
-Classify the result before changing files:
-
-- **Repository defect:** fix the smallest root cause and add a regression test.
-- **Runtime/dependency rollover:** correlate the first failure with resolved
-  versions; pin a supported runtime/action or replace the incompatible
-  dependency rather than hiding the error. Before bumping a workflow action pin,
-  verify the major-version tag exists
+- **Repository defect:** minimal root-cause fix + regression test.
+- **Runtime/dependency rollover:** correlate versions at the failure boundary;
+  pin a supported runtime/action (workflow-local over global when sufficient)
+  after confirming the major tag exists
   (`gh api repos/<owner>/<repo>/git/refs/tags/v<N>`).
-- **External service / mirror / Pages drift (`mirror-check.yml`, `pages.yml`):**
-  verify whether the live Pages site or the OSS fallback bucket
-  (`scripts/sync-mirror.sh` / `make sync-mirror`) is stale or misconfigured per
-  `docs/china-image-mirror-plan.md` before altering workflow probes; never weaken
-  CSP, hotlink, or byte-parity checks.
-- **Transient GitHub/infrastructure failure with no code defect:** rerun the
-  failed jobs; do not invent a code change or open an empty PR.
-- **Gate / hygiene rejection (`ci.yml`):** preserve the gate. Never weaken
-  `jest.config.cjs` coverage thresholds, add `eslint-suppressions.json` entries,
-  or bypass `thinking-check` / `bot-pr-check` to obtain green.
+- **Mirror / Pages drift (`mirror-check.yml`, `pages.yml`):** verify live
+  Pages and OSS fallback bucket state (`scripts/sync-mirror.sh` /
+  `make sync-mirror`) per `docs/china-image-mirror-plan.md`, keeping CSP,
+  hotlink, and byte-parity checks intact.
+- **Transient GitHub/infra failure:** rerun the failed jobs; skip creating a
+  code change or empty PR.
+- **Gate / hygiene rejection (`ci.yml`):** keep `jest.config.cjs` coverage
+  floors, `eslint-suppressions.json` (`{}`), `thinking-check`, and
+  `bot-pr-check` intact; fix the underlying code.
+- **Red PR check:** checks reading PR metadata from the event payload replay
+  stale values on `gh run rerun` — retrigger with a fresh event (force-push,
+  or close + reopen). When `gh pr edit` hits GraphQL `read:org` scope errors,
+  retitle via `gh api -X PATCH repos/<owner>/<repo>/pulls/<N> -f title="..."`
+  (this repo has no automated `pr-title` gate, so verify Conventional Commits
+  format against `AGENTS.md`). For a Dependabot bump failing on an existing
+  file, reproduce with `npm ci` on the PR lockfile in a worktree, then accept
+  the fixer output or exclude the file citing the upstream issue; push an
+  additive commit so Dependabot's signed commit stays intact.
 
-## 3. Fix and prove it
+## 3. Fix, prove, and ship
 
-Make one concern-sized change on a branch off current `master`. Stage only
-files owned by this rescue; concurrent agents and the user may share the
-worktree. Never discard foreign changes or use destructive git cleanup.
+Follow `AGENTS.md` (shared checkout, single concern on a branch off `master`,
+one conventional commit, PR body with What & why / Verification / Visual).
 
-- Never hand-edit `js/vendor/`, `*.min.js`, or generated `.claude/commands/`.
-  If you edit any skill in `.agents/skills/`, run `python3 tools/sync_commands.py`
-  so `.claude/commands/` stays in sync.
-- Never regenerate `pnpm-lock.yaml`; `package-lock.json` is authoritative.
-- If you edit `scripts/templates/portfolio-shell.html`, run `make sync-pages`.
-- For workflow `run:` blocks using `set -o pipefail`, never pipe a writer into
-  `grep -q` or `head`/`sed q` (SIGPIPE exits 141); use `<<< "$var"` and
-  `awk 'NR==1'` instead, and rehearse the block locally with the same shell flags.
+- Keep `js/vendor/`, `*.min.js`, and `pnpm-lock.yaml` untouched
+  (`package-lock.json` is authoritative). After editing `.agents/skills/`, run
+  `python3 tools/sync_commands.py`; after editing
+  `scripts/templates/portfolio-shell.html`, run `make sync-pages`.
+- In workflow `run:` blocks with `set -o pipefail`, use `grep -q pat <<< "$var"`
+  and `awk 'NR==1'` instead of piping writers into `grep -q`/`head`/`sed q`
+  (SIGPIPE 141), and rehearse locally with the same flags.
+- Prefer structural prevention (pins, schema checks, validation) over prose.
+- Run `make precommit-fix` on the finished tree (or `make gate` +
+  `make precommit` if foreign uncommitted work sits in the tree so `git add -u`
+  stays safe; also run `python3 -m pytest tools/__tests__/` if `tools/` or
+  `.agents/skills/` changed). If a local command hits a timeout, finish every
+  remaining phase separately and report that explicitly.
+- Push, open a PR (draft only if visual review is needed), wait for required
+  checks (amend + `--force-with-lease` on fixes), squash-merge, confirm the
+  merged SHA on GitHub, and return to a clean `master`
+  (`git pull --rebase origin master`).
 
-For each behavior fix, include a test that fails before and passes after. Prefer
-structural prevention over prose: runtime pins, dependency removal, schema
-checks, or validation. Avoid global version pins when a workflow-local pin
-fixes the incompatibility with less collateral risk.
-
-Exercise the real path, not just mocks. Run `make precommit-fix` on the
-finished tree before opening a PR (if other uncommitted work sits in the tree,
-run `make gate` + `make precommit` instead so `precommit-fix`'s trailing
-`git add -u` does not stage foreign edits; if `tools/` or `.agents/skills/` were
-changed, also run `python3 -m pytest tools/__tests__/`). If a local command
-exceeds its execution cap, complete every remaining phase separately and report
-exactly that—never claim a capped command returned green. Check the final diff
-for formatter damage, scratch artifacts, and unrelated edits.
-
-## 4. Ship without pausing
-
-- Create one real conventional commit (`type(scope): summary`, lower-case scope,
-  <= 72 chars); do not push empty/no-op commits.
-- Push the branch and open a non-draft PR unless the change has a visual surface
-  requiring human review (in that case open a draft PR and state "visual review
-  required by a human").
-- Use a conventional PR title and include **What & why**, **Verification**
-  (exact command output), and **Visual?** (`no visual surface` or
-  `visual — human review required (draft)`) in the PR body.
-- Wait for all required checks (`CI` / `web-ci`, coverage floor, and hygiene
-  checks). If red, inspect logs, fix on the same branch, rerun the gate,
-  amend/squash, and force-push with lease.
-- Squash-merge only after required checks pass. Confirm the merged SHA through
-  GitHub rather than inferring success from a button click.
-- Confirm the local tree is clean, switch to `master`, and run:
-
-```bash
-git pull --rebase origin master
-```
-
-Do not delete branches or worktrees while they contain unshipped or foreign work.
-
-## 5. Execute the fixed workflow
+## 4. Execute on merged `master` and verify outputs
 
 Dispatch or observe the workflow on merged `master` (`ci.yml` and `pages.yml`
 trigger on push to `master`; `mirror-check.yml`, `mutation.yml`, and
-`pages.yml` support `workflow_dispatch`); do not treat rerunning the old failed
-SHA as proof of the fix. Resolve and record the new run number and ID from its
-head SHA. Monitor every material stage:
+`pages.yml` support `workflow_dispatch`), resolve the new run number/ID from
+its head SHA, and monitor with bounded backoff:
 
-- `ci.yml`: empty-PR/bot-hygiene guards, pre-commit hooks, ESLint/`tsc`/Stylelint/Prettier,
-  and full `npm test` + `coverage/coverage-summary.json` artifact upload.
-- `pages.yml`: `sw.js` cache-name stamp, `upload-pages-artifact`, and
-  `deploy-pages` (including the retry step if invoked).
-- `mirror-check.yml`: live page `data-fallbacks` and CSP `img-src`, mirror HTTP
-  200, byte-size parity with primary, hotlink 403, and missing-object 404.
-- `mutation.yml`: incremental cache restore, `npx stryker run`, and
-  `mutation-report` artifact upload (non-blocking by design).
+- **`ci.yml`:** early guards, pre-commit hooks, lint/type, full `npm test`,
+  and `coverage/coverage-summary.json` upload.
+- **`pages.yml`:** `sw.js` cache-name stamp, `upload-pages-artifact`, and
+  `deploy-pages` (note `cancel-in-progress: true` during rapid merges); verify
+  the live site serves the merged commit and stamped `sw.js`.
+- **`mirror-check.yml`:** live `data-fallbacks` and CSP `img-src`, mirror HTTP
+  200, byte-size parity, hotlink 403, missing-object 404. If derived
+  `.avif`/`.webp` tiers are stale on OSS, run `make sync-mirror` (requires
+  `aliyun` CLI and credentials; report missing credentials as a blocker) before
+  re-dispatching.
+- **`mutation.yml`:** incremental cache restore, `npx stryker run`, and
+  `mutation-report` artifact upload (non-blocking).
+- **Generated pages:** if `scripts/templates/portfolio-shell.html` or
+  `assets/img/p*/index.md` changed, confirm `make sync-pages-check` passed and
+  updated `p*/index.html` landed on `master`.
 
-If this run fails, return to step 2 with its new logs and continue automatically.
-Respect external rate limits and use bounded backoff rather than tight polling
-or retry loops. Do not weaken checks or manually mark a run successful.
+If the fresh run fails, loop back to step 2 automatically.
 
-## 6. Verify deployment, mirror state, and artifacts
+## 5. Evidence report
 
-Confirm the live or generated outputs produced by the fixed workflow:
+The rescue finishes only when the fixed workflow succeeds on merged `master`
+and required outputs are verified (report any external blocker or missing
+secret explicitly). Clean up temporary worktrees/branches and diagnostic files,
+re-anchor with `git status` and `git log`, and report:
 
-- **GitHub Pages (`pages.yml`):** confirm the deploy run for the latest `master`
-  SHA completed (note `cancel-in-progress: true` can cancel earlier deploys
-  during rapid merges) and verify the deployed site serves the expected commit
-  and stamped `sw.js` cache version.
-- **OSS image fallback mirror (`mirror-check.yml`):** if the failure came from
-  missing or stale derived `.avif`/`.webp` tiers on the OSS bucket rather than a
-  workflow bug, sync them via `make sync-mirror` (`scripts/sync-mirror.sh`,
-  which requires `aliyun` CLI and bucket credentials) before dispatching a fresh
-  `mirror-check.yml` run; report missing credentials as a blocker rather than
-  weakening probes.
-- **Generated portfolio pages / artifacts:** if `scripts/templates/portfolio-shell.html`
-  or `assets/img/p*/index.md` changed, confirm `make sync-pages-check` passed and
-  the updated `p*/index.html` files landed in the merged commit; for
-  `mutation.yml`, confirm the `mutation-report` artifact uploaded cleanly.
-
-## 7. Finish only with evidence
-
-The rescue is incomplete until the fixed workflow has actually succeeded on the
-fixed ref and required deployment/mirror/artifact checks are verified. If an
-external limitation or missing secret blocks part of recovery, report that exact
-gap rather than claiming full recovery.
-
-Respond with:
-
-1. root cause and failing step;
-2. code/config fix and regression evidence (commands and outputs);
-3. PR number and merge commit on `master` (or transient rerun ID if no code change);
-4. fresh run number/ID and result on merged `master`;
-5. deployment, mirror, or artifact verification result;
-6. any external limitation or unrecovered gap, without guarantees that every
-   future third-party outage is impossible.
-
-Clean up temporary worktrees/branches and diagnostic files. Update the todo list
-and re-anchor from `git status` and `git log` before reporting completion.
+1. Root cause and failing step.
+2. Code/config fix and regression evidence (commands and outputs).
+3. PR number and merge commit on `master` (or transient rerun ID).
+4. Fresh run number/ID and result on merged `master`.
+5. Deployment, mirror, or artifact verification result.
+6. Any external limitation or unrecovered gap.

@@ -103,9 +103,10 @@ no-op the check. Tests live in `tools/__tests__/test_check_bot_pr_hygiene.py`.
   and `docs/js-typing-strategy.md`; the remaining persona content (dated incidents,
   unattended operating mechanics) stays in Git history.
 - **Retained tooling:** `tools/check_bot_pr_hygiene.py` (`make bot-pr-check` / CI
-  gate), `tools/prior_prs.py`, and the `bot-pr-rescue` skill (references to personas
-  removed). Reassess `bot-pr-rescue` and the hygiene gate's Jules author marker
-  separately once no Jules branch can reach the repo.
+  gate) and `tools/prior_prs.py`. The `bot-pr-rescue` skill was retired on
+  2026-11-19 (no open PRs remain); its Dependabot and PR-title lessons moved to
+  `gh-action-rescue`. The hygiene gate keys on the `google-labs-jules` author and
+  skips every other commit, so it is now inert — reassess it separately.
 
 ## Coverage floor and CI coverage report
 

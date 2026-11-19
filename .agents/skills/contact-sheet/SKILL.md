@@ -6,19 +6,17 @@ description: Ledger new shoots into per-day contact sheets and reconcile selects
 # Contact-sheet ledger ritual
 
 Design and schema: `docs/contact-sheet-ledger-design.md`. Tool:
-`scripts/contact-sheet.mjs`. Everything produced is **private**:
-`contact-sheets/` and `contact-sheet-ledger/` are gitignored — never commit
-anything under either (design doc D3: local-first, public only via curated
-aggregates).
+`scripts/contact-sheet.mjs`. Outputs are **private** and gitignored
+(`contact-sheets/` and `contact-sheet-ledger/` stay local-only — design doc D3:
+local-first, public only via curated aggregates).
 
 ## Prerequisites (one-time)
 
 - `exiftool` on PATH (`brew install exiftool`); the tool fails closed without
   it.
 - Lightroom Classic → Catalog Settings → Metadata → **Automatically write
-  changes into XMP** — this makes edited frames detectable as selects. For
-  shoots culled before enabling it: select the photos in Library, then
-  Metadata → Save Metadata to Files.
+  changes into XMP** so edited frames register as selects. For shoots culled
+  earlier: select the photos in Library, then Metadata → Save Metadata to Files.
 
 ## The ritual (one command)
 
@@ -39,7 +37,7 @@ sheet) and `contact-sheet-ledger/<day>.json`, then reconciles against the
 Lightroom export folder (`~/Desktop/Export`; override with `--export-dir`) and
 published galleries (`assets/img`; override with `--gallery-root`), marking
 `selection.exported` / `selection.published` and upgrading passes to selects
-where the evidence exists.
+where evidence exists.
 
 ## After it runs
 
@@ -50,9 +48,9 @@ where the evidence exists.
     ```
 
 2. Point the user at the sheets to eyeball (`open contact-sheets/<day>/index.html`)
-   — badge correctness is a human visual check. Report any frames that show
-   "no preview" or landed in `undated`.
-3. Commit nothing from the two output directories.
+   — badge correctness is a human visual check. Report any frames showing
+   "no preview" or landing in `undated`.
+3. Keep both output directories uncommitted.
 
 ## Individual steps (when not using --sync)
 
@@ -78,8 +76,8 @@ where the evidence exists.
 
 ## Critique loop (WO 4)
 
-Run only after the human edit is settled in the ledger (never before — the
-log must record independent judgments, see `docs/critique-calibration-design.md`):
+Run only after the human edit is settled in the ledger so the log records
+independent judgments (`docs/critique-calibration-design.md`):
 
 1. `node scripts/contact-sheet.mjs --montage <day>` — tiles the sheet thumbs
    into labeled grid pages at `contact-sheets/<day>/montage/page-N.jpg`.
@@ -93,8 +91,8 @@ log must record independent judgments, see `docs/critique-calibration-design.md`
 4. Eyeball the disagreements, then backfill the reason:
    `node scripts/contact-sheet.mjs --resolve <day> --file DSCF1234.RAF --reason "kept for the gesture"`
 
-Re-running any step is idempotent — sheets and digests are regenerated from
-scratch, reconcile marks are only counted when they change.
+Re-running any step is idempotent — sheets and digests regenerate from scratch,
+and reconcile marks count only when they change.
 
 ## Troubleshooting
 
