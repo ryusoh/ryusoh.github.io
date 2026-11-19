@@ -131,6 +131,7 @@ aesthetic judgment to the human. Open any PR whose payoff is visual as a
 | Synchronize / check portfolio shell templates  | `make sync-pages` / `make sync-pages-check`        |
 | Build a portfolio page from markdown           | `make page ID=pN`                                  |
 | Contact-sheet ledger (private tooling)         | `make ledger-stats` / `make ledger-sync DIR=<dir>` |
+| Probe live origin/ECH/mirror / CN reachability | `make mirror-check` / `make china-probe`           |
 | Build responsive AVIF/WebP tiers / ThumbHash   | `make images` / `make thumbhashes`                 |
 | Extract CJK glyphs and build WOFF2 subset      | `make fonts`                                       |
 
