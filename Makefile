@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror mirror-check book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror mirror-check china-probe book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -200,6 +200,10 @@ sync-mirror:
 # Probe live fallback markup, CSP, mirror 200/403/404, and byte-size parity
 mirror-check:
 	@./scripts/check-mirror.sh
+
+# Probe Mainland China DNS (AliDNS ECH check) + HTTPS reachability via Globalping
+china-probe:
+	@node scripts/probe-china.mjs $(ARGS)
 
 # Build a single portfolio page from markdown (supports `make page p5` or `make page ID=p5`)
 ifeq (page,$(firstword $(MAKECMDGOALS)))

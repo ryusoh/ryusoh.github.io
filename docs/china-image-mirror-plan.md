@@ -168,8 +168,50 @@ site/mirror probing with it off.
 
 ## Troubleshooting and recovery
 
-- **Local probe:** Run `make mirror-check` (`scripts/check-mirror.sh`). On
-  non-200 responses from OSS, it prints the `<Code>` and `<EC>` XML fields.
+- **Local probe:** Run `make mirror-check` (`scripts/check-mirror.sh`) to verify
+  direct GitHub Pages origin (`Server: GitHub.com`, no Cloudflare proxy/ECH/Rocket
+  Loader), apex HTTPS 301 redirect, fallback markup, CSP, byte parity, and OSS
+  200/403/404. On non-200 OSS responses, it prints the `<Code>` and `<EC>` XML
+  fields. Run `make china-probe` (`scripts/probe-china.mjs`) to verify AliDNS
+  (`223.5.5.5`) A/TYPE65 records and live Mainland China HTTPS reachability
+  across China Mobile, China Telecom, and China Unicom via Globalping.
+
+### DNS & origin invariants (Cloudflare DNS-only)
+
+- **`lyeutsaon.com` and `www.lyeutsaon.com` MUST stay `DNS only` (grey cloud)**
+  in Cloudflare DNS — **never orange-cloud (Proxied)**:
+    - Apex `@`: four `A` records (`185.199.108.153`, `185.199.109.153`,
+      `185.199.110.153`, `185.199.111.153`), all `DNS only`.
+    - `www`: `CNAME` → `ryusoh.github.io`, `DNS only`.
+    - Leave `api.lyeutsaon.com` (Cloudflare Worker) `Proxied`, and leave MX/SPF/DKIM
+      email routing records untouched.
+- **Why Cloudflare Free Proxy breaks Mainland China visitors (incident 2026-11-19):**
+    1. Cloudflare Free automatically publishes a `TYPE65` (`HTTPS`) DNS record
+       advertising `ech=...cloudflare-ech.com...` and `alpn="h3,h2"` (visible
+       inside China on AliDNS/DNSPod and ISP resolvers). Modern browsers attempt
+       TLS ECH + QUIC handshakes that China's GFW interferes with/resets
+       (`ERR_CONNECTION_RESET`), even while plain `curl` (which ignores `TYPE65`)
+       may appear to succeed.
+    2. Cloudflare Free Anycast IPv4/IPv6 (`104.21.x.x`, `172.67.x.x`,
+       `2606:4700:...`) suffers 20–100% evening packet loss and 15s TCP/TLS
+       timeouts from China Mobile/Unicom/Telecom, whereas direct GitHub Pages
+       Fastly serves with ~0% loss and 80–200 ms RTT.
+    3. Cloudflare Rocket Loader rewrites `<script>` tags behind an extra
+       Cloudflare fetch (and injected malformed `<foreignObject>` around inline
+       SVG sprites), preventing `imageFallback.js` from running when Cloudflare
+       stalls.
+    4. Note: macOS BSD `dig` ignores the `HTTPS` keyword and falls back to `A`;
+       always query `dig TYPE65` or DoH `type=65` (`make china-probe`).
+- **Recovering GitHub Pages HTTPS after switching off Cloudflare Proxy:**
+    1. Flip `www` and all 4 apex `A` records to `DNS only` (grey cloud).
+    2. Because Cloudflare blocked Let's Encrypt renewal, GitHub Pages temporarily
+       serves `*.github.io` with `https_enforced: false` (`https_certificate: null`).
+    3. In GitHub repo **Settings → Pages**, click **Remove** on the custom domain,
+       re-enter `www.lyeutsaon.com`, and click **Save** to immediately trigger
+       DNS validation and Let's Encrypt SAN cert issuance (`www.lyeutsaon.com` +
+       `lyeutsaon.com`). Wait ~2–5 minutes until `https_certificate.state` is
+       `approved`, then enable **Enforce HTTPS**.
+    4. Confirm with `make mirror-check && make china-probe`.
 - **`403 AccessDenied` with `EC: 0003-00000905`:**
     1. Check a nonexistent bucket name (`curl -sSI https://<nonexistent>.oss-cn-hangzhou.aliyuncs.com/x`)
        vs the live mirror: `404 NoSuchBucket` (`0015-00000101`) vs `403`

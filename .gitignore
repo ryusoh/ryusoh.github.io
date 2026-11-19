@@ -1,4 +1,4 @@
-node_modules/
+/node_modules
 .DS_Store
 dev.code-workspace
 .mypy_cache/
