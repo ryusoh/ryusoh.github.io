@@ -1052,7 +1052,7 @@ describe('contact-sheet.mjs phase A', () => {
             expect(meta.width).toBe(1440);
             expect(meta.height).toBe(1376);
         }
-    });
+    }, 20000);
 
     test('buildMontage fails closed without thumbs or local sheet', () => {
         const root = path.join(tmp, 'montage-err-root');

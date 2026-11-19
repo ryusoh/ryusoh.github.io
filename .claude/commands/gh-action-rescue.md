@@ -60,9 +60,9 @@ Build the tightest deterministic loop that exercises this exact symptom:
    `make sync-pages-check`, or `python3 -m pytest tools/__tests__/`);
 2. local CI-parity gate (`make check`, `make test`, `make gate`, or
    `SKIP=jest-related pre-commit run --all-files`);
-3. isolated reproduction of resolved action/Node/npm/Python tool versions, or a
-   direct `curl` probe matching `mirror-check.yml`, or `npx stryker run --mutate`
-   for `mutation.yml`;
+3. isolated reproduction of resolved action/Node/npm/Python tool versions, or
+   `make mirror-check` (`scripts/check-mirror.sh`) for `mirror-check.yml`, or
+   `npx stryker run --mutate` for `mutation.yml`;
 4. replay of a captured HTTP/HTML response or local synthetic fixture (`p99` /
    `p98` — never couple unit tests to production galleries `p1`–`p6`);
 5. workflow rerun only when no local seam exists (for example, transient GitHub

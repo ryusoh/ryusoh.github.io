@@ -224,4 +224,31 @@ test_sample.jpg | by @test.photographer
             expect(updatedNavHtml).toContain('Synthetic Test Project');
         });
     });
+
+    test('mirror origin stays consistent across builder, templates, and scripts', () => {
+        const buildSource = fs.readFileSync(BUILD_SCRIPT, 'utf8');
+        const mirrorOriginMatch = buildSource.match(/const MIRROR_ORIGIN = '([^']+)';/);
+        expect(mirrorOriginMatch).not.toBeNull();
+        const mirrorOrigin = mirrorOriginMatch[1];
+        const bucketName = mirrorOrigin.replace(/^https?:\/\//, '').split('.')[0];
+
+        const templateHtml = fs.readFileSync(
+            path.join(ROOT_DIR, 'scripts', 'templates', 'portfolio-shell.html'),
+            'utf8'
+        );
+        const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+        const syncMirrorScript = fs.readFileSync(
+            path.join(ROOT_DIR, 'scripts', 'sync-mirror.sh'),
+            'utf8'
+        );
+        const checkMirrorScript = fs.readFileSync(
+            path.join(ROOT_DIR, 'scripts', 'check-mirror.sh'),
+            'utf8'
+        );
+
+        expect(templateHtml).toContain(mirrorOrigin);
+        expect(indexHtml).toContain(mirrorOrigin);
+        expect(syncMirrorScript).toContain(`oss://${bucketName}`);
+        expect(checkMirrorScript).toContain(mirrorOrigin);
+    });
 });

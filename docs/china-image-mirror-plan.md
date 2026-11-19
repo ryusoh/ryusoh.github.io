@@ -165,3 +165,51 @@ site/mirror probing with it off.
 - Removed `fonts.googleapis.com` / `fonts.gstatic.com` from the CSP
   style-src/font-src in `index.html` and the portfolio template (nothing
   fetches from them since the Google Fonts links were dropped).
+
+## Troubleshooting and recovery
+
+- **Local probe:** Run `make mirror-check` (`scripts/check-mirror.sh`). On
+  non-200 responses from OSS, it prints the `<Code>` and `<EC>` XML fields.
+- **`403 AccessDenied` with `EC: 0003-00000905`:**
+    1. Check a nonexistent bucket name (`curl -sSI https://<nonexistent>.oss-cn-hangzhou.aliyuncs.com/x`)
+       vs the live mirror: `404 NoSuchBucket` (`0015-00000101`) vs `403`
+       (`0003-00000905`) means the bucket exists/is held, not simply missing.
+    2. Do **not** run `aliyun oss ls` (`oss:ListBuckets`) with `oss-mirror-sync`
+       — it lacks `ListBuckets` and triggers a Cloud Security `GetService`
+       alert; use `aliyun oss stat oss://<bucket>/assets/img/p1/DSCF4775-1200.webp`
+       or `aliyun sts GetCallerIdentity` instead.
+    3. In the Alibaba Cloud Console (`主账号`), check **Billing & Cost**
+       (`可用额度 > 0`) and **OSS Console**: if OSS shows `尚未开通对象存储服务 OSS`
+       and `主账号` sees `缺少 oss:GetBucketInfo`, the account passed the 15-day
+       overdue retention window and the old bucket name may be locked/purged.
+- **Replacing a purged bucket:** Create the replacement bucket in
+  `oss-cn-hangzhou` (Standard, LRS, `公共读`, Block Public Access disabled,
+  Referer whitelist `*.lyeutsaon.com` + empty Referer + query-string
+  truncation), attach the least-privilege RAM policy below to
+  `oss-mirror-sync`, update the mirror origin across `scripts/build-page.mjs`,
+  `scripts/templates/portfolio-shell.html`, `index.html`, `p1/`–`p6/`,
+  `scripts/sync-mirror.sh`, `scripts/check-mirror.sh`, and
+  `tests/js/page-builder.test.js`, then run `make sync-mirror && make mirror-check`.
+
+```json
+{
+    "Version": "1",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": ["oss:ListObjects", "oss:GetBucketInfo"],
+            "Resource": ["acs:oss:*:*:lyeutsaon-mirror"]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "oss:GetObject",
+                "oss:PutObject",
+                "oss:AbortMultipartUpload",
+                "oss:ListParts"
+            ],
+            "Resource": ["acs:oss:*:*:lyeutsaon-mirror/*"]
+        }
+    ]
+}
+```
