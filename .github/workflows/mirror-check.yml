@@ -16,7 +16,7 @@ jobs:
             - name: Probe live fallbacks and mirror
               run: |
                   set -euo pipefail
-                  MIRROR_ORIGIN="https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com"
+                  MIRROR_ORIGIN="https://lyeutsaon-mirror.oss-cn-hangzhou.aliyuncs.com"
                   PAGE_URL="https://www.lyeutsaon.com/p1/"
 
                   html=$(curl -fsS -m 30 "$PAGE_URL")
@@ -26,7 +26,7 @@ jobs:
                   grep -q "data-fallbacks='\[\"$MIRROR_ORIGIN" <<< "$html" \
                       || { echo "FAIL: $PAGE_URL has no mirror data-fallbacks"; exit 1; }
 
-                  grep -o 'img-src [^;]*' <<< "$html" | grep -q 'lyeutsaon\.oss-cn-hangzhou\.aliyuncs\.com' \
+                  grep -o 'img-src [^;]*' <<< "$html" | grep -q 'lyeutsaon-mirror\.oss-cn-hangzhou\.aliyuncs\.com' \
                       || { echo "FAIL: CSP img-src missing mirror origin"; exit 1; }
 
                   url=$(grep -o "data-fallbacks='\[\"[^\"]*" <<< "$html" | awk 'NR==1 {sub(/.*\["/, ""); print}')

@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-BUCKET="${OSS_MIRROR_BUCKET:-oss://lyeutsaon}"
+BUCKET="${OSS_MIRROR_BUCKET:-oss://lyeutsaon-mirror}"
 SRC_DIR="$(cd "$(dirname "$0")/.." && pwd)/assets/img"
 
 if ! command -v aliyun >/dev/null 2>&1; then
