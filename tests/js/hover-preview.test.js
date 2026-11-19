@@ -225,6 +225,18 @@ describe('js/hover-preview.js', () => {
         window.matchMedia = originalMatchMedia;
     });
 
+    test('does not fetch hidden hover previews on touch devices', () => {
+        mockMatchMedia.mockImplementation((query) => ({
+            matches: query === '(hover: none)',
+            media: query,
+        }));
+        const { initHoverPreview } = require('../../js/hover-preview.js');
+
+        initHoverPreview();
+
+        expect(mockFetch).not.toHaveBeenCalled();
+    });
+
     test('creates hover-carousel elements if missing in DOM', () => {
         document.body.innerHTML = '<div id="cont"></div>';
         const {
@@ -474,7 +486,8 @@ describe('js/hover-preview.js', () => {
         mockMatchMedia.mockReturnValue({ matches: true });
         const { showPreview, getCarouselEl } = require('../../js/hover-preview.js');
         showPreview('p1', './p1/');
-        expect(getCarouselEl().classList.contains('is-active')).toBe(false);
+        expect(getCarouselEl()).toBeNull();
+        expect(mockFetch).not.toHaveBeenCalled();
     });
 
     test('DOMContentLoaded event listener initializes preview if readyState is loading', () => {

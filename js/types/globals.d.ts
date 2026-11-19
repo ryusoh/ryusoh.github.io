@@ -75,7 +75,37 @@ interface Window {
     __ImageFallbackForTesting?: {
         parseFallbacks: (el: HTMLElement) => string[] | null;
         initFallback: (
-            el: HTMLImageElement & { __fallbackList?: string[]; __fallbackIndex?: number }
+            el: HTMLImageElement & {
+                __fallbackList?: string[];
+                __fallbackIndex?: number;
+                __fallbackTimer?: ReturnType<typeof setTimeout> | null;
+            }
+        ) => void;
+        clearFallbackTimer: (
+            el: HTMLImageElement & { __fallbackTimer?: ReturnType<typeof setTimeout> | null }
+        ) => void;
+        armFallbackTimer: (
+            el: HTMLImageElement & {
+                __fallbackList?: string[];
+                __fallbackIndex?: number;
+                __fallbackTimer?: ReturnType<typeof setTimeout> | null;
+            }
+        ) => void;
+        useNextFallback: (
+            el: HTMLImageElement & {
+                __fallbackList?: string[];
+                __fallbackIndex?: number;
+                __fallbackTimer?: ReturnType<typeof setTimeout> | null;
+            }
+        ) => boolean;
+        observeLazyFallbacks: (
+            imgs: NodeListOf<
+                HTMLImageElement & {
+                    __fallbackList?: string[];
+                    __fallbackIndex?: number;
+                    __fallbackTimer?: ReturnType<typeof setTimeout> | null;
+                }
+            >
         ) => void;
     };
     /** Asset preloader testing export */

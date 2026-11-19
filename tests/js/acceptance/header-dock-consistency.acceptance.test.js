@@ -123,9 +123,9 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
                 expect(link.getAttribute('href')).toBe(expected.href);
                 expect(link.getAttribute('aria-label')).toBe(expected.ariaLabel);
 
-                const icon = link.querySelector('i');
+                const icon = link.querySelector('svg.fa');
                 expect(icon).toBeTruthy();
-                expect(icon.className).toBe(expected.iconClass);
+                expect(icon.getAttribute('class')).toBe(expected.iconClass);
             });
         });
     });

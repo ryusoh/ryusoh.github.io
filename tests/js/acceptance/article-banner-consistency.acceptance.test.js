@@ -61,10 +61,14 @@ describe('Mobile banner consistency between main page and article pages', () => 
         });
     });
 
-    test('article pages do not load the standalone image fallback loader for the banner', () => {
+    test('article banners stay off the mirror while gallery photographs use the shared loader', () => {
         pages.forEach((pagePath) => {
             const html = fs.readFileSync(path.join(ROOT_DIR, pagePath), 'utf8');
-            expect(html).not.toMatch(/<script[^>]*src="[^"]*imageFallback\.js"[^>]*>/);
+            const banner = html.match(/<img[^>]*class="[^"]*mobile-banner[^"]*"[^>]*>/);
+            expect(banner).toBeTruthy();
+            expect(banner[0]).not.toMatch(/data-fallbacks=/);
+            expect(html).toMatch(/<script[^>]*src="[^"]*imageFallback\.js"[^>]*>/);
+            expect(html).toMatch(/<picture>[\s\S]*?data-fallbacks=/);
         });
     });
 

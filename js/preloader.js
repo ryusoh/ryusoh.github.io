@@ -182,7 +182,7 @@
             for (let i = 0; i < pageKeys.length; i++) {
                 const key = pageKeys[i];
                 if (this.assetSets[key] && this.assetSets[key].length > 0) {
-                    pageImageSets.push(this.assetSets[key]);
+                    pageImageSets.push(this.assetSets[key].slice(0, 1));
                 }
             }
 
@@ -258,15 +258,15 @@
         }
 
         /**
-         * Cross-page preloading is skipped on metered or slow connections so the
-         * ~150 background image requests don't compete with the current page's images.
+         * Only preload one hero per page on connections explicitly reporting
+         * fast, unmetered service. Safari lacks this API, so speculation is off.
          * @returns {boolean} - Whether background preloading is appropriate
          */
         shouldPreload() {
             const connection =
                 navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             if (!connection) {
-                return true;
+                return false;
             }
             if (connection.saveData) {
                 return false;

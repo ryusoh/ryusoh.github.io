@@ -139,6 +139,67 @@ describe('imageFallback.js', () => {
         expect(imgElement.__fallbackIndex).toBe(2);
     });
 
+    it('should switch a stalled visible image to its mirror fallback', () => {
+        imageFallback.clearFallbackTimer(imgElement);
+        jest.useFakeTimers();
+        imgElement.src = 'primary.avif';
+        imgElement.__fallbackIndex = 0;
+
+        imageFallback.armFallbackTimer(imgElement);
+        jest.advanceTimersByTime(1500);
+
+        expect(imgElement.src).toBe('url1.png');
+        expect(imgElement.__fallbackIndex).toBe(1);
+        jest.useRealTimers();
+    });
+
+    it('should cancel the slow-response fallback after a successful load', () => {
+        imageFallback.clearFallbackTimer(imgElement);
+        jest.useFakeTimers();
+        imgElement.src = 'primary.avif';
+        imageFallback.armFallbackTimer(imgElement);
+
+        imgElement.dispatchEvent(new Event('load', { bubbles: true }));
+        jest.advanceTimersByTime(1500);
+
+        expect(imgElement.src).toBe('primary.avif');
+        expect(imgElement.classList.contains('is-fallback-ready')).toBe(true);
+        jest.useRealTimers();
+    });
+
+    it('should arm lazy-image fallbacks only near the viewport', () => {
+        imageFallback.clearFallbackTimer(imgElement);
+        jest.useFakeTimers();
+        let intersectionCallback;
+        const observe = jest.fn();
+        const unobserve = jest.fn();
+        global.IntersectionObserver = jest.fn(function (callback) {
+            intersectionCallback = callback;
+            this.observe = observe;
+            this.unobserve = unobserve;
+        });
+
+        try {
+            imgElement.loading = 'lazy';
+            imageFallback.initFallback(imgElement);
+            imgElement.src = 'primary.avif';
+            imageFallback.observeLazyFallbacks(document.querySelectorAll('img[data-fallbacks]'));
+
+            expect(observe).toHaveBeenCalledWith(imgElement);
+            intersectionCallback([{ target: imgElement, isIntersecting: false }]);
+            jest.advanceTimersByTime(1500);
+            expect(imgElement.src).toBe('primary.avif');
+
+            intersectionCallback([{ target: imgElement, isIntersecting: true }]);
+            jest.advanceTimersByTime(1500);
+            expect(unobserve).toHaveBeenCalledWith(imgElement);
+            expect(imgElement.src).toBe('url1.png');
+        } finally {
+            delete global.IntersectionObserver;
+            jest.useRealTimers();
+        }
+    });
+
     it('should strip picture sources and srcset so the fallback src wins inside <picture>', () => {
         document.body.innerHTML = `
             <picture>

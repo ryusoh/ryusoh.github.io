@@ -59,6 +59,17 @@ describe('Project pages script and infrastructure consistency', () => {
         });
     });
 
+    test('all project pages load the image mirror fallback in the head', () => {
+        for (const pagePath of projectPages) {
+            const html = fs.readFileSync(path.join(ROOT_DIR, pagePath), 'utf8');
+            document.documentElement.innerHTML = html;
+            const loader = document.querySelector('head script[src$="loader/imageFallback.js"]');
+
+            expect(loader).not.toBeNull();
+            expect(loader.hasAttribute('defer')).toBe(true);
+        }
+    });
+
     test('all project pages have identical social dock icons and links', () => {
         const pageSocials = projectPages.map((pagePath) => {
             const html = fs.readFileSync(path.join(ROOT_DIR, pagePath), 'utf8');

@@ -118,45 +118,51 @@ const handleFetchCacheFirst = (event, req) => {
  * @param {FetchEvent} event
  * @param {Request} req
  */
-const handleFetchNetworkFirst = (event, req) => {
-    event.respondWith(
-        fetch(req)
-            .then((res) => {
-                if (isValidResponse(res, req)) {
-                    const resClone = res.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(req, resClone).catch((e) => {
-                            if (
-                                typeof self !== 'undefined' &&
-                                self.console &&
-                                typeof self.console.warn === 'function'
-                            ) {
-                                self.console.warn('[ServiceWorker] Cache put failed:', e);
-                            }
-                        });
+const handleFetchStaleWhileRevalidate = (event, req) => {
+    const networkResponse = fetch(req)
+        .then((res) => {
+            if (isValidResponse(res, req)) {
+                const cacheWrite = caches
+                    .open(CACHE_NAME)
+                    .then((cache) => cache.put(req, res.clone()))
+                    .catch((e) => {
+                        if (
+                            typeof self !== 'undefined' &&
+                            self.console &&
+                            typeof self.console.warn === 'function'
+                        ) {
+                            self.console.warn('[ServiceWorker] Cache put failed:', e);
+                        }
                     });
+                if (typeof event.waitUntil === 'function') {
+                    event.waitUntil(cacheWrite);
                 }
-                return res;
-            })
-            .catch((e) => {
-                if (
-                    typeof self !== 'undefined' &&
-                    self.console &&
-                    typeof self.console.warn === 'function'
-                ) {
-                    self.console.warn(
-                        '[ServiceWorker] Network fetch failed, falling back to cache:',
-                        e
-                    );
+            }
+            return res;
+        })
+        .catch((e) => {
+            if (
+                typeof self !== 'undefined' &&
+                self.console &&
+                typeof self.console.warn === 'function'
+            ) {
+                self.console.warn('[ServiceWorker] Network fetch failed, using cache:', e);
+            }
+            return null;
+        });
+
+    event.respondWith(
+        caches.match(req).then((cached) => {
+            if (cached) {
+                if (typeof event.waitUntil === 'function') {
+                    event.waitUntil(networkResponse);
                 }
-                const cachedRes = caches.match(req);
-                return cachedRes.then((res) => {
-                    if (res) {
-                        return res;
-                    }
-                    return new Response('', { status: 408, statusText: 'Request Timeout' });
-                });
-            })
+                return cached;
+            }
+            return networkResponse.then((res) => {
+                return res || new Response('', { status: 408, statusText: 'Request Timeout' });
+            });
+        })
     );
 };
 
@@ -203,18 +209,14 @@ const fetchLogic = (event) => {
         return;
     }
 
-    // Determine strategy based on file type
-    // Images & Fonts: Cache First (Immutable-ish, speed priority)
-    // HTML, JS, CSS: Network First (Mutable, freshness priority)
+    // Images & fonts are cache-first. Mutable shell resources render from
+    // cache when available and update in the background.
     const isImmutable = isImmutableFile(url, req.destination);
 
     if (isImmutable) {
-        // --- CACHE FIRST ---
         handleFetchCacheFirst(event, req);
     } else {
-        // --- NETWORK FIRST ---
-        // (Includes style, script, document, and everything else)
-        handleFetchNetworkFirst(event, req);
+        handleFetchStaleWhileRevalidate(event, req);
     }
 };
 
@@ -245,7 +247,7 @@ const testing = {
     CORE_ASSETS,
     isImmutableFile,
     handleFetchCacheFirst,
-    handleFetchNetworkFirst,
+    handleFetchStaleWhileRevalidate,
 };
 
 /* istanbul ignore else */

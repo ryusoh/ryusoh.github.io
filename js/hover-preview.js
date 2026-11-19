@@ -572,6 +572,10 @@
      * Initializes hover preview functionality on the page.
      */
     function initHoverPreview() {
+        if (isMobileOrTouch()) {
+            return;
+        }
+
         carouselEl = document.getElementById('hover-carousel');
         if (!carouselEl) {
             carouselEl = document.createElement('div');

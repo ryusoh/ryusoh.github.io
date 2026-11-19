@@ -81,7 +81,7 @@ describe('Service Worker', () => {
 
         mockCaches = {
             open: jest.fn().mockResolvedValue(mockCache),
-            match: jest.fn(),
+            match: jest.fn().mockResolvedValue(null),
             keys: jest.fn().mockResolvedValue(['ryusoh-cache-v1']),
             delete: jest.fn().mockResolvedValue(),
         };
@@ -366,7 +366,7 @@ describe('Service Worker', () => {
             });
         });
 
-        describe('Network First Strategy (Mutable Assets)', () => {
+        describe('Stale-While-Revalidate Strategy (Mutable Assets)', () => {
             beforeEach(() => {
                 event.request.destination = 'document';
                 event.request.url = 'http://localhost/index.html';
@@ -390,6 +390,28 @@ describe('Service Worker', () => {
                 expect(mockFetch).toHaveBeenCalledWith(event.request);
                 expect(mockCache.put).toHaveBeenCalledWith(event.request, 'cloned-response');
                 expect(res).toBe(mockFetchResponse);
+            });
+
+            test('should return a cached page immediately while revalidating it', async () => {
+                const cachedResponse = { ok: true, status: 200, body: 'cached' };
+                const networkResponse = {
+                    ok: true,
+                    status: 200,
+                    type: 'basic',
+                    headers: { get: () => null },
+                    clone: jest.fn().mockReturnValue('cloned-response'),
+                };
+                mockCaches.match.mockResolvedValue(cachedResponse);
+                mockFetch.mockResolvedValue(networkResponse);
+                event.waitUntil = jest.fn();
+
+                sw.fetchLogic(event);
+
+                const res = await event.respondWith.mock.calls[0][0];
+
+                expect(res).toBe(cachedResponse);
+                expect(mockFetch).toHaveBeenCalledWith(event.request);
+                expect(event.waitUntil).toHaveBeenCalled();
             });
 
             test('should gracefully handle cache put rejection in network first', async () => {

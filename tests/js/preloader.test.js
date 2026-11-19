@@ -100,16 +100,17 @@ describe('AssetPreloader', () => {
         expect(link.href).toContain('/assets/img/p1/DSCF4775-768.avif');
     });
 
-    test('should append multiple links to head when preloading assets', () => {
+    test('should preload only the hero image for each requested page', () => {
         const preloader = new AssetPreloader();
         const headSpy = jest.spyOn(context.document.head, 'appendChild');
 
-        preloader.preloadAssets(['p1']);
+        preloader.preloadAssets(['p1', 'p2']);
 
         expect(headSpy).toHaveBeenCalled();
-        expect(
-            context.document.head.querySelectorAll('link[rel="preload"]').length
-        ).toBeGreaterThan(0);
+        const links = context.document.head.querySelectorAll('link[rel="preload"]');
+        expect(links).toHaveLength(2);
+        expect(links[0].href).toContain('/assets/img/p1/DSCF4775-768.avif');
+        expect(links[1].href).toContain('/assets/img/p2/DSCF4295-2-768.avif');
     });
 
     test('init should register load event listener', () => {
@@ -124,6 +125,13 @@ describe('AssetPreloader', () => {
     });
 
     describe('preloadForCurrentPage', () => {
+        beforeEach(() => {
+            Object.defineProperty(window.navigator, 'connection', {
+                configurable: true,
+                value: { saveData: false, effectiveType: '4g' },
+            });
+        });
+
         test('should preload assets for other portfolio pages on p1', () => {
             const preloader = new AssetPreloader();
             jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p1');
@@ -248,15 +256,14 @@ describe('AssetPreloader', () => {
             expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4', 'p6', 'p5']);
         });
 
-        test('should preload when the Network Information API is unavailable', () => {
+        test('should not speculate when the Network Information API is unavailable', () => {
             const preloader = new AssetPreloader();
             expect(window.navigator.connection).toBeUndefined();
-            jest.spyOn(preloader, 'getCurrentPageKey').mockReturnValue('p1');
             jest.spyOn(preloader, 'preloadAssets').mockImplementation(() => {});
 
             preloader.preloadForCurrentPage();
 
-            expect(preloader.preloadAssets).toHaveBeenCalledWith(['p2', 'p3', 'p4', 'p6', 'p5']);
+            expect(preloader.preloadAssets).not.toHaveBeenCalled();
         });
     });
 
