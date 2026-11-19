@@ -27,7 +27,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const TEMPLATE_PATH = path.join(ROOT_DIR, 'scripts', 'templates', 'portfolio-shell.html');
 const SIZES_ATTR = '(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px';
 /* OSS image mirror for mainland-China fallback; see docs/china-image-mirror-plan.md */
-const MIRROR_ORIGIN = 'https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com';
+const MIRROR_ORIGIN = 'https://lyeutsaon-mirror.oss-cn-hangzhou.aliyuncs.com';
 
 /**
  * Sanitizes GPS coordinates and hardware serial numbers from a source JPEG image if present.

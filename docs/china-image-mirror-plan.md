@@ -112,6 +112,8 @@ that requires the mirror below.
    redundancy (LRS — the mirror is rebuildable from git, and ZRS is a
    one-way, pricier option), **public read**, versioning off. ✅ Done
    2026-10-09: `https://lyeutsaon.oss-cn-hangzhou.aliyuncs.com`
+   (migrated to `https://lyeutsaon-mirror.oss-cn-hangzhou.aliyuncs.com` on
+   2026-11-19 after `lyeutsaon` was purged past the 15-day suspension window)
    (Block Public Access disabled, 公共读 ACL, Referer whitelist
    `*.lyeutsaon.com` + empty referer + query-string truncation, billing
    alerts 50/80/100% of ¥100 + low-balance alert).
