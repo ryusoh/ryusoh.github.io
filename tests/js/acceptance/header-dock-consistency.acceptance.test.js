@@ -123,7 +123,7 @@ describe('Header Dock & Portfolio Link Style Consistency across Main and Article
                 expect(link.getAttribute('href')).toBe(expected.href);
                 expect(link.getAttribute('aria-label')).toBe(expected.ariaLabel);
 
-                const icon = link.querySelector('svg.fa');
+                const icon = link.querySelector('i.fa');
                 expect(icon).toBeTruthy();
                 expect(icon.getAttribute('class')).toBe(expected.iconClass);
             });
