@@ -981,10 +981,10 @@ article .container-narrow blockquote {
         'Syne', 'GlowSansSC-Extended-Bold', 'GlowSansSC-Extended-ExtraBold',
         'GlowSansSC-Extended-Heavy', 'Glow Sans SC Extended', '未来荧黑 宽体', '未来荧黑 Extended',
         '未来荧黑', 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 1.8em;
+    font-size: 1.25rem;
     font-weight: 700;
     letter-spacing: 0.05em;
-    padding: 28px 32px;
+    padding: 24px 28px;
     margin: var(--gallery-block-gap, 5px) 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
@@ -999,10 +999,11 @@ article blockquote p,
 .article-container blockquote p,
 article .container-narrow blockquote p {
     font-family: inherit;
-    font-size: 0.9em;
+    font-size: 1em;
     font-weight: inherit;
     letter-spacing: inherit;
-    line-height: 1.8;
+    line-height: 1.65;
+    text-wrap: pretty;
     margin: 10px 0;
     text-align: left !important;
 }
@@ -1059,6 +1060,7 @@ article .container-narrow blockquote footer cite:before {
     .post-content blockquote p,
     .article-container blockquote p,
     article .container-narrow blockquote p {
+        font-size: 0.9em;
         line-height: 1.6;
         text-align: left !important;
     }
