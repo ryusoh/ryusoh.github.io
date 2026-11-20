@@ -486,6 +486,7 @@ body {
     #cont.is-expanded nav {
         flex: 1 1 auto !important;
         min-height: 0 !important;
+        margin-top: 1.5em !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         overscroll-behavior: contain !important;
@@ -567,7 +568,8 @@ body {
         max-width: 100% !important;
         table-layout: fixed !important;
         box-sizing: border-box !important;
-        margin-top: 1.5em !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 
     #cont.is-expanded #nav {

@@ -39,6 +39,20 @@ describe('TDD: Mobile Dock Expand & Double-Click Navigation', () => {
         }
     });
 
+    test('mobile nav scroll container aligns top and bottom with the left border line of #nav', () => {
+        for (const cssFile of ['css/header.css', 'css/main_style.css']) {
+            const css = fs.readFileSync(path.join(ROOT_DIR, cssFile), 'utf8');
+            const mobileStart = css.indexOf('@media screen and (max-width: 449px)');
+            const mobileCss = css.slice(mobileStart);
+            const navRule = mobileCss.match(/#cont\.is-expanded\s+nav\s*\{[^}]*\}/)?.[0] || '';
+            const tableRule = mobileCss.match(/#cont\s+#nav\s*\{[^}]*\}/)?.[0] || '';
+
+            expect(navRule).toMatch(/margin-top:\s*1\.5em/);
+            expect(tableRule).toMatch(/margin-top:\s*0/);
+            expect(tableRule).toMatch(/margin-bottom:\s*0/);
+        }
+    });
+
     test('expanded mobile dock suppresses the fixed banner and footer icon so article titles stay unobstructed', () => {
         // The expanded sheet can reach the bottom of the viewport where the
         // fixed mobile banner and footer icon sit; both stylesheets must hide
