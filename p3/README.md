@@ -58,7 +58,9 @@ The chromatic spectrum profile charts the physical color evolution across sequen
 
 > **[Poetic Caesura: Musical Rest]**
 >
-> _The street photography series Aerobatic Activities presents a sophisticated visual ethnography, dedicated to delineating the vibrant, often fugitive, choreographies of West Coast street culture. The series transcends verisimilitude, functioning instead as a visual exploration that endeavors to transfigure the quotidian by imbuing it with the spectral luminosity of magical realism, thereby inviting a re-evaluation of the familiar._
+> _Gravity never had much authority out here._
+>
+> _Between loud color, blind nerve, and the sudden theater of the street, “Aerobatic Activities” catches the West Coast mid-flip: part celebration, part dare, always one beat from losing its footing._
 
 ---
 

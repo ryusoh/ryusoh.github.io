@@ -1,15 +1,17 @@
 ---
 title: "AEROBATIC ACTIVITIES"
-description: "Aerobatic Activities - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography."
+description: "Aerobatic Activities - A street photography series by Zhuang Liu catching West Coast street culture mid-flip: loud color, nerve, and sudden street theater."
 keywords:
   - "West Coast"
   - "street culture"
-  - "visual ethnography"
+  - "California street photography"
 ---
 
 DSCF7765.jpg
 
-> The street photography series Aerobatic Activities presents a sophisticated visual ethnography, dedicated to delineating the vibrant, often fugitive, choreographies of West Coast street culture. The series transcends verisimilitude, functioning instead as a visual exploration that endeavors to transfigure the quotidian by imbuing it with the spectral luminosity of magical realism, thereby inviting a re-evaluation of the familiar.
+> Gravity never had much authority out here.
+>
+> Between loud color, blind nerve, and the sudden theater of the street, “Aerobatic Activities” catches the West Coast mid-flip: part celebration, part dare, always one beat from losing its footing.
 
 DSCF7728.jpg
 DSCF7753-3.jpg
