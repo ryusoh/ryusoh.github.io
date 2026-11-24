@@ -1,4 +1,4 @@
-.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror mirror-check china-probe book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro
+.PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md markdownlint-fix depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror mirror-check china-probe book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro
 
 NPX ?= ./scripts/run-npx.sh
 
@@ -11,8 +11,9 @@ help:
 	@echo "  update-hooks  pre-commit autoupdate for hook repos"
 	@echo "  fmt-check     Run Prettier in check mode"
 	@echo "  fmt           Apply Prettier formatting"
-	@echo "  lint          Run JS/CSS lint (ESLint/Stylelint) + dependency-structure gate"
-	@echo "  lint-fix      Apply ESLint/Stylelint auto-fixes"
+	@echo "  lint          Run JS/CSS/MD lint (ESLint/Stylelint/markdownlint/box-align) + dependency-structure gate"
+	@echo "  lint-fix      Apply ESLint/Stylelint/Markdown auto-fixes"
+	@echo "  markdownlint-fix Auto-fix Markdown Unicode boxes and lint rules"
 	@echo "  type          JS strict type check (tsc --checkJs on whitelist)"
 	@echo "  thinking-check Stream-of-consciousness scan (comments, abandoned tests)"
 	@echo "  bot-pr-check  Bot commit hygiene (empty commits, placeholder files, test deletions)"
@@ -120,7 +121,8 @@ lint-css:
 	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --max-warnings=0 --formatter=unix
 
 lint-md:
-	@$(NPX) markdownlint-cli --config .markdownlint.json "**/*.md" --ignore node_modules --ignore .gemini
+	@python3 tools/check_md_boxes.py
+	@$(NPX) -y markdownlint-cli2@0.22.0 --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**"
 
 lint: lint-js lint-css lint-md depcheck
 
@@ -165,6 +167,11 @@ check: fmt-check lint type sync-check sync-pages-check thinking-check bot-pr-che
 lint-fix:
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true
 	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --fix --max-warnings=0 || true
+	@$(MAKE) markdownlint-fix
+
+markdownlint-fix:
+	@python3 tools/check_md_boxes.py --fix
+	@$(NPX) -y markdownlint-cli2@0.22.0 --fix --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**" || true
 
 fix: fmt lint-fix sync-pages
 

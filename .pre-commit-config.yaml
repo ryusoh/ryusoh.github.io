@@ -24,11 +24,32 @@ repos:
             exclude: ^data/.*\.csv$
           - id: detect-private-key
 
-    - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: v0.41.0
+    - repo: local
       hooks:
-          - id: markdownlint
-            args: ['--config', '.markdownlint.json']
+          - id: md-box-align
+            name: md-box-align (Unicode box diagrams in Markdown)
+            entry: python3 tools/check_md_boxes.py --fix
+            language: system
+            files: '\.md$'
+            exclude: ^\.claude/
+            pass_filenames: true
+            stages: [pre-commit, manual]
+
+    - repo: https://github.com/DavidAnson/markdownlint-cli2
+      rev: v0.22.0
+      hooks:
+          - id: markdownlint-cli2
+            args:
+                [
+                    '--config',
+                    '.markdownlint.json',
+                    '#node_modules/**',
+                    '#**/node_modules/**',
+                    '#venv/**',
+                    '#.venv/**',
+                    '#.qwen/**',
+                    '#.claude/**',
+                ]
 
     # JavaScript tooling (commit): format + lint
     - repo: local

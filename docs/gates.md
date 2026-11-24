@@ -60,6 +60,25 @@ Node.
 The same script runs as the `thinking-check` pre-commit hook in
 `.pre-commit-config.yaml`.
 
+## Markdown box alignment & lint (`make lint-md`)
+
+`make lint-md` runs two checks across repository Markdown:
+
+1. `python3 tools/check_md_boxes.py` verifies closed Unicode box-drawing
+   rectangles (`┌─┐ / │ │ / └─┘`) inside fenced code blocks have uniform display
+   widths (counting wide CJK characters as 2 cells). Open trees (`├──` / `└──`)
+   and unclosed flow diagrams are left untouched.
+2. `markdownlint-cli2` enforces `.markdownlint.json` (`MD060` is intentionally
+   omitted because generated `assets/img/p*/sequence-report.md` files use
+   compact pipe tables).
+
+`make markdownlint-fix` (also wired into `make lint-fix` and `make fix`) runs
+`python3 tools/check_md_boxes.py --fix` and `markdownlint-cli2 --fix`. In
+`.pre-commit-config.yaml`, `md-box-align` auto-fixes staged `.md` files (with
+`exclude: ^\.claude/` so generated commands stay synced from `.agents/skills/`)
+before `markdownlint-cli2` runs. Tests live in
+`tools/__tests__/test_check_md_boxes.py`.
+
 ## Bot PR hygiene gate (`make bot-pr-check`)
 
 `make bot-pr-check` runs `tools/check_bot_pr_hygiene.py`, a deterministic check
