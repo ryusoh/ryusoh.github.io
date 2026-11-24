@@ -97,19 +97,19 @@ dividers:
 ```markdown
 ---
 title: 'AEROBATIC ACTIVITIES'
-description: 'A street photography series by Zhuang Liu exploring West Coast street culture.'
+description: 'Aerobatic Activities - A street photography series by Zhuang Liu catching West Coast street culture mid-flip: loud color, nerve, and sudden street theater.'
 keywords:
-    - 'Zhuang Liu'
-    - 'street photography'
     - 'West Coast'
+    - 'street culture'
+    - 'California street photography'
 ogImage: 'DSCF7765.jpg'
 ---
 
 DSCF7765.jpg | A lone skater suspended in twilight over San Francisco asphalt
 
-> The street photography series Aerobatic Activities presents a sophisticated
-> visual ethnography, dedicated to delineating the vibrant choreographies of
-> West Coast street culture.
+> Gravity never had much authority out here.
+>
+> Between loud color, blind nerve, and the sudden theater of the street, “Aerobatic Activities” catches the West Coast mid-flip: part celebration, part dare, always one beat from losing its footing.
 
 DSCF7728.jpg
 DSCF7753-3.jpg
@@ -215,18 +215,14 @@ Compiles `p<N>/index.html` using the canonical portfolio shell template
   scripts (`page-transition.js`, `block-navigation.js`, `lenis-init.js`,
   `cursor-init.js`, etc.).
 
-### 4.3 Global Multi-Page Navigation Sync
+### 4.3 Global Multi-Page Navigation & SEO/GEO Sync (`scripts/seo.mjs` + `scripts/sync-pages.mjs`)
 
-When a new page `p<N>` is generated or synchronized:
+When a page `p<N>` is generated or `make sync-pages` runs:
 
-1. Discover all active portfolio pages (`p1`, `p2`, ..., `p<N>`).
-2. Read the project title for each page from its `index.md` or `index.html`.
-3. Re-render the `<nav aria-label="Portfolio projects">` table consistently
-   across:
-    - `index.html`
-    - `p1/index.html`, `p2/index.html`, `p3/index.html`, `p4/index.html`,
-      `p<N>/index.html`
-4. Update `this.assetSets` and `this.imageDirectories` in `js/preloader.js`.
+1. Discover all active portfolio pages (`p1`, `p2`, ..., `p<N>`) in nav display order.
+2. Hydrate missing `<img alt>` attributes from `assets/img/p<N>/commentary.json` (`.subject`), tag CJK `<blockquote>` elements with `lang="zh-Hant"`, resolve absolute hero `og:image` / `twitter:image` URLs and pixel dimensions, and inject Schema.org `@graph` JSON-LD (`BreadcrumbList`, `ImageGallery`, and per-plate `ImageObject` nodes with guest `.photo-credit` attribution preserved).
+3. Re-render the `<nav aria-label="Portfolio projects">` table and `@graph` JSON-LD consistently across `index.html`, `about/index.html`, and `p1/index.html`–`p<N>/index.html`.
+4. Regenerate `sitemap.xml` (including Google Image Sitemap `<image:image>` entries and `/about/`), `llms.txt`, `llms-full.txt`, and `js/preloader.js` (`this.assetSets` / `this.imageDirectories`).
 
 ---
 

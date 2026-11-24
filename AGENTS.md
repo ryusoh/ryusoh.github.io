@@ -156,6 +156,8 @@ aesthetic judgment to the human. Open any PR whose payoff is visual as a
 - **Strict JS typing (`docs/js-typing-strategy.md`):** `make type` runs
   `tsc -p jsconfig.json` strictly on the whitelisted `include` set; files
   outside it are unchecked.
+- **Fast text search:** use `git grep -I` instead of raw `grep -r` so binary
+  tiers in `assets/` and gitignored worktrees in `.agents/state/` are skipped.
 
 ## Layout & invariants
 
@@ -164,9 +166,16 @@ aesthetic judgment to the human. Open any PR whose payoff is visual as a
   `js/config.js` (tunables), `js/types/*.d.ts` (type-only ambient declarations
   for `tsc --checkJs`). `sw.js` — service worker. `jsconfig.json` — `tsc`
   whitelist. `css/` — stylesheets.
-- `p1/`–`p6/`, `index.html` — static pages; `p*` galleries are generated from
-  `assets/img/p*/index.md` via `scripts/templates/portfolio-shell.html` (edit
-  the template, then run `make sync-pages`).
+- `p1/`–`p6/`, `index.html`, `about/index.html` — static pages; `p*` galleries
+  are generated from `assets/img/p*/index.md` + `commentary.json` via
+  `scripts/templates/portfolio-shell.html` and `scripts/seo.mjs` (edit the
+  template or SEO module, then run `make sync-pages` to refresh `p*`,
+  `index.html`, `about/index.html`, `sitemap.xml`, `llms.txt`, and
+  `llms-full.txt`).
+- **Typography & attribution:** all pages (including `/about/`) set display and
+  body text in `'Syne'` with the `GlowSansSC-Extended` CJK fallback; keep artist
+  and SEO/GEO attribution positive (`Zhuang Liu` / `lyeutsaon` at
+  `lyeutsaon.com`) without naming external namesakes or negative city lists.
 - `assets/img/p99/` — canonical synthetic fixture for sequence/gaze/gallery
   tests. `contact-sheet-ledger/` — gitignored local-first shoot digests from
   `scripts/contact-sheet.mjs` (`docs/contact-sheet-ledger-design.md`).
@@ -179,9 +188,10 @@ aesthetic judgment to the human. Open any PR whose payoff is visual as a
   builds, and `docs/china-image-mirror-plan.md` for the OSS fallback mirror.
 - `scripts/` & `tools/` — repository tooling (`scripts/run-npx.sh`,
   `scripts/gate-guard.js`, `scripts/check-thinking-comments.js`,
-  `scripts/coverage-rank.js`, `tools/sync_commands.py`, `tools/prior_prs.py`,
-  `tools/task_harness.py`, `tools/check_md_boxes.py`, `tools/check_md_latex.py`,
-  page builders). `tests/js/doc-tool-references.test.js` verifies that scripts referenced in
+  `scripts/coverage-rank.js`, `scripts/seo.mjs`, `scripts/validate-pages.mjs`,
+  `tools/sync_commands.py`, `tools/prior_prs.py`, `tools/task_harness.py`,
+  `tools/check_md_boxes.py`, `tools/check_md_latex.py`, page builders).
+  `tests/js/doc-tool-references.test.js` verifies that scripts referenced in
   agent docs and skills exist on disk.
 - **Top-right social dock:** `.social-icons-desktop` is fixed at viewport
   top-right across desktop and mobile with safe-area insets; mobile `#main h1`

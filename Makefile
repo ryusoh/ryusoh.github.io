@@ -123,7 +123,7 @@ lint-css:
 lint-md:
 	@python3 tools/check_md_boxes.py
 	@python3 tools/check_md_latex.py
-	@$(NPX) -y markdownlint-cli2@0.22.0 --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**"
+	@$(NPX) -y markdownlint-cli2@0.22.0 --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.claude/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**"
 
 lint: lint-js lint-css lint-md depcheck
 
@@ -173,7 +173,7 @@ lint-fix:
 markdownlint-fix:
 	@python3 tools/check_md_boxes.py --fix
 	@python3 tools/check_md_latex.py --fix
-	@$(NPX) -y markdownlint-cli2@0.22.0 --fix --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**" || true
+	@$(NPX) -y markdownlint-cli2@0.22.0 --fix --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.claude/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**" || true
 
 fix: fmt lint-fix sync-pages
 

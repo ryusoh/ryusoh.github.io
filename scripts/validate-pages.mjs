@@ -63,7 +63,7 @@ function validateStructuredData(label, html, requiredGraphTypes) {
  * @param {string} html
  * @returns {number}
  */
-function validateProjectSeoHead(page, html) {
+function validateProjectSeoHead(page, html, expectedImageCount) {
     let errors = 0;
     const ogImageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
     const twImageMatch = html.match(/<meta\s+name="twitter:image"\s+content="([^"]+)"/i);
@@ -78,6 +78,26 @@ function validateProjectSeoHead(page, html) {
     }
 
     errors += validateStructuredData(page, html, ['BreadcrumbList', 'ImageGallery']);
+
+    const ldMatch = html.match(/<script\s+type="application\/ld\+json">([\s\S]*?)<\/script>/i);
+    if (ldMatch) {
+        try {
+            const parsed = JSON.parse(ldMatch[1]);
+            const gallery = (parsed['@graph'] || []).find((n) => n['@type'] === 'ImageGallery');
+            const mediaLen = Array.isArray(gallery?.associatedMedia)
+                ? gallery.associatedMedia.length
+                : -1;
+            if (mediaLen !== expectedImageCount) {
+                console.error(
+                    `[${page}] JSON-LD associatedMedia count (${mediaLen}) does not match gallery <img> count (${expectedImageCount}).`
+                );
+                errors++;
+            }
+        } catch {
+            // syntax error already counted by validateStructuredData
+        }
+    }
+
     return errors;
 }
 
@@ -266,7 +286,9 @@ export async function validateAllPages() {
             errorCount++;
         }
 
-        errorCount += validateProjectSeoHead(page, html);
+        const imgSrcMatches = [...html.matchAll(/<img\s+([^>]*?)src="([^"]+?)"([^>]*?)\/?>/g)];
+        const galleryImgMatches = imgSrcMatches.filter((m) => !m[0].includes('mobile-banner'));
+        errorCount += validateProjectSeoHead(page, html, galleryImgMatches.length);
 
         const mdPaths = [
             path.join(ROOT_DIR, 'assets', 'img', page, 'index.md'),
@@ -291,13 +313,11 @@ export async function validateAllPages() {
             }
         }
 
-        const imgSrcMatches = [...html.matchAll(/<img\s+([^>]*?)src="([^"]+?)"([^>]*?)\/?>/g)];
         let isFirstImg = true;
 
-        for (const match of imgSrcMatches) {
+        for (const match of galleryImgMatches) {
             const fullImgTag = match[0];
             const src = match[2];
-            if (fullImgTag.includes('mobile-banner')) continue;
 
             errorCount += await validateGalleryImgTag(
                 page,
