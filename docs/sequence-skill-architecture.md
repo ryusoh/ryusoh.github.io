@@ -169,7 +169,9 @@ For a gallery of $N$ images, evaluating all $N!$ sequence permutations (e.g. $N=
 
 The engine models the gallery as a directed graph $G = (V, E)$ where nodes $V$ represent images and edges $E$ possess a transition cost evaluated via a multi-objective Hamiltonian energy function ([Yao et al., 2023](https://arxiv.org/abs/2305.10601); [Zhou et al., 2024](https://arxiv.org/abs/2405.02189)):
 
-$$E(i, j) = w_{\text{chroma}} \cdot \frac{\Delta E_{76}(i, j)}{80} + w_{\text{lum}} \cdot \frac{|\Delta L(i, j)|}{255} + w_{\text{aspect}} \cdot \Delta \text{Aspect}(i, j) - w_{\text{semantic}} \cdot \mathcal{S}_{\text{rhyme}}(i, j)$$
+$$
+E(i, j) = w_{\text{chroma}} \cdot \frac{\Delta E_{76}(i, j)}{80} + w_{\text{lum}} \cdot \frac{|\Delta L(i, j)|}{255} + w_{\text{aspect}} \cdot \Delta \text{Aspect}(i, j) - w_{\text{semantic}} \cdot \mathcal{S}_{\text{rhyme}}(i, j)
+$$
 
 Where:
 
@@ -363,16 +365,21 @@ The 3D orientation is derived by fitting a 6-point landmark subset against Media
 - **Jacobi SVD**: Decompose $H = U \Sigma V^T$ via classical Jacobi plane rotations.
 - **Rotation Matrix**: $R = U \mathrm{diag}(1, 1, \det(U V^T)) V^T$.
 - **Tait-Bryan Angles**:
-  $$\text{Pitch} = \arcsin(-R_{1,2}), \quad \text{Yaw} = \mathrm{atan2}(R_{0,2}, R_{2,2}), \quad \text{Roll} = \mathrm{atan2}(R_{1,0}, R_{1,1})$$
+
+$$
+\text{Pitch} = \arcsin(-R_{1,2}), \quad \text{Yaw} = \mathrm{atan2}(R_{0,2}, R_{2,2}), \quad \text{Roll} = \mathrm{atan2}(R_{1,0}, R_{1,1})
+$$
 
 #### 3. Normalized Iris Vector & Eye-Contact Classification
 
 - **Left Eye**: Iris center index $468$, bounded by contour corners $33, 133, 159, 145$.
 - **Right Eye**: Iris center index $473$, bounded by contour corners $362, 263, 386, 374$.
-- **Normalized Offset**:
-  $$\Delta x = \frac{x_{\text{iris}} - x_{\text{center}}}{w_{\text{eye}} / 2}, \quad \Delta y = \frac{y_{\text{iris}} - y_{\text{center}}}{h_{\text{eye}} / 2}$$
+- **Normalized Offset**: $\Delta x = \frac{x_{\text{iris}} - x_{\text{center}}}{w_{\text{eye}} / 2}$, $\Delta y = \frac{y_{\text{iris}} - y_{\text{center}}}{h_{\text{eye}} / 2}$.
 - **Eye-Contact Invariant**: $\text{eyeContact} = \text{true}$ if and only if:
-  $$|\text{Yaw}| \le 15^\circ \land |\text{Pitch}| \le 15^\circ \land \sqrt{\Delta x_{\text{left}}^2 + \Delta y_{\text{left}}^2} \le 0.35 \land \sqrt{\Delta x_{\text{right}}^2 + \Delta y_{\text{right}}^2} \le 0.35$$
+
+$$
+|\text{Yaw}| \le 15^\circ \land |\text{Pitch}| \le 15^\circ \land \sqrt{\Delta x_{\text{left}}^2 + \Delta y_{\text{left}}^2} \le 0.35 \land \sqrt{\Delta x_{\text{right}}^2 + \Delta y_{\text{right}}^2} \le 0.35
+$$
 
 #### 4. CLI Usage & Model Management
 
@@ -519,9 +526,9 @@ To ensure test stability as artists actively curate, add, delete, and re-sequenc
     - `index.md`: Fixed sequence of 3 test images (`test1.jpg`, `test2.jpg | @test.photographer`, `test3.jpg`) with 1 poetic caesura quote.
     - `commentary.json`: Deterministic commentary mapping curatorial roles, subject vectors, and transitions.
     - Synthetic Images:
-        - `test1.jpg` (300×200, Exhalation $L^* \approx 14$) & `test1-768.webp`
-        - `test2.jpg` (300×200, Inhalation $L^* \approx 87$) & `test2-768.webp`
-        - `test3.jpg` (300×200, Neutral mid-tone $L^* \approx 51$) & `test3-768.webp`
+        - `test1.jpg` (300×200, Exhalation $L^{\ast} \approx 14$) & `test1-768.webp`
+        - `test2.jpg` (300×200, Inhalation $L^{\ast} \approx 87$) & `test2-768.webp`
+        - `test3.jpg` (300×200, Neutral mid-tone $L^{\ast} \approx 51$) & `test3-768.webp`
         - `test_outtake.jpg` (300×200, unsequenced candidate frame)
 2. **Hermetic Test Rule**:
     - Never write unit tests asserting on production galleries (`p1`–`p6`). Any change to a production photo essay (swapping an image, adding a frame) would immediately break coupled tests.

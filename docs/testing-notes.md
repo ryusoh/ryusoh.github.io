@@ -27,8 +27,8 @@ tests colliding on the same fixture ID risk deleting test assets during teardown
    structural invariants (e.g., banner presence, mobile overflow, dock markup).
 2. **Canonical Synthetic Fixture (`p99`)**: Permanent, version-controlled fixture
    at `assets/img/p99/`. Contains synthetic images with known dimensions and
-   calibrated tonal profiles (`test1.jpg` Exhalation $L^* \approx 14$, `test2.jpg`
-   Inhalation $L^* \approx 87$, `test3.jpg` Mid-tone $L^* \approx 51$, and
+   calibrated tonal profiles (`test1.jpg` Exhalation $L^{\ast} \approx 14$, `test2.jpg`
+   Inhalation $L^{\ast} \approx 87$, `test3.jpg` Mid-tone $L^{\ast} \approx 51$, and
    `test_outtake.jpg`), along with static `index.md` and `commentary.json`. All
    unit tests for sequence analysis, gaze estimation, and report generation must
    target `p99`. When invoking report generation CLI scripts in tests, always

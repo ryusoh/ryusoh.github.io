@@ -152,14 +152,14 @@ publication standards:
 
 1. **Modular 3-Figure Architecture (1 Graphic Per File):**
     - `sequence-waveform.svg`: Figure 1 — Photometric Luminance Waveform
-      $L^*(t) \in [0, 255]$ with shaded Inhalation/Exhalation zones and
+      $L^{\ast}(t) \in [0, 255]$ with shaded Inhalation/Exhalation zones and
       bounding-box-clamped poetic caesuras.
     - `sequence-transitions.svg`: Figure 2 — Pairwise Hamiltonian Transition
       Tension Decomposition ($\Delta E$, $\Delta\text{Lum}$,
       $\Delta\text{Aspect}$) with inset legend card inside the upper-right
       spine.
     - `sequence-colorimetry.svg`: Figure 3 — CIELAB Colorimetric Spectrum
-      ($L^_, a^_, b^*$) with elongated $92\text{px}$ swatches and metric aspect
+      ($L^{\ast}$, $a^{\ast}$, $b^{\ast}$) with elongated $92\text{px}$ swatches and metric aspect
       cadence.
 2. **Academic Typography & Inward Ticks:**
     - Serif font stack for titles, equations, and axis labels:

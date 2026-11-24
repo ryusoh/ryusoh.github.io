@@ -122,7 +122,7 @@ aesthetic judgment to the human. Open any PR whose payoff is visual as a
 | Full Jest suite + coverage report              | `make test`                                        |
 | Scoped JS test (fast, while iterating)         | `npx jest <path/to/test>`                          |
 | Lint JS / CSS / Markdown                       | `make lint-js` / `make lint-css` / `make lint-md`  |
-| Auto-fix Markdown boxes and lint rules         | `make markdownlint-fix`                            |
+| Auto-fix Markdown boxes, LaTeX, and lint rules | `make markdownlint-fix`                            |
 | JS strict type check (whitelist)               | `make type` / `npx tsc -p jsconfig.json`           |
 | Generated-commands freshness check             | `make sync-check`                                  |
 | Dependency-structure gate (no circular deps)   | `make depcheck`                                    |
@@ -180,8 +180,8 @@ aesthetic judgment to the human. Open any PR whose payoff is visual as a
 - `scripts/` & `tools/` — repository tooling (`scripts/run-npx.sh`,
   `scripts/gate-guard.js`, `scripts/check-thinking-comments.js`,
   `scripts/coverage-rank.js`, `tools/sync_commands.py`, `tools/prior_prs.py`,
-  `tools/task_harness.py`, `tools/check_md_boxes.py`, page builders).
-  `tests/js/doc-tool-references.test.js` verifies that scripts referenced in
+  `tools/task_harness.py`, `tools/check_md_boxes.py`, `tools/check_md_latex.py`,
+  page builders). `tests/js/doc-tool-references.test.js` verifies that scripts referenced in
   agent docs and skills exist on disk.
 - **Top-right social dock:** `.social-icons-desktop` is fixed at viewport
   top-right across desktop and mobile with safe-area insets; mobile `#main h1`

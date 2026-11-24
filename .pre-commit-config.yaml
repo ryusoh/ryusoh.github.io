@@ -34,6 +34,14 @@ repos:
             exclude: ^\.claude/
             pass_filenames: true
             stages: [pre-commit, manual]
+          - id: md-latex-fix
+            name: md-latex-fix (GitHub Markdown LaTeX formatting)
+            entry: python3 tools/check_md_latex.py --fix
+            language: system
+            files: '\.md$'
+            exclude: ^\.claude/
+            pass_filenames: true
+            stages: [pre-commit, manual]
 
     - repo: https://github.com/DavidAnson/markdownlint-cli2
       rev: v0.22.0

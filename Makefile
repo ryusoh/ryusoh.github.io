@@ -11,9 +11,9 @@ help:
 	@echo "  update-hooks  pre-commit autoupdate for hook repos"
 	@echo "  fmt-check     Run Prettier in check mode"
 	@echo "  fmt           Apply Prettier formatting"
-	@echo "  lint          Run JS/CSS/MD lint (ESLint/Stylelint/markdownlint/box-align) + dependency-structure gate"
+	@echo "  lint          Run JS/CSS/MD lint (ESLint/Stylelint/markdownlint/box-align/latex-fix) + dependency-structure gate"
 	@echo "  lint-fix      Apply ESLint/Stylelint/Markdown auto-fixes"
-	@echo "  markdownlint-fix Auto-fix Markdown Unicode boxes and lint rules"
+	@echo "  markdownlint-fix Auto-fix Markdown Unicode boxes, LaTeX, and lint rules"
 	@echo "  type          JS strict type check (tsc --checkJs on whitelist)"
 	@echo "  thinking-check Stream-of-consciousness scan (comments, abandoned tests)"
 	@echo "  bot-pr-check  Bot commit hygiene (empty commits, placeholder files, test deletions)"
@@ -122,6 +122,7 @@ lint-css:
 
 lint-md:
 	@python3 tools/check_md_boxes.py
+	@python3 tools/check_md_latex.py
 	@$(NPX) -y markdownlint-cli2@0.22.0 --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**"
 
 lint: lint-js lint-css lint-md depcheck
@@ -171,6 +172,7 @@ lint-fix:
 
 markdownlint-fix:
 	@python3 tools/check_md_boxes.py --fix
+	@python3 tools/check_md_latex.py --fix
 	@$(NPX) -y markdownlint-cli2@0.22.0 --fix --config .markdownlint.json "**/*.md" "#node_modules/**" "#**/node_modules/**" "#venv/**" "#.venv/**" "#.gemini/**" "#.qwen/**" "#.stryker-tmp/**" "#reports/**" "#.agents/state/**" "#contact-sheets/**" "#contact-sheet-ledger/**" "#.cache/**" || true
 
 fix: fmt lint-fix sync-pages

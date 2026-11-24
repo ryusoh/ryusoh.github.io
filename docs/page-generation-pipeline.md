@@ -496,8 +496,8 @@ without leaving permanent garbage in git.
    URL across all `p*/index.html` pages, assert that the exact file exists on the
    filesystem.
 2. **Dimension Fidelity**: Read the underlying source image on disk with `sharp`.
-   Assert:
-   $$\left|\frac{\text{HTML width}}{\text{HTML height}} - \frac{\text{Sharp width}}{\text{Sharp height}}\right| < 0.001$$
+   Assert
+   $\left|\frac{\text{HTML width}}{\text{HTML height}} - \frac{\text{Sharp width}}{\text{Sharp height}}\right| < 0.001$.
    This guarantees that no image is distorted or causes layout shift during
    render.
 3. **Responsive Source Syntax**: Verify that every `<picture>` has matching AVIF
