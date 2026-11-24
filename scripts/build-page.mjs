@@ -20,6 +20,16 @@ import {
     sortPagesForNav,
     formatHtml,
 } from './sync-pages.mjs';
+import {
+    DEFAULT_OG_IMAGE,
+    DEFAULT_OG_WIDTH,
+    DEFAULT_OG_HEIGHT,
+    escapeHtmlAttr,
+    loadCommentaryMap,
+    resolveImageAlt,
+    containsCjk,
+    toAbsoluteSiteUrl,
+} from './seo.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -324,6 +334,7 @@ export async function buildPage(pageId, options = {}) {
     }
 
     const { frontmatter, body } = parseMarkdownSource(mdPath);
+    const commentaryMap = loadCommentaryMap(ROOT_DIR, cleanId);
     const imgDir = path.join(ROOT_DIR, 'assets', 'img', cleanId);
     if (!fs.existsSync(imgDir)) {
         fs.mkdirSync(imgDir, { recursive: true });
@@ -335,6 +346,8 @@ export async function buildPage(pageId, options = {}) {
     let currentQuoteLines = [];
     let isFirstImage = true;
     let heroMeta = null;
+    let heroFilename = null;
+    let heroAlt = null;
 
     async function flushQuote() {
         if (currentQuoteLines.length === 0) return;
@@ -365,7 +378,8 @@ export async function buildPage(pageId, options = {}) {
             .join('\n');
 
         const parts = [paragraphs, footerHtml].filter(Boolean);
-        contentBlocks.push(`<blockquote>\n    ${parts.join('\n    ')}\n</blockquote>`);
+        const langAttr = containsCjk(rawQuote) ? ' lang="zh-Hant"' : '';
+        contentBlocks.push(`<blockquote${langAttr}>\n    ${parts.join('\n    ')}\n</blockquote>`);
     }
 
     for (let i = 0; i < lines.length; i++) {
@@ -414,13 +428,16 @@ export async function buildPage(pageId, options = {}) {
             imageFilenames.push(filename);
 
             const meta = await ensureImageVariants(imgDir, filename);
+            const resolvedAlt = resolveImageAlt(customAlt, commentaryMap, filename);
             if (isFirstImage) {
                 heroMeta = meta;
+                heroFilename = filename;
+                heroAlt = resolvedAlt;
             }
             const pictureHtml = buildPictureElement(
                 cleanId,
                 filename,
-                customAlt || 'Street photography by Zhuang Liu',
+                resolvedAlt,
                 meta,
                 isFirstImage,
                 credit
@@ -468,13 +485,32 @@ export async function buildPage(pageId, options = {}) {
     const keywordsList = Array.from(new Set([...BASE_KEYWORDS, ...extraKeywords]));
     const keywords = keywordsList.join(', ');
     const canonical = `https://www.lyeutsaon.com/${cleanId}/`;
+    const navLabel = getNavLabel(cleanId, title);
     const metaTitle = `${title} | Zhuang Liu Photography`;
     const metaDesc = description;
-    const ogImage = frontmatter.ogImage
-        ? frontmatter.ogImage.startsWith('.') || frontmatter.ogImage.startsWith('/')
-            ? frontmatter.ogImage
-            : `/assets/img/${cleanId}/${frontmatter.ogImage}`
-        : '../assets/img/og-image.png';
+    let ogImage = DEFAULT_OG_IMAGE;
+    let ogImageWidth = DEFAULT_OG_WIDTH;
+    let ogImageHeight = DEFAULT_OG_HEIGHT;
+    let ogImageAlt = escapeHtmlAttr(metaTitle);
+
+    if (frontmatter.ogImage) {
+        ogImage = toAbsoluteSiteUrl(frontmatter.ogImage, cleanId);
+        const relOgPath = ogImage.replace(/^https?:\/\/[^/]+\//, '');
+        const diskOgPath = path.join(ROOT_DIR, relOgPath);
+        if (fs.existsSync(diskOgPath)) {
+            const ogMeta = await sharp(diskOgPath).metadata();
+            ogImageWidth = ogMeta.width || DEFAULT_OG_WIDTH;
+            ogImageHeight = ogMeta.height || DEFAULT_OG_HEIGHT;
+        }
+        if (heroAlt) {
+            ogImageAlt = heroAlt;
+        }
+    } else if (heroMeta && heroFilename) {
+        ogImage = toAbsoluteSiteUrl(heroFilename, cleanId);
+        ogImageWidth = heroMeta.width;
+        ogImageHeight = heroMeta.height;
+        ogImageAlt = heroAlt || escapeHtmlAttr(metaTitle);
+    }
 
     const heroPreload = heroMeta
         ? `<link
@@ -489,6 +525,7 @@ export async function buildPage(pageId, options = {}) {
         : '';
 
     const pageData = {
+        navLabel,
         pageTitle,
         description,
         keywords,
@@ -496,6 +533,9 @@ export async function buildPage(pageId, options = {}) {
         metaTitle,
         metaDesc,
         ogImage,
+        ogImageWidth,
+        ogImageHeight,
+        ogImageAlt,
         heading,
         heroPreload,
         postContent,

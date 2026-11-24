@@ -422,6 +422,18 @@ footer a {
     pointer-events: auto;
 }
 
+.footer-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-about-link {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
 footer .mobile-banner {
     position: relative;
     left: auto;

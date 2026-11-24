@@ -48,3 +48,6 @@ contact-sheet-ledger/
 # (scripts/book.mjs). Whole-repo prettier must not fail on cached runs.
 .cache/book-img/
 .cache/book-runs/
+
+# Gitignored agent task state & sibling-sync worktrees (see .gitignore).
+.agents/state/

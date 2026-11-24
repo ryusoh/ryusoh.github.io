@@ -1,11 +1,39 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { load as yamlLoad } from 'js-yaml';
+import prettier from 'prettier';
+import {
+    SITE_ORIGIN,
+    DEFAULT_OG_IMAGE,
+    DEFAULT_OG_WIDTH,
+    DEFAULT_OG_HEIGHT,
+    GENERIC_IMAGE_ALT,
+    escapeHtmlAttr,
+    loadCommentaryMap,
+    hydratePostContentSeo,
+    toAbsoluteSiteUrl,
+    extractGalleryImagesFromHtml,
+    buildHomeJsonLd,
+    buildAboutJsonLd,
+    buildProjectStructuredDataScript,
+    buildImageSitemapXml,
+    buildLlmsTxt,
+    buildLlmsFullTxt,
+    serializeJsonLd,
+} from './seo.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const TEMPLATE_PATH = path.join(ROOT_DIR, 'scripts', 'templates', 'portfolio-shell.html');
+
+const BASE_KEYWORDS = [
+    'Zhuang Liu',
+    'Zhuang Liu photographer',
+    'Zhuang Liu photography',
+    'street photography',
+];
 
 /**
  * Nav display-order overrides: a page id maps to the sort position it should
@@ -47,12 +75,38 @@ export function getProjectPages() {
 }
 
 /**
+ * Reads frontmatter object from assets/img/<page>/index.md or <page>/index.md if present.
+ * @param {string} page
+ * @returns {Record<string, any>}
+ */
+function loadPageFrontmatter(page) {
+    const mdPaths = [
+        path.join(ROOT_DIR, 'assets', 'img', page, 'index.md'),
+        path.join(ROOT_DIR, page, 'index.md'),
+    ];
+    for (const mdPath of mdPaths) {
+        if (!fs.existsSync(mdPath)) {
+            continue;
+        }
+        const rawContent = fs.readFileSync(mdPath, 'utf8');
+        const fmMatch = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+        if (fmMatch) {
+            try {
+                return yamlLoad(fmMatch[1]) || {};
+            } catch {
+                return {};
+            }
+        }
+    }
+    return {};
+}
+
+/**
  * Extracts project title/nav label from index.md or index.html.
  * @param {string} page e.g. 'p1'
  * @returns {string} Project nav label
  */
 export function getProjectTitle(page) {
-    // 1. Check assets/img/p<N>/index.md or p<N>/index.md frontmatter
     const mdPaths = [
         path.join(ROOT_DIR, 'assets', 'img', page, 'index.md'),
         path.join(ROOT_DIR, page, 'index.md'),
@@ -64,7 +118,6 @@ export function getProjectTitle(page) {
             if (match && match[1].trim()) {
                 return match[1].trim();
             }
-            // First line might be title if not frontmatter
             const firstLine = content.split('\n')[0].trim();
             if (firstLine && !firstLine.startsWith('---')) {
                 return firstLine;
@@ -72,7 +125,6 @@ export function getProjectTitle(page) {
         }
     }
 
-    // 2. Fallback: extract from existing index.html nav link or heading
     const htmlPath = path.join(ROOT_DIR, page, 'index.html');
     if (fs.existsSync(htmlPath)) {
         const html = fs.readFileSync(htmlPath, 'utf8');
@@ -89,7 +141,6 @@ export function getProjectTitle(page) {
  * Standard project titles map for nice sentence/title case nav labels
  */
 export function getNavLabel(page, rawTitle) {
-    // Standard labels for existing pages
     const knownLabels = {
         p1: 'I Tear Up the Bay When I Come Through',
         p2: 'I Do Not Care If We Go Down in History as Barbarians',
@@ -100,7 +151,6 @@ export function getNavLabel(page, rawTitle) {
         return knownLabels[page.toLowerCase()];
     }
 
-    // If title is ALL CAPS, convert to Title Case for nav
     if (rawTitle && rawTitle === rawTitle.toUpperCase()) {
         return rawTitle
             .toLowerCase()
@@ -113,7 +163,7 @@ export function getNavLabel(page, rawTitle) {
 
 /**
  * Builds the <table id="nav"> tbody content for a given active page.
- * @param {string | null} activePage e.g. 'p1', or null for index.html
+ * @param {string | null} activePage e.g. 'p1', or null for index.html / about
  * @param {string[]} pages
  * @param {boolean} isRoot whether this is index.html
  * @returns {string}
@@ -167,28 +217,37 @@ export async function syncIndexNav(pages) {
 }
 
 /**
- * Parses existing page index.html into metadata and content slots.
+ * Parses existing page index.html (and index.md frontmatter/commentary) into metadata and content slots.
  */
 export function parseExistingPage(page) {
     const htmlPath = path.join(ROOT_DIR, page, 'index.html');
     const html = fs.readFileSync(htmlPath, 'utf8');
+    const frontmatter = loadPageFrontmatter(page);
+    const commentaryMap = loadCommentaryMap(ROOT_DIR, page);
 
-    // Title
+    const rawTitle = getProjectTitle(page);
+    const navLabel = getNavLabel(page, rawTitle);
+
     const titleMatch = html.match(/<title>(.*?)<\/title>/s);
-    const pageTitle = titleMatch ? titleMatch[1].trim() : getProjectTitle(page);
+    const pageTitle = titleMatch ? titleMatch[1].trim() : rawTitle;
 
-    // Meta Description
     const descMatch = html.match(/<meta\s+name="description"\s+content="([^"]*?)"\s*\/?>/s);
-    const description = descMatch ? descMatch[1].trim() : '';
+    const htmlDescription = descMatch ? descMatch[1].trim() : '';
+    const description =
+        typeof frontmatter.description === 'string' && frontmatter.description.trim()
+            ? frontmatter.description.trim()
+            : htmlDescription;
 
-    // Meta Keywords
     const keyMatch = html.match(/<meta\s+name="keywords"\s+content="([^"]*?)"\s*\/?>/s);
-    const keywords = keyMatch ? keyMatch[1].trim() : 'Zhuang Liu, photography, street photography';
+    const htmlKeywords = keyMatch
+        ? keyMatch[1].trim()
+        : 'Zhuang Liu, photography, street photography';
+    const keywords = Array.isArray(frontmatter.keywords)
+        ? Array.from(new Set([...BASE_KEYWORDS, ...frontmatter.keywords])).join(', ')
+        : htmlKeywords;
 
-    // Canonical & OG URL
-    const canonical = `https://www.lyeutsaon.com/${page}/`;
+    const canonical = `${SITE_ORIGIN}/${page}/`;
 
-    // OG Title & Desc
     const ogTitleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*?)"\s*\/?>/s);
     const metaTitle = ogTitleMatch
         ? ogTitleMatch[1].trim()
@@ -197,50 +256,80 @@ export function parseExistingPage(page) {
     const ogDescMatch = html.match(
         /<meta\s+property="og:description"\s+content="([^"]*?)"\s*\/?>/s
     );
-    const metaDesc = ogDescMatch ? ogDescMatch[1].trim() : description;
+    const metaDesc =
+        typeof frontmatter.description === 'string' && frontmatter.description.trim()
+            ? frontmatter.description.trim()
+            : ogDescMatch
+              ? ogDescMatch[1].trim()
+              : description;
 
-    // OG Image
-    const ogImgMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]*?)"\s*\/?>/s);
-    const ogImage = ogImgMatch ? ogImgMatch[1].trim() : '../assets/img/og-image.png';
-
-    // Heading
     const headingMatch = html.match(/<div class="post-heading">\s*<h1>(.*?)<\/h1>/s);
     const heading = headingMatch ? headingMatch[1].trim() : pageTitle;
 
-    // Post content
     const contentMatch = html.match(
         /<div class="container-narrow post-content">\s*([\s\S]*?)\s*<\/div>\s*<div class="project-footer">/
     );
-    const postContent = contentMatch ? contentMatch[1].trim() : '';
+    const rawPostContent = contentMatch ? contentMatch[1].trim() : '';
+    const postContent = hydratePostContentSeo(rawPostContent, commentaryMap);
+    const images = extractGalleryImagesFromHtml(postContent);
 
-    // Hero preload link
+    const ogImgMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]*?)"\s*\/?>/s);
+    const rawOgImg = ogImgMatch ? ogImgMatch[1].trim() : '';
+    const ogWidthMatch = html.match(/<meta\s+property="og:image:width"\s+content="(\d+)"\s*\/?>/s);
+    const ogHeightMatch = html.match(
+        /<meta\s+property="og:image:height"\s+content="(\d+)"\s*\/?>/s
+    );
+    const ogAltMatch = html.match(/<meta\s+property="og:image:alt"\s+content="([^"]*?)"\s*\/?>/s);
+
+    const isGenericOg =
+        !rawOgImg || rawOgImg.endsWith('/og-image.png') || rawOgImg === 'og-image.png';
+
+    let ogImage = DEFAULT_OG_IMAGE;
+    let ogImageWidth = ogWidthMatch ? parseInt(ogWidthMatch[1], 10) : DEFAULT_OG_WIDTH;
+    let ogImageHeight = ogHeightMatch ? parseInt(ogHeightMatch[1], 10) : DEFAULT_OG_HEIGHT;
+    let ogImageAlt = ogAltMatch ? ogAltMatch[1].trim() : escapeHtmlAttr(metaTitle);
+
+    if (frontmatter.ogImage) {
+        ogImage = toAbsoluteSiteUrl(frontmatter.ogImage, page);
+    } else if (isGenericOg && images.length > 0) {
+        ogImage = images[0].absUrl;
+        ogImageWidth = images[0].width;
+        ogImageHeight = images[0].height;
+        ogImageAlt = escapeHtmlAttr(images[0].alt);
+    } else if (rawOgImg) {
+        ogImage = toAbsoluteSiteUrl(rawOgImg, page);
+        if (images.length > 0 && ogImage === images[0].absUrl) {
+            ogImageWidth = images[0].width;
+            ogImageHeight = images[0].height;
+            if (!ogAltMatch || ogImageAlt === GENERIC_IMAGE_ALT) {
+                ogImageAlt = escapeHtmlAttr(images[0].alt);
+            }
+        }
+    }
+
     let heroPreload = '';
     const heroMatch = html.match(
         /<link\s+rel="preload"\s+as="image"[^>]*type="image\/avif"[^>]*\/?>/i
     );
     if (heroMatch) {
         heroPreload = heroMatch[0].trim();
-    } else {
-        const firstImgMatch = postContent.match(
-            /<img[^>]*src="(\/assets\/img\/[^/]+\/([^"]+?\.(jpe?g|JPG|png|webp|avif)))"/i
-        );
-        if (firstImgMatch) {
-            const pageDir = page;
-            const fullSrc = firstImgMatch[1];
-            const baseName = path.basename(fullSrc, path.extname(fullSrc));
-            heroPreload = `<link
+    } else if (images.length > 0) {
+        const fullSrc = images[0].src;
+        const baseName = path.basename(fullSrc, path.extname(fullSrc));
+        heroPreload = `<link
             rel="preload"
             as="image"
             type="image/avif"
-            href="/assets/img/${pageDir}/${baseName}-768.avif"
-            imagesrcset="/assets/img/${pageDir}/${baseName}-768.avif 768w, /assets/img/${pageDir}/${baseName}-1200.avif 1200w, /assets/img/${pageDir}/${baseName}.avif 2048w"
+            href="/assets/img/${page}/${baseName}-768.avif"
+            imagesrcset="/assets/img/${page}/${baseName}-768.avif 768w, /assets/img/${page}/${baseName}-1200.avif 1200w, /assets/img/${page}/${baseName}.avif 2048w"
             imagesizes="(max-width: 480px) 100vw, (max-width: 768px) 90vw, 900px"
             fetchpriority="high"
         />`;
-        }
     }
 
     return {
+        id: page,
+        navLabel,
         pageTitle,
         description,
         keywords,
@@ -248,9 +337,13 @@ export function parseExistingPage(page) {
         metaTitle,
         metaDesc,
         ogImage,
+        ogImageWidth,
+        ogImageHeight,
+        ogImageAlt,
         heading,
         heroPreload,
         postContent,
+        images,
     };
 }
 
@@ -259,24 +352,39 @@ export function parseExistingPage(page) {
  */
 export function renderProjectPage(page, data, pages, template) {
     const navRows = buildNavRows(page, pages, false);
+    const navLabel = data.navLabel || getNavLabel(page, getProjectTitle(page));
+    const ogImage = toAbsoluteSiteUrl(data.ogImage || '', page);
+    const ogImageWidth = String(data.ogImageWidth || DEFAULT_OG_WIDTH);
+    const ogImageHeight = String(data.ogImageHeight || DEFAULT_OG_HEIGHT);
+    const ogImageAlt = data.ogImageAlt || escapeHtmlAttr(data.metaTitle || navLabel);
+    const structuredData = buildProjectStructuredDataScript(page, {
+        navLabel,
+        heading: data.heading,
+        description: data.description,
+        canonical: data.canonical,
+        ogImage,
+        postContent: data.postContent,
+    });
 
-    let output = template
+    const output = template
         .replace(/{{PAGE_TITLE}}/g, data.pageTitle)
-        .replace(/{{DESCRIPTION}}/g, data.description)
-        .replace(/{{KEYWORDS}}/g, data.keywords)
+        .replace(/{{DESCRIPTION}}/g, escapeHtmlAttr(data.description))
+        .replace(/{{KEYWORDS}}/g, escapeHtmlAttr(data.keywords))
         .replace(/{{CANONICAL_URL}}/g, data.canonical)
-        .replace(/{{META_TITLE}}/g, data.metaTitle)
-        .replace(/{{META_DESCRIPTION}}/g, data.metaDesc)
-        .replace(/{{OG_IMAGE}}/g, data.ogImage)
+        .replace(/{{META_TITLE}}/g, escapeHtmlAttr(data.metaTitle))
+        .replace(/{{META_DESCRIPTION}}/g, escapeHtmlAttr(data.metaDesc))
+        .replace(/{{OG_IMAGE}}/g, ogImage)
+        .replace(/{{OG_IMAGE_WIDTH}}/g, ogImageWidth)
+        .replace(/{{OG_IMAGE_HEIGHT}}/g, ogImageHeight)
+        .replace(/{{OG_IMAGE_ALT}}/g, ogImageAlt)
         .replace(/{{HEADING}}/g, data.heading)
         .replace(/<!-- SLOT:HERO_PRELOAD -->/g, data.heroPreload || '')
         .replace(/<!-- SLOT:NAV_LINKS -->/g, navRows)
-        .replace(/<!-- SLOT:POST_CONTENT -->/g, data.postContent);
+        .replace(/<!-- SLOT:POST_CONTENT -->/g, data.postContent)
+        .replace(/<!-- SLOT:STRUCTURED_DATA -->/g, structuredData);
 
     return output;
 }
-
-import prettier from 'prettier';
 
 /**
  * Formats HTML string using repo's prettier configuration.
@@ -294,14 +402,16 @@ export async function formatHtml(html, filepath) {
 }
 
 /**
- * Synchronizes sitemap.xml with all active portfolio pages.
+ * Synchronizes sitemap.xml with all active portfolio pages and Google Image Sitemap entries.
  * @param {string[]} pages e.g. ['p1', 'p2', 'p3', 'p4']
  * @param {boolean} checkOnly
+ * @param {Array<ReturnType<typeof parseExistingPage>> | null} parsedPages
  * @returns {Promise<boolean>} whether sitemap drifted
  */
-export async function syncSitemap(pages, checkOnly = false) {
+export async function syncSitemap(pages, checkOnly = false, parsedPages = null) {
     const sitemapPath = path.join(ROOT_DIR, 'sitemap.xml');
     const today = new Date().toISOString().split('T')[0];
+    const hasAboutPage = fs.existsSync(path.join(ROOT_DIR, 'about', 'index.html'));
 
     const existingLastmods = new Map();
     let currentSitemap = '';
@@ -317,39 +427,99 @@ export async function syncSitemap(pages, checkOnly = false) {
         }
     }
 
-    const urls = [
-        `    <url>
-        <loc>https://www.lyeutsaon.com/</loc>
-        <lastmod>${existingLastmods.get('https://www.lyeutsaon.com/') || today}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>1.0</priority>
-    </url>`,
-    ];
+    const entries =
+        parsedPages ||
+        pages
+            .filter((p) => fs.existsSync(path.join(ROOT_DIR, p, 'index.html')))
+            .map((p) => parseExistingPage(p));
 
-    for (const page of pages) {
-        const pageLoc = `https://www.lyeutsaon.com/${page}/`;
-        const lastmod = existingLastmods.get(pageLoc) || today;
-        urls.push(`    <url>
-        <loc>${pageLoc}</loc>
-        <lastmod>${lastmod}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>`);
-    }
-
-    const expectedSitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('\n')}
-</urlset>\n`;
+    const expectedSitemap = buildImageSitemapXml(entries, existingLastmods, today, hasAboutPage);
 
     if (currentSitemap.trim() !== expectedSitemap.trim()) {
         if (checkOnly) {
             console.error('sync-pages: sitemap.xml is out of sync.');
             return true;
-        } else {
-            fs.writeFileSync(sitemapPath, expectedSitemap, 'utf8');
-            console.log('Synchronized sitemap.xml');
         }
+        fs.writeFileSync(sitemapPath, expectedSitemap, 'utf8');
+        console.log('Synchronized sitemap.xml');
+    }
+    return false;
+}
+
+/**
+ * Synchronizes llms.txt and llms-full.txt manifests for AI/LLM search grounding.
+ * @param {Array<ReturnType<typeof parseExistingPage>>} parsedPages
+ * @param {boolean} checkOnly
+ * @returns {boolean} whether either manifest drifted
+ */
+export function syncLlmsManifests(parsedPages, checkOnly = false) {
+    let drifted = false;
+    const llmsPath = path.join(ROOT_DIR, 'llms.txt');
+    const llmsFullPath = path.join(ROOT_DIR, 'llms-full.txt');
+
+    const expectedLlms = buildLlmsTxt(
+        parsedPages.map((p) => ({
+            id: p.id,
+            navLabel: p.navLabel,
+            canonical: p.canonical,
+            description: p.description,
+            imageCount: p.images.length,
+        }))
+    );
+    const expectedLlmsFull = buildLlmsFullTxt(parsedPages);
+
+    for (const [targetPath, expected, label] of [
+        [llmsPath, expectedLlms, 'llms.txt'],
+        [llmsFullPath, expectedLlmsFull, 'llms-full.txt'],
+    ]) {
+        const current = fs.existsSync(targetPath) ? fs.readFileSync(targetPath, 'utf8') : '';
+        if (current.trim() !== expected.trim()) {
+            if (checkOnly) {
+                console.error(`sync-pages: ${label} is out of sync.`);
+                drifted = true;
+            } else {
+                fs.writeFileSync(targetPath, expected, 'utf8');
+                console.log(`Synchronized ${label}`);
+            }
+        }
+    }
+    return drifted;
+}
+
+/**
+ * Synchronizes nav links and @graph JSON-LD in a non-gallery shell page (index.html or about/index.html).
+ */
+async function syncShellPage(htmlPath, pages, isRoot, jsonLdObj, label, checkOnly) {
+    if (!fs.existsSync(htmlPath)) {
+        return false;
+    }
+    const currentHtml = fs.readFileSync(htmlPath, 'utf8');
+    const navRows = buildNavRows(null, pages, isRoot);
+    let updatedHtml = currentHtml;
+
+    const navRegex =
+        /(<nav aria-label="Portfolio projects">\s*<table id="nav" role="presentation">\s*<tbody>)([\s\S]*?)(<\/tbody>\s*<\/table>\s*<\/nav>)/;
+    if (navRegex.test(updatedHtml)) {
+        updatedHtml = updatedHtml.replace(
+            navRegex,
+            `$1\n${navRows}\n</tbody>\n                    </table>\n                </nav>`
+        );
+    }
+
+    const ldRegex = /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i;
+    const ldBlock = `<script type="application/ld+json">\n${serializeJsonLd(jsonLdObj)}\n</script>`;
+    if (ldRegex.test(updatedHtml)) {
+        updatedHtml = updatedHtml.replace(ldRegex, ldBlock);
+    }
+
+    const formattedHtml = await formatHtml(updatedHtml, htmlPath);
+    if (formattedHtml !== currentHtml) {
+        if (checkOnly) {
+            console.error(`sync-pages: ${label} is out of sync.`);
+            return true;
+        }
+        fs.writeFileSync(htmlPath, formattedHtml, 'utf8');
+        console.log(`Synchronized ${label}`);
     }
     return false;
 }
@@ -366,7 +536,6 @@ export async function syncPreloaderAssets(pages, checkOnly = false) {
 
     const currentContent = fs.readFileSync(preloaderPath, 'utf8');
 
-    // Build imageDirectories and assetSets
     const imageDirectories = {};
     const assetSets = {};
 
@@ -424,7 +593,7 @@ export async function syncPreloaderAssets(pages, checkOnly = false) {
 }
 
 /**
- * Synchronizes all project pages and index.html navigation against the canonical template shell.
+ * Synchronizes all project pages, index.html, about/index.html, sitemap.xml, and llms.txt.
  * @param {boolean} checkOnly If true, only reports drift without writing files.
  * @returns {Promise<number>} Exit code (0 for success, 1 for drift in check mode).
  */
@@ -433,61 +602,73 @@ export async function syncAllPages(checkOnly = false) {
     const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
     let drifted = false;
 
-    // 1. Sync sitemap.xml
-    const sitemapDrifted = await syncSitemap(pages, checkOnly);
-    if (sitemapDrifted) drifted = true;
+    const parsedPages = pages
+        .filter((p) => fs.existsSync(path.join(ROOT_DIR, p, 'index.html')))
+        .map((p) => parseExistingPage(p));
 
-    // 2. Sync index.html navigation table
-    const indexPath = path.join(ROOT_DIR, 'index.html');
-    if (fs.existsSync(indexPath)) {
-        const currentIndexHtml = fs.readFileSync(indexPath, 'utf8');
-        const navRows = buildNavRows(null, pages, true);
-        const navRegex =
-            /(<nav aria-label="Portfolio projects">\s*<table id="nav" role="presentation">\s*<tbody>)([\s\S]*?)(<\/tbody>\s*<\/table>\s*<\/nav>)/;
-        if (navRegex.test(currentIndexHtml)) {
-            const rawNewIndexHtml = currentIndexHtml.replace(
-                navRegex,
-                `$1\n${navRows}\n</tbody>\n                    </table>\n                </nav>`
-            );
-            const formattedIndexHtml = await formatHtml(rawNewIndexHtml, indexPath);
-            if (formattedIndexHtml !== currentIndexHtml) {
-                if (checkOnly) {
-                    console.error('sync-pages: index.html navigation table is out of sync.');
-                    drifted = true;
-                } else {
-                    fs.writeFileSync(indexPath, formattedIndexHtml, 'utf8');
-                    console.log('Synchronized index.html navigation');
-                }
-            }
-        }
-    }
+    const projectSummaries = parsedPages.map((p) => ({
+        id: p.id,
+        label: p.navLabel,
+        canonical: p.canonical,
+        description: p.description,
+    }));
 
-    // 3. Sync all project pages
-    for (const page of pages) {
-        const htmlPath = path.join(ROOT_DIR, page, 'index.html');
-        if (!fs.existsSync(htmlPath)) continue;
-
+    // 1. Sync all project pages first so parsedPages reflects hydrated HTML
+    for (const data of parsedPages) {
+        const htmlPath = path.join(ROOT_DIR, data.id, 'index.html');
         const currentHtml = fs.readFileSync(htmlPath, 'utf8');
-        const data = parseExistingPage(page);
-        const rawRenderedHtml = renderProjectPage(page, data, pages, template);
+        const rawRenderedHtml = renderProjectPage(data.id, data, pages, template);
         const formattedRenderedHtml = await formatHtml(rawRenderedHtml, htmlPath);
 
         if (currentHtml.trim() !== formattedRenderedHtml.trim()) {
             if (checkOnly) {
                 console.error(
-                    `sync-pages: ${page}/index.html is out of sync with portfolio-shell.html.`
+                    `sync-pages: ${data.id}/index.html is out of sync with portfolio-shell.html.`
                 );
                 drifted = true;
             } else {
                 fs.writeFileSync(htmlPath, formattedRenderedHtml, 'utf8');
-                console.log(`Synchronized ${page}/index.html`);
+                console.log(`Synchronized ${data.id}/index.html`);
             }
         }
     }
 
-    // 4. Sync js/preloader.js asset sets
-    const preloaderDrifted = await syncPreloaderAssets(pages, checkOnly);
-    if (preloaderDrifted) drifted = true;
+    // 2. Sync sitemap.xml (with Google Image Sitemap entries)
+    if (await syncSitemap(pages, checkOnly, parsedPages)) {
+        drifted = true;
+    }
+
+    // 3. Sync llms.txt & llms-full.txt
+    if (syncLlmsManifests(parsedPages, checkOnly)) {
+        drifted = true;
+    }
+
+    // 4. Sync index.html navigation table & @graph JSON-LD
+    const indexDrifted = await syncShellPage(
+        path.join(ROOT_DIR, 'index.html'),
+        pages,
+        true,
+        buildHomeJsonLd(projectSummaries),
+        'index.html',
+        checkOnly
+    );
+    if (indexDrifted) drifted = true;
+
+    // 5. Sync about/index.html navigation table & ProfilePage JSON-LD (if present)
+    const aboutDrifted = await syncShellPage(
+        path.join(ROOT_DIR, 'about', 'index.html'),
+        pages,
+        false,
+        buildAboutJsonLd(projectSummaries),
+        'about/index.html',
+        checkOnly
+    );
+    if (aboutDrifted) drifted = true;
+
+    // 6. Sync js/preloader.js asset sets
+    if (await syncPreloaderAssets(pages, checkOnly)) {
+        drifted = true;
+    }
 
     if (checkOnly && drifted) {
         console.error('sync-pages FAIL: Pages are out of sync. Run "make sync-pages" to update.');

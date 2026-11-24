@@ -7,6 +7,7 @@ module.exports = [
             // StrykerJS sandbox copies of the whole repo (make mutate-js),
             // gitignored — jest.config.cjs excludes them too.
             '.stryker-tmp/**',
+            '.agents/state/**',
             'assets/**',
             'js/sketch.js',
             'js/vendor/**',

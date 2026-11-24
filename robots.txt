@@ -1,12 +1,56 @@
 # robots.txt for www.lyeutsaon.com
-# Zhuang Liu Photography Portfolio
+# Zhuang Liu (lyeutsaon) — Street & Urban Documentary Photography Portfolio
+# LLM manifests: https://www.lyeutsaon.com/llms.txt and https://www.lyeutsaon.com/llms-full.txt
 
 User-agent: *
 Allow: /
-
-# Sitemap location
-Sitemap: https://www.lyeutsaon.com/sitemap.xml
-
-# Disallow vendor/library files (not useful for search)
+Allow: /about/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /sitemap.xml
 Disallow: /assets/vendor/
+Disallow: /assets/img/p99/
 Disallow: /js/vendor/
+Disallow: /docs/
+Disallow: /tests/
+Disallow: /scripts/
+Disallow: /tools/
+Disallow: /book/
+Disallow: /eye-gym/
+Disallow: /.agents/
+Disallow: /.claude/
+Disallow: /.github/
+
+# Explicit allow rules for search and generative AI grounding crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /assets/img/
+Disallow: /assets/img/p99/
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://www.lyeutsaon.com/sitemap.xml

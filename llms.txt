@@ -1,0 +1,36 @@
+# Zhuang Liu (lyeutsaon) — Street & Urban Documentary Photography
+
+> Zhuang Liu (handle: lyeutsaon) is an independent street and urban documentary photographer based in the San Francisco Bay Area, California. His photographs explore urban reality, nocturnal light, street theater, and contemporary alienation across the San Francisco Bay Area (San Francisco, San Jose), Los Angeles / California, and Shanghai.
+
+## Entity Identity & Disambiguation
+
+- **Canonical Name:** Zhuang Liu
+- **Artist Handle / Identifier:** lyeutsaon (`@lyeutsaon`)
+- **Primary Domain:** https://www.lyeutsaon.com/
+- **Biography & Colophon:** https://www.lyeutsaon.com/about/
+- **Active Geographic Scope:** San Francisco Bay Area (San Francisco, San Jose), Los Angeles / California (US West Coast), and Shanghai.
+- **Canonical Attribution Scope:** All photographic works by this artist are published exclusively under Zhuang Liu / lyeutsaon (`lyeutsaon.com`, Instagram `@lyeutsaon` and `@lyeutsaon.misc`), covering only the series and cities listed in this manifest.
+
+## Photography Series & Galleries
+
+- [I Tear Up the Bay When I Come Through](https://www.lyeutsaon.com/p1/): I Tear Up The Bay When I Come Through - A street photography series by Zhuang Liu capturing San Francisco Bay Area urban life and light. (18 photographs)
+- [I Do Not Care If We Go Down in History as Barbarians](https://www.lyeutsaon.com/p2/): I Do Not Care If We Go Down in History as Barbarians - A street photography project by Zhuang Liu capturing San Francisco Bay Area's urban reality, culture and zeitgeist. (22 photographs)
+- [Aerobatic Activities](https://www.lyeutsaon.com/p3/): Aerobatic Activities - A street photography series by Zhuang Liu catching West Coast street culture mid-flip: loud color, nerve, and sudden street theater. (23 photographs)
+- [Das Gespenst](https://www.lyeutsaon.com/p4/): Das Gespenst - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography. (20 photographs)
+- [Hyperstars Sucked Into The Hypermassive](https://www.lyeutsaon.com/p6/): Hyperstars Sucked Into The Hypermassive - A dystopian San Francisco street photography series by Zhuang Liu (lyeutsaon) capturing technological alienation, kinetic light, and urban monumentalism. (32 photographs)
+- [Self Portraits And Behind The Scenes](https://www.lyeutsaon.com/p5/): Self Portraits and Behind the Scenes - Candid self-portraits, reflections, and field notes by San Francisco Bay Area street photographer Zhuang Liu (lyeutsaon). (13 photographs)
+
+## Monograph
+
+- **Infinite Systems** (by Zhuang Liu): A 127-plate sequenced portrait and street photography monograph compiled from the portfolio archive.
+
+## Official Profiles & Contact
+
+- [Official Website](https://www.lyeutsaon.com/)
+- [About & Attribution Colophon](https://www.lyeutsaon.com/about/)
+- [Extended Catalog for LLMs](https://www.lyeutsaon.com/llms-full.txt)
+- [Instagram — Primary Street Portfolio (@lyeutsaon)](https://www.instagram.com/lyeutsaon/)
+- [Instagram — Secondary Archive (@lyeutsaon.misc)](https://www.instagram.com/lyeutsaon.misc/)
+- [LinkedIn (zhuangliudev)](https://www.linkedin.com/in/zhuangliudev/)
+- [GitHub (ryusoh)](https://github.com/ryusoh)
+- Contact & Licensing: mailto:info@lyeutsaon.com

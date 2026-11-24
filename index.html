@@ -9,22 +9,25 @@
             }
         </style>
         <meta charset="utf-8" />
-        <title>Zhuang Liu</title>
+        <title>
+            Zhuang Liu — Street &amp; Urban Documentary Photography (San Francisco Bay Area)
+        </title>
         <link rel="shortcut icon" href="./assets/img/icon-180.png" type="image/png" />
         <link rel="icon" href="./assets/img/icon-180.png" type="image/png" />
         <link rel="apple-touch-icon" href="./assets/img/icon-180.png" />
         <link rel="bookmark" href="./assets/img/icon-180.png" type="image/png" />
         <link rel="canonical" href="https://www.lyeutsaon.com/" />
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM Context" />
         <meta name="author" content="Zhuang Liu" />
         <meta name="view-transition" content="same-origin" />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta
             name="description"
-            content="Zhuang Liu Photographer - Street photography portfolio featuring urban documentary work from San Francisco Bay Area. View Zhuang Liu photography collections."
+            content="Zhuang Liu (lyeutsaon) — San Francisco Bay Area street and urban documentary photographer. Explore photography series from San Francisco, San Jose, Los Angeles, and Shanghai."
         />
         <meta
             name="keywords"
-            content="Zhuang Liu, Zhuang Liu photographer, Zhuang Liu photography, street photography, San Francisco photographer, Bay Area photography, urban photography, documentary photography"
+            content="Zhuang Liu, lyeutsaon, Zhuang Liu photographer, Zhuang Liu photography, Zhuang Liu street photography, San Francisco street photographer, Bay Area documentary photography, Los Angeles street photography, Shanghai street photography"
         />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta
@@ -57,24 +60,39 @@
         />
 
         <!-- The Open Graph protocol -->
+        <meta property="og:site_name" content="Zhuang Liu Photography" />
         <meta property="og:url" content="https://www.lyeutsaon.com/" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Zhuang Liu" />
+        <meta
+            property="og:title"
+            content="Zhuang Liu (lyeutsaon) — Street &amp; Urban Documentary Photography"
+        />
         <meta property="og:image" content="https://www.lyeutsaon.com/assets/img/og-image.png" />
         <meta property="og:image:width" content="1447" />
         <meta property="og:image:height" content="965" />
         <meta
+            property="og:image:alt"
+            content="Street photography portfolio of Zhuang Liu (lyeutsaon)"
+        />
+        <meta
             property="og:description"
-            content="Zhuang Liu Photographer - Street photography portfolio from San Francisco Bay Area"
+            content="San Francisco Bay Area street and urban documentary photography portfolio by Zhuang Liu (lyeutsaon), featuring work from San Francisco, San Jose, Los Angeles, and Shanghai."
         />
 
         <!-- The Twitter Card protocol -->
-        <meta name="twitter:title" content="Zhuang Liu" />
+        <meta
+            name="twitter:title"
+            content="Zhuang Liu (lyeutsaon) — Street &amp; Urban Documentary Photography"
+        />
         <meta
             name="twitter:description"
-            content="Zhuang Liu Photographer - Street photography portfolio from San Francisco Bay Area"
+            content="San Francisco Bay Area street and urban documentary photography portfolio by Zhuang Liu (lyeutsaon), featuring work from San Francisco, San Jose, Los Angeles, and Shanghai."
         />
         <meta name="twitter:image" content="https://www.lyeutsaon.com/assets/img/og-image.png" />
+        <meta
+            name="twitter:image:alt"
+            content="Street photography portfolio of Zhuang Liu (lyeutsaon)"
+        />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://www.lyeutsaon.com/" />
 
@@ -182,8 +200,17 @@
                     "./assets/banners/banner.png"
                 ]'
             />
-            <!-- prettier-ignore -->
-            <a href="https://github.com/ryusoh" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile (opens in a new tab)"><i class="fa fa-github" aria-hidden="true"></i></a>
+            <div class="footer-links">
+                <a
+                    href="./about/"
+                    class="footer-about-link"
+                    data-page-transition
+                    data-destination="project"
+                    >About</a
+                >
+                <!-- prettier-ignore -->
+                <a href="https://github.com/ryusoh" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile (opens in a new tab)"><i class="fa fa-github" aria-hidden="true"></i></a>
+            </div>
         </footer>
 
         <script type="module" src="js/page-transition.js"></script>
@@ -192,29 +219,141 @@
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
-                "@type": "Person",
-                "name": "Zhuang Liu",
-                "alternateName": ["Zhuang Liu Photographer", "Zhuang Liu Photography"],
-                "url": "https://www.lyeutsaon.com/",
-                "image": "https://www.lyeutsaon.com/assets/img/avatar_100x100.png",
-                "description": "Zhuang Liu is a street photographer based in San Francisco Bay Area, specializing in urban documentary photography.",
-                "jobTitle": "Street Photographer",
-                "worksFor": {
-                    "@type": "Organization",
-                    "name": "Independent Photographer"
-                },
-                "sameAs": [
-                    "https://instagram.com/lyeutsaon",
-                    "https://instagram.com/lyeutsaon.misc",
-                    "https://www.linkedin.com/in/zhuangliudev/",
-                    "https://github.com/ryusoh"
-                ],
-                "knowsAbout": [
-                    "Street Photography",
-                    "Urban Photography",
-                    "Documentary Photography",
-                    "San Francisco",
-                    "Bay Area"
+                "@graph": [
+                    {
+                        "@type": "Person",
+                        "@id": "https://www.lyeutsaon.com/#person",
+                        "name": "Zhuang Liu",
+                        "alternateName": [
+                            "lyeutsaon",
+                            "Zhuang Liu (lyeutsaon)",
+                            "Zhuang Liu Photographer"
+                        ],
+                        "identifier": "lyeutsaon",
+                        "url": "https://www.lyeutsaon.com/",
+                        "mainEntityOfPage": "https://www.lyeutsaon.com/about/",
+                        "image": {
+                            "@type": "ImageObject",
+                            "url": "https://www.lyeutsaon.com/assets/img/p5/DSCF9004-3.jpg",
+                            "contentUrl": "https://www.lyeutsaon.com/assets/img/p5/DSCF9004-3.jpg",
+                            "width": 1946,
+                            "height": 1297,
+                            "caption": "Self-portrait by street photographer Zhuang Liu (lyeutsaon)"
+                        },
+                        "jobTitle": "Street and Urban Documentary Photographer",
+                        "description": "Zhuang Liu (lyeutsaon) is an independent street and urban documentary photographer based in the San Francisco Bay Area, working across San Francisco, San Jose, Los Angeles, and Shanghai.",
+                        "disambiguatingDescription": "San Francisco Bay Area street and urban documentary photographer publishing exclusively as lyeutsaon at lyeutsaon.com and @lyeutsaon on Instagram, with bodies of work photographed in California (San Francisco, San Jose, Los Angeles) and Shanghai.",
+                        "homeLocation": {
+                            "@type": "Place",
+                            "name": "San Francisco Bay Area, California, USA"
+                        },
+                        "workLocation": [
+                            {
+                                "@type": "City",
+                                "name": "San Francisco"
+                            },
+                            {
+                                "@type": "City",
+                                "name": "San Jose"
+                            },
+                            {
+                                "@type": "City",
+                                "name": "Los Angeles"
+                            },
+                            {
+                                "@type": "City",
+                                "name": "Shanghai"
+                            }
+                        ],
+                        "sameAs": [
+                            "https://www.instagram.com/lyeutsaon/",
+                            "https://www.instagram.com/lyeutsaon.misc/",
+                            "https://www.linkedin.com/in/zhuangliudev/",
+                            "https://github.com/ryusoh"
+                        ],
+                        "knowsAbout": [
+                            "Street Photography",
+                            "Urban Documentary Photography",
+                            "West Coast Street Culture",
+                            "Black and White Photography",
+                            "Visual Storytelling",
+                            "San Francisco Bay Area"
+                        ]
+                    },
+                    {
+                        "@type": "WebSite",
+                        "@id": "https://www.lyeutsaon.com/#website",
+                        "url": "https://www.lyeutsaon.com/",
+                        "name": "Zhuang Liu Photography",
+                        "alternateName": ["Zhuang Liu", "lyeutsaon", "lyeutsaon.com"],
+                        "inLanguage": "en",
+                        "creator": {
+                            "@id": "https://www.lyeutsaon.com/#person"
+                        },
+                        "publisher": {
+                            "@id": "https://www.lyeutsaon.com/#person"
+                        }
+                    },
+                    {
+                        "@type": "CollectionPage",
+                        "@id": "https://www.lyeutsaon.com/#collection",
+                        "url": "https://www.lyeutsaon.com/",
+                        "name": "Zhuang Liu — Street & Urban Documentary Photography Portfolio",
+                        "description": "Portfolio of street and urban documentary photography series by Zhuang Liu (lyeutsaon), photographed in the San Francisco Bay Area, Los Angeles, and Shanghai.",
+                        "isPartOf": {
+                            "@id": "https://www.lyeutsaon.com/#website"
+                        },
+                        "about": {
+                            "@id": "https://www.lyeutsaon.com/#person"
+                        },
+                        "creator": {
+                            "@id": "https://www.lyeutsaon.com/#person"
+                        },
+                        "hasPart": [
+                            {
+                                "@type": "ImageGallery",
+                                "@id": "https://www.lyeutsaon.com/p1/#gallery",
+                                "name": "I Tear Up the Bay When I Come Through",
+                                "url": "https://www.lyeutsaon.com/p1/",
+                                "description": "I Tear Up The Bay When I Come Through - A street photography series by Zhuang Liu capturing San Francisco Bay Area urban life and light."
+                            },
+                            {
+                                "@type": "ImageGallery",
+                                "@id": "https://www.lyeutsaon.com/p2/#gallery",
+                                "name": "I Do Not Care If We Go Down in History as Barbarians",
+                                "url": "https://www.lyeutsaon.com/p2/",
+                                "description": "I Do Not Care If We Go Down in History as Barbarians - A street photography project by Zhuang Liu capturing San Francisco Bay Area's urban reality, culture and zeitgeist."
+                            },
+                            {
+                                "@type": "ImageGallery",
+                                "@id": "https://www.lyeutsaon.com/p3/#gallery",
+                                "name": "Aerobatic Activities",
+                                "url": "https://www.lyeutsaon.com/p3/",
+                                "description": "Aerobatic Activities - A street photography series by Zhuang Liu catching West Coast street culture mid-flip: loud color, nerve, and sudden street theater."
+                            },
+                            {
+                                "@type": "ImageGallery",
+                                "@id": "https://www.lyeutsaon.com/p4/#gallery",
+                                "name": "Das Gespenst",
+                                "url": "https://www.lyeutsaon.com/p4/",
+                                "description": "Das Gespenst - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography."
+                            },
+                            {
+                                "@type": "ImageGallery",
+                                "@id": "https://www.lyeutsaon.com/p6/#gallery",
+                                "name": "Hyperstars Sucked Into The Hypermassive",
+                                "url": "https://www.lyeutsaon.com/p6/",
+                                "description": "Hyperstars Sucked Into The Hypermassive - A dystopian San Francisco street photography series by Zhuang Liu (lyeutsaon) capturing technological alienation, kinetic light, and urban monumentalism."
+                            },
+                            {
+                                "@type": "ImageGallery",
+                                "@id": "https://www.lyeutsaon.com/p5/#gallery",
+                                "name": "Self Portraits And Behind The Scenes",
+                                "url": "https://www.lyeutsaon.com/p5/",
+                                "description": "Self Portraits and Behind the Scenes - Candid self-portraits, reflections, and field notes by San Francisco Bay Area street photographer Zhuang Liu (lyeutsaon)."
+                            }
+                        ]
+                    }
                 ]
             }
         </script>

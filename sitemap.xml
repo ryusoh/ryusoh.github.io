@@ -1,45 +1,676 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
     <url>
         <loc>https://www.lyeutsaon.com/</loc>
-        <lastmod>2026-01-24</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>1.0</priority>
+        <lastmod>2026-11-24</lastmod>
+    </url>
+    <url>
+        <loc>https://www.lyeutsaon.com/about/</loc>
+        <lastmod>2026-11-24</lastmod>
     </url>
     <url>
         <loc>https://www.lyeutsaon.com/p1/</loc>
-        <lastmod>2026-01-24</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <lastmod>2026-11-24</lastmod>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF4775.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>Inside a dimly lit transit car, a solitary young passenger sits bowed forward, illuminated by a celestial, dramatic diagonal shaft of sunlight piercing through the darkness.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF8974-2.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>Through a fogged, reflective restaurant window marked &apos;MOSAIC&apos;, a silhouette in an LA baseball cap stands amidst a flare of ambient backlight and swirling smoke.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF0361-2.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A shirtless street performer or runner moving dynamically across a night plaza, captured in long exposure with vertical ribbons of shimmering light trailing behind their torso and limbs.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF8927-2.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>Direct flash portrait of a smiling Black man with an outstretched hand leaning beside a car, frozen against horizontal motion-blurred streaks of passing headlights and neon.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF8961-2.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>Three young companions gathered outside against a wall bearing typography (&apos;THE ART&apos;): a man in a backwards cap and wire glasses reaches out to adjust his friend&apos;s collar while another leans in behind them.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF7141.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A blonde man in an oversized leather trench coat strides along an open transit platform at night, bending forward beneath an electric canopy of sweeping overhead light trails.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/R0002885-2.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>The stark, three-legged silhouette of Sutro Tower piercing through brooding nocturnal fog and cloud layers over the pitch-black ridgeline of the San Francisco hills.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF2432-2.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A young man in a hooded white puffer jacket stands in the center of San Francisco tram tracks, enveloped in a dense billowing cloud of white tire smoke or street steam.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF6943.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A young man stands on a street crosswalk with closed eyes, a serene smile, and raised hands with splayed fingers, bathed in vertical ribbons of falling light trails like a celestial shower.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF2441-3.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A middle-aged Black man with an afro and beard walks through motion-blurred city crowds in a dark overcoat and striped shirt, his downward introspective gaze accompanied by a hooded companion behind.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF1157.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A firm handshake between an Asian man in a sharp jacket inside/beside a window and a fan in a sports jersey and cap, while a companion in thick glasses watches closely.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF5423-5.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>An extreme low-angle macro perspective dominated by the geometric circular tread and Jumpman logo of an Air Jordan 6 sole hovering directly over the lens, with a woman&apos;s blurred face visible in the shadows.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF1093.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A dense gathering of spectators viewed from behind, their heads and shoulders silhouetted against a radiant, blinding wave of pure white light washing over a storefront.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/286FC1B3-5576-440B-8718-2E872C98E713.JPG</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A hooded figure in a patterned Nike hoodie seen in three-quarter rear profile, crowned by a geometric, diamond-faceted canopy of reflected linear light rays resembling an origami halo.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF5891-9.JPG</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>High-angle perspective looking down upon a rain-soaked city avenue at night, where streaks of vehicle headlamps blur along the asphalt beneath silhouetted trees and shining storefronts.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF5903-2.JPG</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>Direct flash capture through the driver-side window of a woman behind the wheel of a classic car, staring forward with intense focus amidst wrapping ribbons of headlight trails.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF4402-8.jpg</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A self-portrait in a darkened mirror: the photographer holds a camera with an on-camera flash, defiantly raising a middle finger through a cascading ribcage of horizontal light trails.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p1/DSCF5916-4.JPG</image:loc>
+            <image:title>I Tear Up the Bay When I Come Through — Zhuang Liu</image:title>
+            <image:caption>A sleek Mustang in the midnight shadows, its rear glass dusted with dew, flanked and illuminated by two blinding white floodlight orbs blazing like twin supernovas into the lens.</image:caption>
+        </image:image>
     </url>
     <url>
         <loc>https://www.lyeutsaon.com/p2/</loc>
-        <lastmod>2026-01-24</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <lastmod>2026-11-24</lastmod>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF4295-2.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Outside a commercial storefront under sale banners, two women in white religious habits hold a sacred icon of the Madonna and Child before a man in a wheelchair, while a companion in a red hood passes him a bottle of alcohol.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF0883-3.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Low-angle street perspective looking up at towering skyscrapers: an older woman in a clear protective visor raises her hands in ecstatic prayer, flanked by street preachers holding vibrant signs reading &apos;DO NOT DIE WITHOUT KNOWING JESUS&apos;.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/R0002358.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Two middle-aged men leaning out of a red brick bar window, hands tightly clasped over the sill. The foreground man in a plain white t-shirt gazes directly into the lens with bloodshot, weathered eyes, while his companion watches with a sly grin.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF5163-8.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A woman in dark sunglasses, an ornate cream blouse, and a diaphanous pink tulle skirt strides forward carrying a shopping bag, flanked by male companions in sharp jackets in high-contrast afternoon sunlight.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF6795.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Seen from behind, a figure seated cross-legged on a sunlit San Francisco brick plaza wears a mustard-yellow hoodie over a red-and-white striped American flag cape and stars-and-stripes cap, holding up a hand-painted &apos;I LUV YOU&apos; placard topped with a small U.S. flag as two foreground pedestrians stride past in long-exposure motion blur beneath a massive rooftop &apos;TRUTH&apos; mural.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF8444-3.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A young Black traveler in a mustard-yellow jacket and backpack stands on a subway platform with crossed arms, casting a piercing, defiant backward glance as a golden BART train blurs past.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF8593-3.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Long-exposure motion blur capturing a flurry of pedestrians rushing across a Chinatown intersection under &apos;Fanloli&apos; and &apos;One Way&apos; street signs, with a stationary man in a blue shirt standing calm in the background.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF8402-3.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>An older Asian man in wire glasses and a dark jacket walks across a bold yellow zebra crossing at twilight, with corporate office lobbies and sleek vehicles looming in the reflective background.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF3433.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A young woman in an oversized grey sweatshirt sits perched on the sunroof of a vehicle at night, raising a joint or lighter toward the sky as glowing yellow streetlights streak around her.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/A20E2E39-AF83-4FD0-A6F7-3D2243A753DC.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A young woman in dark attire sits alone on a yellow concrete curb under atmospheric magenta and violet neon lighting outside a doorway, smoking a cigarette while on a phone call.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF0406-2.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A man in an afro, round spectacles, and a vintage paisley shirt lights a cigarette on a night crosswalk, surrounded by companions and dynamic amber ribbon-like light streaks.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF7203-9.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Outside &apos;The Cosmopolitan&apos; skyscraper under glowing red traffic signals, a man tilts his head back to exhale a dense white plume of vape smoke into the night air as bystanders in red outerwear look on.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF5150-4.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Chiaroscuro profile of an elderly Black gentleman wearing a black fedora and denim overalls, walking past classical fluted stone columns on a wet, reflective city pavement.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF8772.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A hooded figure sits curled in deep black shadow in a narrow street doorway, juxtaposed against a brightly colored mural featuring a weeping red rose and blue wooden panels.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF3495-2.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A young Black man with dreadlocks under a black hoodie stands beside a security gate, smoking with a golden watch glistening on his wrist amidst streaking red and white car light trails.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF0418-2.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Flash capture of a sudden commotion behind a black Nissan: friends rush to assist a woman on the asphalt as streaking red tail-lights and orange headlight flares slice across the frame.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF8739.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>An older woman with glasses on her forehead and a cigarette in her mouth commands the steering wheel of a GMC Yukon truck, captured in intense direct flash against swirling yellow and orange light trails.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF3487-3.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A young man seated in a patterned cape receives a haircut on a dark city street, surrounded by four friends holding up mobile phone flashlights and camera gimbals to illuminate the barber&apos;s clippers.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF3445-2.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Direct flash portrait of an older blonde woman with vibrant red lipstick in a flecked sweater, crossing her arms defensively against a textured deep-green exterior wall.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF7452.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>A young man in a black tank top stands under harsh fluorescent lighting making a payment at an automated parking station on a wooden boardwalk at night, flanked by stark warning signs reading &apos;LOST TICKETS ARE FINAL&apos;.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/R0004664.JPG</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>High-altitude horizon view of brilliant golden sunlight bursting through a narrow slit between massive indigo storm clouds over the darkening silhouette of the city below.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p2/DSCF2862-3.jpg</image:loc>
+            <image:title>I Do Not Care If We Go Down in History as Barbarians — Zhuang Liu</image:title>
+            <image:caption>Deep chiaroscuro close-up profile of a face illuminated only by the horizontal, blinding red and cyan glare of police cruiser emergency lights cutting through the total darkness.</image:caption>
+        </image:image>
     </url>
     <url>
         <loc>https://www.lyeutsaon.com/p3/</loc>
-        <lastmod>2026-01-24</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <lastmod>2026-11-24</lastmod>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF7765.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A female boxer landing a crisp punch against a pink speed bag mounted beneath a circular wooden rebound disc, set against a twilight gradient sky and silhouette palm fronds.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF7728.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A towering stepped altar drenched in golden marigolds (cempasúchil) for Día de los Muertos, with artisans and participants arranging offerings beneath a clear blue sky and soaring palm trees.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF7753-3.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>An acrobat hanging suspended upside down from high-flying trapeze cords against a pale sky, framed by structural climbing ladders and palm silhouettes.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF7186-2.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A costumed gorilla figure adorned with a glittering rhinestone crown and gold medallion (&apos;K&apos;) encountering a cyclist with a helmet-mounted light in a dark city park.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF3435.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>Two men outside at night against a luminous wall with a Mexican flag, one adjusting gear in a blue SF fitted cap while the other in glasses and jacket looks calmly at the camera.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF6946.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>An elder gentleman in a flat cap and floral-patterned shirt navigating an urban corridor, shadowed by sweeping amber and emerald kinetic light trails streaking overhead.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A woman laughing ecstatically in a fur-trimmed cap and floral jacket, multiplied by stroboscopic flash and encircled by radiant neon-blue and violet light ribbons.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF5338.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>Stroboscopic multiple exposure of young athletes on a night basketball court, eyes locked on a floating black ball beneath the backboard amidst slashing cyan and magenta light trails.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF0490.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>Low-angle architectural perspective looking up at ship or observation deck railings where spectators in colorful caps and jackets lean forward against a black sky.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/R0001972-4.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A man in a Golden State Warriors championship cap, gold-framed sunglasses, and white attire commanding the wheel of a classic automobile lined with plush blue shearling.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF4237-2.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A vibrant daytime street arcade scene where youth shoot mini-basketballs and a woman in a Warriors bucket hat claps in celebration, with basketballs suspended mid-bounce.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/IMG_4582.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A cohort of stylish youth walking abreast down a sunlit city pavement past storefronts, sporting masks, layered jackets, and distinctive personal aesthetics.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>Low-angle view of celebratory fans on an elevated ledge gesturing towards the camera in &apos;GOLD BLOODED&apos; attire against a mirrored glass skyscraper facade.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF8563-5.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A complex multi-figure street scene outside a storefront window: a woman with dreadlocks holding a beverage, a boy hiding his face in his hands, and a man in a durag smoking a cigar in the foreground.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF8671.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A man in a sharp tailored suit and a woman with bright golden curls nestled in a dense festive crowd, leaning together in deep concentration over a smartphone screen.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF3632.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>Direct flash portrait of a barber in a red beanie and denim apron staring into the lens, with a mirror behind him reflecting the camera&apos;s starburst specular highlight.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF1137.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A woman in a red 49ers jersey scrambling over the center console and seats inside a crowded vehicle at night, captured from the driver&apos;s perspective.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF7672-2.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>Close-up double exposure of a smiling woman sticking her tongue out, layered across a translucent field of American flag stars against an illuminated corporate entrance.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF1113.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A man in a 49ers jersey and red knit hat centered in the frame, enveloped by a swirling halo of golden, amber, and white kinetic light trails.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF3579.JPG</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A man in a blue Warriors sweatshirt pouring champagne into a red solo cup at an outdoor patio table lined with bottles, attended by friends in bright hoodies before a colorful mural.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF7318-3.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A man reclining on a tattoo table getting tattooed on his back while holding a beer, framed in the immediate foreground by a hand holding an iconic glass Coca-Cola bottle.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF5759-5.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>A silhouette of a driver flashing a hand sign through the window of a sleek classic vehicle, juxtaposed against the textured stone columns and historic windows of a monumental building.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p3/DSCF5719-3.jpg</image:loc>
+            <image:title>Aerobatic Activities — Zhuang Liu</image:title>
+            <image:caption>Low-key chiaroscuro flash portrait of a silver-haired man crossing his forearms in a protective &apos;X&apos; over his eyes, revealing calligraphic tattoos reading &apos;Zambos&apos; and &apos;Mundo&apos;.</image:caption>
+        </image:image>
     </url>
     <url>
         <loc>https://www.lyeutsaon.com/p4/</loc>
-        <lastmod>2026-08-16</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <lastmod>2026-11-24</lastmod>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF4250-3.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>A person in a denim jacket holding an exhibition poster for &apos;Araki / Daido: 400 Polaroids at Ratio 3&apos; directly over their face, standing before a grid of salon portrait headshots in blue flash light.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF4090.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>View from inside a dim, damp concrete zoo enclosure looking out through heavy glass, where two visitors shield their brows from the glare to peer inside.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF7212-2.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Sunlit corporate plaza outside a modern glass building (&apos;INNOVATION IS NOT A GAME&apos;), with a pedestrian walking into deep pillar shadows and a cyclist cutting across the foreground in stark silhouette.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF1897-2.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Direct low sunlight catching a woman in tinted sunglasses and an oversized grey coat talking on a phone before a dark doorway and a yellow sports billboard, with the distinct silhouette of the photographer cast on the left wall.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF8552-6.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Skater in a pink beanie standing on a stone balustrade overlooking a city avenue and luxury storefronts, wearing a pink t-shirt printed with giant crying cartoon manga eyes that stare directly back at the viewer.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF5453-2.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>A woman in a white t-shirt and jeans stands centered in front of a curved ochre building entryway and green elevator doors, holding grocery bags with her eyes closed in the warm sunlight.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF7352.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Looking through crisscrossed steel security gate lattice and dust-coated glass at an interior dance academy poster depicting leaping dancers in warm amber light.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/940E2644-C690-41F0-9898-0EFB79C69DC5.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>A rainy park scene viewed through a wide plate-glass window with horizontal neon green light streaks reflecting across the dark interior floor, as a woman in a coat and a cyclist move in opposite directions outside.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Direct high-power flash at night against a crowd on a ferry or observation deck, blowing out their backs and hair into glowing white silhouettes as they hold up glowing phones to record a distant skyline.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF9185.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>A man wearing a fedora and round glasses walking through a bustling urban alley, his face precisely bisected down the middle by a torn, sunlit white cloth hanging in the immediate foreground.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF8631.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>An elderly woman walking through heavy rain in Chinatown under a plaid umbrella, holding a folded Chinese newspaper over her brow and face to shield herself from the storm.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF0310-3.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Interior of a BART or metro train car with cobalt blue seats, where a solitary passenger is completely covered beneath a white bedsheet, curled in sleep next to the window reflection.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF6872-5.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>A woman with vibrant emerald-green hair and sunglasses standing on a sidewalk, holding a framed oil painting of the Golden Gate Bridge in front of her torso.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF9642-2.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Looking through a barbershop window at an older barber in a tweed flat cap and floral shirt preparing his shears, with layered reflections of mirrors, a young client, and street signs (&apos;BIGBUS SAN...&apos;).</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/R0001059-4.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>A person wearing a surgical mask seen through a storefront window framed in vivid red and lime green, structured by a 3x3 geometric grid of white squares with an &apos;I love service&apos; heart badge at the center.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF4110-2.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Looking through zoo viewing glass at a lone black gorilla seated on a grassy mound, overlaid with the ethereal reflection of the photographer in a baseball cap raising a camera.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF6250-6.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Intricate web of thousands of radiating cracks across a shattered glass pane centered on a white impact node, with blurry figures in hard hats dimly visible through the prismatic fractures.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF1207-5.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>Flash exposure on a dusk street capturing a man in a brown leather jacket holding his hand over his brow in a pained or defensive gesture, with moving cars and pedestrians blurred behind.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF3446-2.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>On the Hollywood Walk of Fame in full daylight, a hooded figure with a surgical mask pulled down holds up a massive industrial searchlight lantern directly at the camera lens.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p4/DSCF0896-2.jpg</image:loc>
+            <image:title>Das Gespenst — Zhuang Liu</image:title>
+            <image:caption>A street memorial on sunlit terracotta brick steps featuring an orange safety cone, fresh flowers, candles, liquor bottles, a taped photo of a man and dog (&apos;We will Miss you!&apos;), with the long dark shadow of the photographer standing over it.</image:caption>
+        </image:image>
     </url>
     <url>
         <loc>https://www.lyeutsaon.com/p6/</loc>
-        <lastmod>2026-09-01</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <lastmod>2026-11-24</lastmod>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF8985-2.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>An older man in a heavy fur hat turns a weary, haunted face into the direct flash on a night street, while behind him a colossal illuminated spire and motion-blurred towers tear across the dark sky and ghosted pedestrians drift through the traffic.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF8978.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man in a winter jacket stands at the mouth of a narrow night alley beside a parked car, his face calm and resigned under hard flash, while slow-shutter streaks dissolve the brick walls and tangled wires behind him.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0283-2.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A dense street-fair crowd in harsh daylight: a bald bearded man thrusts his forefinger directly at the viewer while the women beside him stare with guarded dread, an American flag and faded wall advertisements rising behind them.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF1649.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A woman in a traditional floral-embroidered dress drifts through a pan-blurred night crowd, her eyes closed and face lifted in serene absorption while the city smears into horizontal ribbons around her.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF9002-2.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A hooded shopkeeper stares into the flash from a cramped night street stall, holding out a boxed tool amid cash, cardboard, and pneumatic nailers, a vertical Chinese repair sign glowing on the doorpost beside him.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0759-2.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>Under stark flash at a night venue, a young man tips his cap with a direct performative gaze on the left while a woman in the right foreground stares past him into the middle distance, a third face framed through a rear window.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0548-3.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man in glasses turns a rightward profile against pitch blackness, crowned by an ethereal looping arc of white light trails that hovers above his skull like a jellyfish or a burning thought.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF1741.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man&apos;s translucent face floats superimposed over a blurred historic waterfront skyline, ghost pedestrians passing through his body in a slow-shutter double exposure.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF7178.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man in a cap descends into a marble stairwell corner sliced by a harsh diagonal banister, his downcast face doubled in a dark glass reflection beneath a looming hat-shaped shadow on the ceiling.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF1664.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man in a western denim vest with a beaded bracelet is engulfed by a tidal wave of overexposed motion-blurred light, his face tilted back, half-erased by the luminance surge.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF8998.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A stern man in a black wool coat glances back over his shoulder beside an ornate art-deco bronze gate, its circular floral medallions and rigid vertical bars gleaming under flash.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0175.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>In a dark forest clearing, a small figure in a wide-brimmed hat stands with its back to the camera over an empty basin, while dense white particles hang in the flash-lit air like radioactive snowfall among black tree trunks.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0617.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>In deep chiaroscuro, a young woman with half-painted sugar-skull makeup holds still amid floral headdresses and spiked ornaments, spectators reduced to black silhouettes in the foreground, the word &apos;MEXICO&apos; glinting from a jacket.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0324.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>Pure kinetic abstraction: hundreds of white light trails and spark filaments tear diagonally across the entire black frame, an explosion with no ground, no figure, no horizon.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0658-3.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man with his arm in a white sling stares directly into the flash with wide alarmed eyes, camouflage jacket half-wrapped in swirling ribbons of street light, ghost pedestrians passing behind him.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0297-3.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A packed nocturnal crowd under flash: a foreground man with sunglasses and suspenders grimaces downward while behind him faces, phones, and raised arms pile up beneath light dripping from the ceiling like static rain.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF1119.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>An older man in a flat cap crosses a dark street completely submerged in horizontal bands of blinding headlight streaks, his face floating half-erased above the ghost of a white sedan.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF7202-2.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A young man carries a small child upside-down over his shoulder on a graffiti-lined night sidewalk, both grinning with wild delight as white light streamers pour past them.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF7027-6.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A street concert crowd seen from above: a woman in the foreground grimaces at her own iPhone screen while arms around her raise glowing phones toward the stage, a suited man in a striped hat performing at the edge.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF3362-3.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A young man with curly hair leans motionless over his bicycle handlebars on a downtown avenue, staring unblinkingly into the lens, a paper bag on the bars, buses and a Metro sign dissolving behind him.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF8873-3.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>Beneath a looming glass tower and colossal glowing fashion billboards, a young man bends to light a cigarette, a woman leaning close beside him, light trails arcing through the commercial night.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF5378.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>Near-total blackness: a ghostly double-exposed face and turning body barely surface from the void, features smeared into smoke, one faint lamp glowing at the right edge.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF1924.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>An old man in a cap crosses a night street in sharp flash focus while the crowd around him — a denim jacket with a white monogram backpack, faces in mid-stride — streaks into translucent ghosts beneath rivers of light.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF2057.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>Two young women grin beneath an enormous detonation of white light that floods the upper frame, serpentine trails pouring over them, one clutching a drink, the other half-erased by the glare.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF9277.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man with slicked-back hair in a shiny puffer jacket strides forward with a stunned expression while radial zoom-burst streaks suck the entire street backward into the black periphery around him.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF2964-6.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>Two women in quilted coats share one black umbrella on a wet night street, leaning into each other as pan blur liquefies the cars and streetlights around them.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF9004-6.JPG</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A middle-aged man in wire-rimmed glasses and a windbreaker stands beside a white sedan while an entire sky of parabolic white light ribbons rushes over and around his calm, searching face.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF1906-2.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A man in glasses doubles over laughing into his own hand inside a blurred interior, chandelier light and ceiling ornaments smeared into soft streaks above him.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0245.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A classical stone angel blows a trumpet atop a monumental fountain before a grand civic building, while violent horizontal light trails and falling particles tear the night sky around the statue.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF1916-2.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>Women in wide-brimmed festival hats move through a flash-lit night crowd, one face ringed by a perfect circular halo of a white hat brim, phone glow and blurred bodies streaming between them.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0332_2.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>An older man with tousled pale hair stares upward and outward with wide startled eyes as a dense shower of white spark filaments rains across the frame, a floating cap and light ribbons suspended around him.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p6/DSCF0167-2.jpg</image:loc>
+            <image:title>Hyperstars Sucked Into The Hypermassive — Zhuang Liu</image:title>
+            <image:caption>A long-exposure nightscape: concentric star trails wheel across the entire sky above a dark sea, white cliffs and coastal succulents glowing in the lower frame, no human presence anywhere.</image:caption>
+        </image:image>
     </url>
     <url>
         <loc>https://www.lyeutsaon.com/p5/</loc>
-        <lastmod>2026-08-16</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
+        <lastmod>2026-11-24</lastmod>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF9004-3.jpg</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Monochrome, high-grain self-portrait of the photographer wearing a white helmet with both hands covering the face.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/2025-05-11-0020.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Self portrait by @photo.initiator</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF8059.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>A sunburst traffic mirror capturing a bustling intersection, pedestrians, open sky, and the photographer at the center focal point with camera raised.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/6adf762fee94f2f49e98757c54749236.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Self portrait by @yu_zeren_</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF1557-3.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Museum display of giraffe legs with transparent glass reflecting visitors, architectural columns, and exterior daylight.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF5407-2.jpg</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Self-portrait through textured, rain-spattered window glass reflecting street pavement and distant skyline towers.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF8149-7.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Photographer on a granite boulder at dusk overlooking Yosemite&apos;s Half Dome, illuminated by saturated, theatrical red light.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF8231.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Framed bar bathroom mirror covered in dense graffiti tags, stickers, and scrawls, reflecting the photographer taking a mirror selfie.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF0525.jpg</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Aerial high-angle nightscape of glowing city lights across a valley floor under falling snow dust.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Multiple-exposure stroboscopic motion blur in electric cobalt blue and magenta neon, showing the photographer&apos;s face repeated with a coiled sync cord.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF6274.JPG</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Photographer in beanie holding an off-camera flash in one hand connected by a coiled wire to the camera, illuminated by a warm diagonal ceiling beam.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/IMG760.jpg</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Self portrait by @photo.initiator</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.lyeutsaon.com/assets/img/p5/DSCF9159.jpg</image:loc>
+            <image:title>Self Portraits And Behind The Scenes — Zhuang Liu</image:title>
+            <image:caption>Shot from inside the refrigerator looking out at the photographer eating yogurt with a spoon late at night, glasses askew.</image:caption>
+        </image:image>
     </url>
 </urlset>

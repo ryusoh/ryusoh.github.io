@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { GENERIC_IMAGE_ALT, loadCommentaryMap, unescapeHtmlEntities } from './seo.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,7 @@ export function extractPageMarkdown(pageId) {
     }
 
     const html = fs.readFileSync(htmlPath, 'utf8');
+    const commentaryMap = loadCommentaryMap(ROOT_DIR, cleanId);
 
     // Title / Heading
     const headingMatch = html.match(/<div class="post-heading">\s*<h1>(.*?)<\/h1>/s);
@@ -62,8 +64,14 @@ export function extractPageMarkdown(pageId) {
             // Alt text
             const fullImg = match[0];
             const altMatch = fullImg.match(/alt="([^"]*?)"/);
-            const altText = altMatch ? altMatch[1].trim() : '';
-            if (altText && altText !== 'Street photography by Zhuang Liu' && altText !== 'Banner') {
+            const altText = unescapeHtmlEntities(altMatch ? altMatch[1].trim() : '');
+            const commentaryAlt = commentaryMap[filename]?.subject?.trim() || '';
+            if (
+                altText &&
+                altText !== GENERIC_IMAGE_ALT &&
+                altText !== commentaryAlt &&
+                altText !== 'Banner'
+            ) {
                 bodyLines.push(`${filename} | ${altText}`);
             } else {
                 bodyLines.push(filename);

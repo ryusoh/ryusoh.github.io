@@ -1,0 +1,292 @@
+# Zhuang Liu (lyeutsaon) — Street & Urban Documentary Photography
+
+> Zhuang Liu (handle: lyeutsaon) is an independent street and urban documentary photographer based in the San Francisco Bay Area, California. His photographs explore urban reality, nocturnal light, street theater, and contemporary alienation across the San Francisco Bay Area (San Francisco, San Jose), Los Angeles / California, and Shanghai.
+
+## Entity Identity & Disambiguation
+
+- **Canonical Name:** Zhuang Liu
+- **Artist Handle / Identifier:** lyeutsaon (`@lyeutsaon`)
+- **Primary Domain:** https://www.lyeutsaon.com/
+- **Biography & Colophon:** https://www.lyeutsaon.com/about/
+- **Active Geographic Scope:** San Francisco Bay Area (San Francisco, San Jose), Los Angeles / California (US West Coast), and Shanghai.
+- **Canonical Attribution Scope:** All photographic works by this artist are published exclusively under Zhuang Liu / lyeutsaon (`lyeutsaon.com`, Instagram `@lyeutsaon` and `@lyeutsaon.misc`), covering only the series and cities listed in this manifest.
+
+## Photography Series & Galleries
+
+- [I Tear Up the Bay When I Come Through](https://www.lyeutsaon.com/p1/): I Tear Up The Bay When I Come Through - A street photography series by Zhuang Liu capturing San Francisco Bay Area urban life and light. (18 photographs)
+- [I Do Not Care If We Go Down in History as Barbarians](https://www.lyeutsaon.com/p2/): I Do Not Care If We Go Down in History as Barbarians - A street photography project by Zhuang Liu capturing San Francisco Bay Area's urban reality, culture and zeitgeist. (22 photographs)
+- [Aerobatic Activities](https://www.lyeutsaon.com/p3/): Aerobatic Activities - A street photography series by Zhuang Liu catching West Coast street culture mid-flip: loud color, nerve, and sudden street theater. (23 photographs)
+- [Das Gespenst](https://www.lyeutsaon.com/p4/): Das Gespenst - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography. (20 photographs)
+- [Hyperstars Sucked Into The Hypermassive](https://www.lyeutsaon.com/p6/): Hyperstars Sucked Into The Hypermassive - A dystopian San Francisco street photography series by Zhuang Liu (lyeutsaon) capturing technological alienation, kinetic light, and urban monumentalism. (32 photographs)
+- [Self Portraits And Behind The Scenes](https://www.lyeutsaon.com/p5/): Self Portraits and Behind the Scenes - Candid self-portraits, reflections, and field notes by San Francisco Bay Area street photographer Zhuang Liu (lyeutsaon). (13 photographs)
+
+## Monograph
+
+- **Infinite Systems** (by Zhuang Liu): A 127-plate sequenced portrait and street photography monograph compiled from the portfolio archive.
+
+## Official Profiles & Contact
+
+- [Official Website](https://www.lyeutsaon.com/)
+- [About & Attribution Colophon](https://www.lyeutsaon.com/about/)
+- [Extended Catalog for LLMs](https://www.lyeutsaon.com/llms-full.txt)
+- [Instagram — Primary Street Portfolio (@lyeutsaon)](https://www.instagram.com/lyeutsaon/)
+- [Instagram — Secondary Archive (@lyeutsaon.misc)](https://www.instagram.com/lyeutsaon.misc/)
+- [LinkedIn (zhuangliudev)](https://www.linkedin.com/in/zhuangliudev/)
+- [GitHub (ryusoh)](https://github.com/ryusoh)
+- Contact & Licensing: mailto:info@lyeutsaon.com
+
+# Complete Series & Plate Catalog
+
+## I Tear Up the Bay When I Come Through
+
+- **URL:** https://www.lyeutsaon.com/p1/
+- **Summary:** I Tear Up The Bay When I Come Through - A street photography series by Zhuang Liu capturing San Francisco Bay Area urban life and light.
+- **Plate Count:** 18
+
+### Epigraphs & Series Notes
+
+> The sun goes down I feel the light betray me
+
+> Far from the world of you and I Where oceans bleed into the sky
+
+> God save us everyone Will we burn inside the fires of a thousand suns
+
+> When I close my eyes tonight To symphonies of blinding light
+
+> Lift me up, let me go Lift me up, let me go
+
+### Sequenced Plates
+
+1. `DSCF4775.jpg` — Inside a dimly lit transit car, a solitary young passenger sits bowed forward, illuminated by a celestial, dramatic diagonal shaft of sunlight piercing through the darkness.
+2. `DSCF8974-2.jpg` — Through a fogged, reflective restaurant window marked 'MOSAIC', a silhouette in an LA baseball cap stands amidst a flare of ambient backlight and swirling smoke.
+3. `DSCF0361-2.jpg` — A shirtless street performer or runner moving dynamically across a night plaza, captured in long exposure with vertical ribbons of shimmering light trailing behind their torso and limbs.
+4. `DSCF8927-2.jpg` — Direct flash portrait of a smiling Black man with an outstretched hand leaning beside a car, frozen against horizontal motion-blurred streaks of passing headlights and neon.
+5. `DSCF8961-2.jpg` — Three young companions gathered outside against a wall bearing typography ('THE ART'): a man in a backwards cap and wire glasses reaches out to adjust his friend's collar while another leans in behind them.
+6. `DSCF7141.jpg` — A blonde man in an oversized leather trench coat strides along an open transit platform at night, bending forward beneath an electric canopy of sweeping overhead light trails.
+7. `R0002885-2.jpg` — The stark, three-legged silhouette of Sutro Tower piercing through brooding nocturnal fog and cloud layers over the pitch-black ridgeline of the San Francisco hills.
+8. `DSCF2432-2.jpg` — A young man in a hooded white puffer jacket stands in the center of San Francisco tram tracks, enveloped in a dense billowing cloud of white tire smoke or street steam.
+9. `DSCF6943.jpg` — A young man stands on a street crosswalk with closed eyes, a serene smile, and raised hands with splayed fingers, bathed in vertical ribbons of falling light trails like a celestial shower.
+10. `DSCF2441-3.jpg` — A middle-aged Black man with an afro and beard walks through motion-blurred city crowds in a dark overcoat and striped shirt, his downward introspective gaze accompanied by a hooded companion behind.
+11. `DSCF1157.jpg` — A firm handshake between an Asian man in a sharp jacket inside/beside a window and a fan in a sports jersey and cap, while a companion in thick glasses watches closely.
+12. `DSCF5423-5.jpg` — An extreme low-angle macro perspective dominated by the geometric circular tread and Jumpman logo of an Air Jordan 6 sole hovering directly over the lens, with a woman's blurred face visible in the shadows.
+13. `DSCF1093.jpg` — A dense gathering of spectators viewed from behind, their heads and shoulders silhouetted against a radiant, blinding wave of pure white light washing over a storefront.
+14. `286FC1B3-5576-440B-8718-2E872C98E713.JPG` — A hooded figure in a patterned Nike hoodie seen in three-quarter rear profile, crowned by a geometric, diamond-faceted canopy of reflected linear light rays resembling an origami halo.
+15. `DSCF5891-9.JPG` — High-angle perspective looking down upon a rain-soaked city avenue at night, where streaks of vehicle headlamps blur along the asphalt beneath silhouetted trees and shining storefronts.
+16. `DSCF5903-2.JPG` — Direct flash capture through the driver-side window of a woman behind the wheel of a classic car, staring forward with intense focus amidst wrapping ribbons of headlight trails.
+17. `DSCF4402-8.jpg` — A self-portrait in a darkened mirror: the photographer holds a camera with an on-camera flash, defiantly raising a middle finger through a cascading ribcage of horizontal light trails.
+18. `DSCF5916-4.JPG` — A sleek Mustang in the midnight shadows, its rear glass dusted with dew, flanked and illuminated by two blinding white floodlight orbs blazing like twin supernovas into the lens.
+
+## I Do Not Care If We Go Down in History as Barbarians
+
+- **URL:** https://www.lyeutsaon.com/p2/
+- **Summary:** I Do Not Care If We Go Down in History as Barbarians - A street photography project by Zhuang Liu capturing San Francisco Bay Area's urban reality, culture and zeitgeist.
+- **Plate Count:** 22
+
+### Epigraphs & Series Notes
+
+> “I Do Not Care If We Go Down in History as Barbarians” is a long-standing street photography project dedicated to capturing and encapsulating the vanity, bewilderment, angst, and pain of the time we live in, intertwining with culture and zeitgeist of the modern-day SFBA and the photographer’s own weltanschauung, prise de risque, and upbringing. To carry out the project, Zhuang has been extensively and relentlessly pounding the pavements of San Francisco, San Jose, and beyond. Zhuang seeks to draw from the characters, the scenes, and the light in the photographs to articulate a statement, to make some noise, and to celebrate worlds that often go unseen.
+
+> In the first photograph, the man in a beanie was making a choice. When being offered the spiritual solace of religion and God, he decided to opt for the ephemeral material comfort of alcohol from his fellow man. Zhuang pressed the shutter as he strongly felt that the beanie man was voicing out a manifesto, and he wanted to deliver the message far and wide. We are the people; we are the drowned; we are the terribly forgotten and forsaken. Our dreams, beliefs, and prides are long long gone. And guess what’s the deal? We do not care if we go down in history as barbarians, not anymore.
+
+> Forever meant nothing / When we had nothing
+
+### Sequenced Plates
+
+1. `DSCF4295-2.JPG` — Outside a commercial storefront under sale banners, two women in white religious habits hold a sacred icon of the Madonna and Child before a man in a wheelchair, while a companion in a red hood passes him a bottle of alcohol.
+2. `DSCF0883-3.jpg` — Low-angle street perspective looking up at towering skyscrapers: an older woman in a clear protective visor raises her hands in ecstatic prayer, flanked by street preachers holding vibrant signs reading 'DO NOT DIE WITHOUT KNOWING JESUS'.
+3. `R0002358.JPG` — Two middle-aged men leaning out of a red brick bar window, hands tightly clasped over the sill. The foreground man in a plain white t-shirt gazes directly into the lens with bloodshot, weathered eyes, while his companion watches with a sly grin.
+4. `DSCF5163-8.JPG` — A woman in dark sunglasses, an ornate cream blouse, and a diaphanous pink tulle skirt strides forward carrying a shopping bag, flanked by male companions in sharp jackets in high-contrast afternoon sunlight.
+5. `DSCF6795.jpg` — Seen from behind, a figure seated cross-legged on a sunlit San Francisco brick plaza wears a mustard-yellow hoodie over a red-and-white striped American flag cape and stars-and-stripes cap, holding up a hand-painted 'I LUV YOU' placard topped with a small U.S. flag as two foreground pedestrians stride past in long-exposure motion blur beneath a massive rooftop 'TRUTH' mural.
+6. `DSCF8444-3.jpg` — A young Black traveler in a mustard-yellow jacket and backpack stands on a subway platform with crossed arms, casting a piercing, defiant backward glance as a golden BART train blurs past.
+7. `DSCF8593-3.jpg` — Long-exposure motion blur capturing a flurry of pedestrians rushing across a Chinatown intersection under 'Fanloli' and 'One Way' street signs, with a stationary man in a blue shirt standing calm in the background.
+8. `DSCF8402-3.jpg` — An older Asian man in wire glasses and a dark jacket walks across a bold yellow zebra crossing at twilight, with corporate office lobbies and sleek vehicles looming in the reflective background.
+9. `DSCF3433.jpg` — A young woman in an oversized grey sweatshirt sits perched on the sunroof of a vehicle at night, raising a joint or lighter toward the sky as glowing yellow streetlights streak around her.
+10. `A20E2E39-AF83-4FD0-A6F7-3D2243A753DC.JPG` — A young woman in dark attire sits alone on a yellow concrete curb under atmospheric magenta and violet neon lighting outside a doorway, smoking a cigarette while on a phone call.
+11. `DSCF0406-2.JPG` — A man in an afro, round spectacles, and a vintage paisley shirt lights a cigarette on a night crosswalk, surrounded by companions and dynamic amber ribbon-like light streaks.
+12. `DSCF7203-9.jpg` — Outside 'The Cosmopolitan' skyscraper under glowing red traffic signals, a man tilts his head back to exhale a dense white plume of vape smoke into the night air as bystanders in red outerwear look on.
+13. `DSCF5150-4.JPG` — Chiaroscuro profile of an elderly Black gentleman wearing a black fedora and denim overalls, walking past classical fluted stone columns on a wet, reflective city pavement.
+14. `DSCF8772.jpg` — A hooded figure sits curled in deep black shadow in a narrow street doorway, juxtaposed against a brightly colored mural featuring a weeping red rose and blue wooden panels.
+15. `DSCF3495-2.jpg` — A young Black man with dreadlocks under a black hoodie stands beside a security gate, smoking with a golden watch glistening on his wrist amidst streaking red and white car light trails.
+16. `DSCF0418-2.JPG` — Flash capture of a sudden commotion behind a black Nissan: friends rush to assist a woman on the asphalt as streaking red tail-lights and orange headlight flares slice across the frame.
+17. `DSCF8739.jpg` — An older woman with glasses on her forehead and a cigarette in her mouth commands the steering wheel of a GMC Yukon truck, captured in intense direct flash against swirling yellow and orange light trails.
+18. `DSCF3487-3.jpg` — A young man seated in a patterned cape receives a haircut on a dark city street, surrounded by four friends holding up mobile phone flashlights and camera gimbals to illuminate the barber's clippers.
+19. `DSCF3445-2.jpg` — Direct flash portrait of an older blonde woman with vibrant red lipstick in a flecked sweater, crossing her arms defensively against a textured deep-green exterior wall.
+20. `DSCF7452.JPG` — A young man in a black tank top stands under harsh fluorescent lighting making a payment at an automated parking station on a wooden boardwalk at night, flanked by stark warning signs reading 'LOST TICKETS ARE FINAL'.
+21. `R0004664.JPG` — High-altitude horizon view of brilliant golden sunlight bursting through a narrow slit between massive indigo storm clouds over the darkening silhouette of the city below.
+22. `DSCF2862-3.jpg` — Deep chiaroscuro close-up profile of a face illuminated only by the horizontal, blinding red and cyan glare of police cruiser emergency lights cutting through the total darkness.
+
+## Aerobatic Activities
+
+- **URL:** https://www.lyeutsaon.com/p3/
+- **Summary:** Aerobatic Activities - A street photography series by Zhuang Liu catching West Coast street culture mid-flip: loud color, nerve, and sudden street theater.
+- **Plate Count:** 23
+
+### Epigraphs & Series Notes
+
+> Gravity never had much authority out here. Between loud color, blind nerve, and the sudden theater of the street, “Aerobatic Activities” catches the West Coast mid-flip: part celebration, part dare, always one beat from losing its footing.
+
+> I've been laying / Waiting for your next mistake
+
+### Sequenced Plates
+
+1. `DSCF7765.jpg` — A female boxer landing a crisp punch against a pink speed bag mounted beneath a circular wooden rebound disc, set against a twilight gradient sky and silhouette palm fronds.
+2. `DSCF7728.jpg` — A towering stepped altar drenched in golden marigolds (cempasúchil) for Día de los Muertos, with artisans and participants arranging offerings beneath a clear blue sky and soaring palm trees.
+3. `DSCF7753-3.jpg` — An acrobat hanging suspended upside down from high-flying trapeze cords against a pale sky, framed by structural climbing ladders and palm silhouettes.
+4. `DSCF7186-2.jpg` — A costumed gorilla figure adorned with a glittering rhinestone crown and gold medallion ('K') encountering a cyclist with a helmet-mounted light in a dark city park.
+5. `DSCF3435.JPG` — Two men outside at night against a luminous wall with a Mexican flag, one adjusting gear in a blue SF fitted cap while the other in glasses and jacket looks calmly at the camera.
+6. `DSCF6946.jpg` — An elder gentleman in a flat cap and floral-patterned shirt navigating an urban corridor, shadowed by sweeping amber and emerald kinetic light trails streaking overhead.
+7. `8B0245DC-4C12-4CD1-A6B0-96883BFAF25B.JPG` — A woman laughing ecstatically in a fur-trimmed cap and floral jacket, multiplied by stroboscopic flash and encircled by radiant neon-blue and violet light ribbons.
+8. `DSCF5338.JPG` — Stroboscopic multiple exposure of young athletes on a night basketball court, eyes locked on a floating black ball beneath the backboard amidst slashing cyan and magenta light trails.
+9. `DSCF0490.JPG` — Low-angle architectural perspective looking up at ship or observation deck railings where spectators in colorful caps and jackets lean forward against a black sky.
+10. `R0001972-4.JPG` — A man in a Golden State Warriors championship cap, gold-framed sunglasses, and white attire commanding the wheel of a classic automobile lined with plush blue shearling.
+11. `DSCF4237-2.jpg` — A vibrant daytime street arcade scene where youth shoot mini-basketballs and a woman in a Warriors bucket hat claps in celebration, with basketballs suspended mid-bounce.
+12. `IMG_4582.jpg` — A cohort of stylish youth walking abreast down a sunlit city pavement past storefronts, sporting masks, layered jackets, and distinctive personal aesthetics.
+13. `B5B35521-9A08-4B1C-AAB3-429D75A3769E.JPG` — Low-angle view of celebratory fans on an elevated ledge gesturing towards the camera in 'GOLD BLOODED' attire against a mirrored glass skyscraper facade.
+14. `DSCF8563-5.jpg` — A complex multi-figure street scene outside a storefront window: a woman with dreadlocks holding a beverage, a boy hiding his face in his hands, and a man in a durag smoking a cigar in the foreground.
+15. `DSCF8671.JPG` — A man in a sharp tailored suit and a woman with bright golden curls nestled in a dense festive crowd, leaning together in deep concentration over a smartphone screen.
+16. `DSCF3632.JPG` — Direct flash portrait of a barber in a red beanie and denim apron staring into the lens, with a mirror behind him reflecting the camera's starburst specular highlight.
+17. `DSCF1137.jpg` — A woman in a red 49ers jersey scrambling over the center console and seats inside a crowded vehicle at night, captured from the driver's perspective.
+18. `DSCF7672-2.JPG` — Close-up double exposure of a smiling woman sticking her tongue out, layered across a translucent field of American flag stars against an illuminated corporate entrance.
+19. `DSCF1113.jpg` — A man in a 49ers jersey and red knit hat centered in the frame, enveloped by a swirling halo of golden, amber, and white kinetic light trails.
+20. `DSCF3579.JPG` — A man in a blue Warriors sweatshirt pouring champagne into a red solo cup at an outdoor patio table lined with bottles, attended by friends in bright hoodies before a colorful mural.
+21. `DSCF7318-3.jpg` — A man reclining on a tattoo table getting tattooed on his back while holding a beer, framed in the immediate foreground by a hand holding an iconic glass Coca-Cola bottle.
+22. `DSCF5759-5.jpg` — A silhouette of a driver flashing a hand sign through the window of a sleek classic vehicle, juxtaposed against the textured stone columns and historic windows of a monumental building.
+23. `DSCF5719-3.jpg` — Low-key chiaroscuro flash portrait of a silver-haired man crossing his forearms in a protective 'X' over his eyes, revealing calligraphic tattoos reading 'Zambos' and 'Mundo'.
+
+## Das Gespenst
+
+- **URL:** https://www.lyeutsaon.com/p4/
+- **Summary:** Das Gespenst - A street photography series by Zhuang Liu exploring West Coast street culture with magical realism and visual ethnography.
+- **Plate Count:** 20
+
+### Epigraphs & Series Notes
+
+> A hundred and a hundred times / Have I taken up my lantern / Seeking / At high noon Mathurin Régnier, Les Satires XIV
+
+### Sequenced Plates
+
+1. `DSCF4250-3.jpg` — A person in a denim jacket holding an exhibition poster for 'Araki / Daido: 400 Polaroids at Ratio 3' directly over their face, standing before a grid of salon portrait headshots in blue flash light.
+2. `DSCF4090.jpg` — View from inside a dim, damp concrete zoo enclosure looking out through heavy glass, where two visitors shield their brows from the glare to peer inside.
+3. `DSCF7212-2.jpg` — Sunlit corporate plaza outside a modern glass building ('INNOVATION IS NOT A GAME'), with a pedestrian walking into deep pillar shadows and a cyclist cutting across the foreground in stark silhouette.
+4. `DSCF1897-2.jpg` — Direct low sunlight catching a woman in tinted sunglasses and an oversized grey coat talking on a phone before a dark doorway and a yellow sports billboard, with the distinct silhouette of the photographer cast on the left wall.
+5. `DSCF8552-6.jpg` — Skater in a pink beanie standing on a stone balustrade overlooking a city avenue and luxury storefronts, wearing a pink t-shirt printed with giant crying cartoon manga eyes that stare directly back at the viewer.
+6. `DSCF5453-2.jpg` — A woman in a white t-shirt and jeans stands centered in front of a curved ochre building entryway and green elevator doors, holding grocery bags with her eyes closed in the warm sunlight.
+7. `DSCF7352.jpg` — Looking through crisscrossed steel security gate lattice and dust-coated glass at an interior dance academy poster depicting leaping dancers in warm amber light.
+8. `940E2644-C690-41F0-9898-0EFB79C69DC5.jpg` — A rainy park scene viewed through a wide plate-glass window with horizontal neon green light streaks reflecting across the dark interior floor, as a woman in a coat and a cyclist move in opposite directions outside.
+9. `18F4C334-BD6B-4C91-8CD8-8615AD7ADF67.jpg` — Direct high-power flash at night against a crowd on a ferry or observation deck, blowing out their backs and hair into glowing white silhouettes as they hold up glowing phones to record a distant skyline.
+10. `DSCF9185.jpg` — A man wearing a fedora and round glasses walking through a bustling urban alley, his face precisely bisected down the middle by a torn, sunlit white cloth hanging in the immediate foreground.
+11. `DSCF8631.jpg` — An elderly woman walking through heavy rain in Chinatown under a plaid umbrella, holding a folded Chinese newspaper over her brow and face to shield herself from the storm.
+12. `DSCF0310-3.jpg` — Interior of a BART or metro train car with cobalt blue seats, where a solitary passenger is completely covered beneath a white bedsheet, curled in sleep next to the window reflection.
+13. `DSCF6872-5.jpg` — A woman with vibrant emerald-green hair and sunglasses standing on a sidewalk, holding a framed oil painting of the Golden Gate Bridge in front of her torso.
+14. `DSCF9642-2.jpg` — Looking through a barbershop window at an older barber in a tweed flat cap and floral shirt preparing his shears, with layered reflections of mirrors, a young client, and street signs ('BIGBUS SAN...').
+15. `R0001059-4.jpg` — A person wearing a surgical mask seen through a storefront window framed in vivid red and lime green, structured by a 3x3 geometric grid of white squares with an 'I love service' heart badge at the center.
+16. `DSCF4110-2.jpg` — Looking through zoo viewing glass at a lone black gorilla seated on a grassy mound, overlaid with the ethereal reflection of the photographer in a baseball cap raising a camera.
+17. `DSCF6250-6.jpg` — Intricate web of thousands of radiating cracks across a shattered glass pane centered on a white impact node, with blurry figures in hard hats dimly visible through the prismatic fractures.
+18. `DSCF1207-5.jpg` — Flash exposure on a dusk street capturing a man in a brown leather jacket holding his hand over his brow in a pained or defensive gesture, with moving cars and pedestrians blurred behind.
+19. `DSCF3446-2.jpg` — On the Hollywood Walk of Fame in full daylight, a hooded figure with a surgical mask pulled down holds up a massive industrial searchlight lantern directly at the camera lens.
+20. `DSCF0896-2.jpg` — A street memorial on sunlit terracotta brick steps featuring an orange safety cone, fresh flowers, candles, liquor bottles, a taped photo of a man and dog ('We will Miss you!'), with the long dark shadow of the photographer standing over it.
+
+## Hyperstars Sucked Into The Hypermassive
+
+- **URL:** https://www.lyeutsaon.com/p6/
+- **Summary:** Hyperstars Sucked Into The Hypermassive - A dystopian San Francisco street photography series by Zhuang Liu (lyeutsaon) capturing technological alienation, kinetic light, and urban monumentalism.
+- **Plate Count:** 32
+
+### Epigraphs & Series Notes
+
+> 他的臉朝向過去 / 在我們看來是一連串事件的地方 / 他卻看到一場單一的災難 / 廢墟堆積著廢墟 / 被拋在他的腳前 / 本雅明 《歷史哲學論綱》
+
+> 而在第三大陸 / 用母語表達憤怒不再被允許 / 人們結繩記事 / 通過監測河流的顏色推算外界信息
+
+> 「Starlink 的氣球在東南方向的天空被炸成 PM2.5 了。」 / 失去景深的男人在你的身旁喃喃低語
+
+> 你通過觀察風的移動方向驗證光譜的幾何結構假裝保持疏離 / 你操縱食指快速滑動手機屏幕 / 使用西班牙語表達嘲笑
+
+> 「可是，Starlink 的氣球在東南的方向爆炸了。」 / 失去景深的男人通過喉結的升降調整分貝
+
+> 你將 AirPods 插進肺中緊閉雙眼 / 觀察眼皮毛細血管的顏色假裝獲得一種感受
+
+> 你聽見薩滿女巫的歌聲穿透超巨型計算集群的電流噪音將天空染成紅色 / 滾燙的鋼鐵碎片劃破沒落族裔的面龐血流成河
+
+> 「嘿，你知道嗎？Starlink 的氣球在聯合廣場的上空爆炸了！」 / 動物們在 Market Street 奔走相告
+
+> 你看見巨大的青蛙沿著電車的軌道奮力跳躍 / 在 CNBC 激昂的議論與批判中對同伴發動踩踏
+
+> 你將 iPhone 送進口袋假裝鎮定 / 顫動著舌根使用西班牙語表達諷刺
+
+> 你嘗試登上 Salesforce Tower 魷魚般光滑的塔尖向天空舞動雙拳 / 卻在海灣大橋白得發黑的倒影裡瞥見一個時代的死亡
+
+> 「我們發明了幸福。」 / 失去景深的男人說，眨巴著眼
+
+> 你凝視 Starlink 氣球的碎片閃爍著 C 射線從獵戶星座的方向高速地通過 / 巨大的青蛙吸附著 Salesforce Tower 冰冷的曲面 / 在劇烈的痙攣與震顫中將坐標系剝落
+
+> 你看見嚴肅被消解 / 理性被建構 / 話語場被重塑 / 工具被普遍適用
+
+> 你站立在 Salesforce Tower 魷魚般光滑的塔尖假裝看向左邊 / 假裝眺望不存在的地平線
+
+> 在耀眼的電子雲層下 / 你失去所有理想 / 也不再記得她頭髮的香味
+
+### Sequenced Plates
+
+1. `DSCF8985-2.JPG` — An older man in a heavy fur hat turns a weary, haunted face into the direct flash on a night street, while behind him a colossal illuminated spire and motion-blurred towers tear across the dark sky and ghosted pedestrians drift through the traffic.
+2. `DSCF8978.JPG` — A man in a winter jacket stands at the mouth of a narrow night alley beside a parked car, his face calm and resigned under hard flash, while slow-shutter streaks dissolve the brick walls and tangled wires behind him.
+3. `DSCF0283-2.jpg` — A dense street-fair crowd in harsh daylight: a bald bearded man thrusts his forefinger directly at the viewer while the women beside him stare with guarded dread, an American flag and faded wall advertisements rising behind them.
+4. `DSCF1649.jpg` — A woman in a traditional floral-embroidered dress drifts through a pan-blurred night crowd, her eyes closed and face lifted in serene absorption while the city smears into horizontal ribbons around her.
+5. `DSCF9002-2.JPG` — A hooded shopkeeper stares into the flash from a cramped night street stall, holding out a boxed tool amid cash, cardboard, and pneumatic nailers, a vertical Chinese repair sign glowing on the doorpost beside him.
+6. `DSCF0759-2.jpg` — Under stark flash at a night venue, a young man tips his cap with a direct performative gaze on the left while a woman in the right foreground stares past him into the middle distance, a third face framed through a rear window.
+7. `DSCF0548-3.jpg` — A man in glasses turns a rightward profile against pitch blackness, crowned by an ethereal looping arc of white light trails that hovers above his skull like a jellyfish or a burning thought.
+8. `DSCF1741.jpg` — A man's translucent face floats superimposed over a blurred historic waterfront skyline, ghost pedestrians passing through his body in a slow-shutter double exposure.
+9. `DSCF7178.JPG` — A man in a cap descends into a marble stairwell corner sliced by a harsh diagonal banister, his downcast face doubled in a dark glass reflection beneath a looming hat-shaped shadow on the ceiling.
+10. `DSCF1664.jpg` — A man in a western denim vest with a beaded bracelet is engulfed by a tidal wave of overexposed motion-blurred light, his face tilted back, half-erased by the luminance surge.
+11. `DSCF8998.JPG` — A stern man in a black wool coat glances back over his shoulder beside an ornate art-deco bronze gate, its circular floral medallions and rigid vertical bars gleaming under flash.
+12. `DSCF0175.jpg` — In a dark forest clearing, a small figure in a wide-brimmed hat stands with its back to the camera over an empty basin, while dense white particles hang in the flash-lit air like radioactive snowfall among black tree trunks.
+13. `DSCF0617.jpg` — In deep chiaroscuro, a young woman with half-painted sugar-skull makeup holds still amid floral headdresses and spiked ornaments, spectators reduced to black silhouettes in the foreground, the word 'MEXICO' glinting from a jacket.
+14. `DSCF0324.jpg` — Pure kinetic abstraction: hundreds of white light trails and spark filaments tear diagonally across the entire black frame, an explosion with no ground, no figure, no horizon.
+15. `DSCF0658-3.jpg` — A man with his arm in a white sling stares directly into the flash with wide alarmed eyes, camouflage jacket half-wrapped in swirling ribbons of street light, ghost pedestrians passing behind him.
+16. `DSCF0297-3.jpg` — A packed nocturnal crowd under flash: a foreground man with sunglasses and suspenders grimaces downward while behind him faces, phones, and raised arms pile up beneath light dripping from the ceiling like static rain.
+17. `DSCF1119.jpg` — An older man in a flat cap crosses a dark street completely submerged in horizontal bands of blinding headlight streaks, his face floating half-erased above the ghost of a white sedan.
+18. `DSCF7202-2.JPG` — A young man carries a small child upside-down over his shoulder on a graffiti-lined night sidewalk, both grinning with wild delight as white light streamers pour past them.
+19. `DSCF7027-6.JPG` — A street concert crowd seen from above: a woman in the foreground grimaces at her own iPhone screen while arms around her raise glowing phones toward the stage, a suited man in a striped hat performing at the edge.
+20. `DSCF3362-3.jpg` — A young man with curly hair leans motionless over his bicycle handlebars on a downtown avenue, staring unblinkingly into the lens, a paper bag on the bars, buses and a Metro sign dissolving behind him.
+21. `DSCF8873-3.JPG` — Beneath a looming glass tower and colossal glowing fashion billboards, a young man bends to light a cigarette, a woman leaning close beside him, light trails arcing through the commercial night.
+22. `DSCF5378.jpg` — Near-total blackness: a ghostly double-exposed face and turning body barely surface from the void, features smeared into smoke, one faint lamp glowing at the right edge.
+23. `DSCF1924.jpg` — An old man in a cap crosses a night street in sharp flash focus while the crowd around him — a denim jacket with a white monogram backpack, faces in mid-stride — streaks into translucent ghosts beneath rivers of light.
+24. `DSCF2057.JPG` — Two young women grin beneath an enormous detonation of white light that floods the upper frame, serpentine trails pouring over them, one clutching a drink, the other half-erased by the glare.
+25. `DSCF9277.jpg` — A man with slicked-back hair in a shiny puffer jacket strides forward with a stunned expression while radial zoom-burst streaks suck the entire street backward into the black periphery around him.
+26. `DSCF2964-6.jpg` — Two women in quilted coats share one black umbrella on a wet night street, leaning into each other as pan blur liquefies the cars and streetlights around them.
+27. `DSCF9004-6.JPG` — A middle-aged man in wire-rimmed glasses and a windbreaker stands beside a white sedan while an entire sky of parabolic white light ribbons rushes over and around his calm, searching face.
+28. `DSCF1906-2.jpg` — A man in glasses doubles over laughing into his own hand inside a blurred interior, chandelier light and ceiling ornaments smeared into soft streaks above him.
+29. `DSCF0245.jpg` — A classical stone angel blows a trumpet atop a monumental fountain before a grand civic building, while violent horizontal light trails and falling particles tear the night sky around the statue.
+30. `DSCF1916-2.jpg` — Women in wide-brimmed festival hats move through a flash-lit night crowd, one face ringed by a perfect circular halo of a white hat brim, phone glow and blurred bodies streaming between them.
+31. `DSCF0332_2.jpg` — An older man with tousled pale hair stares upward and outward with wide startled eyes as a dense shower of white spark filaments rains across the frame, a floating cap and light ribbons suspended around him.
+32. `DSCF0167-2.jpg` — A long-exposure nightscape: concentric star trails wheel across the entire sky above a dark sea, white cliffs and coastal succulents glowing in the lower frame, no human presence anywhere.
+
+## Self Portraits And Behind The Scenes
+
+- **URL:** https://www.lyeutsaon.com/p5/
+- **Summary:** Self Portraits and Behind the Scenes - Candid self-portraits, reflections, and field notes by San Francisco Bay Area street photographer Zhuang Liu (lyeutsaon).
+- **Plate Count:** 13
+
+### Epigraphs & Series Notes
+
+> A street photographer is an obsessive spectator who hates being looked at. To turn the lens on oneself is either an accident of reflection or a mild confession.
+
+> Photography by day is observation; / By night, it is theater.
+
+> Not known / Because not looked for / But heard, half heard / In the stillness / Between two waves of the sea / T. S. Eliot
+
+### Sequenced Plates
+
+1. `DSCF9004-3.jpg` — Monochrome, high-grain self-portrait of the photographer wearing a white helmet with both hands covering the face.
+2. `2025-05-11-0020.JPG` — Self portrait by @photo.initiator (Photo by @photo.initiator)
+3. `DSCF8059.JPG` — A sunburst traffic mirror capturing a bustling intersection, pedestrians, open sky, and the photographer at the center focal point with camera raised.
+4. `6adf762fee94f2f49e98757c54749236.JPG` — Self portrait by @yu_zeren_ (Photo by @yu_zeren_)
+5. `DSCF1557-3.JPG` — Museum display of giraffe legs with transparent glass reflecting visitors, architectural columns, and exterior daylight.
+6. `DSCF5407-2.jpg` — Self-portrait through textured, rain-spattered window glass reflecting street pavement and distant skyline towers.
+7. `DSCF8149-7.JPG` — Photographer on a granite boulder at dusk overlooking Yosemite's Half Dome, illuminated by saturated, theatrical red light.
+8. `DSCF8231.JPG` — Framed bar bathroom mirror covered in dense graffiti tags, stickers, and scrawls, reflecting the photographer taking a mirror selfie.
+9. `DSCF0525.jpg` — Aerial high-angle nightscape of glowing city lights across a valley floor under falling snow dust.
+10. `849BDEFE-8868-48A8-B31D-ADB58F0161022.JPG` — Multiple-exposure stroboscopic motion blur in electric cobalt blue and magenta neon, showing the photographer's face repeated with a coiled sync cord.
+11. `DSCF6274.JPG` — Photographer in beanie holding an off-camera flash in one hand connected by a coiled wire to the camera, illuminated by a warm diagonal ceiling beam.
+12. `IMG760.jpg` — Self portrait by @photo.initiator (Photo by @photo.initiator)
+13. `DSCF9159.jpg` — Shot from inside the refrigerator looking out at the photographer eating yogurt with a spoon late at night, glasses askew.

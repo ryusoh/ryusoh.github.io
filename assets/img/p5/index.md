@@ -1,5 +1,11 @@
 ---
 title: "SELF PORTRAITS AND BEHIND THE SCENES"
+description: "Self Portraits and Behind the Scenes - Candid self-portraits, reflections, and field notes by San Francisco Bay Area street photographer Zhuang Liu (lyeutsaon)."
+keywords:
+  - "self-portraits"
+  - "behind the scenes"
+  - "San Francisco Bay Area"
+  - "lyeutsaon"
 ---
 
 DSCF9004-3.jpg

@@ -1,7 +1,9 @@
 ---
 title: "HYPERSTARS SUCKED INTO THE HYPERMASSIVE"
-description: "HYPERSTARS SUCKED INTO THE HYPERMASSIVE - A dystopian street photography series by Zhuang Liu capturing technological alienation, kinetic light, and urban monumentalism."
+description: "Hyperstars Sucked Into The Hypermassive - A dystopian San Francisco street photography series by Zhuang Liu (lyeutsaon) capturing technological alienation, kinetic light, and urban monumentalism."
 keywords:
+  - "San Francisco"
+  - "lyeutsaon"
   - "cyberpunk"
   - "street photography"
   - "urban alienation"

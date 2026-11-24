@@ -10,3 +10,7 @@ dist/
 .idea/
 .vscode/
 .git/
+.agents/state/
+.stryker-tmp/
+reports/
+contact-sheets/
