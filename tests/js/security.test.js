@@ -128,18 +128,21 @@ function getAttribute(tag, attrName) {
 describe('Security: target="_blank" links', () => {
     const rootDir = path.resolve(__dirname, '../../');
 
-    function getHtmlFiles(dir, fileList = []) {
-        const files = fs.readdirSync(dir);
+    // Skip hidden dirs, dependencies, generated reports, and synthetic/ephemeral
+    // gallery fixtures (p98 is created/deleted concurrently by page-builder.test.js).
+    const excludedDirs = new Set(['node_modules', 'reports', 'coverage', 'p98', 'p99']);
 
-        files.forEach((file) => {
-            const filePath = path.join(dir, file);
-            if (fs.statSync(filePath).isDirectory()) {
-                // reports/ holds the gitignored StrykerJS mutation report —
-                // third-party generated HTML, not our markup to police.
-                if (!file.startsWith('.') && file !== 'node_modules' && file !== 'reports') {
-                    getHtmlFiles(filePath, fileList);
-                }
-            } else if (file.endsWith('.html')) {
+    function getHtmlFiles(dir, fileList = []) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+        entries.forEach((entry) => {
+            if (entry.name.startsWith('.') || excludedDirs.has(entry.name)) {
+                return;
+            }
+            const filePath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                getHtmlFiles(filePath, fileList);
+            } else if (entry.isFile() && entry.name.endsWith('.html')) {
                 fileList.push(filePath);
             }
         });

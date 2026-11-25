@@ -4,24 +4,21 @@ const path = require('path');
 describe('Security: rel="noopener noreferrer" for target="_blank"', () => {
     const htmlFiles = [];
 
+    // Skip hidden dirs, dependencies, generated reports, and synthetic/ephemeral
+    // gallery fixtures (p98 is created/deleted concurrently by page-builder.test.js).
+    const excludedDirs = new Set(['node_modules', 'reports', 'coverage', 'p98', 'p99']);
+
     // Function to recursively find all HTML files
     function findHtmlFiles(dir) {
-        const files = fs.readdirSync(dir);
-        for (const file of files) {
-            const filePath = path.join(dir, file);
-            const stat = fs.statSync(filePath);
-
-            // Skip node_modules, hidden directories, and generated output
-            // (reports/ holds the gitignored StrykerJS mutation report —
-            // third-party generated HTML, not our markup to police).
-            if (
-                stat.isDirectory() &&
-                !file.startsWith('.') &&
-                file !== 'node_modules' &&
-                file !== 'reports'
-            ) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+            if (entry.name.startsWith('.') || excludedDirs.has(entry.name)) {
+                continue;
+            }
+            const filePath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
                 findHtmlFiles(filePath);
-            } else if (file.endsWith('.html')) {
+            } else if (entry.isFile() && entry.name.endsWith('.html')) {
                 htmlFiles.push(filePath);
             }
         }

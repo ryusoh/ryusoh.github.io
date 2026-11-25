@@ -1,5 +1,5 @@
 # robots.txt for www.lyeutsaon.com
-# Zhuang Liu (lyeutsaon) — Street & Urban Documentary Photography Portfolio
+# Zhuang Liu (lyeutsaon) — Street Photography Portfolio
 # LLM manifests: https://www.lyeutsaon.com/llms.txt and https://www.lyeutsaon.com/llms-full.txt
 
 User-agent: *

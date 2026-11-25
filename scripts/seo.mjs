@@ -298,7 +298,7 @@ export function buildHomeJsonLd(projects) {
                 '@type': 'CollectionPage',
                 '@id': `${SITE_ORIGIN}/#collection`,
                 url: `${SITE_ORIGIN}/`,
-                name: 'Zhuang Liu — Street & Urban Documentary Photography Portfolio',
+                name: 'Zhuang Liu',
                 description:
                     'Portfolio of street and urban documentary photography series by Zhuang Liu (lyeutsaon), photographed in the San Francisco Bay Area, Los Angeles, and Shanghai.',
                 isPartOf: { '@id': WEBSITE_ID },
@@ -522,7 +522,7 @@ export function buildLlmsTxt(projectEntries) {
         )
         .join('\n');
 
-    return `# Zhuang Liu (lyeutsaon) — Street & Urban Documentary Photography
+    return `# Zhuang Liu (lyeutsaon) — Street Photography
 
 > Zhuang Liu (handle: lyeutsaon) is an independent street and urban documentary photographer based in the San Francisco Bay Area, California. His photographs explore urban reality, nocturnal light, street theater, and contemporary alienation across the San Francisco Bay Area (San Francisco, San Jose), Los Angeles / California, and Shanghai.
 
