@@ -249,6 +249,10 @@ export async function validateAllPages() {
             'WebSite',
             'CollectionPage',
         ]);
+        if (/<(?:a|area)\b[^>]*\bhref=["'][^"']*about/i.test(indexHtml)) {
+            console.error('[index.html] Public markup must not link to SEO-only /about/ page.');
+            errorCount++;
+        }
     }
 
     const aboutHtmlPath = path.join(ROOT_DIR, 'about', 'index.html');
@@ -289,6 +293,10 @@ export async function validateAllPages() {
         const imgSrcMatches = [...html.matchAll(/<img\s+([^>]*?)src="([^"]+?)"([^>]*?)\/?>/g)];
         const galleryImgMatches = imgSrcMatches.filter((m) => !m[0].includes('mobile-banner'));
         errorCount += validateProjectSeoHead(page, html, galleryImgMatches.length);
+        if (/<(?:a|area)\b[^>]*\bhref=["'][^"']*about/i.test(html)) {
+            console.error(`[${page}] Public markup must not link to SEO-only /about/ page.`);
+            errorCount++;
+        }
 
         const mdPaths = [
             path.join(ROOT_DIR, 'assets', 'img', page, 'index.md'),

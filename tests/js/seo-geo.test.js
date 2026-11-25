@@ -61,6 +61,56 @@ describe('SEO & GEO Site Infrastructure', () => {
         expect(collection.hasPart.length).toBeGreaterThanOrEqual(1);
     });
 
+    test('no public page exposes a clickable link jump to /about/ (SEO-only page)', () => {
+        const excludedDirs = new Set([
+            'node_modules',
+            'reports',
+            'coverage',
+            'contact-sheets',
+            'contact-sheet-ledger',
+            'docs',
+            'about',
+            'dist',
+        ]);
+        const publicHtmlFiles = [];
+        const walk = (dir) => {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                if (entry.name.startsWith('.') || excludedDirs.has(entry.name)) {
+                    continue;
+                }
+                const full = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                    walk(full);
+                } else if (entry.isFile() && entry.name.endsWith('.html')) {
+                    publicHtmlFiles.push(path.relative(ROOT_DIR, full));
+                }
+            }
+        };
+        walk(ROOT_DIR);
+
+        expect(publicHtmlFiles).toContain('index.html');
+        expect(publicHtmlFiles).toContain(
+            path.join('scripts', 'templates', 'portfolio-shell.html')
+        );
+
+        for (const relPath of publicHtmlFiles) {
+            const html = fs.readFileSync(path.join(ROOT_DIR, relPath), 'utf8');
+            document.documentElement.innerHTML = html;
+
+            const navElements = [...document.querySelectorAll('a[href], area[href]')];
+            const aboutTargets = navElements
+                .map((el) => el.getAttribute('href'))
+                .filter((href) => /(?:^|\/|\.)about(?:\/|\.html|$|[?#])/i.test(href || ''));
+
+            expect({ file: relPath, aboutTargets }).toEqual({ file: relPath, aboutTargets: [] });
+        }
+
+        const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+        document.documentElement.innerHTML = indexHtml;
+        expect(document.querySelector('footer a[href*="about"]')).toBeNull();
+        expect(document.querySelector('.footer-about-link')).toBeNull();
+    });
+
     test('about/index.html provides a single-h1 ProfilePage aligned with visible disambiguation prose', () => {
         const aboutPath = path.join(ROOT_DIR, 'about', 'index.html');
         expect(fs.existsSync(aboutPath)).toBe(true);
