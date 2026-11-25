@@ -71,6 +71,8 @@ describe('SEO & GEO Site Infrastructure', () => {
             'docs',
             'about',
             'dist',
+            'p98',
+            'p99',
         ]);
         const publicHtmlFiles = [];
         const walk = (dir) => {
