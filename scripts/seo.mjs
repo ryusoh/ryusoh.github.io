@@ -346,7 +346,7 @@ export function buildAboutJsonLd(projects) {
                 '@type': 'ProfilePage',
                 '@id': `${ABOUT_URL}#profilepage`,
                 url: ABOUT_URL,
-                name: 'About Zhuang Liu (lyeutsaon) — Street & Documentary Photographer',
+                name: 'About Zhuang Liu (lyeutsaon) — Street Photographer',
                 description:
                     'Biography, artist statement, series index, and attribution colophon for San Francisco Bay Area street and documentary photographer Zhuang Liu (lyeutsaon).',
                 isPartOf: { '@id': WEBSITE_ID },
