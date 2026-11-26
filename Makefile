@@ -1,6 +1,8 @@
 .PHONY: help hooks precommit precommit-fix gate update-hooks fmt-check fmt lint lint-js lint-css lint-md markdownlint-fix depcheck lint-fix type check fix test mutate-js sync-check sync-pages sync-pages-check thinking-check bot-pr-check images thumbhashes assets page extract ledger-sync ledger-stats ledger-longitudinal ledger-montage ledger-critique gaze-models fonts sync-mirror mirror-check china-probe book-inventory book-validate book-plan book-apply book-orchestrate book book-preview book-proof book-preflight book-repro
 
 NPX ?= ./scripts/run-npx.sh
+PRETTIER_CACHE := --cache --cache-location node_modules/.cache/prettiercache
+STYLELINT_CACHE := --cache --cache-location node_modules/.cache/stylelintcache
 
 help:
 	@echo "Targets:"
@@ -46,39 +48,48 @@ hooks:
 	@if git config --get core.hooksPath >/dev/null 2>&1; then \
 		echo "Note: core.hooksPath is set; skipping pre-commit hook installation."; \
 	else \
-		python3 -m pre_commit install || true; \
+		PC_HOOK=$$(git rev-parse --git-path hooks/pre-commit 2>/dev/null); \
+		if [ -f "$$PC_HOOK" ] && grep -q 'pre-commit' "$$PC_HOOK"; then \
+			true; \
+		else \
+			python3 -m pre_commit install || true; \
+		fi; \
 	fi
 
-# Resolve pre-commit once: prefer the `pre-commit` binary (brew/pipx), fall
-# back to `python3 -m pre_commit`. Empty when neither exists — the precommit
-# targets below fail loudly in that case instead of silently skipping every
-# hook (a missing module previously printed an error yet exited 0).
-PRECOMMIT := $(shell command -v pre-commit 2>/dev/null || (python3 -m pre_commit --version >/dev/null 2>&1 && echo "python3 -m pre_commit"))
+# Resolve pre-commit lazily so non-hook targets skip two subprocess probes.
+# Empty when neither exists — the precommit targets below fail loudly in that
+# case instead of silently skipping every hook.
+PRECOMMIT = $(shell command -v pre-commit 2>/dev/null || (python3 -m pre_commit --version >/dev/null 2>&1 && echo "python3 -m pre_commit"))
 
 precommit: hooks sync-check bot-pr-check
 	@if [ -f .pre-commit-config.yaml ]; then \
-		if [ -z "$(PRECOMMIT)" ]; then \
+		PC="$(PRECOMMIT)"; \
+		if [ -z "$$PC" ]; then \
 			echo "ERROR: pre-commit is not installed (e.g. brew install pre-commit or pip install pre-commit)."; \
 			exit 1; \
 		fi; \
-		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --show-diff-on-failure && npm test; \
+		PRE_COMMIT_NO_CONCURRENCY=1 SKIP="$${SKIP:+$${SKIP},}jest-related" $$PC run --all-files --show-diff-on-failure && npm test; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit."; \
 	fi
 
 precommit-fix: hooks sync-check bot-pr-check
 	@if [ -f .pre-commit-config.yaml ]; then \
-		if [ -z "$(PRECOMMIT)" ]; then \
+		PC="$(PRECOMMIT)"; \
+		if [ -z "$$PC" ]; then \
 			echo "ERROR: pre-commit is not installed (e.g. brew install pre-commit or pip install pre-commit)."; \
 			exit 1; \
 		fi; \
-		echo "Running pre-commit auto-fixes..."; \
-		PRE_COMMIT_NO_CONCURRENCY=1 $(PRECOMMIT) run --all-files --hook-stage manual || true; \
-		echo "Staging auto-fixed files..."; \
-		git add -u && \
-		echo "Re-running hooks check-only (auto-fixers are idempotent, so any failure here is real; jest-related skipped — npm test below runs the full suite)..." && \
-		PRE_COMMIT_NO_CONCURRENCY=1 SKIP=jest-related $(PRECOMMIT) run --all-files --hook-stage manual && \
-		echo "Running full Jest suite + coverage floor ratchet (CI parity)..." && \
+		echo "Running pre-commit auto-fixes (jest-related skipped — npm test below runs the full suite)..."; \
+		RC1=0; \
+		PRE_COMMIT_NO_CONCURRENCY=1 SKIP="$${SKIP:+$${SKIP},}jest-related" $$PC run --all-files --hook-stage manual || RC1=$$?; \
+		if [ "$$RC1" -ne 0 ]; then \
+			echo "Staging auto-fixed files..."; \
+			git add -u && \
+			echo "Re-running hooks check-only (auto-fixers are idempotent, so any failure here is real)..." && \
+			PRE_COMMIT_NO_CONCURRENCY=1 SKIP="$${SKIP:+$${SKIP},}jest-related" $$PC run --all-files --hook-stage manual || exit $$?; \
+		fi; \
+		echo "Running full Jest suite + coverage floor ratchet (CI parity)..."; \
 		npm test; \
 	else \
 		echo "No .pre-commit-config.yaml; skipping pre-commit fix."; \
@@ -109,16 +120,16 @@ update-hooks:
 
 # --- Developer convenience (CI parity without committing) ---
 fmt-check:
-	@$(NPX) prettier -c . --config .prettierrc.cjs --ignore-path .prettierignore
+	@$(NPX) prettier -c $(PRETTIER_CACHE) . --config .prettierrc.cjs --ignore-path .prettierignore
 
 fmt:
-	@$(NPX) prettier -w . --config .prettierrc.cjs --ignore-path .prettierignore
+	@$(NPX) prettier -w $(PRETTIER_CACHE) . --config .prettierrc.cjs --ignore-path .prettierignore
 
 lint-js:
 	@$(NPX) eslint . --config eslint.config.cjs --max-warnings=0 --no-warn-ignored
 
 lint-css:
-	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --max-warnings=0 --formatter=unix
+	@$(NPX) stylelint "**/*.css" $(STYLELINT_CACHE) --config .stylelintrc.cjs --max-warnings=0 --formatter=unix
 
 lint-md:
 	@python3 tools/check_md_boxes.py
@@ -167,7 +178,7 @@ check: fmt-check lint type sync-check sync-pages-check thinking-check bot-pr-che
 
 lint-fix:
 	@$(NPX) eslint . --config eslint.config.cjs --fix --max-warnings=0 --no-warn-ignored || true
-	@$(NPX) stylelint "**/*.css" --config .stylelintrc.cjs --fix --max-warnings=0 || true
+	@$(NPX) stylelint "**/*.css" $(STYLELINT_CACHE) --config .stylelintrc.cjs --fix --max-warnings=0 || true
 	@$(MAKE) markdownlint-fix
 
 markdownlint-fix:

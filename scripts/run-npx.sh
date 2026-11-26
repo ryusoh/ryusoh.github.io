@@ -11,6 +11,35 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
+# Hooks force color (FORCE_COLOR=1); a user-level NO_COLOR would make node
+# print a warning per spawned process, so it yields when color is forced.
+if [ -n "${FORCE_COLOR:-}" ]; then
+    unset NO_COLOR
+fi
+
+# Fast path: execute locally installed node_modules/.bin/<tool> directly when
+# no explicit -p/--package version pin is requested and FORCE_NPX!=1. This
+# skips both the live TCP registry probe and npx wrapper startup.
+if [ "${FORCE_NPX:-0}" != "1" ]; then
+    _first="$1"
+    _shift=1
+    if [ "$_first" = "-y" ] || [ "$_first" = "--yes" ]; then
+        if [ "$#" -ge 2 ]; then
+            _first="$2"
+            _shift=2
+        fi
+    fi
+    case "$_first" in
+        -*|*/*|*@*) ;;
+        *)
+            if [ -x "./node_modules/.bin/$_first" ]; then
+                shift "$_shift"
+                exec "./node_modules/.bin/$_first" "$@"
+            fi
+            ;;
+    esac
+fi
+
 if ! command -v npx >/dev/null 2>&1; then
     echo "npx is not available; skipping: npx $*" >&2
     exit 0
@@ -41,12 +70,6 @@ PY
 if [ "$?" -ne 0 ]; then
     echo "Skipping 'npx $*' (cannot reach ${HOST}:${PORT}). Set FORCE_NPX=1 to override." >&2
     exit 0
-fi
-
-# Hooks force color (FORCE_COLOR=1); a user-level NO_COLOR would make node
-# print a warning per spawned process, so it yields when color is forced.
-if [ -n "${FORCE_COLOR:-}" ]; then
-    unset NO_COLOR
 fi
 
 exec npx --loglevel=error "$@"

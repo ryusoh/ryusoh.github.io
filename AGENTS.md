@@ -61,7 +61,10 @@ The user, other agents, and background sessions edit this tree concurrently.
    (`check` + `test`, no auto-fix or staging) while iterating; open a PR only
    on a green `make precommit-fix`. A red gate on an unchanged tree stays red —
    change something before rerunning (`node scripts/gate-guard.js snapshot`,
-   then `check <hash>`). Hook phase details: `docs/gates.md`.
+   then `check <hash>`). Hook phase details: `docs/gates.md`. Run full
+   verification gates solo — never batch them in the same turn with heavy local
+   scans or concurrent sibling-repo gates on the same host (CPU oversubscription
+   multiplies wall time).
 2. **One concern, smallest diff,** inside the task's files. For self-chosen
    work, run `python3 tools/prior_prs.py` first so you pick something no open
    or recently closed PR already covers.
