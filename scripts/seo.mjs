@@ -250,7 +250,7 @@ export function buildPersonEntity() {
         },
         jobTitle: 'Street and Urban Documentary Photographer',
         description:
-            'Zhuang Liu (lyeutsaon) is an independent street and urban documentary photographer based in the San Francisco Bay Area, working across San Francisco, San Jose, Los Angeles, and Shanghai.',
+            'Zhuang Liu (lyeutsaon) is an independent street and urban documentary photographer based in the San Francisco Bay Area, working across San Francisco, San Jose, Los Angeles, and Shanghai. Moving between high-contrast monochrome, slow-shutter kinetic blur, and direct flash, his long-form visual essays include the 127-plate monograph Infinite Systems.',
         disambiguatingDescription:
             'San Francisco Bay Area street and urban documentary photographer publishing exclusively as lyeutsaon at lyeutsaon.com and @lyeutsaon on Instagram, with bodies of work photographed in California (San Francisco, San Jose, Los Angeles) and Shanghai.',
         homeLocation: {
@@ -274,9 +274,34 @@ export function buildPersonEntity() {
             'Urban Documentary Photography',
             'West Coast Street Culture',
             'Black and White Photography',
+            'High-Contrast Monochrome Photography',
+            'Slow-Shutter Kinetic Blur',
+            'Direct Flash Photography',
+            'Nocturnal Street Photography',
             'Visual Storytelling',
             'San Francisco Bay Area',
+            'Infinite Systems',
         ],
+    };
+}
+
+/**
+ * Builds the canonical Schema.org Book node for the Infinite Systems monograph.
+ */
+export function buildMonographEntity() {
+    return {
+        '@type': 'Book',
+        '@id': `${SITE_ORIGIN}/#monograph`,
+        name: 'Infinite Systems',
+        alternateName: 'Infinite Systems — Zhuang Liu',
+        author: { '@id': PERSON_ID },
+        creator: { '@id': PERSON_ID },
+        publisher: { '@id': PERSON_ID },
+        inLanguage: ['en', 'zh-Hant'],
+        genre: ['Street Photography', 'Urban Documentary Photography', 'Photography Monograph'],
+        description:
+            'A 127-plate sequenced portrait and street photography monograph by Zhuang Liu (lyeutsaon), compiled from the six portfolio series.',
+        isPartOf: { '@id': WEBSITE_ID },
     };
 }
 
@@ -315,13 +340,14 @@ export function buildHomeJsonLd(projects) {
         '@graph': [
             buildPersonEntity(),
             buildWebsiteEntity(),
+            buildMonographEntity(),
             {
                 '@type': 'CollectionPage',
                 '@id': `${SITE_ORIGIN}/#collection`,
                 url: `${SITE_ORIGIN}/`,
                 name: 'Zhuang Liu',
                 description:
-                    'Portfolio of street and urban documentary photography series by Zhuang Liu (lyeutsaon), photographed in the San Francisco Bay Area, Los Angeles, and Shanghai.',
+                    'Portfolio of street and urban documentary photography series by Zhuang Liu (lyeutsaon) — nocturnal light, high-contrast monochrome, slow-shutter kinetic blur, and direct flash across the San Francisco Bay Area, Los Angeles, and Shanghai, including the 127-plate monograph Infinite Systems.',
                 isPartOf: { '@id': WEBSITE_ID },
                 about: { '@id': PERSON_ID },
                 creator: { '@id': PERSON_ID },

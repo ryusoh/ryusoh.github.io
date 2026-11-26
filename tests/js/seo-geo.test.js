@@ -43,6 +43,7 @@ describe('SEO & GEO Site Infrastructure', () => {
         const person = ld['@graph'].find((n) => n['@type'] === 'Person');
         const website = ld['@graph'].find((n) => n['@type'] === 'WebSite');
         const collection = ld['@graph'].find((n) => n['@type'] === 'CollectionPage');
+        const monograph = ld['@graph'].find((n) => n['@type'] === 'Book');
 
         expect(person).toBeDefined();
         expect(person['@id']).toBe(PERSON_ID);
@@ -51,6 +52,10 @@ describe('SEO & GEO Site Infrastructure', () => {
         expect(person.alternateName).toContain('lyeutsaon');
         expect(person.disambiguatingDescription).toMatch(/San Francisco Bay Area/);
         expect(person.disambiguatingDescription).toMatch(/lyeutsaon\.com/);
+        expect(person.knowsAbout).toContain('High-Contrast Monochrome Photography');
+        expect(person.knowsAbout).toContain('Slow-Shutter Kinetic Blur');
+        expect(person.knowsAbout).toContain('Direct Flash Photography');
+        expect(person.knowsAbout).toContain('Infinite Systems');
 
         // Regression guard: Person image URL must resolve to an actual file on disk (no 404 avatar)
         const portraitRel = person.image.contentUrl.replace(`${SITE_ORIGIN}/`, '');
@@ -58,6 +63,9 @@ describe('SEO & GEO Site Infrastructure', () => {
 
         expect(website).toBeDefined();
         expect(website.creator).toEqual({ '@id': PERSON_ID });
+        expect(monograph).toBeDefined();
+        expect(monograph.name).toBe('Infinite Systems');
+        expect(monograph.author).toEqual({ '@id': PERSON_ID });
         expect(collection).toBeDefined();
         expect(collection.hasPart.length).toBeGreaterThanOrEqual(1);
     });
