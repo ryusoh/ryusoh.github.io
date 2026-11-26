@@ -9,6 +9,7 @@ import {
     DEFAULT_OG_WIDTH,
     DEFAULT_OG_HEIGHT,
     GENERIC_IMAGE_ALT,
+    isNoindexHtml,
     escapeHtmlAttr,
     loadCommentaryMap,
     hydratePostContentSeo,
@@ -411,7 +412,9 @@ export async function formatHtml(html, filepath) {
 export async function syncSitemap(pages, checkOnly = false, parsedPages = null) {
     const sitemapPath = path.join(ROOT_DIR, 'sitemap.xml');
     const today = new Date().toISOString().split('T')[0];
-    const hasAboutPage = fs.existsSync(path.join(ROOT_DIR, 'about', 'index.html'));
+    const aboutPath = path.join(ROOT_DIR, 'about', 'index.html');
+    const hasAboutPage =
+        fs.existsSync(aboutPath) && !isNoindexHtml(fs.readFileSync(aboutPath, 'utf8'));
 
     const existingLastmods = new Map();
     let currentSitemap = '';

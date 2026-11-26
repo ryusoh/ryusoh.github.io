@@ -46,6 +46,7 @@ describe('SEO & GEO Site Infrastructure', () => {
 
         expect(person).toBeDefined();
         expect(person['@id']).toBe(PERSON_ID);
+        expect(person.mainEntityOfPage).toBe(`${SITE_ORIGIN}/`);
         expect(person.identifier).toBe('lyeutsaon');
         expect(person.alternateName).toContain('lyeutsaon');
         expect(person.disambiguatingDescription).toMatch(/San Francisco Bay Area/);
@@ -134,6 +135,10 @@ describe('SEO & GEO Site Infrastructure', () => {
         expect(aboutCss).toContain("'Syne'");
         expect(aboutCss).not.toMatch(/font-family:\s*'Helvetica Neue'/);
 
+        const googlebotMeta = document.querySelector('meta[name="googlebot"]');
+        expect(googlebotMeta).not.toBeNull();
+        expect(googlebotMeta.getAttribute('content')).toContain('noindex');
+
         const ld = parseJsonLd(aboutHtml);
         const profilePage = ld['@graph'].find((n) => n['@type'] === 'ProfilePage');
         expect(profilePage).toBeDefined();
@@ -169,11 +174,11 @@ describe('SEO & GEO Site Infrastructure', () => {
         }
     });
 
-    test('sitemap.xml includes Google Image Sitemap namespace, /about/, and escaped image captions', () => {
+    test('sitemap.xml includes Google Image Sitemap namespace, excludes noindex /about/, and escapes image captions', () => {
         const sitemap = fs.readFileSync(path.join(ROOT_DIR, 'sitemap.xml'), 'utf8');
         expect(sitemap).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
         expect(sitemap).toContain(`<loc>${SITE_ORIGIN}/</loc>`);
-        expect(sitemap).toContain(`<loc>${SITE_ORIGIN}/about/</loc>`);
+        expect(sitemap).not.toContain(`<loc>${SITE_ORIGIN}/about/</loc>`);
         expect(sitemap).toContain('<image:image>');
         expect(sitemap).toContain('<image:loc>');
         expect(sitemap).toContain('<image:caption>');
@@ -210,6 +215,7 @@ describe('SEO & GEO Site Infrastructure', () => {
                 hydratePostContentSeo,
                 extractGalleryImagesFromHtml,
                 buildProjectStructuredDataScript,
+                isNoindexHtml,
             } from './scripts/seo.mjs';
 
             const sampleHtml = \`
@@ -243,7 +249,16 @@ describe('SEO & GEO Site Infrastructure', () => {
                 ogImage: 'https://www.lyeutsaon.com/assets/img/p99/frame1.jpg',
                 postContent: hydrated,
             });
-            console.log(JSON.stringify({ hydrated, images, ldScript }));
+            console.log(JSON.stringify({
+                hydrated,
+                images,
+                ldScript,
+                noindexChecks: {
+                    googlebotNoindex: isNoindexHtml('<meta name="googlebot" content="noindex" />'),
+                    reversedAttrs: isNoindexHtml('<meta content="noindex, follow" name="robots">'),
+                    indexable: isNoindexHtml('<meta name="robots" content="index, follow" />'),
+                },
+            }));
         `;
 
         const out = JSON.parse(
@@ -258,9 +273,15 @@ describe('SEO & GEO Site Infrastructure', () => {
         expect(out.images).toHaveLength(2);
         expect(out.images[0].creditHandle).toBe('guest_lens');
         expect(out.images[1].alt).toBe('Fog over "Market" & Sutro');
+        expect(out.noindexChecks).toEqual({
+            googlebotNoindex: true,
+            reversedAttrs: true,
+            indexable: false,
+        });
         const parsedLd = parseJsonLd(out.ldScript);
         const synGallery = parsedLd['@graph'].find((n) => n['@type'] === 'ImageGallery');
         expect(synGallery.inLanguage).toEqual(['en', 'zh-Hant']);
+        expect(synGallery.associatedMedia[1].acquireLicensePage).toBe(`${SITE_ORIGIN}/`);
         expect(out.ldScript).toContain('Photo by @guest_lens');
     });
 });

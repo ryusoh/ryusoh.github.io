@@ -4,7 +4,13 @@ import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import { thumbHashToRGBA } from 'thumbhash';
 import { getProjectPages } from './sync-pages.mjs';
-import { GENERIC_IMAGE_ALT, SITE_ORIGIN, loadCommentaryMap } from './seo.mjs';
+import {
+    ABOUT_URL,
+    GENERIC_IMAGE_ALT,
+    SITE_ORIGIN,
+    isNoindexHtml,
+    loadCommentaryMap,
+} from './seo.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -208,6 +214,13 @@ function validateDiscoveryManifests(pages) {
             const pageUrl = `<loc>${SITE_ORIGIN}/${page}/</loc>`;
             if (!sitemapContent.includes(pageUrl)) {
                 console.error(`sitemap.xml is missing page entry: ${pageUrl}`);
+                errors++;
+            }
+        }
+        const aboutPath = path.join(ROOT_DIR, 'about', 'index.html');
+        if (fs.existsSync(aboutPath) && isNoindexHtml(fs.readFileSync(aboutPath, 'utf8'))) {
+            if (sitemapContent.includes(`<loc>${ABOUT_URL}</loc>`)) {
+                console.error('sitemap.xml must exclude noindex /about/ page.');
                 errors++;
             }
         }

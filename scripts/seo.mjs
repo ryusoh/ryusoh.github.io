@@ -15,6 +15,27 @@ const PERSON_PORTRAIT_WIDTH = 1946;
 const PERSON_PORTRAIT_HEIGHT = 1297;
 
 /**
+ * Returns true if HTML contains a robots or googlebot meta tag with a noindex directive.
+ * @param {string} html
+ * @returns {boolean}
+ */
+export function isNoindexHtml(html) {
+    const metaTags = String(html || '').match(/<meta\b[^>]*>/gi) || [];
+    return metaTags.some((tag) => {
+        const nameMatch = tag.match(/\bname=["']([^"']+)["']/i);
+        const contentMatch = tag.match(/\bcontent=["']([^"']+)["']/i);
+        if (!nameMatch || !contentMatch) {
+            return false;
+        }
+        const name = nameMatch[1].trim().toLowerCase();
+        if (name !== 'robots' && name !== 'googlebot') {
+            return false;
+        }
+        return /\bnoindex\b/i.test(contentMatch[1]);
+    });
+}
+
+/**
  * Escapes text for safe inclusion inside a double-quoted HTML attribute.
  * @param {string} value
  * @returns {string}
@@ -218,7 +239,7 @@ export function buildPersonEntity() {
         alternateName: ['lyeutsaon', 'Zhuang Liu (lyeutsaon)', 'Zhuang Liu Photographer'],
         identifier: 'lyeutsaon',
         url: `${SITE_ORIGIN}/`,
-        mainEntityOfPage: ABOUT_URL,
+        mainEntityOfPage: `${SITE_ORIGIN}/`,
         image: {
             '@type': 'ImageObject',
             url: PERSON_PORTRAIT_URL,
@@ -399,7 +420,7 @@ function buildGalleryImageNode(canonical, img, index) {
         creator: { '@id': PERSON_ID },
         creditText: 'Zhuang Liu (@lyeutsaon)',
         copyrightNotice: '© Zhuang Liu (lyeutsaon.com). All rights reserved.',
-        acquireLicensePage: ABOUT_URL,
+        acquireLicensePage: `${SITE_ORIGIN}/`,
     };
 }
 
